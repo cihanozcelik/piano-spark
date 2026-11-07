@@ -5,6 +5,7 @@ import { startBluetooth } from './bluetooth.js';
 import { PianoInput } from './piano-input.js';
 import { PianoOutput } from './piano-output.js';
 import { PracticeClock } from './practice-clock.js';
+import { PracticeSession } from './practice-session.js';
 import { StaffNotation } from './staff-notation.js';
 import { startAppShell } from './app-shell.js';
   (async () => {
@@ -17,6 +18,7 @@ import { startAppShell } from './app-shell.js';
     const ui = Object.fromEntries(['play','rewind','speed','track','volume','volume-control','seek','elapsed','duration','notation','staff','zoom','range','loop','roll','keyboard','stage','viewport','error','file-badge','file-title','file-description','current-notes','midi-file','legend-left','legend-right','mode','lesson-panel','lesson-feedback'].map(id => [id, element(id)]));
     ui['audio-output']=element('audio-output');
     ui['audio-output-status']=element('audio-output-status');
+    for(const id of ['practice-settings','practice-strategy','practice-target','practice-timing','practice-rules','practice-reset','practice-availability','practice-progress','sheet-learning','sheet-learning-label','sheet-learning-meter']) ui[id]=element(id);
     const workspaceState=new WorkspaceState();
     workspaceState.onError=showError;
     workspaceState.restoreControls(ui);
@@ -35,10 +37,16 @@ import { startAppShell } from './app-shell.js';
     const colors = ['#75a7ff','#efab91'];
     const state = { tracks:[], selectedTracks:[], notes:[], duration:0, position:-2, speed:Number(ui.speed.value), running:false, anchor:0, anchorPosition:0, next:0, epoch:0, source:'builtin', mode:ui.mode.value };
     const input = new PianoInput(), practice = new PracticeClock();
+    let training=null, trainingContexts={}, scoreRows={status:'loading',segments:[],signature:''};
     const pianoOutput=new PianoOutput(message=>{pause();showError(message);});
     pianoOutput.onStatus=()=>updatePlayButton();
     const staff = new StaffNotation();
-    const sheet=new SheetMusic({onViewChange:()=>checkpoint()});
+    const sheet=new SheetMusic({onViewChange:()=>checkpoint(),onSegmentsChange:info=> {
+      scoreRows=info;
+      if(changingLesson) return;
+      if(guided()) {pause();configureTraining();}
+      updatePlayButton();draw();
+    }});
     workspaceState.capture=()=>checkpoint();
     practice.speed=state.speed;
     // Native/Bluetooth adapters feed this interface; they never own lesson time.
@@ -54,14 +62,118 @@ import { startAppShell } from './app-shell.js';
     let keys=[], keyMap=new Map(), voices=new Set();
     const nowSeconds=()=>performance.now()/1000;
     const practicing=()=>state.mode==='practice';
+    const guided=()=>practicing()&&ui['practice-strategy'].value!=='whole';
     const pianoListening=()=>!practicing()&&ui['audio-output'].value==='piano';
     const selectedInput=()=>input.snapshot('bluetooth');
+    const canStart=()=> (!practicing()||selectedInput().connected)&&(!guided()||(training?.active&&!training.done));
+    const trainingRange=()=>guided()&&training?.active?(training.current||training.stages.at(-1)):null;
+    const displayNotes=()=>trainingRange()?.notes||state.notes;
 
     function checkpoint() {
       if(!currentKey||changingLesson) return;
+      if(training) trainingContexts[training.key]=training.progress();
       workspaceState.saveLesson(currentKey,{position:Math.max(-2,Math.min(state.duration,position())),
         track:ui.track.value,sheet:sheet.viewState(),
+        practice:{version:1,contexts:trainingContexts},
         horizontal:activePractice?ui.viewport.scrollLeft:workspaceState.lesson(currentKey).horizontal||0});
+    }
+
+    function configureTraining() {
+      training=null;
+      practice.setTiming(ui['practice-timing'].value);
+      if(guided()&&scoreRows.status==='ready') {
+        training=new PracticeSession();
+        training.configure({segments:scoreRows.segments,signature:scoreRows.signature,notes:state.notes,
+          strategy:ui['practice-strategy'].value,target:Number(ui['practice-target'].value),
+          track:ui.track.value,speed:state.speed,timing:practice.timing,saved:trainingContexts});
+      }
+      practice.speed=state.speed;
+      if(training?.active) {
+        const stage=training.current||training.stages.at(-1);
+        state.position=training.done?stage.end:stage.start-1.5*state.speed;
+        practice.load(stage.notes,state.position,nowSeconds(),selectedInput());
+        sheet.follow(stage.start,false,true);
+      } else practice.load(state.notes,state.position,nowSeconds(),selectedInput());
+      updatePlayButton();
+    }
+
+    // The animation loop and MIDI timestamps share one completion boundary.
+    // Interruptions never award an unfinished pass.
+    function advancePractice(now,snapshot) {
+      if(!guided()) {practice.advance(now,snapshot);return;}
+      if(!training?.active||training.done||!snapshot.connected) return;
+      if(training.phase==='release') {
+        practice.resume(now);
+        if(snapshot.held.size) return;
+        practice.load(training.current.notes,training.current.start-1.5*state.speed,now,snapshot);
+        training.started();
+        sheet.follow(training.current.start,true,true);
+      }
+      if(training.phase!=='playing'&&training.phase!=='countdown') return;
+      const end=training.current.end+practice.releaseSeconds*state.speed;
+      practice.advance(now,snapshot,end);
+      training.observe(now,snapshot,practice);
+      if(practice.time>=end&&snapshot.held.size===0&&!practice.status.blocked) {
+        training.finish();checkpoint();
+        if(training.done) {pause();return;}
+        training.begin(snapshot);
+        // Prepare the next pass immediately, but preserve the physical keys.
+        practice.load(training.current.notes,training.current.start-1.5*state.speed,now,snapshot);
+        state.position=practice.time;
+        sheet.follow(training.current.start,true,true);
+      }
+    }
+
+    function updateTrainingStatus() {
+      ui['practice-settings'].hidden=!practicing();
+      const mastery=guided()?training?.mastery():null;
+      ui['sheet-learning'].hidden=!mastery;
+      let overall='';
+      if(mastery) {
+        overall=t('Çalışma planı %{percent}',{percent:mastery.percent})+' · '+
+          t('Öğrenilen satır {learned}/{total}',{learned:mastery.learned,total:mastery.total});
+        if(ui['sheet-learning-label'].textContent!==overall) ui['sheet-learning-label'].textContent=overall;
+        if(ui['sheet-learning-meter'].value!==mastery.percent) ui['sheet-learning-meter'].value=mastery.percent;
+        if(ui['sheet-learning-meter'].getAttribute('aria-label')!==overall) ui['sheet-learning-meter'].setAttribute('aria-label',overall);
+      }
+      const timing=PracticeClock.timingProfile(ui['practice-timing'].value);
+      const rules=timing.enabled?
+        t('Erken basma: {early} ms · Geç basma: {late} ms · Bırakma: ±{release} ms. Basma şiddeti ve pedal zorunlu değildir.',
+          {early:Math.round(timing.early*1000),late:Math.round(timing.late*1000),release:Math.round(timing.release*1000)}):
+        t('Zamanlama kapalı: doğru notaları sırayla çal; bekleme ve basılı tutma süresi değerlendirilmez. Yanlış notalar seriyi sıfırlar. Basma şiddeti ve pedal zorunlu değildir.');
+      if(ui['practice-rules'].textContent!==rules) ui['practice-rules'].textContent=rules;
+      for(const option of ui['practice-strategy'].options) {
+        option.disabled=option.value!=='whole'&&scoreRows.status!=='ready';
+      }
+      ui['practice-target'].disabled=ui['practice-strategy'].value==='whole';
+      ui['practice-reset'].disabled=!training?.active;
+      ui.loop.disabled=guided();
+      const unavailable=scoreRows.status==='loading'?t('Satır çalışması için partisyon hazırlanıyor…'):
+        scoreRows.status!=='ready'?t('Satır çalışması için açılabilen bir partisyon gerekli.'):
+        guided()&&!training?.active?t('Seçili partide çalışılacak nota yok.'):'';
+      ui['practice-availability'].textContent=unavailable;
+      ui['practice-availability'].hidden=!unavailable;
+      ui['practice-progress'].hidden=!guided();
+      let text=unavailable;
+      if(training?.active) {
+        if(training.done) text=t('Bu çalışma tamamlandı. Yeniden çalışmak için ilerlemeyi sıfırla.');
+        else {
+          const stage=training.current;
+          const range=stage.firstRow===stage.lastRow?t('Satır {row}',{row:stage.firstRow}):
+            t('Satırlar {first}–{last}',{first:stage.firstRow,last:stage.lastRow});
+          text=range+' · '+t('Temiz tekrar {count}/{target}',{count:training.streak,target:training.target});
+          if(mastery.combined) text+=' · '+t('Birlikte çalma %{percent}',{percent:mastery.stagePercent});
+          if(!selectedInput().connected) text+=' · '+t('Piyanoyu bağla');
+          else if(training.phase==='release') text+=' · '+t('Yeni tekrar için tuşları bırak');
+          else if(training.reason) text+=' · '+t({wrong:'Yanlış nota — bu tekrar sayılmayacak',
+            timing:'Bekleme toleransı aşıldı — bu tekrar sayılmayacak',release:'Tuş süresi hatası — bu tekrar sayılmayacak'}[training.reason]);
+          else if(training.phase==='countdown') text+=' · '+t('Hazırlan: {seconds}',{seconds:Math.max(1,Math.ceil((stage.start-practice.time)/state.speed))});
+          else if(!state.running) text+=' · '+t('Hazır');
+        }
+      }
+      if(ui['practice-progress'].textContent!==text) {
+        ui['practice-progress'].textContent=text;ui['practice-progress'].title=text;
+      }
     }
 
     function showError(source) { delete ui.error.dataset.persistenceMessage; errorSource=source; ui.error.textContent=message(source); ui.error.hidden=!source; }
@@ -131,6 +243,7 @@ import { startAppShell } from './app-shell.js';
       return state.running ? state.anchorPosition+Math.max(0,nowSeconds()-state.anchor)*state.speed : state.position;
     }
     function updatePlayButton() {
+      ui.play.disabled=!canStart();
       ui.play.textContent=state.starting?t("Vazgeç"):state.running?t("Duraklat"):(practicing()?t("Başlat"):t("Dinle"));
       ui.play.setAttribute('aria-label',ui.play.textContent);
       ui['volume-control'].hidden=practicing()||pianoListening();
@@ -142,16 +255,18 @@ import { startAppShell } from './app-shell.js';
     function pause() {
       state.epoch++;
       state.starting=false;
-      if(state.running&&practicing()) practice.advance(nowSeconds(),selectedInput());
+      if(state.running&&practicing()&&!guided()) advancePractice(nowSeconds(),selectedInput());
       state.position=position(); state.running=false;
+      if(training&&!training.done) training.interrupt();
       clearInterval(timer); cancelAnimationFrame(raf); silence(); pianoOutput.stop();
       updatePlayButton(); draw(); checkpoint();
     }
     async function play() {
       if(state.running||state.starting||!activePractice) return;
+      if(!canStart()) return;
       pianoOutput.stop();
       const epoch=++state.epoch;
-      if(state.position>=state.duration) {
+      if(!guided()&&state.position>=state.duration) {
         state.position=-2;
         practice.seek(-2,nowSeconds(),selectedInput());
       }
@@ -170,6 +285,7 @@ import { startAppShell } from './app-shell.js';
       state.starting=false;showError('');
       state.anchorPosition=state.position; state.anchor=anchor; state.running=true;
       if(practicing()) {
+        if(guided()) training.begin(selectedInput());
         practice.speed=state.speed; practice.resume(nowSeconds());
         showError(''); updatePlayButton(); frame(); return;
       }
@@ -192,9 +308,14 @@ import { startAppShell } from './app-shell.js';
       }
     }
     function frame() {
-      if(practicing()) practice.advance(nowSeconds(),selectedInput());
+      if(practicing()) {
+        const snapshot=selectedInput();
+        if(!snapshot.connected) {pause();return;}
+        advancePractice(nowSeconds(),snapshot);
+        if(!state.running) return;
+      }
       const time=position();
-      if(time>=state.duration+.4) {
+      if(!guided()&&time>=state.duration+.4) {
         const repeat=ui.loop.checked;
         pause(); state.position=repeat?-2:state.duration;
         practice.seek(state.position,nowSeconds(),selectedInput()); draw();
@@ -206,6 +327,8 @@ import { startAppShell } from './app-shell.js';
       if(state.running) raf=requestAnimationFrame(frame);
     }
     function seek(time) {
+      // Inspecting the timeline never skips a stage or earns a repetition.
+      // Guided play always resumes a whole attempt at the earned stage.
       const running=state.running;
       pause(); state.position=Math.max(-2,Math.min(state.duration,time));
       practice.seek(state.position,nowSeconds(),selectedInput()); draw();
@@ -244,6 +367,7 @@ import { startAppShell } from './app-shell.js';
     }
 
     function updateLessonStatus() {
+      updateTrainingStatus();
       ui['lesson-panel'].hidden=!practicing();
       const snapshot=selectedInput(), status=practice.status;
       const names=notes=>notes.sort((a,b)=>a-b).map(midi=>noteName(midi,ui.notation.value==='none'?'solfege':ui.notation.value)).join(' · ');
@@ -256,7 +380,7 @@ import { startAppShell } from './app-shell.js';
         if(status.extra.length) instructions.push(t("Bırak: ")+names(status.extra));
         if(status.repeat.length) instructions.push(t("Yeniden bas: ")+names(status.repeat));
         text=instructions.length?t("Bekliyorum — ")+instructions.join(' / '):
-          practice.expected.size?t("Basılı tut: ")+names([...practice.expected.keys()]):t("Sıradaki notayı bekle");
+          practice.timing.enabled&&practice.expected.size?t("Basılı tut: ")+names([...practice.expected.keys()]):t("Sıradaki notayı bekle");
       }
       if(ui['lesson-feedback'].textContent!==text) ui['lesson-feedback'].textContent=text;
       ui['lesson-feedback'].classList.toggle('waiting',state.running&&status.blocked);
@@ -269,11 +393,11 @@ import { startAppShell } from './app-shell.js';
       expression.pedal.classList.toggle('pressed',pressed);
       let notes=current, upcoming=false;
       if(!notes.length) {
-        const index=lowerBound(state.notes,time);
-        const first=state.notes[index];
+        const candidates=displayNotes(),index=lowerBound(candidates,time);
+        const first=candidates[index];
         if(first&&first.time<=time+6) {
           notes=[]; upcoming=true;
-          for(let i=index;i<state.notes.length&&state.notes[i].time<=first.time+.03;i++) notes.push(state.notes[i]);
+          for(let i=index;i<candidates.length&&candidates[i].time<=first.time+.03;i++) notes.push(candidates[i]);
         }
       }
       const values=notes.map(note=>noteName(note.midi,ui.notation.value==='none'?'solfege':ui.notation.value)+' '+Math.round(note.velocity*127));
@@ -339,6 +463,8 @@ import { startAppShell } from './app-shell.js';
     }
     function draw() {
       if(!activePractice) return;
+      const mastery=guided()?training?.mastery():null;
+      sheet.setMastery(mastery||null);
       const time=position(), pixels=height/6, active=new Map(), current=[];
       ctx.clearRect(0,0,width,height);
       ctx.fillStyle='#151618'; ctx.fillRect(0,0,width,height);
@@ -355,9 +481,9 @@ import { startAppShell } from './app-shell.js';
         ctx.fillStyle='#92969e66'; ctx.fillText(formatTime(second),7,y-5);
       }
       ctx.save(); ctx.beginPath(); ctx.rect(0,0,width,height); ctx.clip();
-      const endIndex=lowerBound(state.notes,time+6.1);
+      const shownNotes=displayNotes(),endIndex=lowerBound(shownNotes,time+6.1);
       for(let i=0;i<endIndex;i++) {
-        const note=state.notes[i]; if(note.end<time) continue;
+        const note=shownNotes[i]; if(note.end<time) continue;
         const key=keyMap.get(note.midi); if(!key) continue;
         const bottom=height-(note.time-time)*pixels;
         const top=Math.max(-12,height-(note.end-time)*pixels);
@@ -381,13 +507,14 @@ import { startAppShell } from './app-shell.js';
           ctx.fillStyle='#191b20'; ctx.font='600 '+Math.min(11,barWidth/3.5)+'px -apple-system,BlinkMacSystemFont,sans-serif'; ctx.textAlign='center';
           ctx.fillText(noteName(note.midi),key.x+key.width/2,Math.min(bottom-7,Math.max(13,top+17))); ctx.textAlign='left';
         }
+
       }
       ctx.restore();
       const held=selectedInput().held;
       for(const midi of held) active.set(midi,midi<60?0:1);
       for(const key of keys) {
         key.element.classList.toggle('active',active.has(key.midi));
-        key.element.classList.toggle('expected',practicing()&&practice.expected.has(key.midi));
+        key.element.classList.toggle('expected',practicing()&&(practice.timing.enabled?practice.expected:practice.pending).has(key.midi));
         key.element.classList.toggle('wrong',practicing()&&practice.status.extra.includes(key.midi));
         key.element.setAttribute('aria-label',noteName(key.midi,'solfege')+(held.has(key.midi)?t(" · basılı"):''));
         if(active.has(key.midi)) key.element.style.setProperty('--active',colors[active.get(key.midi)]);
@@ -409,7 +536,8 @@ import { startAppShell } from './app-shell.js';
       updateLessonStatus();
       updateExpression(time,current);
       drawPedal(time);
-      sheet.follow(time,state.running);
+      const stage=guided()?training?.current:null;
+      sheet.follow(stage&&state.running?Math.max(stage.start,Math.min(stage.end-.00001,time)):time,state.running);
     }
 
     function applyTracks() {
@@ -419,13 +547,15 @@ import { startAppShell } from './app-shell.js';
       state.notes=state.selectedTracks.flatMap(track=>track.notes).sort((a,b)=>a.time-b.time||a.midi-b.midi);
       rebuildPedalTimeline();
       state.position=Math.min(time,state.duration);
-      practice.load(state.notes,state.position,nowSeconds(),selectedInput()); rebuildKeys(); draw(); checkpoint();
+      configureTraining(); rebuildKeys(); draw(); checkpoint();
       if(running) play();
     }
     function load(tracks,duration,source,title,description,reference,notationLesson=null) {
       checkpoint(); changingLesson=true; pause();
       currentReference=reference; currentKey=reference.kind+':'+reference.id;
       const saved=workspaceState.lesson(currentKey);
+      training=null;
+      trainingContexts=saved.practice?.version===1?{...saved.practice.contexts}:{};
       state.tracks=tracks.map(track=> {
         const pedals=[...(track.pedals||[])].sort((a,b)=>a.time-b.time);
         const notes=track.notes.map(note=>({...note,soundEnd:pedals.length?pedalRelease(pedals,note.end,duration):(note.soundEnd??note.end)}));
@@ -506,17 +636,34 @@ import { startAppShell } from './app-shell.js';
 
     input.addEventListener('beforechange',event=> {
       if(event.detail.source==='bluetooth'&&state.running&&practicing()) {
-        practice.advance(event.detail.at,selectedInput());
+        advancePractice(event.detail.at,selectedInput());
       }
     });
     input.addEventListener('change',event=> {
       if(event.detail.source==='bluetooth') {
-        practice.reconcile(selectedInput()); draw();
+        const snapshot=selectedInput();
+        practice.reconcile(snapshot);
+        if(practicing()&&state.running) {
+          if(!snapshot.connected) {pause();return;}
+          if(guided()) {
+            training.observe(event.detail.at,snapshot,practice);
+            advancePractice(event.detail.at,snapshot);
+          }
+        }
+        updatePlayButton();draw();
       }
     });
     ui.mode.addEventListener('change',()=> {
       pause(); state.mode=ui.mode.value;
-      practice.seek(state.position,nowSeconds(),selectedInput()); updatePlayButton(); draw();
+      configureTraining();draw();checkpoint();
+    });
+    for(const id of ['practice-strategy','practice-target','practice-timing']) ui[id].addEventListener('change',()=> {
+      pause();configureTraining();draw();checkpoint();
+    });
+    ui['practice-reset'].addEventListener('click',()=> {
+      pause();
+      if(training) delete trainingContexts[training.key];
+      configureTraining();draw();checkpoint();
     });
     ui.play.addEventListener('click',()=> { if(state.running||state.starting) pause(); else play(); });
     window.addEventListener('pianoman-output-settings-change',pause);
@@ -532,11 +679,14 @@ import { startAppShell } from './app-shell.js';
     ui['audio-output'].addEventListener('change',()=>{pause();updatePlayButton();showError('');});
     ui.rewind.addEventListener('click',()=>seek(-2));
     ui.seek.addEventListener('input',()=>seek(Number(ui.seek.value)));
-    ui.speed.addEventListener('change',()=> { const running=state.running; pause(); state.speed=Number(ui.speed.value); practice.speed=state.speed; if(running) play(); });
+    ui.speed.addEventListener('change',()=> {
+      const running=state.running;pause();state.speed=Number(ui.speed.value);configureTraining();draw();checkpoint();
+      if(running) play();
+    });
     ui.volume.addEventListener('input',()=> { if(master) master.gain.setTargetAtTime(Number(ui.volume.value)/100*.55,audio.currentTime,.015); });
     ui.track.addEventListener('change',applyTracks);
     ui.viewport.addEventListener('scroll',()=>checkpoint(),{passive:true});
-    workspaceState.rememberControls(ui,['mode','speed','volume','range','notation','staff','zoom','loop','audio-output']);
+    workspaceState.rememberControls(ui,['mode','speed','volume','range','notation','staff','zoom','loop','audio-output','practice-strategy','practice-target','practice-timing']);
     ui.range.addEventListener('change',()=> { rebuildKeys(); draw(); });
     ui.notation.addEventListener('change',()=> { rebuildKeys(); draw(); });
     ui.staff.addEventListener('change',draw);

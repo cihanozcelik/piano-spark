@@ -136,6 +136,8 @@
       en: templates.map(source => compile(source, source)),
       tr: templates.map(source => compile(source, translations[source])),
     };
+    // Dictionaries loaded after startup must also translate static controls.
+    if(window.PianoI18n) renderStatic();
   }
   function message(raw) {
     const text = String(raw ?? '');

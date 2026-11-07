@@ -349,21 +349,104 @@ Imported MIDI uses the same display. The Bravura music font and its OFL license 
 bundled, so symbols require neither internet access nor an installed system music font.
 
 The default **Practice** mode follows physical key presses for the selected part.
+All practice methods require a connected piano: Start and keyboard shortcuts use
+the same connection requirement. A MIDI disconnection pauses the exercise; reconnecting
+enables Start without automatically resuming. Listen with the app synthesizer works
+without a piano connection.
 When notes reach the strike line, time waits until all chord keys are correct.
 Missing or incorrect keys, or key releases outside the tolerance, stop progress.
 Once the correct state returns, the remaining duration continues; real time spent
 waiting does not count toward lesson time. Repeated notes require a fresh note-on.
 Overlapping notes of the same pitch are treated as one shared physical key hold.
 
-Upcoming notes allow 150 ms of real-time early input. Releasing a correctly pressed
-key up to 100 ms early, or holding it up to 100 ms after its end, does not stop the
-exercise. These tolerances are converted to lesson time using the selected playback
-speed. A new press during the final 100 ms can count toward an upcoming repetition.
-This tolerance never skips a note that was not pressed, and continuously holding a
-key does not count as a fresh press. Late presses make time wait. Once one note in
-a chord is correctly pressed, waiting for another key does not invalidate it.
-Durations advance at the selected speed. Sustain does not substitute for holding a
-key: practice uses `end`, while automatic listening uses pedal-adjusted `soundEnd`.
+**Practice method → Timing** selects **Off, Easy, Normal, or Hard**. Normal is
+selected by default. These are app presets, not external performance standards:
+
+| Timing | Early press | Late press / chord wait | Early or late release |
+| --- | --- | --- | --- |
+| Off | Not graded | Not graded | Not graded |
+| Easy | 500 ms | 1,000 ms | 400 ms |
+| Normal | 300 ms | 500 ms | 200 ms |
+| Hard | 150 ms | 200 ms | 100 ms |
+
+With timing enabled, early-input and release tolerances are converted to lesson
+time using playback speed. The late-press allowance uses real time and determines
+whether a row attempt counts as clean; whole-piece practice still waits without
+a failure counter. Waiting beyond the allowance does not skip the missing note.
+A correctly pressed chord key remains accepted while waiting for another key.
+Practice uses physical key-release `end`; listening uses pedal-adjusted `soundEnd`.
+
+With timing off, each target still requires a fresh correct attack, but taps count
+without holding for the written duration. After the current chord has been played,
+the next onset group can be played early without a timing penalty. Unrelated pitches
+are not accepted merely because they appear later in the piece. Notes still follow
+the lesson clock, and all keys must be released before the next row attempt.
+Wrong pitches and unrelated extra attacks still break the clean streak.
+
+Changing timing pauses the current attempt. The selected preset is saved, and
+completed progress is kept separately for each timing preset. Returning to Hard
+also restores progress earned under the original fixed tolerances.
+
+### Practice strategies
+
+In **Practice**, open **Practice method** in the top toolbar. **Practice the piece**
+is the default and retains the existing wait-for-me behavior. Two additional
+strategies use the grand-staff systems—the complete rows containing both hands—in
+the sheet music:
+
+| Strategy | Progression |
+| --- | --- |
+| Practice the piece | Follow the selected part through the whole piece. |
+| Master each row | Repeat row 1 until mastered, then row 2, and continue. |
+| Build up rows | Master row 1, row 2, then rows 1–2 together; learn row 3, then rows 1–3, and continue. |
+
+The row strategies require **3, 5, or 10 consecutive clean repetitions**, with 10
+selected initially. An error immediately resets the current streak; the attempt
+finishes at the normal boundary and repeats the same section. A compact status line within the bottom timeline
+shows the current section, streak, and attempt feedback. Velocity and pedal use
+remain optional and are never graded. Timing follows the selected preset above;
+with timing off, waiting and hold durations never invalidate an attempt.
+
+
+The score shows a status badge beside every row: **Waiting**, **Learning**, or
+**Learned**, with a percentage and a check mark when its standalone repetition
+goal is complete. Rows without notes in the selected part show **No notes** and
+are excluded from mastery totals. The current exercise has an amber outline;
+learned rows use green marks outside the printed notation.
+
+Learning progress belongs to rows and practice stages. Row badges remain beside
+the score; the current row, repetition count and attempt feedback sit within the
+bottom timeline. This status line occupies normal layout space and stays outside
+the falling-note area.
+
+The score summary shows **Practice plan %** and **Rows learned X/Y**. Row
+percentages use clean passes toward each standalone goal. Plan percentage uses
+completed clean passes across all required stages, including cumulative stages.
+For example, in a two-row build-up plan, mastering both rows separately gives
+2/2 rows learned but only 66% of the plan; the remaining third is playing them
+together. Current combined-stage progress is displayed separately. Only completed
+clean passes count, so a streak-breaking error can lower partial progress while
+already mastered rows remain learned. These displays are derived from the saved
+practice context, update on reset or context changes, and appear in row-based
+practice methods; ungraded listening and whole-piece practice award no mastery.
+
+Row boundaries come from the notation's measure playback times, not arbitrary time
+windows or screen coordinates. A held note crossing the start of an isolated row
+must be pressed again for that exercise. Within combined rows, the original holds
+continue across their boundaries. Only the exercise targets are cropped; the
+original lesson notes and score remain unchanged. Rows with no notes in the
+selected part do not earn empty repetitions. The score still reflects its imported
+or automatically estimated source; row practice does not certify transcription or
+engraving accuracy. Without usable sheet music, whole-piece practice remains
+available and the row methods explain why they cannot start.
+
+Practice settings and completed progress are saved with the workspace. Progress is
+scoped to the lesson, selected part, speed, timing preset, method, target, and score row structure;
+changing those does not transfer mastery to a different exercise. A pause, seek,
+focus loss, or MIDI disconnection interrupts the current attempt rather than
+awarding a repetition. Resume starts a fresh attempt at the section boundary.
+**Reset practice progress** restarts the current exercise without deleting the
+lesson. Resizing the workspace alone does not change musical row boundaries.
 
 **Listen** plays the lesson automatically. Practice does not add automatic
 accompaniment or synthesize the physical piano's sound again. Blue outlines show
@@ -378,7 +461,9 @@ notes. Resizing the view does not reset physically held keys.
 
 `piano-input.js` tracks held keys and fresh-press identities per source.
 `practice-clock.js` uses the Bluetooth source state and is the sole owner of practice
-time. `player.js` connects rendering and sound to that state. There is no on-screen
+time. `practice-session.js` owns row plans, attempt grading, and completed progress;
+`sheet-music.js` supplies the engraved row boundaries. `player.js` coordinates
+input, transport, rendering, and persistence. There is no on-screen
 keyboard input source.
 
 `bluetooth-connection/bluetooth.js` feeds `window.pianomanInput`. The interface emits

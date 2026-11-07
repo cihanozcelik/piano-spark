@@ -104,6 +104,17 @@
     .play { min-width:78px; }
     .control { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); }
     .control select { max-width:215px; }
+    .practice-settings > summary { border:1px solid var(--line); background:var(--raised); color:var(--ink); }
+    .practice-settings .popover-content { width:min(340px,calc(100vw - 24px)); max-height:calc(100dvh - 70px); overflow:auto; }
+    .practice-options { display:flex; flex-direction:column; gap:12px; }
+    .practice-options .control { justify-content:space-between; color:#c7c7ce; }
+    .practice-options select { min-width:140px; max-width:205px; }
+    .practice-options p { margin:0; color:var(--muted); font-size:11px; line-height:1.6; }
+    .practice-options .practice-rules { border-top:1px solid var(--line); padding-top:10px; }
+    #practice-reset { align-self:flex-start; font-size:12px; }
+    .practice-progress { min-width:0; color:#a8b7ad; font-size:11px; line-height:14px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .timeline-track { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .seek-track { display:flex; align-items:center; gap:13px; min-width:0; height:20px; }
     .piano-region { position:relative; display:flex; flex:1; min-height:0; }
     .view-menu { position:absolute; top:10px; right:88px; z-index:9; margin:0; border:1px solid #ffffff18; border-radius:10px; background:#242426ed; box-shadow:0 3px 14px #0003; backdrop-filter:blur(12px); }
     .view-menu > summary { width:36px; height:36px; padding:8px; }
@@ -123,12 +134,25 @@
     #sheet-status { flex:1; color:#a1a1a7; font-size:10px; }
     #sheet-page { min-width:50px; text-align:center; color:#bdbdc5; font-size:10px; }
     .sheet-tools button { min-height:25px; padding:2px 8px; font-size:11px; }
+    .sheet-learning { position:absolute; top:10px; left:12px; z-index:8; width:max-content; max-width:calc(100% - 240px); padding:7px 10px; border:1px solid #7dc9a44d; border-radius:9px; background:#202a25f2; color:#b7efd0; font-size:11px; line-height:1.5; pointer-events:none; }
+    .sheet-learning progress { display:block; width:100%; height:4px; margin-top:4px; accent-color:#5de0ac; }
     .sheet-viewport { position:relative; height:var(--sheet-height,35vh); overflow:auto; overscroll-behavior:contain; padding:22px 28px 28px; background:#aaa69e; background-image:linear-gradient(115deg,#ffffff18,transparent 60%); scrollbar-color:#76736d #a6a299; }
     .sheet-loading { position:sticky; top:0; min-height:140px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; color:#39352f; text-align:center; }
     #sheet-loading-text { font-size:13px; font-weight:500; }
     #sheet-progress { width:min(280px,80%); height:7px; accent-color:#586c8a; }
     .sheet-paper { position:relative; width:min(100%,840px); min-height:200px; margin:0 auto; color:#000; background:#fffefa; background-image:radial-gradient(#7b6e5112 .45px,transparent .65px),radial-gradient(#8d816508 .5px,transparent .8px); background-size:4px 5px,7px 9px; box-shadow:0 1px 2px #0003,0 7px 20px #0003; border:1px solid #e5e1d7; }
     .sheet-paper::after { content:""; position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 38px #a99c7710; }
+    .sheet-paper.has-mastery { width:min(calc(100% - 68px),840px); margin-left:max(68px,calc((100% - 840px)/2)); margin-right:0; }
+    .sheet-mastery-layer { position:absolute; inset:0; pointer-events:none; }
+    .sheet-row-mastery { pointer-events:auto; position:absolute; left:-64px; width:56px; padding:6px 2px; border:1px solid #d9dcd4; border-radius:7px; background:#f5f4ed; color:#656a61; text-align:center; line-height:1.4; box-shadow:0 2px 5px #0001; }
+    .sheet-row-mastery span,.sheet-row-mastery small { display:block; font-size:9px; }
+    .sheet-row-mastery strong { display:block; font-size:15px; font-variant-numeric:tabular-nums; }
+    .sheet-row-mastery progress { display:block; width:44px; height:4px; margin:5px auto 0; accent-color:#25845a; }
+    .sheet-row-mastery[data-status=learned] { color:#17613d; background:#e0f3e6; border-color:#7db78f; }
+    .sheet-row-mastery.is-current { outline:2px solid #c5963e; outline-offset:2px; }
+    .sheet-row-mastery-rail { position:absolute; left:3px; width:3px; border-radius:3px; background:#cbcfc4; }
+    .sheet-row-mastery-rail[data-status=learning] { background:#b9974b; }
+    .sheet-row-mastery-rail[data-status=learned] { background:#459869; }
     .sheet-playhead { position:absolute; left:0; top:0; width:2px; background:#ce4537; box-shadow:0 0 0 1px #ce453719; pointer-events:none; z-index:1; }
     .sheet-playhead::before { content:""; position:absolute; top:-5px; left:-3px; width:8px; height:5px; background:#ce4537; clip-path:polygon(0 0,100% 0,50% 100%); }
     .sheet-paper .sheet-note-active { color:#c43f30; fill:#c43f30; stroke:#c43f30; }
@@ -253,6 +277,7 @@
     @media(max-width:1100px) { .app-bar { gap:4px; padding:0 6px; } .tab { padding:5px 6px; font-size:11px; } .toolbar { gap:4px; } .play { min-width:64px; } .toolbar > .control select { max-width:160px; } #sheet-page { min-width:32px; } }
     @media(max-width:600px) { .timeline { gap:7px; padding:6px 8px; } .timeline .play { min-width:60px; } .timeline #speed { width:82px; } .timeline time { font-size:11px; } }
     @media(max-width:800px) { .app-bar { grid-template-columns:auto minmax(0,1fr) auto; } .header-context { gap:0; } .lesson-bar { display:none; } .brand { display:none; } .app-bar .popover-content { position:fixed; right:10px; top:50px; } .create-content { padding:32px 18px; } .url-row { flex-direction:column; } }
+    @media(max-width:800px) { .practice-settings > summary { width:32px; padding:6px; } .practice-settings > summary span { display:none; } }
     .language-control select { min-height:29px; font-size:11px; background-color:transparent; border-color:transparent; padding-left:7px; padding-right:25px; background-position:right 7px center; }
     .language-control select:hover { background-color:#ffffff0d; }
   </style>
@@ -287,7 +312,20 @@
           <label class="control"><span data-i18n="Mod">Mod</span> <select id="mode"><option value="practice" selected data-i18n="Çalış">Çalış</option><option value="listen" data-i18n="Dinle">Dinle</option></select></label>
 
           <label class="control"><span data-i18n="Parti">Parti</span> <select id="track" aria-label="Çalınacak piyano partisi" data-i18n-aria-label="Çalınacak piyano partisi"><option value="all" data-i18n="İki el birlikte">İki el birlikte</option></select></label>
-
+          <details class="popover practice-settings" id="practice-settings" data-popover>
+            <summary aria-label="Çalışma yöntemi" data-i18n-aria-label="Çalışma yöntemi" title="Çalışma yöntemi" data-i18n-title="Çalışma yöntemi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H7a4 4 0 0 0 0 8h2m-5 2h13a4 4 0 0 0 0-8h-2M17 4l3 3-3 3M7 14l-3 3 3 3"/></svg><span data-i18n="Çalışma yöntemi">Çalışma yöntemi</span></summary>
+            <div class="popover-content practice-options">
+              <label class="control" for="practice-strategy"><span data-i18n="Yöntem">Yöntem</span><select id="practice-strategy" aria-describedby="practice-strategy-help practice-availability"><option value="whole" selected data-i18n="Parçayı çalış">Parçayı çalış</option><option value="rows" data-i18n="Satır satır ustalaş">Satır satır ustalaş</option><option value="build" data-i18n="Satırları birleştir">Satırları birleştir</option></select></label>
+              <p id="practice-strategy-help" data-i18n="Parçayı çalış: doğru tuşları bekleyerek ilerle. Satır satır: her satırı tamamla, sonra sonrakine geç. Birleştir: yeni satırı öğren, sonra önceki satırlarla birlikte çal.">Parçayı çalış: doğru tuşları bekleyerek ilerle. Satır satır: her satırı tamamla, sonra sonrakine geç. Birleştir: yeni satırı öğren, sonra önceki satırlarla birlikte çal.</p>
+              <label class="control" for="practice-target"><span data-i18n="Ardışık hatasız tekrar">Ardışık hatasız tekrar</span><select id="practice-target"><option value="3">3</option><option value="5">5</option><option value="10" selected>10</option></select></label>
+              <p data-i18n="Satır yöntemlerinde hedefe art arda hatasız tekrarlarla ulaşılır. Hatalı denemeyi bitirince aynı bölüme dönülür ve seri sıfırlanır.">Satır yöntemlerinde hedefe art arda hatasız tekrarlarla ulaşılır. Hatalı denemeyi bitirince aynı bölüme dönülür ve seri sıfırlanır.</p>
+              <p id="practice-availability" role="status"></p>
+              <label class="control" for="practice-timing"><span data-i18n="Zamanlama">Zamanlama</span><select id="practice-timing" aria-describedby="practice-rules"><option value="off" data-i18n="Kapalı">Kapalı</option><option value="easy" data-i18n="Kolay">Kolay</option><option value="normal" selected data-i18n="Normal">Normal</option><option value="hard" data-i18n="Zor">Zor</option></select></label>
+              <p class="practice-rules" id="practice-rules" role="status"></p>
+              <p data-i18n="Satır durumları partisyonun kenarında, mevcut tekrar zaman çizelgesinde görünür. Birleştirme aşamaları ayrıca çalışma planına sayılır.">Satır durumları partisyonun kenarında, mevcut tekrar zaman çizelgesinde görünür. Birleştirme aşamaları ayrıca çalışma planına sayılır.</p>
+              <button id="practice-reset" type="button" data-i18n="Çalışma ilerlemesini sıfırla">Çalışma ilerlemesini sıfırla</button>
+            </div>
+          </details>
         </div>
 
       <div class="app-actions">
@@ -340,6 +378,7 @@
     <section class="practice-panel" id="practice-panel" role="tabpanel" aria-labelledby="tab-practice">
       <section class="workspace" aria-label="Piyano çalışma alanı" data-i18n-aria-label="Piyano çalışma alanı">
         <section class="score-panel" aria-label="Dersin nota dizeği" data-i18n-aria-label="Dersin nota dizeği">
+          <div class="sheet-learning" id="sheet-learning" hidden><span id="sheet-learning-label" role="status" aria-live="polite"></span><progress id="sheet-learning-meter" max="100" value="0"></progress></div>
           <div class="sheet-tools"><button id="sheet-previous" type="button" aria-label="Önceki sayfa" data-i18n-aria-label="Önceki sayfa" disabled>‹</button><span id="sheet-page"></span><button id="sheet-next" type="button" aria-label="Sonraki sayfa" data-i18n-aria-label="Sonraki sayfa" disabled>›</button><button id="sheet-expand" type="button" aria-expanded="false" data-i18n-initial="Büyüt">Büyüt</button></div>
 
           <div id="sheet-viewport" class="sheet-viewport"><div id="sheet-loading" class="sheet-loading" role="status" aria-live="polite"><span id="sheet-loading-text" data-i18n-initial="Partisyon hazırlanıyor…">Partisyon hazırlanıyor…</span><progress id="sheet-progress" aria-label="Partisyon oluşturma ilerlemesi" data-i18n-aria-label="Partisyon oluşturma ilerlemesi"></progress></div><article id="sheet-paper" class="sheet-paper" aria-label="Beyaz kâğıt üzerinde klasik piyano partisyonu" data-i18n-aria-label="Beyaz kâğıt üzerinde klasik piyano partisyonu" hidden></article></div>
@@ -383,7 +422,11 @@
             <button id="rewind" class="icon-button" aria-label="Başa dön" data-i18n-aria-label="Başa dön" title="Başa dön" data-i18n-title="Başa dön"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M19 5v14L8 12z"/></svg></button>
           </div>
           <label class="control"><span class="sr-only" data-i18n="Çalma hızı">Çalma hızı</span><select id="speed"><option value="0.25" data-i18n="0,25×">0,25×</option><option value="0.5" data-i18n="0,50×">0,50×</option><option value="0.75" data-i18n="0,75×">0,75×</option><option value="1" selected data-i18n="1,00×">1,00×</option><option value="1.25" data-i18n="1,25×">1,25×</option><option value="1.5" data-i18n="1,50×">1,50×</option><option value="2" data-i18n="2,00×">2,00×</option></select></label>
-          <time id="elapsed">0:00</time><input id="seek" type="range" min="0" max="12" step="0.01" value="0" aria-label="Parçada konum" data-i18n-aria-label="Parçada konum"><time id="duration">0:12</time></div>
+          <div class="timeline-track">
+            <div class="practice-progress" id="practice-progress" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+            <div class="seek-track"><time id="elapsed">0:00</time><input id="seek" type="range" min="0" max="12" step="0.01" value="0" aria-label="Parçada konum" data-i18n-aria-label="Parçada konum"><time id="duration">0:12</time></div>
+          </div>
+        </div>
       </section>
     </section>
     <section class="create-panel" id="create-panel" role="tabpanel" aria-labelledby="tab-create" hidden>

@@ -1,6 +1,18 @@
 // The lesson clock advances only through correctly played score intervals.
-// Pedal/soundEnd is deliberately separate: exercises assess physical key holds.
+// Pedal/soundEnd is separate; timed profiles assess physical key holds.
 export class PracticeClock {
+  // Seconds in real time. Matching, grading and UI all use these profiles.
+  static timingProfiles = {
+    off: Object.freeze({id:'off',enabled:false,early:0,late:0,release:0}),
+    easy: Object.freeze({id:'easy',enabled:true,early:.5,late:1,release:.4}),
+    normal: Object.freeze({id:'normal',enabled:true,early:.3,late:.5,release:.2}),
+    hard: Object.freeze({id:'hard',enabled:true,early:.15,late:.2,release:.1}),
+  };
+
+  static timingProfile(id) {
+    return PracticeClock.timingProfiles[id];
+  }
+
   constructor() {
     this.events = [];
     this.time = -2;
@@ -10,13 +22,18 @@ export class PracticeClock {
     this.pending = new Map();
     this.usedAttacks = new Map();
     this.seenAttacks = new Map();
+    this.unexpectedAttacks = new Map();
     this.eligibleAttacks = new Map();
     this.releasedAt = new Map();
     this.next = 0;
-    this.earlySeconds = .15;
-    // Real-time allowance around key releases, scaled into lesson time.
-    this.releaseSeconds = .10;
+    this.setTiming('hard');
     this.status = { blocked: false, missing: [], extra: [], repeat: [] };
+  }
+
+  setTiming(id) {
+    this.timing = PracticeClock.timingProfile(id);
+    this.earlySeconds = this.timing.early;
+    this.releaseSeconds = this.timing.release;
   }
 
   load(notes, time, now, input) {
@@ -42,6 +59,7 @@ export class PracticeClock {
     this.pending.clear();
     this.usedAttacks = new Map([...input.attacks].map(([note, attack]) => [note, attack.serial]));
     this.seenAttacks = new Map(this.usedAttacks);
+    this.unexpectedAttacks.clear();
     this.eligibleAttacks.clear();
     this.releasedAt.clear();
     while (this.next < this.events.length && this.events[this.next].time <= time) {
@@ -84,24 +102,41 @@ export class PracticeClock {
       for (const note of event.starts) remainingHolds.set(note, (remainingHolds.get(note) || 0) + 1);
     }
     for (const [note, ended] of this.releasedAt) {
-      if (this.time >= ended + this.releaseSeconds * this.speed) this.releasedAt.delete(note);
+      if (this.timing.enabled ? this.time >= ended + this.releaseSeconds * this.speed : !input.held.has(note)) {
+        this.releasedAt.delete(note);
+      }
     }
     const horizon = this.time + this.earlySeconds * this.speed;
-    for (let i = this.next; i < this.events.length && this.events[i].time <= horizon; i++) {
-      for (const note of this.events[i].starts) early.add(note);
+    if (this.timing.enabled) {
+      for (let i = this.next; i < this.events.length && this.events[i].time <= horizon; i++) {
+        for (const note of this.events[i].starts) early.add(note);
+      }
+    } else if (!this.pending.size) {
+      // Timing off accepts the next onset group at any time, not every future
+      // pitch in the piece. Unplayed current chord notes still have to be played.
+      for (let i = this.next; i < this.events.length; i++) {
+        if (!this.events[i].starts.length) continue;
+        for (const note of this.events[i].starts) early.add(note);
+        break;
+      }
     }
     // Capture early attacks when they arrive, in lesson time. A wait for another
     // chord key must not age out a correctly played early note.
     for (const [note, attack] of input.attacks) {
       if (this.seenAttacks.get(note) === attack.serial) continue;
       this.seenAttacks.set(note, attack.serial);
+      // A fresh attack must satisfy an onset, not simply hit a pitch that is
+      // already supposed to be held. Retain its serial across reconciliations.
+      if (input.held.has(note) && !this.pending.has(note) && !early.has(note)) {
+        this.unexpectedAttacks.set(note, attack.serial);
+      }
       if (input.held.has(note) && (this.expected.has(note) || early.has(note))) {
         this.eligibleAttacks.set(note, attack.serial);
       }
     }
     for (const note of this.pending.keys()) {
       const attack = input.attacks.get(note);
-      if (input.held.has(note) && attack && this.eligibleAttacks.get(note) === attack.serial &&
+      if ((!this.timing.enabled || input.held.has(note)) && attack && this.eligibleAttacks.get(note) === attack.serial &&
           attack.serial > (this.usedAttacks.get(note) || 0)) {
         this.pending.delete(note);
         this.usedAttacks.set(note, attack.serial);
@@ -112,12 +147,12 @@ export class PracticeClock {
     for (const note of this.expected.keys()) {
       const attack = input.attacks.get(note);
       if (input.held.has(note) && !this.pending.has(note) && attack &&
-          !(releasing.has(note) && early.has(note))) {
+          !((!this.timing.enabled || releasing.has(note)) && early.has(note))) {
         this.usedAttacks.set(note, attack.serial);
       }
     }
     const missing = [...this.expected.keys()].filter(note => !input.held.has(note) &&
-      (this.pending.has(note) || !releasing.has(note)));
+      (this.pending.has(note) || (this.timing.enabled && !releasing.has(note))));
     const extra = [...input.held].filter(note => !this.expected.has(note) && !early.has(note) &&
       !this.releasedAt.has(note));
     const repeat = [...this.pending.keys()].filter(note => input.held.has(note));
@@ -128,16 +163,18 @@ export class PracticeClock {
     return this.status;
   }
 
-  advance(now, input) {
-    let remaining = Math.max(0, now - this.lastWall) * this.speed;
+  advance(now, input, end = Infinity) {
+    let remaining = Math.min(Math.max(0, end - this.time), Math.max(0, now - this.lastWall) * this.speed);
     this.lastWall = now;
     if (this.reconcile(input).blocked) return this.time;
     while (remaining > 0) {
       const event = this.events[this.next];
       let boundary = event ? event.time : Infinity;
       // Stop exactly at release allowance expiry, even after a delayed frame.
-      for (const ended of this.releasedAt.values()) {
-        boundary = Math.min(boundary, ended + this.releaseSeconds * this.speed);
+      if (this.timing.enabled) {
+        for (const ended of this.releasedAt.values()) {
+          boundary = Math.min(boundary, ended + this.releaseSeconds * this.speed);
+        }
       }
       if (boundary > this.time + remaining) break;
       remaining -= boundary - this.time;

@@ -162,6 +162,8 @@ function startWorkspaceLayout(workspaceState) {
     apply();save();
   });
   window.addEventListener('pianoman-language-change',apply);
-  new ResizeObserver(apply).observe(workspace);
+  const layoutObserver=new ResizeObserver(apply);
+  layoutObserver.observe(workspace);
+  layoutObserver.observe(timeline);
   apply();
 }
