@@ -1,0 +1,26 @@
+[
+  {
+    "file": "bach-prelude/score.mid",
+    "sha256": "874e07d0479542971bfceaf420d6117da8d602d89d26eea4610e7dd1ef58bf26"
+  },
+  {
+    "file": "bach-prelude/score.pdf",
+    "sha256": "b1c5be9fb63954df9c1a3e7b651ae930c4e5e332a5ab3e14b197379cfa04c35a"
+  },
+  {
+    "file": "moonlight/complete-score.pdf",
+    "sha256": "e62c8888eccf8071e4193e95e5a646fb74ea513d638dd34605bb5d74142a4fb8"
+  },
+  {
+    "file": "moonlight/midis.zip",
+    "sha256": "94915b176f0b999919a6cd1025a45ec8dd0a454dab33b2b332c5026291ea91f5"
+  },
+  {
+    "file": "moonlight/score.mid",
+    "sha256": "a34e969c4957f0e9e98fc9ff0278cc1284931bdae6d463469797faa2b73a9c5c"
+  },
+  {
+    "file": "moonlight/score.pdf",
+    "sha256": "ffc786b663331ec0b8c191fd53403167c6694ddf4f90e3aa6ad6cd52bba188e6"
+  }
+]

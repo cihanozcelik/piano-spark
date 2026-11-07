@@ -1,0 +1,72 @@
+{
+  "source": {
+    "path": "input/Sena İris - Pervane (Özdemir Erdoğan Cover).mp4",
+    "sha256": "fdfb3320589d8a4ee21dd89f3e9627f954d08330e9879f0566e0195568323112"
+  },
+  "audio_sha256": "a057c8775f9ddea4d23c921d46aa22a27547cc6f22a2e07947af4587bd104a7e",
+  "model": "Transkun V2 No Pedal Extension (packaged default)",
+  "package_version": "2.0.1",
+  "torch_version": "2.5.1",
+  "checkpoint_sha256": "50a80010effc2a59ffcd068a95cd2b29bd7f23a27a3515bc3ccd209c89a3d44c",
+  "config": {
+    "Model": {
+      "module": "transkun.ModelTransformer",
+      "configClassName": "Config",
+      "config": {
+        "f_min": 30,
+        "f_max": 8000,
+        "n_mels": 229,
+        "segmentHopSizeInSecond": 8,
+        "segmentSizeInSecond": 16,
+        "hopSize": 1024,
+        "windowSize": 4096,
+        "fs": 44100,
+        "nExtraWins": 5,
+        "baseSize": 64,
+        "downsampleF": true,
+        "posEmbedInitGamma": 1,
+        "nHead": 8,
+        "fourierSize": 64,
+        "nLayers": 6,
+        "enabledAttn": [
+          "F",
+          "T"
+        ],
+        "hiddenFactorAttn": 1,
+        "hiddenFactor": 4,
+        "velocityPredictorHiddenSize": 512,
+        "refinedOFPredictorHiddenSize": 512,
+        "scoringExpansionFactor": 4,
+        "useInnerProductScorer": true,
+        "scoreDropoutProb": 0.1,
+        "contextDropoutProb": 0.0,
+        "velocityDropoutProb": 0.1,
+        "refinedOFDropoutProb": 0.1
+      }
+    }
+  },
+  "device": "cpu",
+  "threads": 4,
+  "elapsed_seconds": 15.056708957999945,
+  "source_duration_seconds": 186.7348752834467,
+  "notes": 877,
+  "velocity_min": 16,
+  "velocity_max": 92,
+  "velocity_median": 62.0,
+  "distinct_velocities": 66,
+  "pedal_intervals_by_controller": {
+    "64": 93
+  },
+  "visual_reference_available": false,
+  "visual_reference_notes": 0,
+  "matched_within_150_ms": 0,
+  "unmatched_visual": 0,
+  "unmatched_audio": 877,
+  "median_matched_onset_difference_seconds": null,
+  "limits": [
+    "Model estimates, not the original performance MIDI.",
+    "Pedals are switch intervals, not continuous half-pedal depth.",
+    "Visual extraction is not ground truth; agreement is a comparison only.",
+    "No changes to the player, Bluetooth connection, or existing transcription."
+  ]
+}

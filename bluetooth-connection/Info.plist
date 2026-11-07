@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleExecutable</key><string>pianoman-bluetooth</string>
+<key>CFBundleIdentifier</key><string>com.pianoman.bluetooth-connection</string>
+<key>CFBundleName</key><string>PianoMan Bluetooth</string>
+<key>CFBundleDisplayName</key><string>PianoMan Bluetooth</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>1.0</string>
+<key>LSMinimumSystemVersion</key><string>13.0</string>
+<key>LSUIElement</key><true/>
+<key>NSBluetoothAlwaysUsageDescription</key><string>Connect to your Yamaha CLP-835 to read played notes and pedal movements.</string>
+</dict></plist>

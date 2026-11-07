@@ -1,0 +1,32 @@
+{
+  "model": "Rubato v1 midi",
+  "package_version": "0.3.0",
+  "repository_revision": "325d90df334f7fe7e8e2c8c90a297c927e635dcc",
+  "audio": "transcription/transkun-v2/pervane/source.wav",
+  "audio_sha256": "a057c8775f9ddea4d23c921d46aa22a27547cc6f22a2e07947af4587bd104a7e",
+  "checkpoint_sha256": "131649ff95b80713bd327b63d37b2771e1175b3c1c9aa4242a783c67bf27b1fc",
+  "duration_seconds": 186.7349375,
+  "elapsed_seconds": 22.735274749982636,
+  "device": "cpu",
+  "threads": 4,
+  "slots": 8,
+  "recover": "off",
+  "notes": 1345,
+  "pedals": 75,
+  "visual_data_used_for_inference": false,
+  "parsing": "Official read_performance and midi_to_midi; no duration correction. Official note parser drops notes without a release; raw text and MIDI retained.",
+  "inference_stats": {
+    "pieces": 1,
+    "audio_seconds": 186.7349375,
+    "enc_chunks": 9,
+    "t_encoder_host": 5.571201801300049,
+    "chunks": 9,
+    "wall": 21.896060943603516,
+    "tokens": 6720,
+    "steps": 1796,
+    "token_cap": 2990,
+    "encoder_frames": 1000,
+    "slots": 8,
+    "kv_cache_gb": 1.048576
+  }
+}

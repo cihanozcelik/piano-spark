@@ -1,0 +1,51 @@
+name: Publish PianoMan update
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: pianoman-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: macos-15-intel
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check bootstrap release
+        id: bootstrap
+        run: |
+          if gh release view --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null 2>&1; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Publish the first signed, full-engine release from the developer Mac. Future tags build automatically." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Validate release inputs
+        if: steps.bootstrap.outputs.ready == 'true'
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          release=json.loads(Path('desktop/release.json').read_text())
+          assert os.environ['SPARKLE_PRIVATE_KEY'], 'Configure the SPARKLE_PRIVATE_KEY repository secret first'
+          assert os.environ['GITHUB_REF_NAME']=='v'+release['version'], 'Run this workflow on the matching version tag'
+          assert os.environ['GITHUB_REPOSITORY']==release['repository'], 'Wrong release repository'
+          PY
+      - name: Keep signed baseline and build current application
+        if: steps.bootstrap.outputs.ready == 'true'
+        run: python3 desktop/release.py --bootstrap-engine
+      - name: Create and verify signed delta and full package
+        if: steps.bootstrap.outputs.ready == 'true'
+        run: python3 desktop/release.py --previous-app build/previous-release/PianoMan.app
+      - name: Publish release and signed feed
+        if: steps.bootstrap.outputs.ready == 'true'
+        run: python3 desktop/release.py --publish

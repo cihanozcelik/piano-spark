@@ -1,0 +1,4514 @@
+{
+  "timeline": "original audio seconds",
+  "notes": [
+    {
+      "note": 38,
+      "start": 5.64,
+      "end": 8.87,
+      "velocity": 52,
+      "source_window": 0
+    },
+    {
+      "note": 45,
+      "start": 5.64,
+      "end": 8.86,
+      "velocity": 47,
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 5.64,
+      "end": 6.64,
+      "velocity": 45,
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 6.64,
+      "end": 7.85,
+      "velocity": 56,
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 7.64,
+      "end": 8.85,
+      "velocity": 59,
+      "source_window": 0
+    },
+    {
+      "note": 36,
+      "start": 9.63,
+      "end": 9.89,
+      "velocity": 47,
+      "source_window": 0
+    },
+    {
+      "note": 45,
+      "start": 9.63,
+      "end": 9.88,
+      "velocity": 48,
+      "source_window": 0
+    },
+    {
+      "note": 60,
+      "start": 9.63,
+      "end": 9.88,
+      "velocity": 52,
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 9.63,
+      "end": 9.88,
+      "velocity": 57,
+      "source_window": 0
+    },
+    {
+      "note": 34,
+      "start": 13.63,
+      "end": 15.88,
+      "velocity": 47,
+      "source_window": 0
+    },
+    {
+      "note": 43,
+      "start": 13.63,
+      "end": 15.87,
+      "velocity": 47,
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 13.63,
+      "end": 14.64,
+      "velocity": 45,
+      "source_window": 0
+    },
+    {
+      "note": 46,
+      "start": 13.64,
+      "end": 15.87,
+      "velocity": 39,
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 14.64,
+      "end": 15.85,
+      "velocity": 56,
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 15.64,
+      "end": 15.86,
+      "velocity": 62,
+      "source_window": 0
+    },
+    {
+      "note": 36,
+      "start": 17.64,
+      "end": 17.65,
+      "velocity": 49,
+      "source_window": 0
+    },
+    {
+      "note": 48,
+      "start": 17.64,
+      "end": 39.9,
+      "velocity": 51,
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 17.64,
+      "end": 39.66,
+      "velocity": 59,
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 17.64,
+      "end": 37.64,
+      "velocity": 80,
+      "source_window": 0
+    },
+    {
+      "note": 34,
+      "start": 21.65,
+      "end": 24.7,
+      "velocity": 39,
+      "source_window": 1
+    },
+    {
+      "note": 46,
+      "start": 21.65,
+      "end": 24.69,
+      "velocity": 42,
+      "source_window": 1
+    },
+    {
+      "note": 50,
+      "start": 21.65,
+      "end": 24.68,
+      "velocity": 43,
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 22.65,
+      "end": 24.68,
+      "velocity": 52,
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 23.65,
+      "end": 24.68,
+      "velocity": 55,
+      "source_window": 1
+    },
+    {
+      "note": 33,
+      "start": 25.65,
+      "end": 29.65,
+      "velocity": 44,
+      "source_window": 1
+    },
+    {
+      "note": 45,
+      "start": 25.65,
+      "end": 25.69,
+      "velocity": 43,
+      "source_window": 1
+    },
+    {
+      "note": 60,
+      "start": 25.65,
+      "end": 25.69,
+      "velocity": 49,
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 25.65,
+      "end": 25.69,
+      "velocity": 52,
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 25.69,
+      "end": 29.65,
+      "velocity": 3,
+      "source_window": 1
+    },
+    {
+      "note": 31,
+      "start": 29.65,
+      "end": 33.63,
+      "velocity": 41,
+      "source_window": 1
+    },
+    {
+      "note": 43,
+      "start": 29.65,
+      "end": 32.66,
+      "velocity": 42,
+      "source_window": 1
+    },
+    {
+      "note": 58,
+      "start": 29.65,
+      "end": 31.66,
+      "velocity": 77,
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 30.65,
+      "end": 31.66,
+      "velocity": 56,
+      "source_window": 1
+    },
+    {
+      "note": 70,
+      "start": 31.65,
+      "end": 35.9,
+      "velocity": 56,
+      "source_window": 1
+    },
+    {
+      "note": 43,
+      "start": 32.66,
+      "end": 33.15,
+      "velocity": 45,
+      "source_window": 1
+    },
+    {
+      "note": 45,
+      "start": 33.15,
+      "end": 33.63,
+      "velocity": 53,
+      "source_window": 1
+    },
+    {
+      "note": 22,
+      "start": 33.64,
+      "end": 37.620000000000005,
+      "velocity": 80,
+      "source_window": 1
+    },
+    {
+      "note": 34,
+      "start": 33.64,
+      "end": 37.629999999999995,
+      "velocity": 42,
+      "source_window": 1
+    },
+    {
+      "note": 46,
+      "start": 33.64,
+      "end": 37.61,
+      "velocity": 47,
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 35.64,
+      "end": 36.81,
+      "velocity": 56,
+      "source_window": 1
+    },
+    {
+      "note": 67,
+      "start": 36.65,
+      "end": 37.61,
+      "velocity": 62,
+      "source_window": 1
+    },
+    {
+      "note": 36,
+      "start": 37.64,
+      "end": 40.68,
+      "velocity": 42,
+      "source_window": 1
+    },
+    {
+      "note": 48,
+      "start": 37.64,
+      "end": 39.66,
+      "velocity": 42,
+      "source_window": 1
+    },
+    {
+      "note": 52,
+      "start": 37.64,
+      "end": 40.67,
+      "velocity": 51,
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 38.64,
+      "end": 39.66,
+      "velocity": 59,
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 39.65,
+      "end": 40.67,
+      "velocity": 56,
+      "source_window": 1
+    },
+    {
+      "note": 34,
+      "start": 41.63,
+      "end": 45.63,
+      "velocity": 39,
+      "source_window": 2
+    },
+    {
+      "note": 46,
+      "start": 41.63,
+      "end": 45.63,
+      "velocity": 42,
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 41.63,
+      "end": 44.64,
+      "velocity": 45,
+      "source_window": 2
+    },
+    {
+      "note": 69,
+      "start": 41.63,
+      "end": 41.64,
+      "velocity": 53,
+      "source_window": 2
+    },
+    {
+      "note": 67,
+      "start": 43.64,
+      "end": 44.64,
+      "velocity": 56,
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 44.64,
+      "end": 45.63,
+      "velocity": 52,
+      "source_window": 2
+    },
+    {
+      "note": 38,
+      "start": 45.64,
+      "end": 49.63,
+      "velocity": 39,
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 45.64,
+      "end": 49.63,
+      "velocity": 42,
+      "source_window": 2
+    },
+    {
+      "note": 57,
+      "start": 45.64,
+      "end": 47.64,
+      "velocity": 48,
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 45.64,
+      "end": 47.64,
+      "velocity": 51,
+      "source_window": 2
+    },
+    {
+      "note": 55,
+      "start": 47.64,
+      "end": 48.64,
+      "velocity": 49,
+      "source_window": 2
+    },
+    {
+      "note": 53,
+      "start": 48.64,
+      "end": 49.63,
+      "velocity": 52,
+      "source_window": 2
+    },
+    {
+      "note": 38,
+      "start": 49.64,
+      "end": 53.66,
+      "velocity": 52,
+      "source_window": 2
+    },
+    {
+      "note": 45,
+      "start": 49.64,
+      "end": 53.65,
+      "velocity": 54,
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 49.64,
+      "end": 53.65,
+      "velocity": 54,
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 49.64,
+      "end": 51.64,
+      "velocity": 56,
+      "source_window": 2
+    },
+    {
+      "note": 74,
+      "start": 50.64,
+      "end": 51.64,
+      "velocity": 63,
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 51.64,
+      "end": 52.64,
+      "velocity": 59,
+      "source_window": 2
+    },
+    {
+      "note": 81,
+      "start": 51.64,
+      "end": 53.65,
+      "velocity": 66,
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 52.64,
+      "end": 53.65,
+      "velocity": 56,
+      "source_window": 2
+    },
+    {
+      "note": 36,
+      "start": 53.65,
+      "end": 57.64,
+      "velocity": 50,
+      "source_window": 2
+    },
+    {
+      "note": 45,
+      "start": 53.65,
+      "end": 57.64,
+      "velocity": 51,
+      "source_window": 2
+    },
+    {
+      "note": 52,
+      "start": 53.65,
+      "end": 57.64,
+      "velocity": 52,
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 53.65,
+      "end": 55.68,
+      "velocity": 62,
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 55.64,
+      "end": 56.64,
+      "velocity": 59,
+      "source_window": 2
+    },
+    {
+      "note": 60,
+      "start": 56.64,
+      "end": 57.64,
+      "velocity": 62,
+      "source_window": 2
+    },
+    {
+      "note": 72,
+      "start": 56.64,
+      "end": 57.64,
+      "velocity": 63,
+      "source_window": 2
+    },
+    {
+      "note": 34,
+      "start": 57.64,
+      "end": 61.66,
+      "velocity": 50,
+      "source_window": 2
+    },
+    {
+      "note": 43,
+      "start": 57.64,
+      "end": 61.65,
+      "velocity": 51,
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 57.64,
+      "end": 59.64,
+      "velocity": 52,
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 57.64,
+      "end": 59.64,
+      "velocity": 59,
+      "source_window": 2
+    },
+    {
+      "note": 74,
+      "start": 58.64,
+      "end": 59.64,
+      "velocity": 66,
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 59.64,
+      "end": 60.64,
+      "velocity": 63,
+      "source_window": 2
+    },
+    {
+      "note": 79,
+      "start": 59.64,
+      "end": 61.65,
+      "velocity": 71,
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 60.64,
+      "end": 61.64,
+      "velocity": 56,
+      "source_window": 3
+    },
+    {
+      "note": 36,
+      "start": 61.65,
+      "end": 64.64,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 45,
+      "start": 61.65,
+      "end": 64.64,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 52,
+      "start": 61.65,
+      "end": 63.65,
+      "velocity": 48,
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 61.65,
+      "end": 63.65,
+      "velocity": 59,
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 63.65,
+      "end": 64.64,
+      "velocity": 55,
+      "source_window": 3
+    },
+    {
+      "note": 77,
+      "start": 63.65,
+      "end": 64.64,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 60,
+      "start": 64.64,
+      "end": 65.65,
+      "velocity": 56,
+      "source_window": 3
+    },
+    {
+      "note": 76,
+      "start": 64.64,
+      "end": 65.65,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 34,
+      "start": 65.65,
+      "end": 69.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 46,
+      "start": 65.65,
+      "end": 69.65,
+      "velocity": 50,
+      "source_window": 3
+    },
+    {
+      "note": 50,
+      "start": 65.65,
+      "end": 66.65,
+      "velocity": 51,
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 65.65,
+      "end": 66.65,
+      "velocity": 55,
+      "source_window": 3
+    },
+    {
+      "note": 74,
+      "start": 66.65,
+      "end": 67.65,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 67.65,
+      "end": 68.65,
+      "velocity": 59,
+      "source_window": 3
+    },
+    {
+      "note": 81,
+      "start": 67.65,
+      "end": 68.65,
+      "velocity": 66,
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 68.65,
+      "end": 69.65,
+      "velocity": 56,
+      "source_window": 3
+    },
+    {
+      "note": 33,
+      "start": 69.65,
+      "end": 73.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 45,
+      "start": 69.65,
+      "end": 73.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 52,
+      "start": 69.65,
+      "end": 70.65,
+      "velocity": 51,
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 69.65,
+      "end": 70.65,
+      "velocity": 59,
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 70.65,
+      "end": 71.65,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 71.65,
+      "end": 72.65,
+      "velocity": 59,
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 72.65,
+      "end": 73.65,
+      "velocity": 56,
+      "source_window": 3
+    },
+    {
+      "note": 31,
+      "start": 73.65,
+      "end": 77.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 43,
+      "start": 73.65,
+      "end": 77.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 58,
+      "start": 73.65,
+      "end": 74.65,
+      "velocity": 52,
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 73.65,
+      "end": 74.65,
+      "velocity": 59,
+      "source_window": 3
+    },
+    {
+      "note": 74,
+      "start": 74.65,
+      "end": 75.65,
+      "velocity": 63,
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 75.65,
+      "end": 76.66,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 82,
+      "start": 75.65,
+      "end": 76.65,
+      "velocity": 69,
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 76.65,
+      "end": 77.65,
+      "velocity": 59,
+      "source_window": 3
+    },
+    {
+      "note": 34,
+      "start": 77.65,
+      "end": 81.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 43,
+      "start": 77.65,
+      "end": 81.65,
+      "velocity": 80,
+      "source_window": 3
+    },
+    {
+      "note": 55,
+      "start": 77.65,
+      "end": 78.65,
+      "velocity": 55,
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 77.65,
+      "end": 78.65,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 78.65,
+      "end": 79.65,
+      "velocity": 66,
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 79.65,
+      "end": 80.66,
+      "velocity": 62,
+      "source_window": 3
+    },
+    {
+      "note": 81,
+      "start": 79.65,
+      "end": 80.65,
+      "velocity": 70,
+      "source_window": 3
+    },
+    {
+      "note": 79,
+      "start": 80.64,
+      "end": 80.91,
+      "velocity": 69,
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 80.65,
+      "end": 80.92,
+      "velocity": 53,
+      "source_window": 4
+    },
+    {
+      "note": 36,
+      "start": 81.65,
+      "end": 85.68,
+      "velocity": 80,
+      "source_window": 4
+    },
+    {
+      "note": 45,
+      "start": 81.65,
+      "end": 85.68,
+      "velocity": 80,
+      "source_window": 4
+    },
+    {
+      "note": 52,
+      "start": 81.65,
+      "end": 85.68,
+      "velocity": 48,
+      "source_window": 4
+    },
+    {
+      "note": 60,
+      "start": 81.65,
+      "end": 82.93,
+      "velocity": 59,
+      "source_window": 4
+    },
+    {
+      "note": 76,
+      "start": 82.65,
+      "end": 82.92,
+      "velocity": 63,
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 83.65,
+      "end": 83.92,
+      "velocity": 52,
+      "source_window": 4
+    },
+    {
+      "note": 84,
+      "start": 83.65,
+      "end": 83.92,
+      "velocity": 66,
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 84.65,
+      "end": 84.92,
+      "velocity": 56,
+      "source_window": 4
+    },
+    {
+      "note": 34,
+      "start": 85.65,
+      "end": 89.69,
+      "velocity": 80,
+      "source_window": 4
+    },
+    {
+      "note": 46,
+      "start": 85.65,
+      "end": 89.69,
+      "velocity": 80,
+      "source_window": 4
+    },
+    {
+      "note": 53,
+      "start": 85.65,
+      "end": 89.69,
+      "velocity": 80,
+      "source_window": 4
+    },
+    {
+      "note": 65,
+      "start": 85.65,
+      "end": 86.91,
+      "velocity": 56,
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 86.65,
+      "end": 86.94,
+      "velocity": 62,
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 87.65,
+      "end": 87.93,
+      "velocity": 58,
+      "source_window": 4
+    },
+    {
+      "note": 82,
+      "start": 87.65,
+      "end": 87.92,
+      "velocity": 69,
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 88.65,
+      "end": 88.93,
+      "velocity": 59,
+      "source_window": 4
+    },
+    {
+      "note": 26,
+      "start": 89.65,
+      "end": 95.91,
+      "velocity": 51,
+      "source_window": 4
+    },
+    {
+      "note": 38,
+      "start": 89.65,
+      "end": 95.91,
+      "velocity": 51,
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 93.65,
+      "end": 95.65,
+      "velocity": 55,
+      "source_window": 4
+    },
+    {
+      "note": 53,
+      "start": 95.65,
+      "end": 95.91,
+      "velocity": 55,
+      "source_window": 4
+    },
+    {
+      "note": 24,
+      "start": 97.65,
+      "end": 105.67,
+      "velocity": 46,
+      "source_window": 4
+    },
+    {
+      "note": 36,
+      "start": 97.65,
+      "end": 105.67,
+      "velocity": 47,
+      "source_window": 4
+    },
+    {
+      "note": 52,
+      "start": 97.65,
+      "end": 99.65,
+      "velocity": 56,
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 99.65,
+      "end": 101.65,
+      "velocity": 59,
+      "source_window": 4
+    },
+    {
+      "note": 53,
+      "start": 101.64,
+      "end": 103.64,
+      "velocity": 47,
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 103.64,
+      "end": 105.64,
+      "velocity": 47,
+      "source_window": 5
+    },
+    {
+      "note": 50,
+      "start": 105.65,
+      "end": 109.64,
+      "velocity": 47,
+      "source_window": 5
+    },
+    {
+      "note": 48,
+      "start": 109.64,
+      "end": 111.64,
+      "velocity": 49,
+      "source_window": 5
+    },
+    {
+      "note": 50,
+      "start": 111.64,
+      "end": 113.64,
+      "velocity": 51,
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 113.64,
+      "end": 115.64,
+      "velocity": 51,
+      "source_window": 5
+    },
+    {
+      "note": 53,
+      "start": 115.64,
+      "end": 117.64,
+      "velocity": 52,
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 117.64,
+      "end": 119.64,
+      "velocity": 52,
+      "source_window": 5
+    },
+    {
+      "note": 45,
+      "start": 119.64,
+      "end": 121.64,
+      "velocity": 63,
+      "source_window": 5
+    },
+    {
+      "note": 43,
+      "start": 121.64,
+      "end": 127.67,
+      "velocity": 50,
+      "source_window": 6
+    },
+    {
+      "note": 69,
+      "start": 129.63,
+      "end": 131.64,
+      "velocity": 47,
+      "source_window": 6
+    },
+    {
+      "note": 86,
+      "start": 129.63,
+      "end": 131.68,
+      "velocity": 62,
+      "source_window": 6
+    },
+    {
+      "note": 67,
+      "start": 131.64,
+      "end": 132.64,
+      "velocity": 56,
+      "source_window": 6
+    },
+    {
+      "note": 82,
+      "start": 131.64,
+      "end": 132.64,
+      "velocity": 63,
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 132.64,
+      "end": 134.64,
+      "velocity": 51,
+      "source_window": 6
+    },
+    {
+      "note": 81,
+      "start": 132.64,
+      "end": 134.68,
+      "velocity": 62,
+      "source_window": 6
+    },
+    {
+      "note": 67,
+      "start": 134.64,
+      "end": 135.63,
+      "velocity": 59,
+      "source_window": 6
+    },
+    {
+      "note": 84,
+      "start": 134.64,
+      "end": 135.63,
+      "velocity": 66,
+      "source_window": 6
+    },
+    {
+      "note": 69,
+      "start": 135.64,
+      "end": 137.64,
+      "velocity": 55,
+      "source_window": 6
+    },
+    {
+      "note": 77,
+      "start": 135.64,
+      "end": 137.68,
+      "velocity": 62,
+      "source_window": 6
+    },
+    {
+      "note": 70,
+      "start": 137.64,
+      "end": 138.68,
+      "velocity": 55,
+      "source_window": 6
+    },
+    {
+      "note": 81,
+      "start": 137.64,
+      "end": 137.68,
+      "velocity": 62,
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 138.64,
+      "end": 144.64,
+      "velocity": 59,
+      "source_window": 6
+    },
+    {
+      "note": 69,
+      "start": 138.64,
+      "end": 144.64,
+      "velocity": 59,
+      "source_window": 6
+    },
+    {
+      "note": 74,
+      "start": 138.64,
+      "end": 144.64,
+      "velocity": 63,
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 144.64,
+      "end": 147.64,
+      "velocity": 45,
+      "source_window": 7
+    },
+    {
+      "note": 74,
+      "start": 144.64,
+      "end": 146.63,
+      "velocity": 49,
+      "source_window": 7
+    },
+    {
+      "note": 81,
+      "start": 144.64,
+      "end": 146.63,
+      "velocity": 59,
+      "source_window": 7
+    },
+    {
+      "note": 60,
+      "start": 146.63,
+      "end": 147.64,
+      "velocity": 49,
+      "source_window": 7
+    },
+    {
+      "note": 76,
+      "start": 146.63,
+      "end": 147.64,
+      "velocity": 56,
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 147.64,
+      "end": 150.65,
+      "velocity": 49,
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 147.64,
+      "end": 149.63,
+      "velocity": 53,
+      "source_window": 7
+    },
+    {
+      "note": 77,
+      "start": 147.64,
+      "end": 149.63,
+      "velocity": 59,
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 149.63,
+      "end": 150.64,
+      "velocity": 51,
+      "source_window": 7
+    },
+    {
+      "note": 79,
+      "start": 149.63,
+      "end": 150.64,
+      "velocity": 62,
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 150.64,
+      "end": 153.66,
+      "velocity": 48,
+      "source_window": 7
+    },
+    {
+      "note": 76,
+      "start": 150.64,
+      "end": 153.66,
+      "velocity": 56,
+      "source_window": 7
+    },
+    {
+      "note": 29,
+      "start": 153.64,
+      "end": 154.64,
+      "velocity": 46,
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 153.64,
+      "end": 159.64,
+      "velocity": 42,
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 153.64,
+      "end": 159.64,
+      "velocity": 48,
+      "source_window": 7
+    },
+    {
+      "note": 74,
+      "start": 153.64,
+      "end": 159.64,
+      "velocity": 55,
+      "source_window": 7
+    },
+    {
+      "note": 41,
+      "start": 154.64,
+      "end": 155.64,
+      "velocity": 47,
+      "source_window": 7
+    },
+    {
+      "note": 45,
+      "start": 155.64,
+      "end": 156.64,
+      "velocity": 52,
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 156.64,
+      "end": 157.64,
+      "velocity": 50,
+      "source_window": 7
+    },
+    {
+      "note": 53,
+      "start": 157.64,
+      "end": 158.64,
+      "velocity": 52,
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 158.64,
+      "end": 159.64,
+      "velocity": 53,
+      "source_window": 7
+    },
+    {
+      "note": 38,
+      "start": 159.65,
+      "end": 163.65,
+      "velocity": 80,
+      "source_window": 7
+    },
+    {
+      "note": 45,
+      "start": 159.65,
+      "end": 163.65,
+      "velocity": 80,
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 159.65,
+      "end": 163.65,
+      "velocity": 80,
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 159.65,
+      "end": 161.65,
+      "velocity": 53,
+      "source_window": 7
+    },
+    {
+      "note": 60,
+      "start": 161.64,
+      "end": 162.64,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 162.64,
+      "end": 163.64,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 36,
+      "start": 163.64,
+      "end": 167.64,
+      "velocity": 44,
+      "source_window": 8
+    },
+    {
+      "note": 43,
+      "start": 163.64,
+      "end": 167.64,
+      "velocity": 47,
+      "source_window": 8
+    },
+    {
+      "note": 48,
+      "start": 163.64,
+      "end": 167.64,
+      "velocity": 47,
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 163.64,
+      "end": 164.64,
+      "velocity": 55,
+      "source_window": 8
+    },
+    {
+      "note": 65,
+      "start": 164.64,
+      "end": 165.64,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 165.64,
+      "end": 166.64,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 57,
+      "start": 167.14,
+      "end": 167.64,
+      "velocity": 51,
+      "source_window": 8
+    },
+    {
+      "note": 34,
+      "start": 167.64,
+      "end": 171.64,
+      "velocity": 47,
+      "source_window": 8
+    },
+    {
+      "note": 46,
+      "start": 167.64,
+      "end": 171.64,
+      "velocity": 50,
+      "source_window": 8
+    },
+    {
+      "note": 50,
+      "start": 167.64,
+      "end": 171.64,
+      "velocity": 49,
+      "source_window": 8
+    },
+    {
+      "note": 55,
+      "start": 167.64,
+      "end": 169.64,
+      "velocity": 52,
+      "source_window": 8
+    },
+    {
+      "note": 53,
+      "start": 169.64,
+      "end": 170.64,
+      "velocity": 52,
+      "source_window": 8
+    },
+    {
+      "note": 55,
+      "start": 170.64,
+      "end": 171.64,
+      "velocity": 55,
+      "source_window": 8
+    },
+    {
+      "note": 36,
+      "start": 171.64,
+      "end": 175.64,
+      "velocity": 47,
+      "source_window": 8
+    },
+    {
+      "note": 48,
+      "start": 171.64,
+      "end": 175.64,
+      "velocity": 50,
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 171.64,
+      "end": 175.64,
+      "velocity": 52,
+      "source_window": 8
+    },
+    {
+      "note": 57,
+      "start": 171.64,
+      "end": 172.64,
+      "velocity": 55,
+      "source_window": 8
+    },
+    {
+      "note": 60,
+      "start": 172.64,
+      "end": 173.64,
+      "velocity": 56,
+      "source_window": 8
+    },
+    {
+      "note": 53,
+      "start": 173.64,
+      "end": 175.14,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 175.14,
+      "end": 175.64,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 34,
+      "start": 175.64,
+      "end": 179.64,
+      "velocity": 49,
+      "source_window": 8
+    },
+    {
+      "note": 46,
+      "start": 175.64,
+      "end": 179.64,
+      "velocity": 51,
+      "source_window": 8
+    },
+    {
+      "note": 50,
+      "start": 175.64,
+      "end": 179.64,
+      "velocity": 51,
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 177.64,
+      "end": 178.64,
+      "velocity": 58,
+      "source_window": 8
+    },
+    {
+      "note": 72,
+      "start": 178.64,
+      "end": 179.64,
+      "velocity": 60,
+      "source_window": 8
+    },
+    {
+      "note": 36,
+      "start": 179.64,
+      "end": 183.64,
+      "velocity": 51,
+      "source_window": 8
+    },
+    {
+      "note": 48,
+      "start": 179.64,
+      "end": 183.64,
+      "velocity": 53,
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 179.64,
+      "end": 181.64,
+      "velocity": 58,
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 181.64,
+      "end": 182.64,
+      "velocity": 52,
+      "source_window": 9
+    },
+    {
+      "note": 60,
+      "start": 182.64,
+      "end": 183.64,
+      "velocity": 53,
+      "source_window": 9
+    },
+    {
+      "note": 34,
+      "start": 183.64,
+      "end": 187.64,
+      "velocity": 46,
+      "source_window": 9
+    },
+    {
+      "note": 46,
+      "start": 183.64,
+      "end": 187.64,
+      "velocity": 47,
+      "source_window": 9
+    },
+    {
+      "note": 62,
+      "start": 183.64,
+      "end": 185.64,
+      "velocity": 54,
+      "source_window": 9
+    },
+    {
+      "note": 81,
+      "start": 185.64,
+      "end": 186.64,
+      "velocity": 62,
+      "source_window": 9
+    },
+    {
+      "note": 84,
+      "start": 186.64,
+      "end": 187.64,
+      "velocity": 66,
+      "source_window": 9
+    },
+    {
+      "note": 33,
+      "start": 187.64,
+      "end": 191.64,
+      "velocity": 53,
+      "source_window": 9
+    },
+    {
+      "note": 45,
+      "start": 187.64,
+      "end": 191.64,
+      "velocity": 51,
+      "source_window": 9
+    },
+    {
+      "note": 76,
+      "start": 187.64,
+      "end": 189.64,
+      "velocity": 62,
+      "source_window": 9
+    },
+    {
+      "note": 74,
+      "start": 189.64,
+      "end": 190.64,
+      "velocity": 59,
+      "source_window": 9
+    },
+    {
+      "note": 72,
+      "start": 190.64,
+      "end": 191.64,
+      "velocity": 59,
+      "source_window": 9
+    },
+    {
+      "note": 31,
+      "start": 191.64,
+      "end": 195.65,
+      "velocity": 50,
+      "source_window": 9
+    },
+    {
+      "note": 43,
+      "start": 191.64,
+      "end": 195.65,
+      "velocity": 51,
+      "source_window": 9
+    },
+    {
+      "note": 74,
+      "start": 191.64,
+      "end": 195.64,
+      "velocity": 62,
+      "source_window": 9
+    },
+    {
+      "note": 26,
+      "start": 195.65,
+      "end": 196.64,
+      "velocity": 53,
+      "source_window": 9
+    },
+    {
+      "note": 38,
+      "start": 196.64,
+      "end": 197.64,
+      "velocity": 57,
+      "source_window": 9
+    },
+    {
+      "note": 45,
+      "start": 197.64,
+      "end": 198.64,
+      "velocity": 62,
+      "source_window": 9
+    },
+    {
+      "note": 50,
+      "start": 198.64,
+      "end": 199.64,
+      "velocity": 59,
+      "source_window": 9
+    },
+    {
+      "note": 45,
+      "start": 199.64,
+      "end": 200.76,
+      "velocity": 60,
+      "source_window": 9
+    },
+    {
+      "note": 50,
+      "start": 200.76,
+      "end": 202.08,
+      "velocity": 50,
+      "source_window": 10
+    },
+    {
+      "note": 53,
+      "start": 202.029,
+      "end": 205.28,
+      "velocity": 49,
+      "source_window": 10
+    },
+    {
+      "note": 57,
+      "start": 203.51,
+      "end": 205.28,
+      "velocity": 45,
+      "source_window": 10
+    },
+    {
+      "note": 38,
+      "start": 205.28,
+      "end": 209.28,
+      "velocity": 80,
+      "source_window": 10
+    },
+    {
+      "note": 45,
+      "start": 205.28,
+      "end": 206.32,
+      "velocity": 44,
+      "source_window": 10
+    },
+    {
+      "note": 50,
+      "start": 206.28,
+      "end": 207.28,
+      "velocity": 47,
+      "source_window": 10
+    },
+    {
+      "note": 57,
+      "start": 207.28,
+      "end": 209.28,
+      "velocity": 59,
+      "source_window": 10
+    },
+    {
+      "note": 36,
+      "start": 209.28,
+      "end": 221.32999999999998,
+      "velocity": 44,
+      "source_window": 10
+    },
+    {
+      "note": 45,
+      "start": 209.28,
+      "end": 213.31,
+      "velocity": 42,
+      "source_window": 10
+    },
+    {
+      "note": 52,
+      "start": 209.28,
+      "end": 213.31,
+      "velocity": 46,
+      "source_window": 10
+    },
+    {
+      "note": 57,
+      "start": 209.28,
+      "end": 213.31,
+      "velocity": 52,
+      "source_window": 10
+    },
+    {
+      "note": 34,
+      "start": 213.28,
+      "end": 217.29,
+      "velocity": 45,
+      "source_window": 10
+    },
+    {
+      "note": 43,
+      "start": 213.28,
+      "end": 214.32,
+      "velocity": 45,
+      "source_window": 10
+    },
+    {
+      "note": 46,
+      "start": 213.29,
+      "end": 214.32,
+      "velocity": 39,
+      "source_window": 10
+    },
+    {
+      "note": 50,
+      "start": 214.29,
+      "end": 215.29,
+      "velocity": 44,
+      "source_window": 10
+    },
+    {
+      "note": 55,
+      "start": 215.29,
+      "end": 217.29,
+      "velocity": 62,
+      "source_window": 10
+    },
+    {
+      "note": 36,
+      "start": 217.29,
+      "end": 221.32999999999998,
+      "velocity": 45,
+      "source_window": 10
+    },
+    {
+      "note": 48,
+      "start": 217.29,
+      "end": 221.32,
+      "velocity": 44,
+      "source_window": 10
+    },
+    {
+      "note": 52,
+      "start": 217.29,
+      "end": 221.32,
+      "velocity": 47,
+      "source_window": 10
+    },
+    {
+      "note": 55,
+      "start": 217.29,
+      "end": 221.32,
+      "velocity": 54,
+      "source_window": 10
+    },
+    {
+      "note": 34,
+      "start": 221.27,
+      "end": 225.27,
+      "velocity": 45,
+      "source_window": 11
+    },
+    {
+      "note": 46,
+      "start": 221.27,
+      "end": 222.35,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 50,
+      "start": 222.27,
+      "end": 223.27,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 57,
+      "start": 223.27,
+      "end": 225.27,
+      "velocity": 59,
+      "source_window": 11
+    },
+    {
+      "note": 36,
+      "start": 225.28,
+      "end": 245.28,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 48,
+      "start": 225.28,
+      "end": 229.28,
+      "velocity": 45,
+      "source_window": 11
+    },
+    {
+      "note": 52,
+      "start": 225.28,
+      "end": 229.28,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 57,
+      "start": 225.28,
+      "end": 229.28,
+      "velocity": 54,
+      "source_window": 11
+    },
+    {
+      "note": 33,
+      "start": 229.28,
+      "end": 230.28,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 45,
+      "start": 229.28,
+      "end": 230.28,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 57,
+      "start": 230.28,
+      "end": 231.28,
+      "velocity": 53,
+      "source_window": 11
+    },
+    {
+      "note": 64,
+      "start": 231.28,
+      "end": 233.28,
+      "velocity": 56,
+      "source_window": 11
+    },
+    {
+      "note": 45,
+      "start": 233.28,
+      "end": 234.32,
+      "velocity": 47,
+      "source_window": 11
+    },
+    {
+      "note": 52,
+      "start": 234.28,
+      "end": 235.28,
+      "velocity": 53,
+      "source_window": 11
+    },
+    {
+      "note": 57,
+      "start": 235.28,
+      "end": 236.28,
+      "velocity": 55,
+      "source_window": 11
+    },
+    {
+      "note": 60,
+      "start": 236.28,
+      "end": 237.27,
+      "velocity": 59,
+      "source_window": 11
+    },
+    {
+      "note": 38,
+      "start": 237.28,
+      "end": 241.28,
+      "velocity": 51,
+      "source_window": 11
+    },
+    {
+      "note": 45,
+      "start": 237.28,
+      "end": 240.28,
+      "velocity": 54,
+      "source_window": 11
+    },
+    {
+      "note": 50,
+      "start": 237.28,
+      "end": 240.28,
+      "velocity": 80,
+      "source_window": 11
+    },
+    {
+      "note": 62,
+      "start": 237.28,
+      "end": 239.28,
+      "velocity": 62,
+      "source_window": 11
+    },
+    {
+      "note": 74,
+      "start": 238.28,
+      "end": 239.28,
+      "velocity": 66,
+      "source_window": 11
+    },
+    {
+      "note": 64,
+      "start": 239.28,
+      "end": 240.28,
+      "velocity": 63,
+      "source_window": 11
+    },
+    {
+      "note": 81,
+      "start": 239.28,
+      "end": 240.28,
+      "velocity": 68,
+      "source_window": 11
+    },
+    {
+      "note": 65,
+      "start": 240.28,
+      "end": 241.28,
+      "velocity": 59,
+      "source_window": 12
+    },
+    {
+      "note": 36,
+      "start": 241.28,
+      "end": 245.29,
+      "velocity": 50,
+      "source_window": 12
+    },
+    {
+      "note": 45,
+      "start": 241.28,
+      "end": 245.29,
+      "velocity": 48,
+      "source_window": 12
+    },
+    {
+      "note": 52,
+      "start": 241.28,
+      "end": 243.28,
+      "velocity": 52,
+      "source_window": 12
+    },
+    {
+      "note": 64,
+      "start": 241.28,
+      "end": 243.28,
+      "velocity": 63,
+      "source_window": 12
+    },
+    {
+      "note": 62,
+      "start": 243.28,
+      "end": 244.28,
+      "velocity": 59,
+      "source_window": 12
+    },
+    {
+      "note": 60,
+      "start": 244.28,
+      "end": 245.29,
+      "velocity": 71,
+      "source_window": 12
+    },
+    {
+      "note": 72,
+      "start": 244.28,
+      "end": 245.29,
+      "velocity": 66,
+      "source_window": 12
+    },
+    {
+      "note": 34,
+      "start": 245.29,
+      "end": 249.31,
+      "velocity": 50,
+      "source_window": 12
+    },
+    {
+      "note": 43,
+      "start": 245.29,
+      "end": 249.31,
+      "velocity": 51,
+      "source_window": 12
+    },
+    {
+      "note": 50,
+      "start": 245.29,
+      "end": 249.31,
+      "velocity": 52,
+      "source_window": 12
+    },
+    {
+      "note": 62,
+      "start": 245.29,
+      "end": 247.28,
+      "velocity": 59,
+      "source_window": 12
+    },
+    {
+      "note": 74,
+      "start": 246.28,
+      "end": 247.28,
+      "velocity": 68,
+      "source_window": 12
+    },
+    {
+      "note": 64,
+      "start": 247.28,
+      "end": 248.28,
+      "velocity": 66,
+      "source_window": 12
+    },
+    {
+      "note": 79,
+      "start": 247.28,
+      "end": 248.33,
+      "velocity": 72,
+      "source_window": 12
+    },
+    {
+      "note": 65,
+      "start": 248.28,
+      "end": 249.31,
+      "velocity": 62,
+      "source_window": 12
+    },
+    {
+      "note": 36,
+      "start": 249.28,
+      "end": 253.06,
+      "velocity": 53,
+      "source_window": 12
+    },
+    {
+      "note": 45,
+      "start": 249.28,
+      "end": 253.06,
+      "velocity": 53,
+      "source_window": 12
+    },
+    {
+      "note": 52,
+      "start": 249.28,
+      "end": 251.28,
+      "velocity": 56,
+      "source_window": 12
+    },
+    {
+      "note": 64,
+      "start": 249.28,
+      "end": 251.28,
+      "velocity": 65,
+      "source_window": 12
+    },
+    {
+      "note": 62,
+      "start": 251.28,
+      "end": 252.28,
+      "velocity": 59,
+      "source_window": 12
+    },
+    {
+      "note": 77,
+      "start": 251.28,
+      "end": 252.28,
+      "velocity": 66,
+      "source_window": 12
+    },
+    {
+      "note": 60,
+      "start": 252.28,
+      "end": 253.06,
+      "velocity": 62,
+      "source_window": 12
+    },
+    {
+      "note": 76,
+      "start": 252.28,
+      "end": 253.06,
+      "velocity": 66,
+      "source_window": 12
+    },
+    {
+      "note": 34,
+      "start": 253.28,
+      "end": 257.32,
+      "velocity": 53,
+      "source_window": 12
+    },
+    {
+      "note": 46,
+      "start": 253.28,
+      "end": 257.32,
+      "velocity": 55,
+      "source_window": 12
+    },
+    {
+      "note": 50,
+      "start": 253.28,
+      "end": 257.32,
+      "velocity": 56,
+      "source_window": 12
+    },
+    {
+      "note": 62,
+      "start": 253.28,
+      "end": 255.28,
+      "velocity": 59,
+      "source_window": 12
+    },
+    {
+      "note": 74,
+      "start": 254.28,
+      "end": 255.28,
+      "velocity": 68,
+      "source_window": 12
+    },
+    {
+      "note": 67,
+      "start": 255.28,
+      "end": 256.28,
+      "velocity": 66,
+      "source_window": 12
+    },
+    {
+      "note": 81,
+      "start": 255.28,
+      "end": 256.329,
+      "velocity": 70,
+      "source_window": 12
+    },
+    {
+      "note": 65,
+      "start": 256.28,
+      "end": 257.32,
+      "velocity": 62,
+      "source_window": 12
+    },
+    {
+      "note": 33,
+      "start": 257.28,
+      "end": 261.29,
+      "velocity": 56,
+      "source_window": 12
+    },
+    {
+      "note": 45,
+      "start": 257.28,
+      "end": 261.29,
+      "velocity": 56,
+      "source_window": 12
+    },
+    {
+      "note": 52,
+      "start": 257.28,
+      "end": 261.29,
+      "velocity": 56,
+      "source_window": 12
+    },
+    {
+      "note": 64,
+      "start": 257.28,
+      "end": 258.29,
+      "velocity": 65,
+      "source_window": 12
+    },
+    {
+      "note": 67,
+      "start": 258.28,
+      "end": 259.28,
+      "velocity": 66,
+      "source_window": 12
+    },
+    {
+      "note": 65,
+      "start": 259.28,
+      "end": 260.28,
+      "velocity": 64,
+      "source_window": 12
+    },
+    {
+      "note": 64,
+      "start": 260.27,
+      "end": 261.28,
+      "velocity": 62,
+      "source_window": 13
+    },
+    {
+      "note": 43,
+      "start": 261.28,
+      "end": 262.28,
+      "velocity": 47,
+      "source_window": 13
+    },
+    {
+      "note": 58,
+      "start": 261.28,
+      "end": 265.54,
+      "velocity": 55,
+      "source_window": 13
+    },
+    {
+      "note": 62,
+      "start": 261.28,
+      "end": 263.28,
+      "velocity": 59,
+      "source_window": 13
+    },
+    {
+      "note": 74,
+      "start": 262.28,
+      "end": 263.28,
+      "velocity": 66,
+      "source_window": 13
+    },
+    {
+      "note": 67,
+      "start": 263.28,
+      "end": 264.28,
+      "velocity": 62,
+      "source_window": 13
+    },
+    {
+      "note": 82,
+      "start": 263.28,
+      "end": 265.28,
+      "velocity": 71,
+      "source_window": 13
+    },
+    {
+      "note": 65,
+      "start": 264.28,
+      "end": 265.28,
+      "velocity": 60,
+      "source_window": 13
+    },
+    {
+      "note": 34,
+      "start": 265.28,
+      "end": 269.28,
+      "velocity": 49,
+      "source_window": 13
+    },
+    {
+      "note": 43,
+      "start": 265.28,
+      "end": 269.28,
+      "velocity": 51,
+      "source_window": 13
+    },
+    {
+      "note": 55,
+      "start": 265.28,
+      "end": 266.28,
+      "velocity": 55,
+      "source_window": 13
+    },
+    {
+      "note": 64,
+      "start": 265.28,
+      "end": 266.28,
+      "velocity": 64,
+      "source_window": 13
+    },
+    {
+      "note": 67,
+      "start": 266.28,
+      "end": 267.28,
+      "velocity": 66,
+      "source_window": 13
+    },
+    {
+      "note": 65,
+      "start": 267.28,
+      "end": 268.28,
+      "velocity": 63,
+      "source_window": 13
+    },
+    {
+      "note": 81,
+      "start": 267.28,
+      "end": 268.28,
+      "velocity": 70,
+      "source_window": 13
+    },
+    {
+      "note": 64,
+      "start": 268.28,
+      "end": 269.28,
+      "velocity": 64,
+      "source_window": 13
+    },
+    {
+      "note": 79,
+      "start": 268.28,
+      "end": 269.28,
+      "velocity": 70,
+      "source_window": 13
+    },
+    {
+      "note": 36,
+      "start": 269.28,
+      "end": 273.29,
+      "velocity": 53,
+      "source_window": 13
+    },
+    {
+      "note": 45,
+      "start": 269.28,
+      "end": 273.28,
+      "velocity": 56,
+      "source_window": 13
+    },
+    {
+      "note": 52,
+      "start": 269.28,
+      "end": 273.28,
+      "velocity": 59,
+      "source_window": 13
+    },
+    {
+      "note": 60,
+      "start": 269.28,
+      "end": 271.28,
+      "velocity": 63,
+      "source_window": 13
+    },
+    {
+      "note": 76,
+      "start": 270.28,
+      "end": 271.28,
+      "velocity": 71,
+      "source_window": 13
+    },
+    {
+      "note": 62,
+      "start": 271.28,
+      "end": 272.28,
+      "velocity": 63,
+      "source_window": 13
+    },
+    {
+      "note": 84,
+      "start": 271.28,
+      "end": 273.28,
+      "velocity": 72,
+      "source_window": 13
+    },
+    {
+      "note": 64,
+      "start": 272.28,
+      "end": 273.28,
+      "velocity": 66,
+      "source_window": 13
+    },
+    {
+      "note": 34,
+      "start": 273.29,
+      "end": 281.28,
+      "velocity": 53,
+      "source_window": 13
+    },
+    {
+      "note": 46,
+      "start": 273.29,
+      "end": 281.28,
+      "velocity": 56,
+      "source_window": 13
+    },
+    {
+      "note": 53,
+      "start": 273.29,
+      "end": 274.28,
+      "velocity": 59,
+      "source_window": 13
+    },
+    {
+      "note": 65,
+      "start": 273.29,
+      "end": 274.28,
+      "velocity": 66,
+      "source_window": 13
+    },
+    {
+      "note": 67,
+      "start": 274.28,
+      "end": 275.28,
+      "velocity": 69,
+      "source_window": 13
+    },
+    {
+      "note": 69,
+      "start": 275.28,
+      "end": 276.28,
+      "velocity": 66,
+      "source_window": 13
+    },
+    {
+      "note": 82,
+      "start": 275.28,
+      "end": 276.45,
+      "velocity": 75,
+      "source_window": 13
+    },
+    {
+      "note": 70,
+      "start": 276.28,
+      "end": 277.27,
+      "velocity": 68,
+      "source_window": 13
+    },
+    {
+      "note": 62,
+      "start": 277.28,
+      "end": 281.28,
+      "velocity": 52,
+      "source_window": 13
+    },
+    {
+      "note": 69,
+      "start": 277.28,
+      "end": 281.28,
+      "velocity": 54,
+      "source_window": 13
+    },
+    {
+      "note": 81,
+      "start": 277.28,
+      "end": 281.28,
+      "velocity": 63,
+      "source_window": 13
+    },
+    {
+      "note": 77,
+      "start": 281.27,
+      "end": 285.28,
+      "velocity": 52,
+      "source_window": 14
+    },
+    {
+      "note": 86,
+      "start": 281.27,
+      "end": 285.28,
+      "velocity": 62,
+      "source_window": 14
+    },
+    {
+      "note": 79,
+      "start": 285.28,
+      "end": 289.28,
+      "velocity": 52,
+      "source_window": 14
+    },
+    {
+      "note": 82,
+      "start": 285.28,
+      "end": 289.28,
+      "velocity": 59,
+      "source_window": 14
+    },
+    {
+      "note": 77,
+      "start": 289.28,
+      "end": 293.28,
+      "velocity": 51,
+      "source_window": 14
+    },
+    {
+      "note": 81,
+      "start": 289.28,
+      "end": 293.28,
+      "velocity": 55,
+      "source_window": 14
+    },
+    {
+      "note": 76,
+      "start": 293.28,
+      "end": 297.27,
+      "velocity": 52,
+      "source_window": 14
+    },
+    {
+      "note": 84,
+      "start": 293.28,
+      "end": 297.27,
+      "velocity": 60,
+      "source_window": 14
+    },
+    {
+      "note": 38,
+      "start": 297.28,
+      "end": 311.29,
+      "velocity": 42,
+      "source_window": 14
+    },
+    {
+      "note": 50,
+      "start": 297.28,
+      "end": 311.29,
+      "velocity": 40,
+      "source_window": 14
+    },
+    {
+      "note": 74,
+      "start": 297.28,
+      "end": 301.28,
+      "velocity": 51,
+      "source_window": 14
+    },
+    {
+      "note": 77,
+      "start": 297.28,
+      "end": 301.28,
+      "velocity": 56,
+      "source_window": 14
+    },
+    {
+      "note": 69,
+      "start": 301.27,
+      "end": 302.31,
+      "velocity": 47,
+      "source_window": 15
+    },
+    {
+      "note": 74,
+      "start": 303.28,
+      "end": 303.82,
+      "velocity": 49,
+      "source_window": 15
+    },
+    {
+      "note": 77,
+      "start": 305.28,
+      "end": 306.32,
+      "velocity": 51,
+      "source_window": 15
+    },
+    {
+      "note": 81,
+      "start": 307.27,
+      "end": 308.31,
+      "velocity": 47,
+      "source_window": 15
+    },
+    {
+      "note": 86,
+      "start": 309.28,
+      "end": 309.82,
+      "velocity": 56,
+      "source_window": 15
+    },
+    {
+      "note": 69,
+      "start": 309.29,
+      "end": 309.82,
+      "velocity": 43,
+      "source_window": 15
+    },
+    {
+      "note": 74,
+      "start": 309.29,
+      "end": 309.82,
+      "velocity": 42,
+      "source_window": 15
+    },
+    {
+      "note": 69,
+      "start": 311.78,
+      "end": 312.28,
+      "velocity": 45,
+      "source_window": 15
+    },
+    {
+      "note": 67,
+      "start": 312.28,
+      "end": 312.78,
+      "velocity": 53,
+      "source_window": 15
+    },
+    {
+      "note": 65,
+      "start": 312.78,
+      "end": 313.28,
+      "velocity": 47,
+      "source_window": 15
+    },
+    {
+      "note": 64,
+      "start": 313.28,
+      "end": 313.78,
+      "velocity": 50,
+      "source_window": 15
+    },
+    {
+      "note": 65,
+      "start": 313.78,
+      "end": 314.28,
+      "velocity": 49,
+      "source_window": 15
+    },
+    {
+      "note": 62,
+      "start": 314.28,
+      "end": 314.78,
+      "velocity": 47,
+      "source_window": 15
+    },
+    {
+      "note": 57,
+      "start": 315.29,
+      "end": 315.78,
+      "velocity": 45,
+      "source_window": 15
+    },
+    {
+      "note": 41,
+      "start": 315.3,
+      "end": 318.78,
+      "velocity": 44,
+      "source_window": 15
+    },
+    {
+      "note": 50,
+      "start": 315.3,
+      "end": 318.78,
+      "velocity": 45,
+      "source_window": 15
+    },
+    {
+      "note": 69,
+      "start": 315.78,
+      "end": 316.28,
+      "velocity": 57,
+      "source_window": 15
+    },
+    {
+      "note": 67,
+      "start": 316.28,
+      "end": 316.78,
+      "velocity": 55,
+      "source_window": 15
+    },
+    {
+      "note": 65,
+      "start": 316.78,
+      "end": 317.28,
+      "velocity": 50,
+      "source_window": 15
+    },
+    {
+      "note": 64,
+      "start": 317.28,
+      "end": 317.78,
+      "velocity": 53,
+      "source_window": 15
+    },
+    {
+      "note": 65,
+      "start": 317.78,
+      "end": 318.28,
+      "velocity": 51,
+      "source_window": 15
+    },
+    {
+      "note": 62,
+      "start": 318.28,
+      "end": 318.78,
+      "velocity": 47,
+      "source_window": 15
+    },
+    {
+      "note": 58,
+      "start": 319.29,
+      "end": 319.78,
+      "velocity": 45,
+      "source_window": 15
+    },
+    {
+      "note": 43,
+      "start": 319.3,
+      "end": 322.78,
+      "velocity": 45,
+      "source_window": 15
+    },
+    {
+      "note": 50,
+      "start": 319.3,
+      "end": 322.78,
+      "velocity": 45,
+      "source_window": 15
+    },
+    {
+      "note": 69,
+      "start": 319.78,
+      "end": 320.28,
+      "velocity": 59,
+      "source_window": 15
+    },
+    {
+      "note": 67,
+      "start": 320.27,
+      "end": 320.78,
+      "velocity": 62,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 320.78,
+      "end": 321.28,
+      "velocity": 53,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 321.28,
+      "end": 321.78,
+      "velocity": 55,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 321.78,
+      "end": 322.28,
+      "velocity": 53,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 322.28,
+      "end": 322.78,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 33,
+      "start": 323.28,
+      "end": 326.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 45,
+      "start": 323.28,
+      "end": 326.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 52,
+      "start": 323.28,
+      "end": 326.78,
+      "velocity": 42,
+      "source_window": 16
+    },
+    {
+      "note": 60,
+      "start": 323.28,
+      "end": 323.78,
+      "velocity": 51,
+      "source_window": 16
+    },
+    {
+      "note": 67,
+      "start": 323.78,
+      "end": 324.28,
+      "velocity": 56,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 324.28,
+      "end": 324.78,
+      "velocity": 53,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 324.78,
+      "end": 325.28,
+      "velocity": 53,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 325.28,
+      "end": 325.78,
+      "velocity": 51,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 325.78,
+      "end": 326.28,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 60,
+      "start": 326.28,
+      "end": 326.78,
+      "velocity": 50,
+      "source_window": 16
+    },
+    {
+      "note": 34,
+      "start": 327.28,
+      "end": 330.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 46,
+      "start": 327.28,
+      "end": 330.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 53,
+      "start": 327.28,
+      "end": 330.78,
+      "velocity": 42,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 327.28,
+      "end": 327.78,
+      "velocity": 51,
+      "source_window": 16
+    },
+    {
+      "note": 69,
+      "start": 327.78,
+      "end": 328.28,
+      "velocity": 57,
+      "source_window": 16
+    },
+    {
+      "note": 67,
+      "start": 328.28,
+      "end": 328.78,
+      "velocity": 56,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 328.78,
+      "end": 329.28,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 329.28,
+      "end": 329.78,
+      "velocity": 53,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 329.78,
+      "end": 330.28,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 330.28,
+      "end": 330.78,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 36,
+      "start": 331.28,
+      "end": 334.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 48,
+      "start": 331.28,
+      "end": 334.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 52,
+      "start": 331.28,
+      "end": 334.78,
+      "velocity": 42,
+      "source_window": 16
+    },
+    {
+      "note": 60,
+      "start": 331.28,
+      "end": 331.78,
+      "velocity": 51,
+      "source_window": 16
+    },
+    {
+      "note": 67,
+      "start": 331.78,
+      "end": 332.28,
+      "velocity": 59,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 332.28,
+      "end": 332.78,
+      "velocity": 55,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 332.78,
+      "end": 333.28,
+      "velocity": 55,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 333.28,
+      "end": 333.78,
+      "velocity": 53,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 333.78,
+      "end": 334.28,
+      "velocity": 55,
+      "source_window": 16
+    },
+    {
+      "note": 60,
+      "start": 334.28,
+      "end": 334.78,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 38,
+      "start": 335.28,
+      "end": 338.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 45,
+      "start": 335.28,
+      "end": 338.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 50,
+      "start": 335.28,
+      "end": 338.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 53,
+      "start": 335.28,
+      "end": 338.78,
+      "velocity": 44,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 335.28,
+      "end": 335.78,
+      "velocity": 54,
+      "source_window": 16
+    },
+    {
+      "note": 69,
+      "start": 335.78,
+      "end": 336.28,
+      "velocity": 59,
+      "source_window": 16
+    },
+    {
+      "note": 67,
+      "start": 336.28,
+      "end": 336.78,
+      "velocity": 58,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 336.78,
+      "end": 337.28,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 64,
+      "start": 337.28,
+      "end": 337.78,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 337.78,
+      "end": 338.28,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 338.28,
+      "end": 338.78,
+      "velocity": 52,
+      "source_window": 16
+    },
+    {
+      "note": 38,
+      "start": 339.28,
+      "end": 342.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 45,
+      "start": 339.28,
+      "end": 342.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 50,
+      "start": 339.28,
+      "end": 342.78,
+      "velocity": 80,
+      "source_window": 16
+    },
+    {
+      "note": 53,
+      "start": 339.28,
+      "end": 342.78,
+      "velocity": 39,
+      "source_window": 16
+    },
+    {
+      "note": 62,
+      "start": 339.28,
+      "end": 339.78,
+      "velocity": 51,
+      "source_window": 16
+    },
+    {
+      "note": 67,
+      "start": 339.78,
+      "end": 340.28,
+      "velocity": 56,
+      "source_window": 16
+    },
+    {
+      "note": 65,
+      "start": 340.27,
+      "end": 340.79,
+      "velocity": 45,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 340.78,
+      "end": 341.08,
+      "velocity": 46,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 341.28,
+      "end": 342.04,
+      "velocity": 50,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 341.78,
+      "end": 342.32,
+      "velocity": 47,
+      "source_window": 17
+    },
+    {
+      "note": 62,
+      "start": 342.28,
+      "end": 342.82,
+      "velocity": 49,
+      "source_window": 17
+    },
+    {
+      "note": 41,
+      "start": 343.28,
+      "end": 346.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 50,
+      "start": 343.28,
+      "end": 346.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 53,
+      "start": 343.28,
+      "end": 346.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 74,
+      "start": 343.28,
+      "end": 345.28,
+      "velocity": 62,
+      "source_window": 17
+    },
+    {
+      "note": 86,
+      "start": 343.28,
+      "end": 345.28,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 69,
+      "start": 343.78,
+      "end": 344.32,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 67,
+      "start": 344.28,
+      "end": 344.78,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 344.78,
+      "end": 345.28,
+      "velocity": 47,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 345.28,
+      "end": 345.82,
+      "velocity": 50,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 345.78,
+      "end": 346.28,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 62,
+      "start": 346.28,
+      "end": 346.78,
+      "velocity": 49,
+      "source_window": 17
+    },
+    {
+      "note": 70,
+      "start": 346.28,
+      "end": 347.04,
+      "velocity": 73,
+      "source_window": 17
+    },
+    {
+      "note": 82,
+      "start": 346.28,
+      "end": 347.04,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 43,
+      "start": 347.28,
+      "end": 350.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 50,
+      "start": 347.28,
+      "end": 350.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 55,
+      "start": 347.28,
+      "end": 350.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 69,
+      "start": 347.28,
+      "end": 348.32,
+      "velocity": 62,
+      "source_window": 17
+    },
+    {
+      "note": 81,
+      "start": 347.28,
+      "end": 349.28,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 69,
+      "start": 347.78,
+      "end": 348.32,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 67,
+      "start": 348.28,
+      "end": 348.78,
+      "velocity": 53,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 348.78,
+      "end": 349.28,
+      "velocity": 47,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 349.28,
+      "end": 349.82,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 349.78,
+      "end": 350.28,
+      "velocity": 51,
+      "source_window": 17
+    },
+    {
+      "note": 62,
+      "start": 350.28,
+      "end": 350.78,
+      "velocity": 49,
+      "source_window": 17
+    },
+    {
+      "note": 72,
+      "start": 350.28,
+      "end": 350.79,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 84,
+      "start": 350.28,
+      "end": 350.79,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 45,
+      "start": 351.28,
+      "end": 354.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 52,
+      "start": 351.28,
+      "end": 354.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 57,
+      "start": 351.28,
+      "end": 354.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 351.28,
+      "end": 352.78,
+      "velocity": 59,
+      "source_window": 17
+    },
+    {
+      "note": 76,
+      "start": 351.28,
+      "end": 352.78,
+      "velocity": 63,
+      "source_window": 17
+    },
+    {
+      "note": 67,
+      "start": 351.78,
+      "end": 352.78,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 352.28,
+      "end": 353.28,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 352.78,
+      "end": 353.28,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 62,
+      "start": 353.28,
+      "end": 353.8,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 353.78,
+      "end": 354.54,
+      "velocity": 59,
+      "source_window": 17
+    },
+    {
+      "note": 60,
+      "start": 354.28,
+      "end": 354.8,
+      "velocity": 56,
+      "source_window": 17
+    },
+    {
+      "note": 74,
+      "start": 354.28,
+      "end": 354.8,
+      "velocity": 70,
+      "source_window": 17
+    },
+    {
+      "note": 46,
+      "start": 355.28,
+      "end": 358.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 53,
+      "start": 355.28,
+      "end": 358.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 58,
+      "start": 355.28,
+      "end": 358.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 69,
+      "start": 355.28,
+      "end": 356.78,
+      "velocity": 68,
+      "source_window": 17
+    },
+    {
+      "note": 69,
+      "start": 355.28,
+      "end": 356.78,
+      "velocity": 59,
+      "source_window": 17
+    },
+    {
+      "note": 81,
+      "start": 355.28,
+      "end": 356.78,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 69,
+      "start": 355.78,
+      "end": 356.78,
+      "velocity": 55,
+      "source_window": 17
+    },
+    {
+      "note": 67,
+      "start": 356.28,
+      "end": 356.79,
+      "velocity": 55,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 356.78,
+      "end": 357.28,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 357.28,
+      "end": 357.79,
+      "velocity": 56,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 357.78,
+      "end": 358.28,
+      "velocity": 56,
+      "source_window": 17
+    },
+    {
+      "note": 62,
+      "start": 358.28,
+      "end": 358.54,
+      "velocity": 52,
+      "source_window": 17
+    },
+    {
+      "note": 72,
+      "start": 358.28,
+      "end": 358.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 84,
+      "start": 358.28,
+      "end": 358.54,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 358.78,
+      "end": 359.03,
+      "velocity": 66,
+      "source_window": 17
+    },
+    {
+      "note": 77,
+      "start": 358.78,
+      "end": 359.03,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 48,
+      "start": 359.28,
+      "end": 363.03,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 55,
+      "start": 359.28,
+      "end": 363.03,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 60,
+      "start": 359.28,
+      "end": 363.03,
+      "velocity": 80,
+      "source_window": 17
+    },
+    {
+      "note": 64,
+      "start": 359.28,
+      "end": 360.78,
+      "velocity": 62,
+      "source_window": 17
+    },
+    {
+      "note": 76,
+      "start": 359.28,
+      "end": 360.78,
+      "velocity": 69,
+      "source_window": 17
+    },
+    {
+      "note": 67,
+      "start": 359.78,
+      "end": 360.78,
+      "velocity": 56,
+      "source_window": 17
+    },
+    {
+      "note": 65,
+      "start": 360.28,
+      "end": 360.78,
+      "velocity": 52,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 360.78,
+      "end": 361.28,
+      "velocity": 55,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 361.28,
+      "end": 361.78,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 361.78,
+      "end": 362.28,
+      "velocity": 59,
+      "source_window": 18
+    },
+    {
+      "note": 60,
+      "start": 362.28,
+      "end": 363.28,
+      "velocity": 56,
+      "source_window": 18
+    },
+    {
+      "note": 69,
+      "start": 362.28,
+      "end": 362.78,
+      "velocity": 66,
+      "source_window": 18
+    },
+    {
+      "note": 81,
+      "start": 362.28,
+      "end": 362.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 72,
+      "start": 362.78,
+      "end": 363.28,
+      "velocity": 68,
+      "source_window": 18
+    },
+    {
+      "note": 84,
+      "start": 362.78,
+      "end": 363.28,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 38,
+      "start": 363.28,
+      "end": 363.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 45,
+      "start": 363.28,
+      "end": 363.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 50,
+      "start": 363.28,
+      "end": 363.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 76,
+      "start": 363.28,
+      "end": 363.78,
+      "velocity": 66,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 363.29,
+      "end": 363.78,
+      "velocity": 59,
+      "source_window": 18
+    },
+    {
+      "note": 67,
+      "start": 363.78,
+      "end": 364.28,
+      "velocity": 56,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 364.28,
+      "end": 364.78,
+      "velocity": 52,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 364.78,
+      "end": 365.28,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 365.28,
+      "end": 365.78,
+      "velocity": 55,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 365.78,
+      "end": 366.28,
+      "velocity": 52,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 366.28,
+      "end": 367.28,
+      "velocity": 51,
+      "source_window": 18
+    },
+    {
+      "note": 26,
+      "start": 367.28,
+      "end": 367.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 38,
+      "start": 367.28,
+      "end": 367.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 367.28,
+      "end": 367.78,
+      "velocity": 52,
+      "source_window": 18
+    },
+    {
+      "note": 74,
+      "start": 367.28,
+      "end": 367.78,
+      "velocity": 59,
+      "source_window": 18
+    },
+    {
+      "note": 67,
+      "start": 367.78,
+      "end": 368.28,
+      "velocity": 55,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 368.28,
+      "end": 368.78,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 368.78,
+      "end": 369.28,
+      "velocity": 51,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 369.28,
+      "end": 370.28,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 369.78,
+      "end": 370.28,
+      "velocity": 51,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 370.28,
+      "end": 371.28,
+      "velocity": 51,
+      "source_window": 18
+    },
+    {
+      "note": 41,
+      "start": 371.28,
+      "end": 371.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 50,
+      "start": 371.28,
+      "end": 371.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 53,
+      "start": 371.28,
+      "end": 371.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 371.28,
+      "end": 371.78,
+      "velocity": 49,
+      "source_window": 18
+    },
+    {
+      "note": 74,
+      "start": 371.28,
+      "end": 371.78,
+      "velocity": 59,
+      "source_window": 18
+    },
+    {
+      "note": 69,
+      "start": 371.78,
+      "end": 372.28,
+      "velocity": 55,
+      "source_window": 18
+    },
+    {
+      "note": 67,
+      "start": 372.28,
+      "end": 372.78,
+      "velocity": 56,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 372.78,
+      "end": 373.28,
+      "velocity": 52,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 373.28,
+      "end": 374.28,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 373.78,
+      "end": 374.28,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 374.28,
+      "end": 375.28,
+      "velocity": 51,
+      "source_window": 18
+    },
+    {
+      "note": 43,
+      "start": 375.28,
+      "end": 375.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 50,
+      "start": 375.28,
+      "end": 375.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 55,
+      "start": 375.28,
+      "end": 375.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 74,
+      "start": 375.28,
+      "end": 375.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 86,
+      "start": 375.28,
+      "end": 375.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 69,
+      "start": 375.78,
+      "end": 376.28,
+      "velocity": 55,
+      "source_window": 18
+    },
+    {
+      "note": 67,
+      "start": 376.28,
+      "end": 376.78,
+      "velocity": 56,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 376.78,
+      "end": 377.27,
+      "velocity": 53,
+      "source_window": 18
+    },
+    {
+      "note": 64,
+      "start": 377.28,
+      "end": 377.79,
+      "velocity": 56,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 377.78,
+      "end": 378.28,
+      "velocity": 56,
+      "source_window": 18
+    },
+    {
+      "note": 62,
+      "start": 378.28,
+      "end": 379.28,
+      "velocity": 55,
+      "source_window": 18
+    },
+    {
+      "note": 45,
+      "start": 379.28,
+      "end": 379.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 52,
+      "start": 379.28,
+      "end": 379.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 57,
+      "start": 379.28,
+      "end": 379.78,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 72,
+      "start": 379.28,
+      "end": 380.79,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 84,
+      "start": 379.28,
+      "end": 380.79,
+      "velocity": 80,
+      "source_window": 18
+    },
+    {
+      "note": 67,
+      "start": 379.78,
+      "end": 380.28,
+      "velocity": 58,
+      "source_window": 18
+    },
+    {
+      "note": 65,
+      "start": 380.28,
+      "end": 380.79,
+      "velocity": 59,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 380.78,
+      "end": 381.28,
+      "velocity": 60,
+      "source_window": 19
+    },
+    {
+      "note": 72,
+      "start": 381.27,
+      "end": 385.17,
+      "velocity": 84,
+      "source_window": 19
+    },
+    {
+      "note": 84,
+      "start": 381.27,
+      "end": 388.67,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 381.78,
+      "end": 382.28,
+      "velocity": 62,
+      "source_window": 19
+    },
+    {
+      "note": 45,
+      "start": 382.28,
+      "end": 382.78,
+      "velocity": 59,
+      "source_window": 19
+    },
+    {
+      "note": 52,
+      "start": 382.78,
+      "end": 383.28,
+      "velocity": 62,
+      "source_window": 19
+    },
+    {
+      "note": 57,
+      "start": 383.28,
+      "end": 383.79,
+      "velocity": 59,
+      "source_window": 19
+    },
+    {
+      "note": 60,
+      "start": 383.79,
+      "end": 384.33,
+      "velocity": 55,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 384.33,
+      "end": 388.67,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 69,
+      "start": 384.91,
+      "end": 385.6,
+      "velocity": 49,
+      "source_window": 19
+    },
+    {
+      "note": 72,
+      "start": 385.54,
+      "end": 386.37,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 76,
+      "start": 386.23,
+      "end": 387.11,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 81,
+      "start": 386.97,
+      "end": 387.88,
+      "velocity": 45,
+      "source_window": 19
+    },
+    {
+      "note": 84,
+      "start": 387.79,
+      "end": 388.67,
+      "velocity": 48,
+      "source_window": 19
+    },
+    {
+      "note": 46,
+      "start": 388.72,
+      "end": 392.72,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 53,
+      "start": 388.72,
+      "end": 392.72,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 58,
+      "start": 388.72,
+      "end": 392.72,
+      "velocity": 44,
+      "source_window": 19
+    },
+    {
+      "note": 74,
+      "start": 388.72,
+      "end": 388.86,
+      "velocity": 51,
+      "source_window": 19
+    },
+    {
+      "note": 86,
+      "start": 388.72,
+      "end": 388.85,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 69,
+      "start": 389.21,
+      "end": 389.71,
+      "velocity": 45,
+      "source_window": 19
+    },
+    {
+      "note": 67,
+      "start": 389.71,
+      "end": 390.21,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 65,
+      "start": 390.21,
+      "end": 390.72,
+      "velocity": 44,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 390.72,
+      "end": 391.22,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 65,
+      "start": 391.22,
+      "end": 392.72,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 62,
+      "start": 391.72,
+      "end": 392.72,
+      "velocity": 45,
+      "source_window": 19
+    },
+    {
+      "note": 48,
+      "start": 392.72,
+      "end": 395.73,
+      "velocity": 43,
+      "source_window": 19
+    },
+    {
+      "note": 55,
+      "start": 392.72,
+      "end": 395.73,
+      "velocity": 43,
+      "source_window": 19
+    },
+    {
+      "note": 72,
+      "start": 392.72,
+      "end": 392.93,
+      "velocity": 52,
+      "source_window": 19
+    },
+    {
+      "note": 84,
+      "start": 392.72,
+      "end": 392.92,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 67,
+      "start": 393.21,
+      "end": 393.72,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 65,
+      "start": 393.72,
+      "end": 394.22,
+      "velocity": 45,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 394.22,
+      "end": 394.72,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 62,
+      "start": 394.72,
+      "end": 395.22,
+      "velocity": 45,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 395.22,
+      "end": 395.73,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 60,
+      "start": 395.72,
+      "end": 395.73,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 38,
+      "start": 396.72,
+      "end": 400.0,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 45,
+      "start": 396.72,
+      "end": 399.98,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 50,
+      "start": 396.72,
+      "end": 399.98,
+      "velocity": 44,
+      "source_window": 19
+    },
+    {
+      "note": 76,
+      "start": 396.72,
+      "end": 396.91,
+      "velocity": 56,
+      "source_window": 19
+    },
+    {
+      "note": 88,
+      "start": 396.72,
+      "end": 396.9,
+      "velocity": 80,
+      "source_window": 19
+    },
+    {
+      "note": 67,
+      "start": 397.21,
+      "end": 397.72,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 65,
+      "start": 397.72,
+      "end": 398.22,
+      "velocity": 45,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 398.22,
+      "end": 398.72,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 64,
+      "start": 398.72,
+      "end": 399.23,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 65,
+      "start": 399.22,
+      "end": 399.98,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 62,
+      "start": 399.72,
+      "end": 399.98,
+      "velocity": 47,
+      "source_window": 19
+    },
+    {
+      "note": 38,
+      "start": 400.71,
+      "end": 404.05,
+      "velocity": 44,
+      "source_window": 20
+    },
+    {
+      "note": 45,
+      "start": 400.71,
+      "end": 404.04,
+      "velocity": 45,
+      "source_window": 20
+    },
+    {
+      "note": 50,
+      "start": 400.71,
+      "end": 404.04,
+      "velocity": 47,
+      "source_window": 20
+    },
+    {
+      "note": 86,
+      "start": 400.71,
+      "end": 400.83,
+      "velocity": 65,
+      "source_window": 20
+    },
+    {
+      "note": 74,
+      "start": 400.72,
+      "end": 400.84,
+      "velocity": 49,
+      "source_window": 20
+    },
+    {
+      "note": 67,
+      "start": 401.21,
+      "end": 401.58,
+      "velocity": 51,
+      "source_window": 20
+    },
+    {
+      "note": 65,
+      "start": 401.73,
+      "end": 402.27,
+      "velocity": 51,
+      "source_window": 20
+    },
+    {
+      "note": 64,
+      "start": 402.27,
+      "end": 402.65,
+      "velocity": 52,
+      "source_window": 20
+    },
+    {
+      "note": 64,
+      "start": 402.82,
+      "end": 403.39,
+      "velocity": 50,
+      "source_window": 20
+    },
+    {
+      "note": 65,
+      "start": 403.39,
+      "end": 404.04,
+      "velocity": 50,
+      "source_window": 20
+    },
+    {
+      "note": 62,
+      "start": 403.99,
+      "end": 404.88,
+      "velocity": 51,
+      "source_window": 20
+    },
+    {
+      "note": 26,
+      "start": 405.25,
+      "end": 419.06,
+      "velocity": 45,
+      "source_window": 20
+    },
+    {
+      "note": 38,
+      "start": 405.25,
+      "end": 419.06,
+      "velocity": 45,
+      "source_window": 20
+    },
+    {
+      "note": 67,
+      "start": 405.91,
+      "end": 406.46,
+      "velocity": 52,
+      "source_window": 20
+    },
+    {
+      "note": 65,
+      "start": 406.61,
+      "end": 407.35,
+      "velocity": 43,
+      "source_window": 20
+    },
+    {
+      "note": 64,
+      "start": 407.35,
+      "end": 407.85,
+      "velocity": 47,
+      "source_window": 20
+    },
+    {
+      "note": 64,
+      "start": 408.1,
+      "end": 409.0,
+      "velocity": 41,
+      "source_window": 20
+    },
+    {
+      "note": 65,
+      "start": 408.91,
+      "end": 409.88,
+      "velocity": 38,
+      "source_window": 20
+    },
+    {
+      "note": 62,
+      "start": 409.75,
+      "end": 419.06,
+      "velocity": 38,
+      "source_window": 20
+    }
+  ],
+  "pedals": [
+    {
+      "controller": 64,
+      "start": 6.64,
+      "end": 419.39,
+      "value": 127
+    }
+  ],
+  "pedal_events": [
+    {
+      "controller": 64,
+      "time": 6.64,
+      "value": 127,
+      "source_window": 0
+    },
+    {
+      "controller": 64,
+      "time": 419.39,
+      "value": 0,
+      "source_window": 20
+    }
+  ]
+}

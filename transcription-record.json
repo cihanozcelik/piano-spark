@@ -1,0 +1,82 @@
+{
+  "source": {
+    "path": "input/The Last Samurai - A Small Measure of Peace  Piano Tutorial.mp4",
+    "sha256": "687f37809a99fa1ef892ed0db01b0668d8fb3d0b3ec49d62e381e80611b56d4c",
+    "width": 640,
+    "height": 360,
+    "fps": 30,
+    "videoDurationSeconds": 426
+  },
+  "method": {
+    "name": "rendered-key-color-transcription",
+    "description": "Read every video frame; map 88 keys A0–C8 across 52 white-key widths. Median HSV over a 3×3 key-center sample. White-key sample row 340, black-key row 298. Every contiguous blue or green key-down interval becomes a note; preserve one-frame release gaps and color changes. No audio-to-pitch model is used.",
+    "blueHsv": {
+      "hue": [
+        85,
+        125
+      ],
+      "minimumSaturation": 45,
+      "minimumValue": 65
+    },
+    "greenHsv": {
+      "hue": [
+        32,
+        76
+      ],
+      "minimumSaturation": 65,
+      "minimumValue": 65
+    },
+    "samplingOffsetsX": [
+      -1,
+      0,
+      1
+    ],
+    "samplingOffsetsY": [
+      -2,
+      0,
+      2
+    ]
+  },
+  "result": {
+    "notes": 640,
+    "leftPartNotes": 254,
+    "rightPartNotes": 386,
+    "firstSourceNoteSeconds": 5.566666666666666,
+    "lastSourceKeyReleaseSeconds": 417.8,
+    "outputDurationSeconds": 412.23333,
+    "pianoMidiRange": [
+      22,
+      88
+    ],
+    "shortestObservedNoteSeconds": 0.43333333333333,
+    "maximumSimultaneousKeys": 5
+  },
+  "inspection": {
+    "sourceFramesViewedSeconds": [
+      0,
+      10,
+      30,
+      120,
+      180,
+      308.6,
+      309.6,
+      310.5,
+      415,
+      420
+    ],
+    "fallingBarCrosscheck": "Width-filtered row-200 note-bar transitions were aligned with key onsets (modal delay: 18 frames). One apparent interior repeat at A4 around 309.67 s was inspected visually and was a continuous blue bar, so no split was introduced.",
+    "audioPitchSpots": "FFT peaks at source 5.8, 6.8, 7.8 and 10.5 s corroborated the initial detected pitches D2/A2/D3, D4, A4, and C2/C4.",
+    "browserPlayback": "Not verified; the in-app Browser is unavailable in this session."
+  },
+  "limits": [
+    "Timing is quantized to 30-fps video frames; this is not the original MIDI.",
+    "Velocity is assigned uniformly by part (left .65; right .8), not recovered from the recording.",
+    "Sustain pedal and performance dynamics were not inferred.",
+    "Final held notes end at the video fade-out detection boundary."
+  ],
+  "outputs": [
+    "piano.html",
+    "transcription.json",
+    "a-small-measure-of-peace-video.mid"
+  ]
+}

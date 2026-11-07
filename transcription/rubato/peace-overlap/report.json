@@ -1,0 +1,37 @@
+{
+  "model": "Rubato v1 MIDI, full-window overlap experiment",
+  "package_version": "0.3.0",
+  "audio": "transcription/transkun-v2/source.wav",
+  "audio_sha256": "8f518d9904115db40847124c56a5155712bfafe0eaca57520c7a89446a8d8567",
+  "checkpoint_sha256": "131649ff95b80713bd327b63d37b2771e1175b3c1c9aa4242a783c67bf27b1fc",
+  "duration_seconds": 426.0861875,
+  "elapsed_seconds": 21.597158125019632,
+  "device": "cpu",
+  "threads": 4,
+  "slots": 8,
+  "chunk_seconds": 40,
+  "onset_ownership_seconds": 20,
+  "recover": "off",
+  "notes": 641,
+  "pedals": 1,
+  "visual_data_used_for_inference": false,
+  "limits": [
+    "No manual duration changes. Official parser drops unreleased notes.",
+    "Notes whose release lies outside their 40-second window may be missing.",
+    "Pedal events use onset-ownership windows, without synthesized resets."
+  ],
+  "inference_stats": {
+    "pieces": 21,
+    "audio_seconds": 826.0861875,
+    "enc_chunks": 21,
+    "t_encoder_host": 13.061510801315308,
+    "chunks": 21,
+    "wall": 20.568288803100586,
+    "tokens": 4817,
+    "steps": 756,
+    "token_cap": 2990,
+    "encoder_frames": 1000,
+    "slots": 8,
+    "kv_cache_gb": 1.048576
+  }
+}

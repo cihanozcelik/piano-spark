@@ -1,0 +1,535 @@
+{
+  "reference": "First lesson visual extraction, confirmed correct by the user; not original performance MIDI.",
+  "reference_accepted_by_user": true,
+  "reference_note_count": 640,
+  "onset_match_tolerance_seconds": 0.15,
+  "visual_used_only_for_comparison": true,
+  "results": {
+    "transkun_stock": {
+      "notes": 621,
+      "matched_notes": 621,
+      "missed_visual": 19,
+      "unmatched_audio": 0,
+      "median_absolute_duration_difference_seconds": 0.6551674053944794,
+      "duration_differences_over_250ms": 423,
+      "duration_differences_within_100ms": 126,
+      "median_absolute_release_difference_seconds": 0.5826632394882836,
+      "pedals": [
+        {
+          "controller": 67,
+          "start": 4.515390636634395,
+          "end": 200.26128266574574,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 5.630548569599248,
+          "end": 297.2937714602239,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 297.38952414951626,
+          "end": 419.3862095533747,
+          "value": 127
+        }
+      ]
+    },
+    "transkun_merge_fix": {
+      "notes": 621,
+      "matched_notes": 621,
+      "missed_visual": 19,
+      "unmatched_audio": 0,
+      "median_absolute_duration_difference_seconds": 0.6551674053944794,
+      "duration_differences_over_250ms": 423,
+      "duration_differences_within_100ms": 126,
+      "median_absolute_release_difference_seconds": 0.5826632394882836,
+      "pedals": [
+        {
+          "controller": 67,
+          "start": 4.515390636634395,
+          "end": 200.26128266574574,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 5.630548569599248,
+          "end": 297.2937714602239,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 297.38952414951626,
+          "end": 419.3862095533747,
+          "value": 127
+        }
+      ]
+    },
+    "bytedance": {
+      "notes": 996,
+      "matched_notes": 632,
+      "missed_visual": 8,
+      "unmatched_audio": 364,
+      "median_absolute_duration_difference_seconds": 2.4907913208007812,
+      "duration_differences_over_250ms": 585,
+      "duration_differences_within_100ms": 38,
+      "median_absolute_release_difference_seconds": 2.566665281575524,
+      "pedals": [
+        {
+          "controller": 64,
+          "start": 0.009999999776482582,
+          "end": 9.646453857421875,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 9.75,
+          "end": 17.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 20.59000015258789,
+          "end": 21.739999771118164,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 21.8700008392334,
+          "end": 22.270000457763672,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 22.3799991607666,
+          "end": 22.450000762939453,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 22.559999465942383,
+          "end": 27.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 27.65999984741211,
+          "end": 27.75,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 28.1299991607666,
+          "end": 29.667917251586914,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 30.1299991607666,
+          "end": 30.229999542236328,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 30.559999465942383,
+          "end": 37.90999984741211,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 38.220001220703125,
+          "end": 38.97999954223633,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 39.400001525878906,
+          "end": 49.08000183105469,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 49.65999984741211,
+          "end": 49.68000030517578,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 49.790000915527344,
+          "end": 57.70000076293945,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 57.84000015258789,
+          "end": 64.05999755859375,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 64.29000091552734,
+          "end": 65.31999969482422,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 65.66000366210938,
+          "end": 82.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 82.6500015258789,
+          "end": 89.7300033569336,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 89.94999694824219,
+          "end": 119.68000030517578,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 119.79000091552734,
+          "end": 132.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 138.89999389648438,
+          "end": 138.97999572753906,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 142.07000732421875,
+          "end": 142.08999633789062,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 142.2100067138672,
+          "end": 142.25,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 142.47000122070312,
+          "end": 153.63705444335938,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 153.77000427246094,
+          "end": 154.6546630859375,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 154.69000244140625,
+          "end": 171.8800048828125,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 172.0500030517578,
+          "end": 172.14999389648438,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 172.25999450683594,
+          "end": 195.24000549316406,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 195.47000122070312,
+          "end": 197.24000549316406,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 197.5,
+          "end": 207.33251953125,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 207.36000061035156,
+          "end": 209.33436584472656,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 209.97000122070312,
+          "end": 217.3522186279297,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 217.36000061035156,
+          "end": 222.1392822265625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 222.19000244140625,
+          "end": 225.335205078125,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 225.42999267578125,
+          "end": 237.3270721435547,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 237.35000610351562,
+          "end": 242.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 243.50999450683594,
+          "end": 243.7899932861328,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 243.9499969482422,
+          "end": 244.02000427246094,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 244.1300048828125,
+          "end": 244.44000244140625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 244.7100067138672,
+          "end": 244.74000549316406,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 245.30999755859375,
+          "end": 245.41000366210938,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 245.52000427246094,
+          "end": 245.82000732421875,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 245.97999572753906,
+          "end": 246.69000244140625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 247.17999267578125,
+          "end": 247.19000244140625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 247.3699951171875,
+          "end": 254.30999755859375,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 254.4199981689453,
+          "end": 254.72000122070312,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 254.83999633789062,
+          "end": 254.85000610351562,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 254.9600067138672,
+          "end": 254.97999572753906,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 255.13999938964844,
+          "end": 267.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 272.5,
+          "end": 272.5199890136719,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 273.0299987792969,
+          "end": 273.2699890136719,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 273.3800048828125,
+          "end": 273.4800109863281,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 274.0899963378906,
+          "end": 274.1099853515625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 274.2799987792969,
+          "end": 274.6700134277344,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 274.8699951171875,
+          "end": 275.0899963378906,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 275.20001220703125,
+          "end": 297.294921875,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 297.3500061035156,
+          "end": 309.34368896484375,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 309.3699951171875,
+          "end": 351.26715087890625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 351.29998779296875,
+          "end": 359.3399963378906,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 359.45001220703125,
+          "end": 363.2962646484375,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 363.3999938964844,
+          "end": 367.3155822753906,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 367.510009765625,
+          "end": 396.7552490234375,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 396.8599853515625,
+          "end": 400.7647399902344,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 400.8299865722656,
+          "end": 419.33892822265625,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 420.92999267578125,
+          "end": 422.5,
+          "value": 127
+        },
+        {
+          "controller": 64,
+          "start": 427.2300109863281,
+          "end": 429.20001220703125,
+          "value": 127
+        }
+      ]
+    },
+    "rubato": {
+      "notes": 643,
+      "matched_notes": 639,
+      "missed_visual": 1,
+      "unmatched_audio": 4,
+      "median_absolute_duration_difference_seconds": 0.040000000000020464,
+      "duration_differences_over_250ms": 267,
+      "duration_differences_within_100ms": 350,
+      "median_absolute_release_difference_seconds": 0.11333333333334394,
+      "pedals": [
+        {
+          "controller": 64,
+          "start": 6.64,
+          "end": 419.39,
+          "value": 127
+        }
+      ]
+    },
+    "rubato_overlap": {
+      "notes": 641,
+      "matched_notes": 637,
+      "missed_visual": 3,
+      "unmatched_audio": 4,
+      "median_absolute_duration_difference_seconds": 0.03333000000000652,
+      "duration_differences_over_250ms": 251,
+      "duration_differences_within_100ms": 366,
+      "median_absolute_release_difference_seconds": 0.10666333333333,
+      "pedals": [
+        {
+          "controller": 64,
+          "start": 6.64,
+          "end": 419.39,
+          "value": 127
+        }
+      ]
+    },
+    "rubato_score": {
+      "notes": 628,
+      "matched_notes": 628,
+      "missed_visual": 12,
+      "unmatched_audio": 0,
+      "median_absolute_duration_difference_seconds": 0.0,
+      "duration_differences_over_250ms": 130,
+      "duration_differences_within_100ms": 498,
+      "median_absolute_release_difference_seconds": 0.080003333333309,
+      "pedals": []
+    },
+    "rubato_score_overlap": {
+      "notes": 636,
+      "matched_notes": 636,
+      "missed_visual": 4,
+      "unmatched_audio": 0,
+      "median_absolute_duration_difference_seconds": 0.0,
+      "duration_differences_over_250ms": 129,
+      "duration_differences_within_100ms": 507,
+      "median_absolute_release_difference_seconds": 0.080003333333309,
+      "pedals": []
+    }
+  }
+}

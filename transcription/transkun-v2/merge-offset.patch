@@ -1,0 +1,17 @@
+--- a/transkun/ModelTransformer.py
++++ b/transkun/ModelTransformer.py
+@@ -811,6 +811,14 @@
+ 
+                             if e.hasOnset: #and e.hasOffset:
+                                 eventsByType[e.pitch][-1] = e
++                            elif e.end <= last_e.start:
++                                # tail of an earlier event that last_e has already superseded
++                                pass
++                            elif e.hasOffset and not last_e.hasOffset:
++                                # last_e.end is only the end of the segment in which last_e
++                                # was still open; e carries the actual offset
++                                eventsByType[e.pitch][-1].hasOffset = True
++                                eventsByType[e.pitch][-1].end = e.end
+                             else:
+                                 # merge two events
+                                 eventsByType[e.pitch][-1].hasOffset = e.hasOffset

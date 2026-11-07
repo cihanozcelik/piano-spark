@@ -1,0 +1,3107 @@
+[
+  {
+    "reference_index": 230,
+    "audio_index": 539,
+    "onset_difference_seconds": 0.008835129510771367
+  },
+  {
+    "reference_index": 539,
+    "audio_index": 484,
+    "onset_difference_seconds": 0.013734802107705946
+  },
+  {
+    "reference_index": 576,
+    "audio_index": 532,
+    "onset_difference_seconds": 0.01444356213357878
+  },
+  {
+    "reference_index": 631,
+    "audio_index": 611,
+    "onset_difference_seconds": 0.027853888441825347
+  },
+  {
+    "reference_index": 238,
+    "audio_index": 565,
+    "onset_difference_seconds": 0.029900424046218177
+  },
+  {
+    "reference_index": 344,
+    "audio_index": 161,
+    "onset_difference_seconds": 0.0332932285964489
+  },
+  {
+    "reference_index": 451,
+    "audio_index": 366,
+    "onset_difference_seconds": 0.037277679861347224
+  },
+  {
+    "reference_index": 15,
+    "audio_index": 32,
+    "onset_difference_seconds": 0.03930327393131705
+  },
+  {
+    "reference_index": 637,
+    "audio_index": 618,
+    "onset_difference_seconds": 0.03959099248424991
+  },
+  {
+    "reference_index": 262,
+    "audio_index": 16,
+    "onset_difference_seconds": 0.040268393031528404
+  },
+  {
+    "reference_index": 459,
+    "audio_index": 376,
+    "onset_difference_seconds": 0.04057917526415622
+  },
+  {
+    "reference_index": 392,
+    "audio_index": 256,
+    "onset_difference_seconds": 0.041258207985663375
+  },
+  {
+    "reference_index": 384,
+    "audio_index": 241,
+    "onset_difference_seconds": 0.04132651442202473
+  },
+  {
+    "reference_index": 257,
+    "audio_index": 5,
+    "onset_difference_seconds": 0.04179500927291713
+  },
+  {
+    "reference_index": 278,
+    "audio_index": 43,
+    "onset_difference_seconds": 0.042800019726399796
+  },
+  {
+    "reference_index": 253,
+    "audio_index": 613,
+    "onset_difference_seconds": 0.0428799892752636
+  },
+  {
+    "reference_index": 522,
+    "audio_index": 459,
+    "onset_difference_seconds": 0.04379185396157936
+  },
+  {
+    "reference_index": 135,
+    "audio_index": 264,
+    "onset_difference_seconds": 0.043955205699546696
+  },
+  {
+    "reference_index": 267,
+    "audio_index": 23,
+    "onset_difference_seconds": 0.04482362225314418
+  },
+  {
+    "reference_index": 234,
+    "audio_index": 561,
+    "onset_difference_seconds": 0.0449097787620758
+  },
+  {
+    "reference_index": 137,
+    "audio_index": 266,
+    "onset_difference_seconds": 0.04528070296996134
+  },
+  {
+    "reference_index": 202,
+    "audio_index": 444,
+    "onset_difference_seconds": 0.04582312143480749
+  },
+  {
+    "reference_index": 4,
+    "audio_index": 8,
+    "onset_difference_seconds": 0.0459403202954789
+  },
+  {
+    "reference_index": 251,
+    "audio_index": 603,
+    "onset_difference_seconds": 0.046588716398787255
+  },
+  {
+    "reference_index": 199,
+    "audio_index": 430,
+    "onset_difference_seconds": 0.04717437439933292
+  },
+  {
+    "reference_index": 219,
+    "audio_index": 506,
+    "onset_difference_seconds": 0.04741345471165914
+  },
+  {
+    "reference_index": 388,
+    "audio_index": 250,
+    "onset_difference_seconds": 0.04765818440893099
+  },
+  {
+    "reference_index": 498,
+    "audio_index": 425,
+    "onset_difference_seconds": 0.047892975219554046
+  },
+  {
+    "reference_index": 197,
+    "audio_index": 431,
+    "onset_difference_seconds": 0.047989209651461806
+  },
+  {
+    "reference_index": 568,
+    "audio_index": 520,
+    "onset_difference_seconds": 0.0484905915753302
+  },
+  {
+    "reference_index": 508,
+    "audio_index": 438,
+    "onset_difference_seconds": 0.04856894848467164
+  },
+  {
+    "reference_index": 352,
+    "audio_index": 185,
+    "onset_difference_seconds": 0.04864246477987422
+  },
+  {
+    "reference_index": 283,
+    "audio_index": 56,
+    "onset_difference_seconds": 0.04888584328718082
+  },
+  {
+    "reference_index": 572,
+    "audio_index": 525,
+    "onset_difference_seconds": 0.049000989505827874
+  },
+  {
+    "reference_index": 504,
+    "audio_index": 432,
+    "onset_difference_seconds": 0.04914981010176689
+  },
+  {
+    "reference_index": 564,
+    "audio_index": 516,
+    "onset_difference_seconds": 0.04988554920635124
+  },
+  {
+    "reference_index": 620,
+    "audio_index": 597,
+    "onset_difference_seconds": 0.049907386762470196
+  },
+  {
+    "reference_index": 249,
+    "audio_index": 606,
+    "onset_difference_seconds": 0.050155044694008666
+  },
+  {
+    "reference_index": 187,
+    "audio_index": 381,
+    "onset_difference_seconds": 0.05033560208619292
+  },
+  {
+    "reference_index": 250,
+    "audio_index": 607,
+    "onset_difference_seconds": 0.05100171929041153
+  },
+  {
+    "reference_index": 541,
+    "audio_index": 486,
+    "onset_difference_seconds": 0.051840349753717874
+  },
+  {
+    "reference_index": 623,
+    "audio_index": 600,
+    "onset_difference_seconds": 0.055712656034074826
+  },
+  {
+    "reference_index": 124,
+    "audio_index": 242,
+    "onset_difference_seconds": 0.05640588451842632
+  },
+  {
+    "reference_index": 601,
+    "audio_index": 570,
+    "onset_difference_seconds": 0.05873923795462588
+  },
+  {
+    "reference_index": 62,
+    "audio_index": 125,
+    "onset_difference_seconds": 0.0630519917114043
+  },
+  {
+    "reference_index": 198,
+    "audio_index": 434,
+    "onset_difference_seconds": 0.06358410208844134
+  },
+  {
+    "reference_index": 336,
+    "audio_index": 146,
+    "onset_difference_seconds": 0.0662881324404907
+  },
+  {
+    "reference_index": 0,
+    "audio_index": 0,
+    "onset_difference_seconds": 0.0664511350601451
+  },
+  {
+    "reference_index": 255,
+    "audio_index": 4,
+    "onset_difference_seconds": 0.06652077811104995
+  },
+  {
+    "reference_index": 2,
+    "audio_index": 1,
+    "onset_difference_seconds": 0.06698103751184803
+  },
+  {
+    "reference_index": 102,
+    "audio_index": 200,
+    "onset_difference_seconds": 0.06811600873260204
+  },
+  {
+    "reference_index": 44,
+    "audio_index": 86,
+    "onset_difference_seconds": 0.06816242140168072
+  },
+  {
+    "reference_index": 174,
+    "audio_index": 338,
+    "onset_difference_seconds": 0.06843502495939902
+  },
+  {
+    "reference_index": 299,
+    "audio_index": 89,
+    "onset_difference_seconds": 0.06856577693741883
+  },
+  {
+    "reference_index": 59,
+    "audio_index": 117,
+    "onset_difference_seconds": 0.06858098244181576
+  },
+  {
+    "reference_index": 110,
+    "audio_index": 221,
+    "onset_difference_seconds": 0.06864658001060775
+  },
+  {
+    "reference_index": 101,
+    "audio_index": 201,
+    "onset_difference_seconds": 0.06885563026480668
+  },
+  {
+    "reference_index": 597,
+    "audio_index": 558,
+    "onset_difference_seconds": 0.0690048161692971
+  },
+  {
+    "reference_index": 107,
+    "audio_index": 216,
+    "onset_difference_seconds": 0.06900640595799246
+  },
+  {
+    "reference_index": 377,
+    "audio_index": 222,
+    "onset_difference_seconds": 0.06905447408456666
+  },
+  {
+    "reference_index": 1,
+    "audio_index": 2,
+    "onset_difference_seconds": 0.06918658336544325
+  },
+  {
+    "reference_index": 363,
+    "audio_index": 202,
+    "onset_difference_seconds": 0.06923030446716893
+  },
+  {
+    "reference_index": 315,
+    "audio_index": 118,
+    "onset_difference_seconds": 0.06966863584626992
+  },
+  {
+    "reference_index": 376,
+    "audio_index": 220,
+    "onset_difference_seconds": 0.06989882350239895
+  },
+  {
+    "reference_index": 173,
+    "audio_index": 339,
+    "onset_difference_seconds": 0.0701359221761777
+  },
+  {
+    "reference_index": 375,
+    "audio_index": 219,
+    "onset_difference_seconds": 0.07020462105336378
+  },
+  {
+    "reference_index": 284,
+    "audio_index": 59,
+    "onset_difference_seconds": 0.07023828415643862
+  },
+  {
+    "reference_index": 600,
+    "audio_index": 569,
+    "onset_difference_seconds": 0.07035712176542575
+  },
+  {
+    "reference_index": 335,
+    "audio_index": 145,
+    "onset_difference_seconds": 0.07063188126839748
+  },
+  {
+    "reference_index": 338,
+    "audio_index": 150,
+    "onset_difference_seconds": 0.0706790472536909
+  },
+  {
+    "reference_index": 108,
+    "audio_index": 217,
+    "onset_difference_seconds": 0.07073205580246622
+  },
+  {
+    "reference_index": 84,
+    "audio_index": 166,
+    "onset_difference_seconds": 0.0707493352565507
+  },
+  {
+    "reference_index": 347,
+    "audio_index": 169,
+    "onset_difference_seconds": 0.07120022935930592
+  },
+  {
+    "reference_index": 328,
+    "audio_index": 142,
+    "onset_difference_seconds": 0.07123894507651585
+  },
+  {
+    "reference_index": 345,
+    "audio_index": 164,
+    "onset_difference_seconds": 0.07135298264000767
+  },
+  {
+    "reference_index": 432,
+    "audio_index": 340,
+    "onset_difference_seconds": 0.071379013854596
+  },
+  {
+    "reference_index": 346,
+    "audio_index": 167,
+    "onset_difference_seconds": 0.07142424914300705
+  },
+  {
+    "reference_index": 240,
+    "audio_index": 567,
+    "onset_difference_seconds": 0.07150750192658961
+  },
+  {
+    "reference_index": 337,
+    "audio_index": 148,
+    "onset_difference_seconds": 0.07157316938821623
+  },
+  {
+    "reference_index": 351,
+    "audio_index": 173,
+    "onset_difference_seconds": 0.07166629229004684
+  },
+  {
+    "reference_index": 85,
+    "audio_index": 170,
+    "onset_difference_seconds": 0.0717957041214845
+  },
+  {
+    "reference_index": 106,
+    "audio_index": 211,
+    "onset_difference_seconds": 0.07190839148972827
+  },
+  {
+    "reference_index": 82,
+    "audio_index": 165,
+    "onset_difference_seconds": 0.07191998678541722
+  },
+  {
+    "reference_index": 65,
+    "audio_index": 130,
+    "onset_difference_seconds": 0.07192046807736574
+  },
+  {
+    "reference_index": 26,
+    "audio_index": 54,
+    "onset_difference_seconds": 0.07211195480796562
+  },
+  {
+    "reference_index": 296,
+    "audio_index": 84,
+    "onset_difference_seconds": 0.0721411015171185
+  },
+  {
+    "reference_index": 29,
+    "audio_index": 55,
+    "onset_difference_seconds": 0.07218722181255544
+  },
+  {
+    "reference_index": 74,
+    "audio_index": 149,
+    "onset_difference_seconds": 0.0723174169977483
+  },
+  {
+    "reference_index": 66,
+    "audio_index": 132,
+    "onset_difference_seconds": 0.07235071091425027
+  },
+  {
+    "reference_index": 270,
+    "audio_index": 31,
+    "onset_difference_seconds": 0.07246813110213424
+  },
+  {
+    "reference_index": 98,
+    "audio_index": 188,
+    "onset_difference_seconds": 0.07258131429452419
+  },
+  {
+    "reference_index": 350,
+    "audio_index": 174,
+    "onset_difference_seconds": 0.07264926867148347
+  },
+  {
+    "reference_index": 23,
+    "audio_index": 49,
+    "onset_difference_seconds": 0.07280103549395278
+  },
+  {
+    "reference_index": 556,
+    "audio_index": 504,
+    "onset_difference_seconds": 0.07283248444366563
+  },
+  {
+    "reference_index": 348,
+    "audio_index": 171,
+    "onset_difference_seconds": 0.07287398366429443
+  },
+  {
+    "reference_index": 555,
+    "audio_index": 505,
+    "onset_difference_seconds": 0.07290549480825348
+  },
+  {
+    "reference_index": 183,
+    "audio_index": 363,
+    "onset_difference_seconds": 0.07294086302050573
+  },
+  {
+    "reference_index": 343,
+    "audio_index": 162,
+    "onset_difference_seconds": 0.07297657038890293
+  },
+  {
+    "reference_index": 374,
+    "audio_index": 218,
+    "onset_difference_seconds": 0.07299985474742243
+  },
+  {
+    "reference_index": 182,
+    "audio_index": 359,
+    "onset_difference_seconds": 0.07306528235608312
+  },
+  {
+    "reference_index": 438,
+    "audio_index": 350,
+    "onset_difference_seconds": 0.07312451171600287
+  },
+  {
+    "reference_index": 96,
+    "audio_index": 189,
+    "onset_difference_seconds": 0.0731870390877134
+  },
+  {
+    "reference_index": 359,
+    "audio_index": 195,
+    "onset_difference_seconds": 0.07319042006858467
+  },
+  {
+    "reference_index": 321,
+    "audio_index": 131,
+    "onset_difference_seconds": 0.07319366662680693
+  },
+  {
+    "reference_index": 40,
+    "audio_index": 78,
+    "onset_difference_seconds": 0.07319432680299087
+  },
+  {
+    "reference_index": 75,
+    "audio_index": 151,
+    "onset_difference_seconds": 0.07337612056949183
+  },
+  {
+    "reference_index": 439,
+    "audio_index": 351,
+    "onset_difference_seconds": 0.07341167278400462
+  },
+  {
+    "reference_index": 24,
+    "audio_index": 50,
+    "onset_difference_seconds": 0.07352918092897198
+  },
+  {
+    "reference_index": 379,
+    "audio_index": 225,
+    "onset_difference_seconds": 0.07357204099903925
+  },
+  {
+    "reference_index": 372,
+    "audio_index": 214,
+    "onset_difference_seconds": 0.07358462102288854
+  },
+  {
+    "reference_index": 371,
+    "audio_index": 212,
+    "onset_difference_seconds": 0.07363778803085097
+  },
+  {
+    "reference_index": 295,
+    "audio_index": 82,
+    "onset_difference_seconds": 0.07365149880754274
+  },
+  {
+    "reference_index": 64,
+    "audio_index": 129,
+    "onset_difference_seconds": 0.07368016111067277
+  },
+  {
+    "reference_index": 431,
+    "audio_index": 335,
+    "onset_difference_seconds": 0.07377428320091894
+  },
+  {
+    "reference_index": 99,
+    "audio_index": 196,
+    "onset_difference_seconds": 0.0737754468852927
+  },
+  {
+    "reference_index": 449,
+    "audio_index": 364,
+    "onset_difference_seconds": 0.07378977312083634
+  },
+  {
+    "reference_index": 430,
+    "audio_index": 334,
+    "onset_difference_seconds": 0.07380585540010998
+  },
+  {
+    "reference_index": 14,
+    "audio_index": 27,
+    "onset_difference_seconds": 0.07381166756558954
+  },
+  {
+    "reference_index": 97,
+    "audio_index": 190,
+    "onset_difference_seconds": 0.07385894870543552
+  },
+  {
+    "reference_index": 39,
+    "audio_index": 79,
+    "onset_difference_seconds": 0.07392284263559645
+  },
+  {
+    "reference_index": 294,
+    "audio_index": 80,
+    "onset_difference_seconds": 0.07404448355677573
+  },
+  {
+    "reference_index": 73,
+    "audio_index": 147,
+    "onset_difference_seconds": 0.0741953884825648
+  },
+  {
+    "reference_index": 123,
+    "audio_index": 240,
+    "onset_difference_seconds": 0.07420530143338055
+  },
+  {
+    "reference_index": 42,
+    "audio_index": 83,
+    "onset_difference_seconds": 0.07423297700428577
+  },
+  {
+    "reference_index": 545,
+    "audio_index": 489,
+    "onset_difference_seconds": 0.07451725509264406
+  },
+  {
+    "reference_index": 412,
+    "audio_index": 302,
+    "onset_difference_seconds": 0.07458992360506045
+  },
+  {
+    "reference_index": 456,
+    "audio_index": 371,
+    "onset_difference_seconds": 0.07464991832637224
+  },
+  {
+    "reference_index": 185,
+    "audio_index": 372,
+    "onset_difference_seconds": 0.07467207090485317
+  },
+  {
+    "reference_index": 184,
+    "audio_index": 373,
+    "onset_difference_seconds": 0.0746769710175954
+  },
+  {
+    "reference_index": 630,
+    "audio_index": 610,
+    "onset_difference_seconds": 0.07467838089854695
+  },
+  {
+    "reference_index": 378,
+    "audio_index": 224,
+    "onset_difference_seconds": 0.074728745095058
+  },
+  {
+    "reference_index": 327,
+    "audio_index": 141,
+    "onset_difference_seconds": 0.07473917445358325
+  },
+  {
+    "reference_index": 105,
+    "audio_index": 213,
+    "onset_difference_seconds": 0.07474770829250588
+  },
+  {
+    "reference_index": 141,
+    "audio_index": 268,
+    "onset_difference_seconds": 0.07477996628671235
+  },
+  {
+    "reference_index": 373,
+    "audio_index": 215,
+    "onset_difference_seconds": 0.07481067026014898
+  },
+  {
+    "reference_index": 450,
+    "audio_index": 365,
+    "onset_difference_seconds": 0.07484964566805274
+  },
+  {
+    "reference_index": 307,
+    "audio_index": 100,
+    "onset_difference_seconds": 0.07488333412308634
+  },
+  {
+    "reference_index": 458,
+    "audio_index": 375,
+    "onset_difference_seconds": 0.07490117003146679
+  },
+  {
+    "reference_index": 396,
+    "audio_index": 272,
+    "onset_difference_seconds": 0.07493853987853072
+  },
+  {
+    "reference_index": 248,
+    "audio_index": 592,
+    "onset_difference_seconds": 0.07494489819725914
+  },
+  {
+    "reference_index": 437,
+    "audio_index": 348,
+    "onset_difference_seconds": 0.07498183254040214
+  },
+  {
+    "reference_index": 413,
+    "audio_index": 303,
+    "onset_difference_seconds": 0.07507441230205814
+  },
+  {
+    "reference_index": 86,
+    "audio_index": 172,
+    "onset_difference_seconds": 0.07510783362008056
+  },
+  {
+    "reference_index": 357,
+    "audio_index": 193,
+    "onset_difference_seconds": 0.07510870520491153
+  },
+  {
+    "reference_index": 389,
+    "audio_index": 254,
+    "onset_difference_seconds": 0.0751314287914795
+  },
+  {
+    "reference_index": 448,
+    "audio_index": 362,
+    "onset_difference_seconds": 0.07513494090795803
+  },
+  {
+    "reference_index": 179,
+    "audio_index": 346,
+    "onset_difference_seconds": 0.07520333834349913
+  },
+  {
+    "reference_index": 112,
+    "audio_index": 226,
+    "onset_difference_seconds": 0.0752178927397722
+  },
+  {
+    "reference_index": 180,
+    "audio_index": 356,
+    "onset_difference_seconds": 0.07523828789049958
+  },
+  {
+    "reference_index": 604,
+    "audio_index": 576,
+    "onset_difference_seconds": 0.07527960613640516
+  },
+  {
+    "reference_index": 156,
+    "audio_index": 299,
+    "onset_difference_seconds": 0.0752929887462983
+  },
+  {
+    "reference_index": 442,
+    "audio_index": 354,
+    "onset_difference_seconds": 0.07532918287074608
+  },
+  {
+    "reference_index": 111,
+    "audio_index": 227,
+    "onset_difference_seconds": 0.07533781713368626
+  },
+  {
+    "reference_index": 444,
+    "audio_index": 357,
+    "onset_difference_seconds": 0.07536377620635903
+  },
+  {
+    "reference_index": 67,
+    "audio_index": 133,
+    "onset_difference_seconds": 0.07541554422876118
+  },
+  {
+    "reference_index": 636,
+    "audio_index": 617,
+    "onset_difference_seconds": 0.07542179860223541
+  },
+  {
+    "reference_index": 360,
+    "audio_index": 197,
+    "onset_difference_seconds": 0.07546909531228607
+  },
+  {
+    "reference_index": 269,
+    "audio_index": 30,
+    "onset_difference_seconds": 0.07549488128178083
+  },
+  {
+    "reference_index": 356,
+    "audio_index": 192,
+    "onset_difference_seconds": 0.07550868477682116
+  },
+  {
+    "reference_index": 447,
+    "audio_index": 361,
+    "onset_difference_seconds": 0.07553967042673548
+  },
+  {
+    "reference_index": 282,
+    "audio_index": 51,
+    "onset_difference_seconds": 0.07554667673954896
+  },
+  {
+    "reference_index": 569,
+    "audio_index": 522,
+    "onset_difference_seconds": 0.07555375487731908
+  },
+  {
+    "reference_index": 544,
+    "audio_index": 490,
+    "onset_difference_seconds": 0.07559217899932946
+  },
+  {
+    "reference_index": 452,
+    "audio_index": 367,
+    "onset_difference_seconds": 0.07560810228966375
+  },
+  {
+    "reference_index": 256,
+    "audio_index": 6,
+    "onset_difference_seconds": 0.07564274794390613
+  },
+  {
+    "reference_index": 549,
+    "audio_index": 494,
+    "onset_difference_seconds": 0.07568303245909647
+  },
+  {
+    "reference_index": 170,
+    "audio_index": 330,
+    "onset_difference_seconds": 0.07572410870403701
+  },
+  {
+    "reference_index": 130,
+    "audio_index": 252,
+    "onset_difference_seconds": 0.07580038707914127
+  },
+  {
+    "reference_index": 281,
+    "audio_index": 52,
+    "onset_difference_seconds": 0.0758568266784323
+  },
+  {
+    "reference_index": 443,
+    "audio_index": 355,
+    "onset_difference_seconds": 0.07590944451641235
+  },
+  {
+    "reference_index": 303,
+    "audio_index": 97,
+    "onset_difference_seconds": 0.07600680050666142
+  },
+  {
+    "reference_index": 558,
+    "audio_index": 507,
+    "onset_difference_seconds": 0.07601384860691951
+  },
+  {
+    "reference_index": 41,
+    "audio_index": 81,
+    "onset_difference_seconds": 0.07602805831806592
+  },
+  {
+    "reference_index": 435,
+    "audio_index": 347,
+    "onset_difference_seconds": 0.07603562189984814
+  },
+  {
+    "reference_index": 596,
+    "audio_index": 559,
+    "onset_difference_seconds": 0.07605801322125672
+  },
+  {
+    "reference_index": 63,
+    "audio_index": 126,
+    "onset_difference_seconds": 0.07609852382114468
+  },
+  {
+    "reference_index": 129,
+    "audio_index": 253,
+    "onset_difference_seconds": 0.07611524388735802
+  },
+  {
+    "reference_index": 280,
+    "audio_index": 48,
+    "onset_difference_seconds": 0.07612672801461429
+  },
+  {
+    "reference_index": 355,
+    "audio_index": 191,
+    "onset_difference_seconds": 0.07615876022651946
+  },
+  {
+    "reference_index": 155,
+    "audio_index": 300,
+    "onset_difference_seconds": 0.07622703562353195
+  },
+  {
+    "reference_index": 486,
+    "audio_index": 409,
+    "onset_difference_seconds": 0.07623825654252414
+  },
+  {
+    "reference_index": 381,
+    "audio_index": 238,
+    "onset_difference_seconds": 0.07627189698234815
+  },
+  {
+    "reference_index": 305,
+    "audio_index": 99,
+    "onset_difference_seconds": 0.07633209933499074
+  },
+  {
+    "reference_index": 317,
+    "audio_index": 121,
+    "onset_difference_seconds": 0.07636720480022063
+  },
+  {
+    "reference_index": 318,
+    "audio_index": 122,
+    "onset_difference_seconds": 0.07639274337665825
+  },
+  {
+    "reference_index": 169,
+    "audio_index": 331,
+    "onset_difference_seconds": 0.0764069350165073
+  },
+  {
+    "reference_index": 239,
+    "audio_index": 566,
+    "onset_difference_seconds": 0.07642044351388222
+  },
+  {
+    "reference_index": 395,
+    "audio_index": 269,
+    "onset_difference_seconds": 0.07648200272262784
+  },
+  {
+    "reference_index": 422,
+    "audio_index": 318,
+    "onset_difference_seconds": 0.07649278854125896
+  },
+  {
+    "reference_index": 326,
+    "audio_index": 140,
+    "onset_difference_seconds": 0.07655981370920983
+  },
+  {
+    "reference_index": 139,
+    "audio_index": 270,
+    "onset_difference_seconds": 0.07660169633169289
+  },
+  {
+    "reference_index": 445,
+    "audio_index": 358,
+    "onset_difference_seconds": 0.07660612449456039
+  },
+  {
+    "reference_index": 397,
+    "audio_index": 273,
+    "onset_difference_seconds": 0.07663856620254705
+  },
+  {
+    "reference_index": 279,
+    "audio_index": 47,
+    "onset_difference_seconds": 0.0766628331121737
+  },
+  {
+    "reference_index": 537,
+    "audio_index": 479,
+    "onset_difference_seconds": 0.0766701574751778
+  },
+  {
+    "reference_index": 409,
+    "audio_index": 297,
+    "onset_difference_seconds": 0.07668101539249506
+  },
+  {
+    "reference_index": 426,
+    "audio_index": 326,
+    "onset_difference_seconds": 0.0767206775179261
+  },
+  {
+    "reference_index": 354,
+    "audio_index": 187,
+    "onset_difference_seconds": 0.07675660373672599
+  },
+  {
+    "reference_index": 302,
+    "audio_index": 93,
+    "onset_difference_seconds": 0.0767600732920215
+  },
+  {
+    "reference_index": 300,
+    "audio_index": 90,
+    "onset_difference_seconds": 0.07683434864831895
+  },
+  {
+    "reference_index": 81,
+    "audio_index": 163,
+    "onset_difference_seconds": 0.0768392667532396
+  },
+  {
+    "reference_index": 497,
+    "audio_index": 424,
+    "onset_difference_seconds": 0.07687334429749626
+  },
+  {
+    "reference_index": 3,
+    "audio_index": 7,
+    "onset_difference_seconds": 0.07697597373910625
+  },
+  {
+    "reference_index": 227,
+    "audio_index": 528,
+    "onset_difference_seconds": 0.0769774410713353
+  },
+  {
+    "reference_index": 136,
+    "audio_index": 265,
+    "onset_difference_seconds": 0.07704681949923042
+  },
+  {
+    "reference_index": 421,
+    "audio_index": 317,
+    "onset_difference_seconds": 0.07705548718234922
+  },
+  {
+    "reference_index": 557,
+    "audio_index": 508,
+    "onset_difference_seconds": 0.07707515207647475
+  },
+  {
+    "reference_index": 142,
+    "audio_index": 274,
+    "onset_difference_seconds": 0.07707996387162552
+  },
+  {
+    "reference_index": 215,
+    "audio_index": 491,
+    "onset_difference_seconds": 0.07709240203371337
+  },
+  {
+    "reference_index": 225,
+    "audio_index": 529,
+    "onset_difference_seconds": 0.07709878027679906
+  },
+  {
+    "reference_index": 353,
+    "audio_index": 186,
+    "onset_difference_seconds": 0.0771314918535495
+  },
+  {
+    "reference_index": 140,
+    "audio_index": 271,
+    "onset_difference_seconds": 0.07714471615190632
+  },
+  {
+    "reference_index": 268,
+    "audio_index": 28,
+    "onset_difference_seconds": 0.07718471293546969
+  },
+  {
+    "reference_index": 465,
+    "audio_index": 384,
+    "onset_difference_seconds": 0.07722008557379922
+  },
+  {
+    "reference_index": 301,
+    "audio_index": 94,
+    "onset_difference_seconds": 0.07727370939016964
+  },
+  {
+    "reference_index": 121,
+    "audio_index": 236,
+    "onset_difference_seconds": 0.07729275218312637
+  },
+  {
+    "reference_index": 427,
+    "audio_index": 328,
+    "onset_difference_seconds": 0.07734440249208774
+  },
+  {
+    "reference_index": 61,
+    "audio_index": 124,
+    "onset_difference_seconds": 0.0773684602421838
+  },
+  {
+    "reference_index": 548,
+    "audio_index": 495,
+    "onset_difference_seconds": 0.07737312430799648
+  },
+  {
+    "reference_index": 390,
+    "audio_index": 255,
+    "onset_difference_seconds": 0.07739572600004863
+  },
+  {
+    "reference_index": 319,
+    "audio_index": 127,
+    "onset_difference_seconds": 0.07742031763470436
+  },
+  {
+    "reference_index": 177,
+    "audio_index": 345,
+    "onset_difference_seconds": 0.07743972736523119
+  },
+  {
+    "reference_index": 13,
+    "audio_index": 29,
+    "onset_difference_seconds": 0.07744089174162738
+  },
+  {
+    "reference_index": 176,
+    "audio_index": 343,
+    "onset_difference_seconds": 0.0774964900605255
+  },
+  {
+    "reference_index": 561,
+    "audio_index": 513,
+    "onset_difference_seconds": 0.07754495194001265
+  },
+  {
+    "reference_index": 217,
+    "audio_index": 496,
+    "onset_difference_seconds": 0.0775480640755859
+  },
+  {
+    "reference_index": 585,
+    "audio_index": 544,
+    "onset_difference_seconds": 0.07756541480654278
+  },
+  {
+    "reference_index": 366,
+    "audio_index": 205,
+    "onset_difference_seconds": 0.07762673341227355
+  },
+  {
+    "reference_index": 358,
+    "audio_index": 194,
+    "onset_difference_seconds": 0.07766447971198431
+  },
+  {
+    "reference_index": 235,
+    "audio_index": 562,
+    "onset_difference_seconds": 0.07768781036310202
+  },
+  {
+    "reference_index": 216,
+    "audio_index": 497,
+    "onset_difference_seconds": 0.07771046533980552
+  },
+  {
+    "reference_index": 46,
+    "audio_index": 91,
+    "onset_difference_seconds": 0.07774939366210276
+  },
+  {
+    "reference_index": 60,
+    "audio_index": 123,
+    "onset_difference_seconds": 0.07775241704754876
+  },
+  {
+    "reference_index": 320,
+    "audio_index": 128,
+    "onset_difference_seconds": 0.07776778984502641
+  },
+  {
+    "reference_index": 514,
+    "audio_index": 447,
+    "onset_difference_seconds": 0.07777003551387907
+  },
+  {
+    "reference_index": 538,
+    "audio_index": 480,
+    "onset_difference_seconds": 0.07778104225621973
+  },
+  {
+    "reference_index": 531,
+    "audio_index": 472,
+    "onset_difference_seconds": 0.0777845600818523
+  },
+  {
+    "reference_index": 201,
+    "audio_index": 441,
+    "onset_difference_seconds": 0.0777914455671862
+  },
+  {
+    "reference_index": 469,
+    "audio_index": 388,
+    "onset_difference_seconds": 0.07779662663534737
+  },
+  {
+    "reference_index": 434,
+    "audio_index": 344,
+    "onset_difference_seconds": 0.07780543901856163
+  },
+  {
+    "reference_index": 453,
+    "audio_index": 368,
+    "onset_difference_seconds": 0.07782168011380008
+  },
+  {
+    "reference_index": 436,
+    "audio_index": 349,
+    "onset_difference_seconds": 0.07793947450534233
+  },
+  {
+    "reference_index": 528,
+    "audio_index": 464,
+    "onset_difference_seconds": 0.0779451344434392
+  },
+  {
+    "reference_index": 455,
+    "audio_index": 370,
+    "onset_difference_seconds": 0.07796865131678032
+  },
+  {
+    "reference_index": 536,
+    "audio_index": 477,
+    "onset_difference_seconds": 0.07803100544140307
+  },
+  {
+    "reference_index": 254,
+    "audio_index": 3,
+    "onset_difference_seconds": 0.07804223785054454
+  },
+  {
+    "reference_index": 128,
+    "audio_index": 248,
+    "onset_difference_seconds": 0.07808236510678057
+  },
+  {
+    "reference_index": 598,
+    "audio_index": 560,
+    "onset_difference_seconds": 0.07812241250798024
+  },
+  {
+    "reference_index": 190,
+    "audio_index": 400,
+    "onset_difference_seconds": 0.07813572121682455
+  },
+  {
+    "reference_index": 404,
+    "audio_index": 287,
+    "onset_difference_seconds": 0.07814192265172437
+  },
+  {
+    "reference_index": 441,
+    "audio_index": 352,
+    "onset_difference_seconds": 0.07814487095424738
+  },
+  {
+    "reference_index": 109,
+    "audio_index": 223,
+    "onset_difference_seconds": 0.0781677626698638
+  },
+  {
+    "reference_index": 410,
+    "audio_index": 301,
+    "onset_difference_seconds": 0.07825818251424721
+  },
+  {
+    "reference_index": 83,
+    "audio_index": 168,
+    "onset_difference_seconds": 0.0782780094968416
+  },
+  {
+    "reference_index": 401,
+    "audio_index": 281,
+    "onset_difference_seconds": 0.07829259817665957
+  },
+  {
+    "reference_index": 592,
+    "audio_index": 550,
+    "onset_difference_seconds": 0.078294440995478
+  },
+  {
+    "reference_index": 285,
+    "audio_index": 60,
+    "onset_difference_seconds": 0.07832583542043636
+  },
+  {
+    "reference_index": 151,
+    "audio_index": 291,
+    "onset_difference_seconds": 0.07833095906644871
+  },
+  {
+    "reference_index": 168,
+    "audio_index": 329,
+    "onset_difference_seconds": 0.07833928868711837
+  },
+  {
+    "reference_index": 304,
+    "audio_index": 98,
+    "onset_difference_seconds": 0.0783561179751473
+  },
+  {
+    "reference_index": 213,
+    "audio_index": 481,
+    "onset_difference_seconds": 0.07835834383524798
+  },
+  {
+    "reference_index": 454,
+    "audio_index": 369,
+    "onset_difference_seconds": 0.07836434770166534
+  },
+  {
+    "reference_index": 482,
+    "audio_index": 405,
+    "onset_difference_seconds": 0.07837252655099292
+  },
+  {
+    "reference_index": 191,
+    "audio_index": 401,
+    "onset_difference_seconds": 0.07839695376162581
+  },
+  {
+    "reference_index": 382,
+    "audio_index": 239,
+    "onset_difference_seconds": 0.07840007126026194
+  },
+  {
+    "reference_index": 595,
+    "audio_index": 557,
+    "onset_difference_seconds": 0.07840249744231187
+  },
+  {
+    "reference_index": 480,
+    "audio_index": 402,
+    "onset_difference_seconds": 0.0784196263845729
+  },
+  {
+    "reference_index": 610,
+    "audio_index": 582,
+    "onset_difference_seconds": 0.07846532227671332
+  },
+  {
+    "reference_index": 30,
+    "audio_index": 61,
+    "onset_difference_seconds": 0.0784706153783219
+  },
+  {
+    "reference_index": 200,
+    "audio_index": 442,
+    "onset_difference_seconds": 0.07854451490203473
+  },
+  {
+    "reference_index": 127,
+    "audio_index": 249,
+    "onset_difference_seconds": 0.07855242205147306
+  },
+  {
+    "reference_index": 512,
+    "audio_index": 443,
+    "onset_difference_seconds": 0.07855496077144153
+  },
+  {
+    "reference_index": 166,
+    "audio_index": 321,
+    "onset_difference_seconds": 0.07856120753280038
+  },
+  {
+    "reference_index": 460,
+    "audio_index": 377,
+    "onset_difference_seconds": 0.07859410804246636
+  },
+  {
+    "reference_index": 265,
+    "audio_index": 22,
+    "onset_difference_seconds": 0.07863804270080621
+  },
+  {
+    "reference_index": 50,
+    "audio_index": 101,
+    "onset_difference_seconds": 0.07867273793469565
+  },
+  {
+    "reference_index": 212,
+    "audio_index": 482,
+    "onset_difference_seconds": 0.07869501223467523
+  },
+  {
+    "reference_index": 154,
+    "audio_index": 298,
+    "onset_difference_seconds": 0.07875695046215014
+  },
+  {
+    "reference_index": 49,
+    "audio_index": 95,
+    "onset_difference_seconds": 0.0788491814368939
+  },
+  {
+    "reference_index": 138,
+    "audio_index": 267,
+    "onset_difference_seconds": 0.07885744117925242
+  },
+  {
+    "reference_index": 471,
+    "audio_index": 390,
+    "onset_difference_seconds": 0.0788718638057162
+  },
+  {
+    "reference_index": 615,
+    "audio_index": 589,
+    "onset_difference_seconds": 0.07889505614133441
+  },
+  {
+    "reference_index": 408,
+    "audio_index": 295,
+    "onset_difference_seconds": 0.07891287279610992
+  },
+  {
+    "reference_index": 331,
+    "audio_index": 143,
+    "onset_difference_seconds": 0.07891595092220882
+  },
+  {
+    "reference_index": 51,
+    "audio_index": 102,
+    "onset_difference_seconds": 0.07894866631956177
+  },
+  {
+    "reference_index": 462,
+    "audio_index": 379,
+    "onset_difference_seconds": 0.07895023676104529
+  },
+  {
+    "reference_index": 167,
+    "audio_index": 327,
+    "onset_difference_seconds": 0.07900461202677889
+  },
+  {
+    "reference_index": 479,
+    "audio_index": 403,
+    "onset_difference_seconds": 0.07900851287911337
+  },
+  {
+    "reference_index": 554,
+    "audio_index": 503,
+    "onset_difference_seconds": 0.07902460155946756
+  },
+  {
+    "reference_index": 446,
+    "audio_index": 360,
+    "onset_difference_seconds": 0.07904625641072016
+  },
+  {
+    "reference_index": 440,
+    "audio_index": 353,
+    "onset_difference_seconds": 0.07905423319357396
+  },
+  {
+    "reference_index": 575,
+    "audio_index": 530,
+    "onset_difference_seconds": 0.07906205600454541
+  },
+  {
+    "reference_index": 306,
+    "audio_index": 103,
+    "onset_difference_seconds": 0.07906301001031579
+  },
+  {
+    "reference_index": 467,
+    "audio_index": 386,
+    "onset_difference_seconds": 0.07912255727620732
+  },
+  {
+    "reference_index": 547,
+    "audio_index": 492,
+    "onset_difference_seconds": 0.07916976921512742
+  },
+  {
+    "reference_index": 591,
+    "audio_index": 551,
+    "onset_difference_seconds": 0.0792458815082
+  },
+  {
+    "reference_index": 513,
+    "audio_index": 446,
+    "onset_difference_seconds": 0.07933646127855809
+  },
+  {
+    "reference_index": 58,
+    "audio_index": 119,
+    "onset_difference_seconds": 0.07934174137591299
+  },
+  {
+    "reference_index": 478,
+    "audio_index": 399,
+    "onset_difference_seconds": 0.07937769737748113
+  },
+  {
+    "reference_index": 153,
+    "audio_index": 296,
+    "onset_difference_seconds": 0.0793840970727615
+  },
+  {
+    "reference_index": 365,
+    "audio_index": 204,
+    "onset_difference_seconds": 0.07943557116450961
+  },
+  {
+    "reference_index": 567,
+    "audio_index": 519,
+    "onset_difference_seconds": 0.07946772345445652
+  },
+  {
+    "reference_index": 47,
+    "audio_index": 92,
+    "onset_difference_seconds": 0.07949023361379659
+  },
+  {
+    "reference_index": 418,
+    "audio_index": 312,
+    "onset_difference_seconds": 0.07953898554592342
+  },
+  {
+    "reference_index": 578,
+    "audio_index": 534,
+    "onset_difference_seconds": 0.07958756904588427
+  },
+  {
+    "reference_index": 163,
+    "audio_index": 319,
+    "onset_difference_seconds": 0.07961678582086051
+  },
+  {
+    "reference_index": 122,
+    "audio_index": 237,
+    "onset_difference_seconds": 0.07968041791227165
+  },
+  {
+    "reference_index": 563,
+    "audio_index": 515,
+    "onset_difference_seconds": 0.0798045559463958
+  },
+  {
+    "reference_index": 394,
+    "audio_index": 263,
+    "onset_difference_seconds": 0.07981641351332769
+  },
+  {
+    "reference_index": 226,
+    "audio_index": 531,
+    "onset_difference_seconds": 0.07982433770354191
+  },
+  {
+    "reference_index": 48,
+    "audio_index": 96,
+    "onset_difference_seconds": 0.07985194666855477
+  },
+  {
+    "reference_index": 577,
+    "audio_index": 533,
+    "onset_difference_seconds": 0.07987453358344965
+  },
+  {
+    "reference_index": 214,
+    "audio_index": 483,
+    "onset_difference_seconds": 0.07987560273670624
+  },
+  {
+    "reference_index": 148,
+    "audio_index": 283,
+    "onset_difference_seconds": 0.0798924399973373
+  },
+  {
+    "reference_index": 476,
+    "audio_index": 397,
+    "onset_difference_seconds": 0.07994035467100957
+  },
+  {
+    "reference_index": 393,
+    "audio_index": 262,
+    "onset_difference_seconds": 0.07995405090468921
+  },
+  {
+    "reference_index": 420,
+    "audio_index": 313,
+    "onset_difference_seconds": 0.07995487716294747
+  },
+  {
+    "reference_index": 364,
+    "audio_index": 203,
+    "onset_difference_seconds": 0.07995489142109591
+  },
+  {
+    "reference_index": 95,
+    "audio_index": 182,
+    "onset_difference_seconds": 0.07999315110464522
+  },
+  {
+    "reference_index": 266,
+    "audio_index": 24,
+    "onset_difference_seconds": 0.08000458161577129
+  },
+  {
+    "reference_index": 425,
+    "audio_index": 325,
+    "onset_difference_seconds": 0.0800102354268688
+  },
+  {
+    "reference_index": 220,
+    "audio_index": 509,
+    "onset_difference_seconds": 0.08001208308974128
+  },
+  {
+    "reference_index": 385,
+    "audio_index": 246,
+    "onset_difference_seconds": 0.0800708339257028
+  },
+  {
+    "reference_index": 161,
+    "audio_index": 314,
+    "onset_difference_seconds": 0.08007881364954983
+  },
+  {
+    "reference_index": 540,
+    "audio_index": 485,
+    "onset_difference_seconds": 0.08009018283144087
+  },
+  {
+    "reference_index": 31,
+    "audio_index": 62,
+    "onset_difference_seconds": 0.08009400590477611
+  },
+  {
+    "reference_index": 481,
+    "audio_index": 404,
+    "onset_difference_seconds": 0.08017041707353201
+  },
+  {
+    "reference_index": 407,
+    "audio_index": 292,
+    "onset_difference_seconds": 0.08018718893939081
+  },
+  {
+    "reference_index": 560,
+    "audio_index": 510,
+    "onset_difference_seconds": 0.08031010350237011
+  },
+  {
+    "reference_index": 559,
+    "audio_index": 511,
+    "onset_difference_seconds": 0.08032026426423045
+  },
+  {
+    "reference_index": 526,
+    "audio_index": 463,
+    "onset_difference_seconds": 0.08036305461445181
+  },
+  {
+    "reference_index": 510,
+    "audio_index": 440,
+    "onset_difference_seconds": 0.08038746175685674
+  },
+  {
+    "reference_index": 424,
+    "audio_index": 322,
+    "onset_difference_seconds": 0.08041684859296083
+  },
+  {
+    "reference_index": 489,
+    "audio_index": 414,
+    "onset_difference_seconds": 0.08042139180224694
+  },
+  {
+    "reference_index": 593,
+    "audio_index": 555,
+    "onset_difference_seconds": 0.0804230794381624
+  },
+  {
+    "reference_index": 244,
+    "audio_index": 583,
+    "onset_difference_seconds": 0.08043093041942484
+  },
+  {
+    "reference_index": 164,
+    "audio_index": 320,
+    "onset_difference_seconds": 0.08043430243321836
+  },
+  {
+    "reference_index": 152,
+    "audio_index": 293,
+    "onset_difference_seconds": 0.08047471192790567
+  },
+  {
+    "reference_index": 530,
+    "audio_index": 467,
+    "onset_difference_seconds": 0.08050580940920327
+  },
+  {
+    "reference_index": 574,
+    "audio_index": 527,
+    "onset_difference_seconds": 0.08051263745784354
+  },
+  {
+    "reference_index": 165,
+    "audio_index": 323,
+    "onset_difference_seconds": 0.08054404945698934
+  },
+  {
+    "reference_index": 527,
+    "audio_index": 465,
+    "onset_difference_seconds": 0.08056334646215646
+  },
+  {
+    "reference_index": 542,
+    "audio_index": 487,
+    "onset_difference_seconds": 0.08057222458609203
+  },
+  {
+    "reference_index": 611,
+    "audio_index": 584,
+    "onset_difference_seconds": 0.08057444538559366
+  },
+  {
+    "reference_index": 566,
+    "audio_index": 518,
+    "onset_difference_seconds": 0.08057900938416651
+  },
+  {
+    "reference_index": 603,
+    "audio_index": 571,
+    "onset_difference_seconds": 0.08059439590630291
+  },
+  {
+    "reference_index": 209,
+    "audio_index": 468,
+    "onset_difference_seconds": 0.0806041723729436
+  },
+  {
+    "reference_index": 470,
+    "audio_index": 389,
+    "onset_difference_seconds": 0.08072481794795294
+  },
+  {
+    "reference_index": 210,
+    "audio_index": 469,
+    "onset_difference_seconds": 0.08083127142180047
+  },
+  {
+    "reference_index": 534,
+    "audio_index": 475,
+    "onset_difference_seconds": 0.0808439111314101
+  },
+  {
+    "reference_index": 93,
+    "audio_index": 183,
+    "onset_difference_seconds": 0.08084882740533317
+  },
+  {
+    "reference_index": 297,
+    "audio_index": 87,
+    "onset_difference_seconds": 0.08088492049652984
+  },
+  {
+    "reference_index": 133,
+    "audio_index": 260,
+    "onset_difference_seconds": 0.0808889565645643
+  },
+  {
+    "reference_index": 11,
+    "audio_index": 25,
+    "onset_difference_seconds": 0.08091259755245162
+  },
+  {
+    "reference_index": 417,
+    "audio_index": 311,
+    "onset_difference_seconds": 0.08091351006680725
+  },
+  {
+    "reference_index": 211,
+    "audio_index": 478,
+    "onset_difference_seconds": 0.08094406778138818
+  },
+  {
+    "reference_index": 520,
+    "audio_index": 454,
+    "onset_difference_seconds": 0.08094902948289473
+  },
+  {
+    "reference_index": 175,
+    "audio_index": 342,
+    "onset_difference_seconds": 0.08096578750854633
+  },
+  {
+    "reference_index": 524,
+    "audio_index": 461,
+    "onset_difference_seconds": 0.08097165885527602
+  },
+  {
+    "reference_index": 550,
+    "audio_index": 499,
+    "onset_difference_seconds": 0.08100874781172251
+  },
+  {
+    "reference_index": 552,
+    "audio_index": 501,
+    "onset_difference_seconds": 0.08106695916211493
+  },
+  {
+    "reference_index": 149,
+    "audio_index": 288,
+    "onset_difference_seconds": 0.08109253701002217
+  },
+  {
+    "reference_index": 433,
+    "audio_index": 341,
+    "onset_difference_seconds": 0.0811572842732744
+  },
+  {
+    "reference_index": 638,
+    "audio_index": 619,
+    "onset_difference_seconds": 0.08120040749372492
+  },
+  {
+    "reference_index": 466,
+    "audio_index": 385,
+    "onset_difference_seconds": 0.08123244436251298
+  },
+  {
+    "reference_index": 208,
+    "audio_index": 470,
+    "onset_difference_seconds": 0.08129020173362278
+  },
+  {
+    "reference_index": 362,
+    "audio_index": 199,
+    "onset_difference_seconds": 0.08134018324940939
+  },
+  {
+    "reference_index": 543,
+    "audio_index": 488,
+    "onset_difference_seconds": 0.08134085926980106
+  },
+  {
+    "reference_index": 233,
+    "audio_index": 552,
+    "onset_difference_seconds": 0.08138172168412439
+  },
+  {
+    "reference_index": 43,
+    "audio_index": 85,
+    "onset_difference_seconds": 0.08139596813661854
+  },
+  {
+    "reference_index": 264,
+    "audio_index": 21,
+    "onset_difference_seconds": 0.08147345942975193
+  },
+  {
+    "reference_index": 405,
+    "audio_index": 289,
+    "onset_difference_seconds": 0.08152647534566881
+  },
+  {
+    "reference_index": 416,
+    "audio_index": 310,
+    "onset_difference_seconds": 0.08154896389436317
+  },
+  {
+    "reference_index": 94,
+    "audio_index": 184,
+    "onset_difference_seconds": 0.08156354503026364
+  },
+  {
+    "reference_index": 609,
+    "audio_index": 581,
+    "onset_difference_seconds": 0.08157804120060064
+  },
+  {
+    "reference_index": 485,
+    "audio_index": 408,
+    "onset_difference_seconds": 0.08160287240025355
+  },
+  {
+    "reference_index": 492,
+    "audio_index": 417,
+    "onset_difference_seconds": 0.08160418790856738
+  },
+  {
+    "reference_index": 562,
+    "audio_index": 514,
+    "onset_difference_seconds": 0.08164888854844321
+  },
+  {
+    "reference_index": 120,
+    "audio_index": 235,
+    "onset_difference_seconds": 0.08170071944255142
+  },
+  {
+    "reference_index": 602,
+    "audio_index": 572,
+    "onset_difference_seconds": 0.08171802346299728
+  },
+  {
+    "reference_index": 493,
+    "audio_index": 418,
+    "onset_difference_seconds": 0.08174053920197366
+  },
+  {
+    "reference_index": 232,
+    "audio_index": 553,
+    "onset_difference_seconds": 0.08187156306740917
+  },
+  {
+    "reference_index": 500,
+    "audio_index": 427,
+    "onset_difference_seconds": 0.08188887513244936
+  },
+  {
+    "reference_index": 316,
+    "audio_index": 120,
+    "onset_difference_seconds": 0.08190215580047777
+  },
+  {
+    "reference_index": 474,
+    "audio_index": 395,
+    "onset_difference_seconds": 0.0819103283498066
+  },
+  {
+    "reference_index": 525,
+    "audio_index": 462,
+    "onset_difference_seconds": 0.08197041095621671
+  },
+  {
+    "reference_index": 399,
+    "audio_index": 280,
+    "onset_difference_seconds": 0.0819954287962048
+  },
+  {
+    "reference_index": 589,
+    "audio_index": 548,
+    "onset_difference_seconds": 0.08199989709555666
+  },
+  {
+    "reference_index": 207,
+    "audio_index": 466,
+    "onset_difference_seconds": 0.08200164926131492
+  },
+  {
+    "reference_index": 506,
+    "audio_index": 436,
+    "onset_difference_seconds": 0.08200474323160734
+  },
+  {
+    "reference_index": 521,
+    "audio_index": 455,
+    "onset_difference_seconds": 0.08209651118062311
+  },
+  {
+    "reference_index": 150,
+    "audio_index": 290,
+    "onset_difference_seconds": 0.08215174211497356
+  },
+  {
+    "reference_index": 502,
+    "audio_index": 429,
+    "onset_difference_seconds": 0.08215197705186483
+  },
+  {
+    "reference_index": 415,
+    "audio_index": 306,
+    "onset_difference_seconds": 0.08215655814865386
+  },
+  {
+    "reference_index": 188,
+    "audio_index": 391,
+    "onset_difference_seconds": 0.08215905283958591
+  },
+  {
+    "reference_index": 546,
+    "audio_index": 493,
+    "onset_difference_seconds": 0.08218381874513625
+  },
+  {
+    "reference_index": 634,
+    "audio_index": 615,
+    "onset_difference_seconds": 0.08221156432415455
+  },
+  {
+    "reference_index": 605,
+    "audio_index": 577,
+    "onset_difference_seconds": 0.08221413236799435
+  },
+  {
+    "reference_index": 627,
+    "audio_index": 604,
+    "onset_difference_seconds": 0.08225985683452564
+  },
+  {
+    "reference_index": 223,
+    "audio_index": 521,
+    "onset_difference_seconds": 0.08227278090220125
+  },
+  {
+    "reference_index": 590,
+    "audio_index": 549,
+    "onset_difference_seconds": 0.08227775237827473
+  },
+  {
+    "reference_index": 518,
+    "audio_index": 451,
+    "onset_difference_seconds": 0.08228945701131352
+  },
+  {
+    "reference_index": 171,
+    "audio_index": 336,
+    "onset_difference_seconds": 0.0823349406588818
+  },
+  {
+    "reference_index": 386,
+    "audio_index": 247,
+    "onset_difference_seconds": 0.08233632458953366
+  },
+  {
+    "reference_index": 231,
+    "audio_index": 554,
+    "onset_difference_seconds": 0.08236987774972704
+  },
+  {
+    "reference_index": 519,
+    "audio_index": 452,
+    "onset_difference_seconds": 0.08239884557468713
+  },
+  {
+    "reference_index": 403,
+    "audio_index": 284,
+    "onset_difference_seconds": 0.08241354331781281
+  },
+  {
+    "reference_index": 491,
+    "audio_index": 416,
+    "onset_difference_seconds": 0.08241628626677766
+  },
+  {
+    "reference_index": 236,
+    "audio_index": 563,
+    "onset_difference_seconds": 0.08245346338941317
+  },
+  {
+    "reference_index": 494,
+    "audio_index": 419,
+    "onset_difference_seconds": 0.08245955600591515
+  },
+  {
+    "reference_index": 402,
+    "audio_index": 285,
+    "onset_difference_seconds": 0.0824674081407295
+  },
+  {
+    "reference_index": 27,
+    "audio_index": 57,
+    "onset_difference_seconds": 0.08246956061884703
+  },
+  {
+    "reference_index": 144,
+    "audio_index": 276,
+    "onset_difference_seconds": 0.08255579311935435
+  },
+  {
+    "reference_index": 463,
+    "audio_index": 380,
+    "onset_difference_seconds": 0.08255586232019141
+  },
+  {
+    "reference_index": 361,
+    "audio_index": 198,
+    "onset_difference_seconds": 0.08256107736877993
+  },
+  {
+    "reference_index": 529,
+    "audio_index": 471,
+    "onset_difference_seconds": 0.08257406080497276
+  },
+  {
+    "reference_index": 461,
+    "audio_index": 378,
+    "onset_difference_seconds": 0.0826007127798789
+  },
+  {
+    "reference_index": 423,
+    "audio_index": 324,
+    "onset_difference_seconds": 0.08260335279260289
+  },
+  {
+    "reference_index": 400,
+    "audio_index": 282,
+    "onset_difference_seconds": 0.08261555515281316
+  },
+  {
+    "reference_index": 147,
+    "audio_index": 286,
+    "onset_difference_seconds": 0.08262894954103217
+  },
+  {
+    "reference_index": 189,
+    "audio_index": 392,
+    "onset_difference_seconds": 0.08264359585928105
+  },
+  {
+    "reference_index": 612,
+    "audio_index": 586,
+    "onset_difference_seconds": 0.08269592240458223
+  },
+  {
+    "reference_index": 553,
+    "audio_index": 502,
+    "onset_difference_seconds": 0.08271513708967859
+  },
+  {
+    "reference_index": 126,
+    "audio_index": 244,
+    "onset_difference_seconds": 0.08274362777467559
+  },
+  {
+    "reference_index": 472,
+    "audio_index": 393,
+    "onset_difference_seconds": 0.08276897639478875
+  },
+  {
+    "reference_index": 626,
+    "audio_index": 605,
+    "onset_difference_seconds": 0.0827774093552307
+  },
+  {
+    "reference_index": 523,
+    "audio_index": 460,
+    "onset_difference_seconds": 0.08278309994375377
+  },
+  {
+    "reference_index": 532,
+    "audio_index": 473,
+    "onset_difference_seconds": 0.0827946620229909
+  },
+  {
+    "reference_index": 172,
+    "audio_index": 337,
+    "onset_difference_seconds": 0.08279523639015451
+  },
+  {
+    "reference_index": 570,
+    "audio_index": 523,
+    "onset_difference_seconds": 0.08279794698773912
+  },
+  {
+    "reference_index": 125,
+    "audio_index": 245,
+    "onset_difference_seconds": 0.08284366591820458
+  },
+  {
+    "reference_index": 134,
+    "audio_index": 261,
+    "onset_difference_seconds": 0.08288349862371547
+  },
+  {
+    "reference_index": 635,
+    "audio_index": 616,
+    "onset_difference_seconds": 0.08296397616430795
+  },
+  {
+    "reference_index": 517,
+    "audio_index": 450,
+    "onset_difference_seconds": 0.08297940720609631
+  },
+  {
+    "reference_index": 594,
+    "audio_index": 556,
+    "onset_difference_seconds": 0.08299051039716687
+  },
+  {
+    "reference_index": 495,
+    "audio_index": 420,
+    "onset_difference_seconds": 0.08299908299937897
+  },
+  {
+    "reference_index": 507,
+    "audio_index": 437,
+    "onset_difference_seconds": 0.08306947731210812
+  },
+  {
+    "reference_index": 221,
+    "audio_index": 512,
+    "onset_difference_seconds": 0.08308492986355986
+  },
+  {
+    "reference_index": 398,
+    "audio_index": 277,
+    "onset_difference_seconds": 0.08310021079688568
+  },
+  {
+    "reference_index": 496,
+    "audio_index": 421,
+    "onset_difference_seconds": 0.08313752389921092
+  },
+  {
+    "reference_index": 160,
+    "audio_index": 307,
+    "onset_difference_seconds": 0.08318718970059535
+  },
+  {
+    "reference_index": 406,
+    "audio_index": 294,
+    "onset_difference_seconds": 0.08321463856668743
+  },
+  {
+    "reference_index": 158,
+    "audio_index": 305,
+    "onset_difference_seconds": 0.08322116351558861
+  },
+  {
+    "reference_index": 414,
+    "audio_index": 308,
+    "onset_difference_seconds": 0.08331319754188371
+  },
+  {
+    "reference_index": 619,
+    "audio_index": 593,
+    "onset_difference_seconds": 0.08342184199398162
+  },
+  {
+    "reference_index": 241,
+    "audio_index": 573,
+    "onset_difference_seconds": 0.08349791553456498
+  },
+  {
+    "reference_index": 12,
+    "audio_index": 26,
+    "onset_difference_seconds": 0.08354428661112934
+  },
+  {
+    "reference_index": 246,
+    "audio_index": 594,
+    "onset_difference_seconds": 0.08355019920435325
+  },
+  {
+    "reference_index": 468,
+    "audio_index": 387,
+    "onset_difference_seconds": 0.08355517615910912
+  },
+  {
+    "reference_index": 192,
+    "audio_index": 410,
+    "onset_difference_seconds": 0.08356151340058204
+  },
+  {
+    "reference_index": 203,
+    "audio_index": 453,
+    "onset_difference_seconds": 0.08359301570698108
+  },
+  {
+    "reference_index": 473,
+    "audio_index": 394,
+    "onset_difference_seconds": 0.08359682729019369
+  },
+  {
+    "reference_index": 584,
+    "audio_index": 540,
+    "onset_difference_seconds": 0.08364640970449955
+  },
+  {
+    "reference_index": 586,
+    "audio_index": 545,
+    "onset_difference_seconds": 0.08385151758585607
+  },
+  {
+    "reference_index": 419,
+    "audio_index": 315,
+    "onset_difference_seconds": 0.08386533647808392
+  },
+  {
+    "reference_index": 457,
+    "audio_index": 374,
+    "onset_difference_seconds": 0.08392917755611506
+  },
+  {
+    "reference_index": 87,
+    "audio_index": 175,
+    "onset_difference_seconds": 0.08398874987818772
+  },
+  {
+    "reference_index": 143,
+    "audio_index": 275,
+    "onset_difference_seconds": 0.08401719620272274
+  },
+  {
+    "reference_index": 157,
+    "audio_index": 304,
+    "onset_difference_seconds": 0.08402964543697067
+  },
+  {
+    "reference_index": 618,
+    "audio_index": 595,
+    "onset_difference_seconds": 0.08412028417194506
+  },
+  {
+    "reference_index": 535,
+    "audio_index": 476,
+    "onset_difference_seconds": 0.08413318514385537
+  },
+  {
+    "reference_index": 228,
+    "audio_index": 541,
+    "onset_difference_seconds": 0.0841435133718278
+  },
+  {
+    "reference_index": 588,
+    "audio_index": 547,
+    "onset_difference_seconds": 0.0842052225444263
+  },
+  {
+    "reference_index": 587,
+    "audio_index": 546,
+    "onset_difference_seconds": 0.08423747360399148
+  },
+  {
+    "reference_index": 583,
+    "audio_index": 542,
+    "onset_difference_seconds": 0.08424724061302413
+  },
+  {
+    "reference_index": 581,
+    "audio_index": 537,
+    "onset_difference_seconds": 0.08432496407510826
+  },
+  {
+    "reference_index": 242,
+    "audio_index": 574,
+    "onset_difference_seconds": 0.0843657306171508
+  },
+  {
+    "reference_index": 483,
+    "audio_index": 406,
+    "onset_difference_seconds": 0.08449428542502346
+  },
+  {
+    "reference_index": 159,
+    "audio_index": 309,
+    "onset_difference_seconds": 0.08455549756251912
+  },
+  {
+    "reference_index": 205,
+    "audio_index": 456,
+    "onset_difference_seconds": 0.08458005660077106
+  },
+  {
+    "reference_index": 488,
+    "audio_index": 411,
+    "onset_difference_seconds": 0.08464709389335212
+  },
+  {
+    "reference_index": 193,
+    "audio_index": 412,
+    "onset_difference_seconds": 0.08466527192058493
+  },
+  {
+    "reference_index": 509,
+    "audio_index": 439,
+    "onset_difference_seconds": 0.08472589913782258
+  },
+  {
+    "reference_index": 533,
+    "audio_index": 474,
+    "onset_difference_seconds": 0.0847570343335633
+  },
+  {
+    "reference_index": 45,
+    "audio_index": 88,
+    "onset_difference_seconds": 0.08477850535560094
+  },
+  {
+    "reference_index": 490,
+    "audio_index": 415,
+    "onset_difference_seconds": 0.08479368864374237
+  },
+  {
+    "reference_index": 475,
+    "audio_index": 396,
+    "onset_difference_seconds": 0.08479854135390497
+  },
+  {
+    "reference_index": 515,
+    "audio_index": 448,
+    "onset_difference_seconds": 0.08484519484193243
+  },
+  {
+    "reference_index": 516,
+    "audio_index": 449,
+    "onset_difference_seconds": 0.08484640931698095
+  },
+  {
+    "reference_index": 625,
+    "audio_index": 602,
+    "onset_difference_seconds": 0.0850216377095876
+  },
+  {
+    "reference_index": 551,
+    "audio_index": 500,
+    "onset_difference_seconds": 0.08505438418990252
+  },
+  {
+    "reference_index": 571,
+    "audio_index": 524,
+    "onset_difference_seconds": 0.08513215418952313
+  },
+  {
+    "reference_index": 194,
+    "audio_index": 422,
+    "onset_difference_seconds": 0.08518974167253646
+  },
+  {
+    "reference_index": 243,
+    "audio_index": 575,
+    "onset_difference_seconds": 0.08529446771257199
+  },
+  {
+    "reference_index": 25,
+    "audio_index": 53,
+    "onset_difference_seconds": 0.08538967141218734
+  },
+  {
+    "reference_index": 505,
+    "audio_index": 435,
+    "onset_difference_seconds": 0.08542739826367551
+  },
+  {
+    "reference_index": 131,
+    "audio_index": 257,
+    "onset_difference_seconds": 0.08547941516417268
+  },
+  {
+    "reference_index": 218,
+    "audio_index": 498,
+    "onset_difference_seconds": 0.08555840379091251
+  },
+  {
+    "reference_index": 608,
+    "audio_index": 580,
+    "onset_difference_seconds": 0.08560041491040238
+  },
+  {
+    "reference_index": 162,
+    "audio_index": 316,
+    "onset_difference_seconds": 0.08562016521017313
+  },
+  {
+    "reference_index": 132,
+    "audio_index": 258,
+    "onset_difference_seconds": 0.08566525441278827
+  },
+  {
+    "reference_index": 204,
+    "audio_index": 457,
+    "onset_difference_seconds": 0.08572401545592356
+  },
+  {
+    "reference_index": 582,
+    "audio_index": 538,
+    "onset_difference_seconds": 0.08582668721106756
+  },
+  {
+    "reference_index": 28,
+    "audio_index": 58,
+    "onset_difference_seconds": 0.08600848381752257
+  },
+  {
+    "reference_index": 579,
+    "audio_index": 535,
+    "onset_difference_seconds": 0.08611305956230808
+  },
+  {
+    "reference_index": 573,
+    "audio_index": 526,
+    "onset_difference_seconds": 0.08627500167881408
+  },
+  {
+    "reference_index": 477,
+    "audio_index": 398,
+    "onset_difference_seconds": 0.08628980248795415
+  },
+  {
+    "reference_index": 429,
+    "audio_index": 332,
+    "onset_difference_seconds": 0.08631011332886374
+  },
+  {
+    "reference_index": 349,
+    "audio_index": 176,
+    "onset_difference_seconds": 0.08632575279460752
+  },
+  {
+    "reference_index": 606,
+    "audio_index": 578,
+    "onset_difference_seconds": 0.08634719060023599
+  },
+  {
+    "reference_index": 464,
+    "audio_index": 382,
+    "onset_difference_seconds": 0.08638691685200683
+  },
+  {
+    "reference_index": 146,
+    "audio_index": 278,
+    "onset_difference_seconds": 0.08643363720537423
+  },
+  {
+    "reference_index": 614,
+    "audio_index": 588,
+    "onset_difference_seconds": 0.086449052878379
+  },
+  {
+    "reference_index": 428,
+    "audio_index": 333,
+    "onset_difference_seconds": 0.08678774941097345
+  },
+  {
+    "reference_index": 484,
+    "audio_index": 407,
+    "onset_difference_seconds": 0.0868431260130933
+  },
+  {
+    "reference_index": 186,
+    "audio_index": 383,
+    "onset_difference_seconds": 0.08692832195674782
+  },
+  {
+    "reference_index": 511,
+    "audio_index": 445,
+    "onset_difference_seconds": 0.08697042168233793
+  },
+  {
+    "reference_index": 616,
+    "audio_index": 590,
+    "onset_difference_seconds": 0.08700680071706302
+  },
+  {
+    "reference_index": 145,
+    "audio_index": 279,
+    "onset_difference_seconds": 0.08716295697894338
+  },
+  {
+    "reference_index": 617,
+    "audio_index": 591,
+    "onset_difference_seconds": 0.08727600866069452
+  },
+  {
+    "reference_index": 501,
+    "audio_index": 428,
+    "onset_difference_seconds": 0.08752298879886666
+  },
+  {
+    "reference_index": 247,
+    "audio_index": 596,
+    "onset_difference_seconds": 0.08752568570025687
+  },
+  {
+    "reference_index": 499,
+    "audio_index": 426,
+    "onset_difference_seconds": 0.08759093815876895
+  },
+  {
+    "reference_index": 580,
+    "audio_index": 536,
+    "onset_difference_seconds": 0.0875943497611047
+  },
+  {
+    "reference_index": 206,
+    "audio_index": 458,
+    "onset_difference_seconds": 0.08760257186094123
+  },
+  {
+    "reference_index": 621,
+    "audio_index": 598,
+    "onset_difference_seconds": 0.08763766462470812
+  },
+  {
+    "reference_index": 613,
+    "audio_index": 587,
+    "onset_difference_seconds": 0.08775736913293031
+  },
+  {
+    "reference_index": 565,
+    "audio_index": 517,
+    "onset_difference_seconds": 0.08787027087981869
+  },
+  {
+    "reference_index": 628,
+    "audio_index": 608,
+    "onset_difference_seconds": 0.08806154565377255
+  },
+  {
+    "reference_index": 117,
+    "audio_index": 232,
+    "onset_difference_seconds": 0.08836929745143607
+  },
+  {
+    "reference_index": 229,
+    "audio_index": 543,
+    "onset_difference_seconds": 0.08882171692863494
+  },
+  {
+    "reference_index": 391,
+    "audio_index": 259,
+    "onset_difference_seconds": 0.0890637635356768
+  },
+  {
+    "reference_index": 487,
+    "audio_index": 413,
+    "onset_difference_seconds": 0.08924612198114801
+  },
+  {
+    "reference_index": 195,
+    "audio_index": 423,
+    "onset_difference_seconds": 0.08926422388748279
+  },
+  {
+    "reference_index": 237,
+    "audio_index": 564,
+    "onset_difference_seconds": 0.08948467653999614
+  },
+  {
+    "reference_index": 245,
+    "audio_index": 585,
+    "onset_difference_seconds": 0.08993357555300463
+  },
+  {
+    "reference_index": 383,
+    "audio_index": 243,
+    "onset_difference_seconds": 0.0904158327243465
+  },
+  {
+    "reference_index": 624,
+    "audio_index": 601,
+    "onset_difference_seconds": 0.09064843217430507
+  },
+  {
+    "reference_index": 607,
+    "audio_index": 579,
+    "onset_difference_seconds": 0.0917370806870963
+  },
+  {
+    "reference_index": 622,
+    "audio_index": 599,
+    "onset_difference_seconds": 0.09190312399249478
+  },
+  {
+    "reference_index": 599,
+    "audio_index": 568,
+    "onset_difference_seconds": 0.09198648784337138
+  },
+  {
+    "reference_index": 252,
+    "audio_index": 614,
+    "onset_difference_seconds": 0.09384957311374365
+  },
+  {
+    "reference_index": 632,
+    "audio_index": 612,
+    "onset_difference_seconds": 0.09509935921107626
+  },
+  {
+    "reference_index": 503,
+    "audio_index": 433,
+    "onset_difference_seconds": 0.0952553102634397
+  },
+  {
+    "reference_index": 119,
+    "audio_index": 234,
+    "onset_difference_seconds": 0.09830394726120062
+  },
+  {
+    "reference_index": 69,
+    "audio_index": 136,
+    "onset_difference_seconds": 0.09952607626986776
+  },
+  {
+    "reference_index": 115,
+    "audio_index": 230,
+    "onset_difference_seconds": 0.10060805866407918
+  },
+  {
+    "reference_index": 324,
+    "audio_index": 137,
+    "onset_difference_seconds": 0.10125580256388389
+  },
+  {
+    "reference_index": 639,
+    "audio_index": 620,
+    "onset_difference_seconds": 0.10170878749852363
+  },
+  {
+    "reference_index": 387,
+    "audio_index": 251,
+    "onset_difference_seconds": 0.1020137045696572
+  },
+  {
+    "reference_index": 342,
+    "audio_index": 158,
+    "onset_difference_seconds": 0.10221106728897666
+  },
+  {
+    "reference_index": 80,
+    "audio_index": 159,
+    "onset_difference_seconds": 0.10256523018421149
+  },
+  {
+    "reference_index": 272,
+    "audio_index": 36,
+    "onset_difference_seconds": 0.10265612205038366
+  },
+  {
+    "reference_index": 118,
+    "audio_index": 233,
+    "onset_difference_seconds": 0.1029376083166369
+  },
+  {
+    "reference_index": 114,
+    "audio_index": 229,
+    "onset_difference_seconds": 0.10294077744188712
+  },
+  {
+    "reference_index": 339,
+    "audio_index": 152,
+    "onset_difference_seconds": 0.10302419483696212
+  },
+  {
+    "reference_index": 78,
+    "audio_index": 156,
+    "onset_difference_seconds": 0.10374475516599091
+  },
+  {
+    "reference_index": 88,
+    "audio_index": 177,
+    "onset_difference_seconds": 0.10410386696054275
+  },
+  {
+    "reference_index": 113,
+    "audio_index": 228,
+    "onset_difference_seconds": 0.10424448370832806
+  },
+  {
+    "reference_index": 341,
+    "audio_index": 157,
+    "onset_difference_seconds": 0.10428431217533785
+  },
+  {
+    "reference_index": 323,
+    "audio_index": 135,
+    "onset_difference_seconds": 0.1043868223464699
+  },
+  {
+    "reference_index": 17,
+    "audio_index": 34,
+    "onset_difference_seconds": 0.10439377910864778
+  },
+  {
+    "reference_index": 8,
+    "audio_index": 14,
+    "onset_difference_seconds": 0.10451812993540699
+  },
+  {
+    "reference_index": 629,
+    "audio_index": 609,
+    "onset_difference_seconds": 0.1045522223433295
+  },
+  {
+    "reference_index": 76,
+    "audio_index": 153,
+    "onset_difference_seconds": 0.10469586524462215
+  },
+  {
+    "reference_index": 313,
+    "audio_index": 113,
+    "onset_difference_seconds": 0.10487299435433783
+  },
+  {
+    "reference_index": 116,
+    "audio_index": 231,
+    "onset_difference_seconds": 0.10495600874091338
+  },
+  {
+    "reference_index": 340,
+    "audio_index": 154,
+    "onset_difference_seconds": 0.10510514588753495
+  },
+  {
+    "reference_index": 308,
+    "audio_index": 104,
+    "onset_difference_seconds": 0.10511987420876778
+  },
+  {
+    "reference_index": 77,
+    "audio_index": 155,
+    "onset_difference_seconds": 0.10572666184060608
+  },
+  {
+    "reference_index": 292,
+    "audio_index": 74,
+    "onset_difference_seconds": 0.1057621899067982
+  },
+  {
+    "reference_index": 7,
+    "audio_index": 15,
+    "onset_difference_seconds": 0.10583151861281692
+  },
+  {
+    "reference_index": 370,
+    "audio_index": 210,
+    "onset_difference_seconds": 0.10586868327931143
+  },
+  {
+    "reference_index": 322,
+    "audio_index": 134,
+    "onset_difference_seconds": 0.10589436475551395
+  },
+  {
+    "reference_index": 18,
+    "audio_index": 35,
+    "onset_difference_seconds": 0.1059745765073643
+  },
+  {
+    "reference_index": 367,
+    "audio_index": 206,
+    "onset_difference_seconds": 0.1061802656759312
+  },
+  {
+    "reference_index": 312,
+    "audio_index": 112,
+    "onset_difference_seconds": 0.1065537558516354
+  },
+  {
+    "reference_index": 293,
+    "audio_index": 75,
+    "onset_difference_seconds": 0.10657593905148133
+  },
+  {
+    "reference_index": 6,
+    "audio_index": 9,
+    "onset_difference_seconds": 0.10661227711372767
+  },
+  {
+    "reference_index": 52,
+    "audio_index": 105,
+    "onset_difference_seconds": 0.10681804101923831
+  },
+  {
+    "reference_index": 55,
+    "audio_index": 108,
+    "onset_difference_seconds": 0.10709331666701871
+  },
+  {
+    "reference_index": 332,
+    "audio_index": 144,
+    "onset_difference_seconds": 0.10720518954116187
+  },
+  {
+    "reference_index": 289,
+    "audio_index": 68,
+    "onset_difference_seconds": 0.10722096041655504
+  },
+  {
+    "reference_index": 79,
+    "audio_index": 160,
+    "onset_difference_seconds": 0.10722147907699764
+  },
+  {
+    "reference_index": 54,
+    "audio_index": 109,
+    "onset_difference_seconds": 0.10724599901681131
+  },
+  {
+    "reference_index": 369,
+    "audio_index": 209,
+    "onset_difference_seconds": 0.10799248389002969
+  },
+  {
+    "reference_index": 260,
+    "audio_index": 13,
+    "onset_difference_seconds": 0.10806478390786722
+  },
+  {
+    "reference_index": 311,
+    "audio_index": 110,
+    "onset_difference_seconds": 0.10816335879925987
+  },
+  {
+    "reference_index": 276,
+    "audio_index": 42,
+    "onset_difference_seconds": 0.10816493727080712
+  },
+  {
+    "reference_index": 37,
+    "audio_index": 76,
+    "onset_difference_seconds": 0.10836965036128277
+  },
+  {
+    "reference_index": 309,
+    "audio_index": 106,
+    "onset_difference_seconds": 0.1083829926326132
+  },
+  {
+    "reference_index": 5,
+    "audio_index": 10,
+    "onset_difference_seconds": 0.10838535130057636
+  },
+  {
+    "reference_index": 53,
+    "audio_index": 107,
+    "onset_difference_seconds": 0.10934416624593268
+  },
+  {
+    "reference_index": 368,
+    "audio_index": 207,
+    "onset_difference_seconds": 0.10938828802062517
+  },
+  {
+    "reference_index": 258,
+    "audio_index": 11,
+    "onset_difference_seconds": 0.10959168715980994
+  },
+  {
+    "reference_index": 259,
+    "audio_index": 12,
+    "onset_difference_seconds": 0.10992978299995215
+  },
+  {
+    "reference_index": 38,
+    "audio_index": 77,
+    "onset_difference_seconds": 0.10998375136463778
+  },
+  {
+    "reference_index": 35,
+    "audio_index": 70,
+    "onset_difference_seconds": 0.11002973252310966
+  },
+  {
+    "reference_index": 16,
+    "audio_index": 33,
+    "onset_difference_seconds": 0.11054588965176038
+  },
+  {
+    "reference_index": 21,
+    "audio_index": 44,
+    "onset_difference_seconds": 0.11066222872761955
+  },
+  {
+    "reference_index": 291,
+    "audio_index": 71,
+    "onset_difference_seconds": 0.11070377685754096
+  },
+  {
+    "reference_index": 287,
+    "audio_index": 67,
+    "onset_difference_seconds": 0.1107102408231313
+  },
+  {
+    "reference_index": 288,
+    "audio_index": 69,
+    "onset_difference_seconds": 0.11112072792892036
+  },
+  {
+    "reference_index": 103,
+    "audio_index": 208,
+    "onset_difference_seconds": 0.11128787525825601
+  },
+  {
+    "reference_index": 325,
+    "audio_index": 139,
+    "onset_difference_seconds": 0.1113454457005787
+  },
+  {
+    "reference_index": 70,
+    "audio_index": 138,
+    "onset_difference_seconds": 0.1113924472689547
+  },
+  {
+    "reference_index": 290,
+    "audio_index": 72,
+    "onset_difference_seconds": 0.11146237767641054
+  },
+  {
+    "reference_index": 36,
+    "audio_index": 73,
+    "onset_difference_seconds": 0.11162559378072245
+  },
+  {
+    "reference_index": 22,
+    "audio_index": 45,
+    "onset_difference_seconds": 0.11206623439243657
+  },
+  {
+    "reference_index": 32,
+    "audio_index": 63,
+    "onset_difference_seconds": 0.11212260489188708
+  },
+  {
+    "reference_index": 286,
+    "audio_index": 64,
+    "onset_difference_seconds": 0.11241950252056654
+  },
+  {
+    "reference_index": 274,
+    "audio_index": 38,
+    "onset_difference_seconds": 0.11243174069220885
+  },
+  {
+    "reference_index": 20,
+    "audio_index": 39,
+    "onset_difference_seconds": 0.11248049373427449
+  },
+  {
+    "reference_index": 273,
+    "audio_index": 37,
+    "onset_difference_seconds": 0.11303495903032257
+  },
+  {
+    "reference_index": 277,
+    "audio_index": 46,
+    "onset_difference_seconds": 0.11358736854189999
+  },
+  {
+    "reference_index": 57,
+    "audio_index": 115,
+    "onset_difference_seconds": 0.11359748761029209
+  },
+  {
+    "reference_index": 314,
+    "audio_index": 116,
+    "onset_difference_seconds": 0.11388518671499526
+  },
+  {
+    "reference_index": 34,
+    "audio_index": 65,
+    "onset_difference_seconds": 0.11405830096393288
+  },
+  {
+    "reference_index": 9,
+    "audio_index": 18,
+    "onset_difference_seconds": 0.11410554715734023
+  },
+  {
+    "reference_index": 19,
+    "audio_index": 40,
+    "onset_difference_seconds": 0.11426279278467177
+  },
+  {
+    "reference_index": 91,
+    "audio_index": 180,
+    "onset_difference_seconds": 0.11436546938389824
+  },
+  {
+    "reference_index": 275,
+    "audio_index": 41,
+    "onset_difference_seconds": 0.11438721255278494
+  },
+  {
+    "reference_index": 92,
+    "audio_index": 181,
+    "onset_difference_seconds": 0.11496898217166063
+  },
+  {
+    "reference_index": 90,
+    "audio_index": 179,
+    "onset_difference_seconds": 0.11526416880911938
+  },
+  {
+    "reference_index": 10,
+    "audio_index": 19,
+    "onset_difference_seconds": 0.11526422313179907
+  },
+  {
+    "reference_index": 56,
+    "audio_index": 114,
+    "onset_difference_seconds": 0.11530322577307572
+  },
+  {
+    "reference_index": 33,
+    "audio_index": 66,
+    "onset_difference_seconds": 0.11530664535504798
+  },
+  {
+    "reference_index": 263,
+    "audio_index": 20,
+    "onset_difference_seconds": 0.11546746605005964
+  },
+  {
+    "reference_index": 89,
+    "audio_index": 178,
+    "onset_difference_seconds": 0.11581794694066616
+  },
+  {
+    "reference_index": 261,
+    "audio_index": 17,
+    "onset_difference_seconds": 0.11758559115247635
+  },
+  {
+    "reference_index": 310,
+    "audio_index": 111,
+    "onset_difference_seconds": 0.11886184526578347
+  }
+]

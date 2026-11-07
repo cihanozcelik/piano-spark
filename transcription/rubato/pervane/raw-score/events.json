@@ -1,0 +1,7303 @@
+{
+  "timeline": "original audio seconds",
+  "notes": [
+    {
+      "note": 67,
+      "start": 0.05,
+      "end": 0.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 0.35,
+      "end": 0.63,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 43,
+      "start": 0.63,
+      "end": 0.94,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 0.63,
+      "end": 0.94,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 0.94,
+      "end": 1.19,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 0.94,
+      "end": 1.19,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 58,
+      "start": 1.19,
+      "end": 2.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 1.19,
+      "end": 1.44,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 1.44,
+      "end": 1.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 1.7,
+      "end": 1.94,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 1.94,
+      "end": 2.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 36,
+      "start": 2.2,
+      "end": 2.48,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 2.2,
+      "end": 3.25,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 43,
+      "start": 2.48,
+      "end": 2.76,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 52,
+      "start": 2.76,
+      "end": 3.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 3.25,
+      "end": 3.48,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 3.48,
+      "end": 3.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 41,
+      "start": 3.75,
+      "end": 4.02,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 3.75,
+      "end": 4.02,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 48,
+      "start": 4.02,
+      "end": 4.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 68,
+      "start": 4.02,
+      "end": 4.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 57,
+      "start": 4.27,
+      "end": 5.31,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 4.27,
+      "end": 4.54,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 68,
+      "start": 4.54,
+      "end": 4.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 4.8,
+      "end": 5.05,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 68,
+      "start": 5.05,
+      "end": 5.31,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 34,
+      "start": 5.31,
+      "end": 5.6,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 5.31,
+      "end": 6.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 41,
+      "start": 5.6,
+      "end": 5.85,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 5.85,
+      "end": 6.92,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 6.41,
+      "end": 6.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 6.67,
+      "end": 6.92,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 40,
+      "start": 6.92,
+      "end": 7.18,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 6.92,
+      "end": 7.45,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 46,
+      "start": 7.18,
+      "end": 7.45,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 55,
+      "start": 7.45,
+      "end": 8.51,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 7.45,
+      "end": 7.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 7.72,
+      "end": 7.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 7.99,
+      "end": 8.51,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 33,
+      "start": 8.51,
+      "end": 8.97,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 8.51,
+      "end": 8.97,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 40,
+      "start": 8.97,
+      "end": 9.06,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 8.97,
+      "end": 9.58,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 8.97,
+      "end": 9.06,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 49,
+      "start": 9.06,
+      "end": 10.09,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 9.06,
+      "end": 9.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 9.58,
+      "end": 9.82,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 61,
+      "start": 9.82,
+      "end": 10.09,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 38,
+      "start": 10.09,
+      "end": 10.34,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 10.09,
+      "end": 10.34,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 45,
+      "start": 10.34,
+      "end": 10.61,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 61,
+      "start": 10.34,
+      "end": 10.61,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 53,
+      "start": 10.61,
+      "end": 11.65,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 10.61,
+      "end": 10.86,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 10.86,
+      "end": 11.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 11.14,
+      "end": 11.39,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 11.39,
+      "end": 11.65,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 38,
+      "start": 11.65,
+      "end": 11.94,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 11.65,
+      "end": 11.94,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 54,
+      "start": 11.94,
+      "end": 12.19,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 11.94,
+      "end": 12.19,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 12.19,
+      "end": 12.46,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 55,
+      "start": 12.19,
+      "end": 12.46,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 12.19,
+      "end": 12.46,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 57,
+      "start": 12.46,
+      "end": 12.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 66,
+      "start": 12.46,
+      "end": 12.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 58,
+      "start": 12.71,
+      "end": 12.96,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 12.71,
+      "end": 12.96,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 60,
+      "start": 12.96,
+      "end": 13.23,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 12.96,
+      "end": 13.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 43,
+      "start": 13.23,
+      "end": 13.49,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 13.23,
+      "end": 14.28,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 13.23,
+      "end": 13.49,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 13.49,
+      "end": 13.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 13.49,
+      "end": 13.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 55,
+      "start": 13.75,
+      "end": 14.01,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 13.75,
+      "end": 14.01,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 57,
+      "start": 14.01,
+      "end": 14.28,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 14.01,
+      "end": 14.28,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 58,
+      "start": 14.28,
+      "end": 14.54,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 14.28,
+      "end": 14.54,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 14.28,
+      "end": 14.54,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 14.54,
+      "end": 14.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 14.54,
+      "end": 14.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 36,
+      "start": 14.8,
+      "end": 15.08,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 14.8,
+      "end": 15.89,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 70,
+      "start": 14.8,
+      "end": 15.89,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 43,
+      "start": 15.08,
+      "end": 15.33,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 48,
+      "start": 15.33,
+      "end": 15.61,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 15.61,
+      "end": 15.89,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 52,
+      "start": 15.89,
+      "end": 16.42,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 57,
+      "start": 15.89,
+      "end": 16.15,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 15.89,
+      "end": 16.15,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 58,
+      "start": 16.15,
+      "end": 16.42,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 16.15,
+      "end": 16.42,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 41,
+      "start": 16.42,
+      "end": 16.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 60,
+      "start": 16.42,
+      "end": 17.46,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 16.42,
+      "end": 16.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 48,
+      "start": 16.68,
+      "end": 16.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 68,
+      "start": 16.68,
+      "end": 16.95,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 53,
+      "start": 16.95,
+      "end": 17.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 16.95,
+      "end": 17.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 55,
+      "start": 17.2,
+      "end": 17.46,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 68,
+      "start": 17.2,
+      "end": 17.46,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 57,
+      "start": 17.46,
+      "end": 17.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 62,
+      "start": 17.46,
+      "end": 17.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 17.46,
+      "end": 17.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 17.71,
+      "end": 17.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 17.71,
+      "end": 17.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 34,
+      "start": 17.99,
+      "end": 18.24,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 17.99,
+      "end": 18.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 69,
+      "start": 17.99,
+      "end": 18.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 41,
+      "start": 18.24,
+      "end": 18.49,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 46,
+      "start": 18.49,
+      "end": 18.73,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 48,
+      "start": 18.73,
+      "end": 18.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 50,
+      "start": 18.99,
+      "end": 19.23,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 55,
+      "start": 18.99,
+      "end": 19.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 64,
+      "start": 18.99,
+      "end": 19.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 57,
+      "start": 19.23,
+      "end": 19.51,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 65,
+      "start": 19.23,
+      "end": 19.51,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 40,
+      "start": 19.51,
+      "end": 19.76,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 58,
+      "start": 19.51,
+      "end": 19.76,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 67,
+      "start": 19.51,
+      "end": 20.03,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 0
+    },
+    {
+      "note": 46,
+      "start": 19.76,
+      "end": 20.03,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 0
+    },
+    {
+      "note": 58,
+      "start": 20.01,
+      "end": 20.54,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 65,
+      "start": 20.01,
+      "end": 20.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 20.27,
+      "end": 20.54,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 20.54,
+      "end": 21.1,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 20.54,
+      "end": 21.1,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 33,
+      "start": 21.1,
+      "end": 21.37,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 21.1,
+      "end": 21.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 40,
+      "start": 21.37,
+      "end": 21.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 49,
+      "start": 21.67,
+      "end": 22.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 65,
+      "start": 21.67,
+      "end": 21.94,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 21.94,
+      "end": 22.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 22.2,
+      "end": 22.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 22.2,
+      "end": 22.47,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 61,
+      "start": 22.47,
+      "end": 22.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 38,
+      "start": 22.75,
+      "end": 23.03,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 22.75,
+      "end": 24.47,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 45,
+      "start": 23.03,
+      "end": 23.3,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 52,
+      "start": 23.3,
+      "end": 23.57,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 23.57,
+      "end": 23.85,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 23.85,
+      "end": 24.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 24.12,
+      "end": 24.47,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 53,
+      "start": 24.47,
+      "end": 26.28,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 38,
+      "start": 26.28,
+      "end": 26.83,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 65,
+      "start": 26.28,
+      "end": 27.37,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 45,
+      "start": 26.83,
+      "end": 27.1,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 52,
+      "start": 27.1,
+      "end": 27.37,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 53,
+      "start": 27.37,
+      "end": 27.64,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 27.37,
+      "end": 27.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 27.64,
+      "end": 27.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 50,
+      "start": 27.91,
+      "end": 28.46,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 65,
+      "start": 27.91,
+      "end": 28.46,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 28.46,
+      "end": 29.02,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 28.46,
+      "end": 29.02,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 29.02,
+      "end": 29.61,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 65,
+      "start": 29.02,
+      "end": 29.61,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 43,
+      "start": 29.61,
+      "end": 29.880000000000003,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 29.61,
+      "end": 30.45,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 50,
+      "start": 29.880000000000003,
+      "end": 30.18,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 30.18,
+      "end": 30.45,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 58,
+      "start": 30.45,
+      "end": 30.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 67,
+      "start": 30.45,
+      "end": 30.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 30.72,
+      "end": 31.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 69,
+      "start": 30.72,
+      "end": 31.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 31.27,
+      "end": 31.83,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 67,
+      "start": 31.27,
+      "end": 31.83,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 58,
+      "start": 31.83,
+      "end": 32.1,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 31.83,
+      "end": 32.92,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 50,
+      "start": 32.1,
+      "end": 32.36,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 58,
+      "start": 32.36,
+      "end": 32.92,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 36,
+      "start": 32.92,
+      "end": 33.47,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 32.92,
+      "end": 34.01,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 43,
+      "start": 33.47,
+      "end": 33.74,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 52,
+      "start": 33.74,
+      "end": 34.01,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 50,
+      "start": 34.01,
+      "end": 34.56,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 67,
+      "start": 34.01,
+      "end": 34.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 48,
+      "start": 34.56,
+      "end": 35.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 34.56,
+      "end": 35.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 35.12,
+      "end": 35.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 58,
+      "start": 35.68,
+      "end": 36.28,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 60,
+      "start": 35.68,
+      "end": 36.28,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 41,
+      "start": 36.28,
+      "end": 36.55,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 36.28,
+      "end": 37.370000000000005,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 48,
+      "start": 36.55,
+      "end": 36.83,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 36.83,
+      "end": 37.1,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 57,
+      "start": 37.1,
+      "end": 37.370000000000005,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 60,
+      "start": 37.370000000000005,
+      "end": 37.93,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 64,
+      "start": 37.370000000000005,
+      "end": 37.93,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 41,
+      "start": 37.93,
+      "end": 38.480000000000004,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 62,
+      "start": 37.93,
+      "end": 38.480000000000004,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 53,
+      "start": 38.480000000000004,
+      "end": 38.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 48,
+      "start": 38.75,
+      "end": 39.019999999999996,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 60,
+      "start": 39.019999999999996,
+      "end": 39.58,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 67,
+      "start": 39.019999999999996,
+      "end": 39.58,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 38,
+      "start": 39.58,
+      "end": 40.129999999999995,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 1
+    },
+    {
+      "note": 65,
+      "start": 39.58,
+      "end": 40.129999999999995,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 1
+    },
+    {
+      "note": 55,
+      "start": 40.12,
+      "end": 40.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 70,
+      "start": 40.12,
+      "end": 40.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 58,
+      "start": 40.67,
+      "end": 41.24,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 40.67,
+      "end": 41.24,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 36,
+      "start": 41.24,
+      "end": 41.78,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 60,
+      "start": 41.24,
+      "end": 41.78,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 43,
+      "start": 41.78,
+      "end": 42.31,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 41.78,
+      "end": 42.31,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 52,
+      "start": 42.31,
+      "end": 42.88,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 42.31,
+      "end": 42.88,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 41,
+      "start": 42.88,
+      "end": 43.41,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 57,
+      "start": 42.88,
+      "end": 43.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 48,
+      "start": 43.41,
+      "end": 43.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 69,
+      "start": 43.41,
+      "end": 43.95,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 53,
+      "start": 43.95,
+      "end": 44.519999999999996,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 60,
+      "start": 43.95,
+      "end": 44.519999999999996,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 34,
+      "start": 44.519999999999996,
+      "end": 45.05,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 44.519999999999996,
+      "end": 45.05,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 53,
+      "start": 45.05,
+      "end": 45.59,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 45.05,
+      "end": 45.59,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 58,
+      "start": 45.59,
+      "end": 46.13,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 45.59,
+      "end": 46.13,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 40,
+      "start": 46.13,
+      "end": 46.66,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 67,
+      "start": 46.13,
+      "end": 46.66,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 52,
+      "start": 46.66,
+      "end": 47.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 46.66,
+      "end": 47.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 58,
+      "start": 47.2,
+      "end": 47.769999999999996,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 47.2,
+      "end": 47.769999999999996,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 33,
+      "start": 47.769999999999996,
+      "end": 48.3,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 61,
+      "start": 47.769999999999996,
+      "end": 48.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 52,
+      "start": 48.3,
+      "end": 48.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 57,
+      "start": 48.3,
+      "end": 48.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 45,
+      "start": 48.84,
+      "end": 49.37,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 61,
+      "start": 48.84,
+      "end": 49.37,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 38,
+      "start": 49.37,
+      "end": 49.93,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 49.37,
+      "end": 49.93,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 49.93,
+      "end": 50.46,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 49.93,
+      "end": 50.46,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 67,
+      "start": 49.93,
+      "end": 50.46,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 53,
+      "start": 50.46,
+      "end": 50.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 50.46,
+      "end": 50.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 69,
+      "start": 50.46,
+      "end": 50.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 45,
+      "start": 50.99,
+      "end": 51.519999999999996,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 66,
+      "start": 50.99,
+      "end": 51.519999999999996,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 69,
+      "start": 50.99,
+      "end": 51.519999999999996,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 54,
+      "start": 51.519999999999996,
+      "end": 52.06,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 51.519999999999996,
+      "end": 52.06,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 52.06,
+      "end": 52.63,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 57,
+      "start": 52.06,
+      "end": 52.63,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 52.06,
+      "end": 52.63,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 43,
+      "start": 52.63,
+      "end": 52.9,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 58,
+      "start": 52.63,
+      "end": 53.17,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 52.9,
+      "end": 53.17,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 57,
+      "start": 53.17,
+      "end": 53.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 69,
+      "start": 53.17,
+      "end": 53.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 58,
+      "start": 53.71,
+      "end": 54.24,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 53.71,
+      "end": 54.24,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 36,
+      "start": 54.24,
+      "end": 54.78,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 67,
+      "start": 54.24,
+      "end": 54.78,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 50,
+      "start": 54.78,
+      "end": 55.31,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 54.78,
+      "end": 55.31,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 48,
+      "start": 55.31,
+      "end": 55.88,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 55.31,
+      "end": 55.88,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 41,
+      "start": 55.88,
+      "end": 56.14,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 57,
+      "start": 55.88,
+      "end": 56.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 48,
+      "start": 56.14,
+      "end": 56.41,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 55,
+      "start": 56.41,
+      "end": 56.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 69,
+      "start": 56.41,
+      "end": 56.95,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 53,
+      "start": 56.95,
+      "end": 57.489999999999995,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 60,
+      "start": 56.95,
+      "end": 57.489999999999995,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 34,
+      "start": 57.489999999999995,
+      "end": 58.03,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 65,
+      "start": 57.489999999999995,
+      "end": 58.03,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 53,
+      "start": 58.03,
+      "end": 58.6,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 62,
+      "start": 58.03,
+      "end": 58.6,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 58,
+      "start": 58.6,
+      "end": 59.14,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 58.6,
+      "end": 59.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 40,
+      "start": 59.14,
+      "end": 59.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 67,
+      "start": 59.14,
+      "end": 59.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 52,
+      "start": 59.67,
+      "end": 60.21,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 2
+    },
+    {
+      "note": 64,
+      "start": 59.67,
+      "end": 60.21,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 2
+    },
+    {
+      "note": 52,
+      "start": 60.2,
+      "end": 60.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 60.2,
+      "end": 60.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 33,
+      "start": 60.75,
+      "end": 61.31,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 61,
+      "start": 60.75,
+      "end": 61.31,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 45,
+      "start": 61.31,
+      "end": 61.86,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 61.31,
+      "end": 61.86,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 52,
+      "start": 61.86,
+      "end": 62.41,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 61.86,
+      "end": 62.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 38,
+      "start": 62.41,
+      "end": 62.97,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 62.41,
+      "end": 64.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 45,
+      "start": 62.97,
+      "end": 63.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 52,
+      "start": 63.27,
+      "end": 63.55,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 63.55,
+      "end": 63.82,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 57,
+      "start": 63.82,
+      "end": 64.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 50,
+      "start": 64.12,
+      "end": 65.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 64.12,
+      "end": 65.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 41,
+      "start": 65.84,
+      "end": 66.14,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 60,
+      "start": 65.84,
+      "end": 66.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 66.14,
+      "end": 66.41,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 66.14,
+      "end": 66.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 66.41,
+      "end": 67.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 48,
+      "start": 66.68,
+      "end": 66.96,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 66.96,
+      "end": 67.24,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 57,
+      "start": 67.24,
+      "end": 67.56,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 41,
+      "start": 67.56,
+      "end": 68.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 58,
+      "start": 67.56,
+      "end": 68.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 68.12,
+      "end": 68.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 68.12,
+      "end": 68.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 48,
+      "start": 68.67,
+      "end": 69.23,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 64,
+      "start": 68.67,
+      "end": 69.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 38,
+      "start": 69.23,
+      "end": 69.53,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 69.23,
+      "end": 70.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 45,
+      "start": 69.53,
+      "end": 69.85,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 69.85,
+      "end": 70.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 55,
+      "start": 70.12,
+      "end": 70.41,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 70.41,
+      "end": 70.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 60,
+      "start": 70.41,
+      "end": 70.98,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 57,
+      "start": 70.68,
+      "end": 70.98,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 38,
+      "start": 70.98,
+      "end": 71.28,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 70.98,
+      "end": 72.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 45,
+      "start": 71.28,
+      "end": 71.57,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 52,
+      "start": 71.57,
+      "end": 71.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 71.84,
+      "end": 72.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 50,
+      "start": 72.12,
+      "end": 72.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 72.12,
+      "end": 72.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 41,
+      "start": 72.68,
+      "end": 72.98,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 60,
+      "start": 72.68,
+      "end": 72.98,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 53,
+      "start": 72.98,
+      "end": 73.26,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 69,
+      "start": 72.98,
+      "end": 73.26,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 69,
+      "start": 73.26,
+      "end": 74.36,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 48,
+      "start": 73.53,
+      "end": 73.8,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 55,
+      "start": 73.8,
+      "end": 74.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 57,
+      "start": 74.07,
+      "end": 74.36,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 58,
+      "start": 74.36,
+      "end": 74.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 62,
+      "start": 74.36,
+      "end": 74.95,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 70,
+      "start": 74.36,
+      "end": 74.95,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 57,
+      "start": 74.95,
+      "end": 75.55,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 60,
+      "start": 74.95,
+      "end": 75.55,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 69,
+      "start": 74.95,
+      "end": 75.55,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 55,
+      "start": 75.55,
+      "end": 76.11,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 58,
+      "start": 75.55,
+      "end": 76.11,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 75.55,
+      "end": 76.11,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 36,
+      "start": 76.11,
+      "end": 76.4,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 60,
+      "start": 76.11,
+      "end": 76.4,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 48,
+      "start": 76.4,
+      "end": 76.69,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 69,
+      "start": 76.4,
+      "end": 76.69,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 76.69,
+      "end": 76.98,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 48,
+      "start": 76.98,
+      "end": 77.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 65,
+      "start": 76.98,
+      "end": 77.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 77.27,
+      "end": 77.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 69,
+      "start": 77.56,
+      "end": 77.85,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 38,
+      "start": 77.85,
+      "end": 78.14,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 66,
+      "start": 77.85,
+      "end": 78.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 50,
+      "start": 78.14,
+      "end": 78.43,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 69,
+      "start": 78.14,
+      "end": 78.43,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 74,
+      "start": 78.43,
+      "end": 78.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 50,
+      "start": 78.72,
+      "end": 79.01,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 3
+    },
+    {
+      "note": 78,
+      "start": 78.72,
+      "end": 79.01,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 81,
+      "start": 79.01,
+      "end": 79.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 3
+    },
+    {
+      "note": 67,
+      "start": 80.29,
+      "end": 80.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 38,
+      "start": 80.8,
+      "end": 81.33,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 66,
+      "start": 80.8,
+      "end": 81.33,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 74,
+      "start": 81.33,
+      "end": 81.87,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 78,
+      "start": 81.87,
+      "end": 82.41,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 86,
+      "start": 82.41,
+      "end": 82.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 90,
+      "start": 82.7,
+      "end": 84.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 93,
+      "start": 82.7,
+      "end": 84.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 31,
+      "start": 85.65,
+      "end": 86.26,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 53,
+      "start": 86.26,
+      "end": 86.81,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 86.26,
+      "end": 86.81,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 86.26,
+      "end": 86.81,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 86.26,
+      "end": 86.81,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 72,
+      "start": 86.26,
+      "end": 86.81,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 86.81,
+      "end": 87.35,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 86.81,
+      "end": 87.35,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 86.81,
+      "end": 87.35,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 65,
+      "start": 86.81,
+      "end": 87.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 86.81,
+      "end": 87.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 48,
+      "start": 87.35,
+      "end": 87.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 87.35,
+      "end": 87.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 87.35,
+      "end": 87.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 87.91,
+      "end": 88.45,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 60,
+      "start": 87.91,
+      "end": 88.45,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 87.91,
+      "end": 88.45,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 87.91,
+      "end": 88.45,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 72,
+      "start": 87.91,
+      "end": 88.45,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 88.45,
+      "end": 89.0,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 60,
+      "start": 88.45,
+      "end": 89.0,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 88.45,
+      "end": 89.0,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 88.45,
+      "end": 89.0,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 29,
+      "start": 89.0,
+      "end": 89.55,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 89.0,
+      "end": 89.55,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 50,
+      "start": 89.55,
+      "end": 90.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 89.55,
+      "end": 90.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 60,
+      "start": 89.55,
+      "end": 90.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 65,
+      "start": 89.55,
+      "end": 90.07,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 68,
+      "start": 89.55,
+      "end": 90.07,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 57,
+      "start": 90.07,
+      "end": 90.61,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 60,
+      "start": 90.07,
+      "end": 90.61,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 90.07,
+      "end": 90.61,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 90.07,
+      "end": 90.61,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 90.07,
+      "end": 90.61,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 46,
+      "start": 90.61,
+      "end": 91.15,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 65,
+      "start": 90.61,
+      "end": 91.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 90.61,
+      "end": 91.67,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 53,
+      "start": 91.15,
+      "end": 91.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 91.15,
+      "end": 91.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 91.15,
+      "end": 91.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 53,
+      "start": 91.67,
+      "end": 92.21000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 91.67,
+      "end": 92.21000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 91.67,
+      "end": 92.21000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 91.67,
+      "end": 92.21000000000001,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 43,
+      "start": 92.21000000000001,
+      "end": 92.74,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 65,
+      "start": 92.21000000000001,
+      "end": 92.74,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 92.74,
+      "end": 93.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 92.74,
+      "end": 93.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 92.74,
+      "end": 93.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 92.74,
+      "end": 93.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 92.74,
+      "end": 93.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 55,
+      "start": 93.27,
+      "end": 93.81,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 93.27,
+      "end": 93.81,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 93.27,
+      "end": 93.81,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 93.27,
+      "end": 93.81,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 45,
+      "start": 93.81,
+      "end": 94.33,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 93.81,
+      "end": 94.33,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 72,
+      "start": 93.81,
+      "end": 94.33,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 54,
+      "start": 94.33,
+      "end": 94.86,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 61,
+      "start": 94.33,
+      "end": 94.86,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 63,
+      "start": 94.33,
+      "end": 94.86,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 94.33,
+      "end": 94.86,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 52,
+      "start": 94.86,
+      "end": 95.42,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 94.86,
+      "end": 95.42,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 61,
+      "start": 94.86,
+      "end": 95.42,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 66,
+      "start": 94.86,
+      "end": 95.42,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 38,
+      "start": 95.42,
+      "end": 95.7,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 95.42,
+      "end": 96.49,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 95.42,
+      "end": 96.49,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 45,
+      "start": 95.7,
+      "end": 95.96000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 52,
+      "start": 95.96000000000001,
+      "end": 96.22,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 57,
+      "start": 96.22,
+      "end": 96.49,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 60,
+      "start": 96.49,
+      "end": 97.03999999999999,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 64,
+      "start": 96.49,
+      "end": 97.03999999999999,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 96.49,
+      "end": 97.03999999999999,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 57,
+      "start": 97.03999999999999,
+      "end": 97.56,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 97.03999999999999,
+      "end": 98.08,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 66,
+      "start": 97.03999999999999,
+      "end": 98.08,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 50,
+      "start": 97.56,
+      "end": 98.08,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 67,
+      "start": 98.08,
+      "end": 98.65,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 43,
+      "start": 98.65,
+      "end": 98.96000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 70,
+      "start": 98.65,
+      "end": 99.74,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 50,
+      "start": 98.96000000000001,
+      "end": 99.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 57,
+      "start": 99.2,
+      "end": 99.46000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 58,
+      "start": 99.46000000000001,
+      "end": 99.74,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 62,
+      "start": 99.74,
+      "end": 99.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 69,
+      "start": 99.74,
+      "end": 100.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 4
+    },
+    {
+      "note": 65,
+      "start": 99.99,
+      "end": 100.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 4
+    },
+    {
+      "note": 36,
+      "start": 100.26,
+      "end": 100.54,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 100.26,
+      "end": 101.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 70,
+      "start": 100.26,
+      "end": 101.36,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 43,
+      "start": 100.54,
+      "end": 100.83,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 50,
+      "start": 100.83,
+      "end": 101.09,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 101.09,
+      "end": 101.36,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 101.36,
+      "end": 101.64,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 101.36,
+      "end": 101.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 101.64,
+      "end": 101.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 41,
+      "start": 101.91,
+      "end": 102.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 101.91,
+      "end": 102.98,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 101.91,
+      "end": 103.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 48,
+      "start": 102.2,
+      "end": 102.46,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 102.46,
+      "end": 102.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 53,
+      "start": 102.72,
+      "end": 102.98,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 60,
+      "start": 102.98,
+      "end": 103.23,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 103.23,
+      "end": 103.51,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 68,
+      "start": 103.23,
+      "end": 103.51,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 34,
+      "start": 103.51,
+      "end": 103.78,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 103.51,
+      "end": 105.11,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 103.51,
+      "end": 104.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 46,
+      "start": 103.78,
+      "end": 104.04,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 53,
+      "start": 104.04,
+      "end": 104.56,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 104.56,
+      "end": 104.82,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 104.56,
+      "end": 104.82,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 104.82,
+      "end": 105.11,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 104.82,
+      "end": 105.11,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 40,
+      "start": 105.11,
+      "end": 105.66,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 105.11,
+      "end": 105.66,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 105.11,
+      "end": 105.66,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 105.66,
+      "end": 106.21,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 105.66,
+      "end": 106.21,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 105.66,
+      "end": 106.21,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 106.21,
+      "end": 106.8,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 106.21,
+      "end": 106.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 106.21,
+      "end": 106.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 45,
+      "start": 106.8,
+      "end": 107.35,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 61,
+      "start": 106.8,
+      "end": 107.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 106.8,
+      "end": 107.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 107.35,
+      "end": 107.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 107.35,
+      "end": 107.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 107.35,
+      "end": 107.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 107.62,
+      "end": 107.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 107.91,
+      "end": 108.45,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 61,
+      "start": 107.91,
+      "end": 108.45,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 107.91,
+      "end": 108.45,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 38,
+      "start": 108.45,
+      "end": 108.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 108.45,
+      "end": 110.06,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 41,
+      "start": 108.72,
+      "end": 108.97,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 45,
+      "start": 108.97,
+      "end": 109.23,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 109.23,
+      "end": 109.49,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 53,
+      "start": 109.49,
+      "end": 109.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 109.75,
+      "end": 110.06,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 50,
+      "start": 110.06,
+      "end": 111.14,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 110.06,
+      "end": 111.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 111.14,
+      "end": 111.4,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 111.14,
+      "end": 111.4,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 60,
+      "start": 111.4,
+      "end": 111.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 111.4,
+      "end": 111.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 43,
+      "start": 111.72,
+      "end": 112.03999999999999,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 111.72,
+      "end": 112.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 70,
+      "start": 111.72,
+      "end": 112.03999999999999,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 50,
+      "start": 112.03999999999999,
+      "end": 112.32,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 112.03999999999999,
+      "end": 112.32,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 112.32,
+      "end": 112.56,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 70,
+      "start": 112.32,
+      "end": 112.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 112.56,
+      "end": 112.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 112.56,
+      "end": 112.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 112.84,
+      "end": 113.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 112.84,
+      "end": 113.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 70,
+      "start": 112.84,
+      "end": 113.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 113.12,
+      "end": 113.39,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 113.12,
+      "end": 113.39,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 113.12,
+      "end": 113.39,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 36,
+      "start": 113.39,
+      "end": 113.66,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 113.39,
+      "end": 114.44,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 70,
+      "start": 113.39,
+      "end": 114.44,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 43,
+      "start": 113.66,
+      "end": 113.9,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 48,
+      "start": 113.9,
+      "end": 114.17,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 50,
+      "start": 114.17,
+      "end": 114.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 114.44,
+      "end": 114.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 114.44,
+      "end": 114.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 114.72,
+      "end": 115.0,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 114.72,
+      "end": 115.0,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 41,
+      "start": 115.0,
+      "end": 115.26,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 60,
+      "start": 115.0,
+      "end": 116.03999999999999,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 115.0,
+      "end": 115.26,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 48,
+      "start": 115.26,
+      "end": 115.53,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 68,
+      "start": 115.26,
+      "end": 115.53,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 53,
+      "start": 115.53,
+      "end": 115.78999999999999,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 115.53,
+      "end": 115.78999999999999,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 115.78999999999999,
+      "end": 116.03999999999999,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 68,
+      "start": 115.78999999999999,
+      "end": 116.03999999999999,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 116.03999999999999,
+      "end": 116.3,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 116.03999999999999,
+      "end": 116.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 116.03999999999999,
+      "end": 116.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 116.3,
+      "end": 116.59,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 116.3,
+      "end": 116.59,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 116.3,
+      "end": 116.59,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 34,
+      "start": 116.59,
+      "end": 116.85,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 116.59,
+      "end": 117.63,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 69,
+      "start": 116.59,
+      "end": 117.63,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 41,
+      "start": 116.85,
+      "end": 117.09,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 46,
+      "start": 117.09,
+      "end": 117.36,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 48,
+      "start": 117.36,
+      "end": 117.63,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 117.63,
+      "end": 117.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 117.63,
+      "end": 117.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 57,
+      "start": 117.91,
+      "end": 118.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 117.91,
+      "end": 118.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 40,
+      "start": 118.2,
+      "end": 118.46000000000001,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 58,
+      "start": 118.2,
+      "end": 118.46000000000001,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 67,
+      "start": 118.2,
+      "end": 118.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 46,
+      "start": 118.46000000000001,
+      "end": 118.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 52,
+      "start": 118.72,
+      "end": 118.98,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 65,
+      "start": 118.72,
+      "end": 118.98,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 53,
+      "start": 118.98,
+      "end": 119.25,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 118.98,
+      "end": 119.25,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 55,
+      "start": 119.25,
+      "end": 119.8,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 62,
+      "start": 119.25,
+      "end": 119.8,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 33,
+      "start": 119.8,
+      "end": 120.08,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 5
+    },
+    {
+      "note": 64,
+      "start": 119.8,
+      "end": 120.34,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 5
+    },
+    {
+      "note": 40,
+      "start": 120.07,
+      "end": 120.35,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 45,
+      "start": 120.35,
+      "end": 120.64,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 120.35,
+      "end": 120.64,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 47,
+      "start": 120.64,
+      "end": 120.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 64,
+      "start": 120.64,
+      "end": 120.95,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 49,
+      "start": 120.95,
+      "end": 121.52,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 120.95,
+      "end": 121.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 61,
+      "start": 121.23,
+      "end": 121.52,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 38,
+      "start": 121.52,
+      "end": 121.8,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 121.52,
+      "end": 123.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 45,
+      "start": 121.8,
+      "end": 122.1,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 52,
+      "start": 122.1,
+      "end": 122.37,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 122.37,
+      "end": 122.67,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 122.67,
+      "end": 122.96,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 122.96,
+      "end": 123.35,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 50,
+      "start": 123.35,
+      "end": 125.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 54,
+      "start": 123.35,
+      "end": 125.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 66,
+      "start": 123.35,
+      "end": 125.07,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 41,
+      "start": 125.07,
+      "end": 125.34,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 60,
+      "start": 125.07,
+      "end": 126.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 125.34,
+      "end": 125.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 125.62,
+      "end": 125.89,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 48,
+      "start": 125.89,
+      "end": 126.17,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 126.17,
+      "end": 126.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 126.44,
+      "end": 126.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 41,
+      "start": 126.72,
+      "end": 127.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 126.72,
+      "end": 127.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 53,
+      "start": 127.29,
+      "end": 127.86,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 64,
+      "start": 127.29,
+      "end": 127.86,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 127.86,
+      "end": 128.43,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 127.86,
+      "end": 128.43,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 45,
+      "start": 128.43,
+      "end": 128.7,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 60,
+      "start": 128.43,
+      "end": 129.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 128.7,
+      "end": 128.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 128.99,
+      "end": 129.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 53,
+      "start": 129.27,
+      "end": 129.56,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 64,
+      "start": 129.27,
+      "end": 129.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 129.56,
+      "end": 130.13,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 129.56,
+      "end": 129.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 61,
+      "start": 129.84,
+      "end": 130.13,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 38,
+      "start": 130.13,
+      "end": 130.42,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 130.13,
+      "end": 131.28,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 45,
+      "start": 130.42,
+      "end": 130.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 52,
+      "start": 130.71,
+      "end": 130.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 53,
+      "start": 130.99,
+      "end": 131.28,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 131.28,
+      "end": 131.85,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 131.28,
+      "end": 131.85,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 41,
+      "start": 131.85,
+      "end": 132.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 60,
+      "start": 131.85,
+      "end": 132.97,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 132.12,
+      "end": 132.41,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 132.41,
+      "end": 132.69,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 48,
+      "start": 132.69,
+      "end": 132.97,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 132.97,
+      "end": 133.25,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 69,
+      "start": 132.97,
+      "end": 133.55,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 133.25,
+      "end": 133.55,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 41,
+      "start": 133.55,
+      "end": 134.13,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 133.55,
+      "end": 134.13,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 62,
+      "start": 133.55,
+      "end": 134.13,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 70,
+      "start": 133.55,
+      "end": 134.13,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 53,
+      "start": 134.13,
+      "end": 134.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 134.13,
+      "end": 134.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 60,
+      "start": 134.13,
+      "end": 134.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 69,
+      "start": 134.13,
+      "end": 134.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 134.75,
+      "end": 135.33,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 134.75,
+      "end": 135.33,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 67,
+      "start": 134.75,
+      "end": 135.33,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 36,
+      "start": 135.33,
+      "end": 135.63,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 135.33,
+      "end": 136.31,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 60,
+      "start": 135.33,
+      "end": 136.31,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 48,
+      "start": 135.63,
+      "end": 135.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 135.95,
+      "end": 136.31,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 48,
+      "start": 136.31,
+      "end": 136.66,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 136.31,
+      "end": 137.02,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 136.66,
+      "end": 137.02,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 137.02,
+      "end": 137.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 65,
+      "start": 137.02,
+      "end": 137.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 41,
+      "start": 137.75,
+      "end": 138.13,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 69,
+      "start": 137.75,
+      "end": 139.42000000000002,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 48,
+      "start": 138.13,
+      "end": 138.47,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 55,
+      "start": 138.47,
+      "end": 138.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 57,
+      "start": 138.84,
+      "end": 139.42000000000002,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 58,
+      "start": 139.42000000000002,
+      "end": 140.25,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 6
+    },
+    {
+      "note": 67,
+      "start": 139.42000000000002,
+      "end": 140.25,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 6
+    },
+    {
+      "note": 38,
+      "start": 140.25,
+      "end": 140.85,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 66,
+      "start": 140.25,
+      "end": 140.85,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 140.85,
+      "end": 141.21,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 140.85,
+      "end": 141.21,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 78,
+      "start": 141.21,
+      "end": 141.56,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 81,
+      "start": 141.56,
+      "end": 141.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 86,
+      "start": 141.91,
+      "end": 142.35,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 90,
+      "start": 142.35,
+      "end": 142.96,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 93,
+      "start": 142.35,
+      "end": 142.96,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 66,
+      "start": 144.02,
+      "end": 144.59,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 31,
+      "start": 144.59,
+      "end": 145.18,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 43,
+      "start": 144.59,
+      "end": 145.18,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 144.59,
+      "end": 145.43,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 74,
+      "start": 144.59,
+      "end": 145.43,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 53,
+      "start": 145.18,
+      "end": 145.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 58,
+      "start": 145.18,
+      "end": 145.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 145.18,
+      "end": 145.71,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 145.43,
+      "end": 145.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 72,
+      "start": 145.43,
+      "end": 145.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 145.71,
+      "end": 145.97,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 74,
+      "start": 145.71,
+      "end": 145.97,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 145.97,
+      "end": 146.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 72,
+      "start": 145.97,
+      "end": 146.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 24,
+      "start": 146.27,
+      "end": 146.83,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 36,
+      "start": 146.27,
+      "end": 146.83,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 146.27,
+      "end": 146.83,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 74,
+      "start": 146.27,
+      "end": 146.83,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 52,
+      "start": 146.83,
+      "end": 147.4,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 55,
+      "start": 146.83,
+      "end": 147.4,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 60,
+      "start": 146.83,
+      "end": 147.4,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 72,
+      "start": 146.83,
+      "end": 147.4,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 64,
+      "start": 147.4,
+      "end": 147.94,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 29,
+      "start": 147.94,
+      "end": 148.5,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 41,
+      "start": 147.94,
+      "end": 148.5,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 147.94,
+      "end": 148.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 72,
+      "start": 147.94,
+      "end": 148.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 53,
+      "start": 148.5,
+      "end": 149.03,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 148.5,
+      "end": 149.03,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 60,
+      "start": 148.5,
+      "end": 149.03,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 67,
+      "start": 148.75,
+      "end": 149.03,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 148.75,
+      "end": 149.03,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 149.03,
+      "end": 149.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 72,
+      "start": 149.03,
+      "end": 149.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 67,
+      "start": 149.29,
+      "end": 149.59,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 149.29,
+      "end": 149.59,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 34,
+      "start": 149.59,
+      "end": 150.15,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 46,
+      "start": 149.59,
+      "end": 150.15,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 149.59,
+      "end": 150.15,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 72,
+      "start": 149.59,
+      "end": 150.15,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 53,
+      "start": 150.15,
+      "end": 150.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 58,
+      "start": 150.15,
+      "end": 150.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 150.15,
+      "end": 150.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 150.15,
+      "end": 150.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 64,
+      "start": 150.68,
+      "end": 151.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 31,
+      "start": 151.23,
+      "end": 151.76,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 43,
+      "start": 151.23,
+      "end": 151.76,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 58,
+      "start": 151.23,
+      "end": 151.76,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 151.23,
+      "end": 151.76,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 55,
+      "start": 151.76,
+      "end": 152.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 58,
+      "start": 151.76,
+      "end": 152.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 151.76,
+      "end": 152.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 151.76,
+      "end": 152.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 152.29,
+      "end": 152.83,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 33,
+      "start": 152.83,
+      "end": 153.36,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 45,
+      "start": 152.83,
+      "end": 153.36,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 61,
+      "start": 152.83,
+      "end": 153.36,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 64,
+      "start": 152.83,
+      "end": 153.36,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 55,
+      "start": 153.36,
+      "end": 153.89,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 153.36,
+      "end": 153.89,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 61,
+      "start": 153.36,
+      "end": 153.89,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 67,
+      "start": 153.36,
+      "end": 153.89,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 61,
+      "start": 153.89,
+      "end": 154.44,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 38,
+      "start": 154.44,
+      "end": 154.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 154.44,
+      "end": 154.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 154.99,
+      "end": 155.52,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 53,
+      "start": 154.99,
+      "end": 155.52,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 154.99,
+      "end": 155.52,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 154.99,
+      "end": 155.52,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 65,
+      "start": 155.52,
+      "end": 155.78,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 67,
+      "start": 155.78,
+      "end": 156.09,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 26,
+      "start": 156.09,
+      "end": 156.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 38,
+      "start": 156.09,
+      "end": 156.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 66,
+      "start": 156.09,
+      "end": 156.62,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 156.09,
+      "end": 156.62,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 156.62,
+      "end": 157.19,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 156.62,
+      "end": 157.19,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 64,
+      "start": 156.62,
+      "end": 157.19,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 67,
+      "start": 156.62,
+      "end": 157.19,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 157.19,
+      "end": 157.73,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 66,
+      "start": 157.19,
+      "end": 157.73,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 43,
+      "start": 157.73,
+      "end": 158.26,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 58,
+      "start": 157.73,
+      "end": 158.26,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 62,
+      "start": 157.73,
+      "end": 158.26,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 157.73,
+      "end": 158.26,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 158.26,
+      "end": 158.79,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 55,
+      "start": 158.26,
+      "end": 158.79,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 58,
+      "start": 158.26,
+      "end": 158.79,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 69,
+      "start": 158.26,
+      "end": 158.79,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 70,
+      "start": 158.79,
+      "end": 159.34,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 36,
+      "start": 159.34,
+      "end": 159.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 60,
+      "start": 159.34,
+      "end": 159.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 64,
+      "start": 159.34,
+      "end": 159.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 48,
+      "start": 159.91,
+      "end": 160.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 53,
+      "start": 159.91,
+      "end": 160.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 57,
+      "start": 159.91,
+      "end": 160.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 7
+    },
+    {
+      "note": 65,
+      "start": 159.91,
+      "end": 160.44,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 7
+    },
+    {
+      "note": 50,
+      "start": 160.16,
+      "end": 160.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 160.44,
+      "end": 160.99,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 67,
+      "start": 160.44,
+      "end": 160.99,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 41,
+      "start": 160.99,
+      "end": 161.52,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 57,
+      "start": 160.99,
+      "end": 161.52,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 60,
+      "start": 160.99,
+      "end": 161.52,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 160.99,
+      "end": 162.07,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 48,
+      "start": 161.52,
+      "end": 162.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 55,
+      "start": 161.52,
+      "end": 162.07,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 57,
+      "start": 161.52,
+      "end": 162.07,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 60,
+      "start": 161.52,
+      "end": 162.07,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 53,
+      "start": 162.07,
+      "end": 162.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 162.07,
+      "end": 162.62,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 162.07,
+      "end": 162.62,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 34,
+      "start": 162.62,
+      "end": 163.14,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 58,
+      "start": 162.62,
+      "end": 163.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 162.62,
+      "end": 163.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 68,
+      "start": 162.62,
+      "end": 163.14,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 46,
+      "start": 163.14,
+      "end": 163.7,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 53,
+      "start": 163.14,
+      "end": 163.7,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 60,
+      "start": 163.14,
+      "end": 163.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 163.14,
+      "end": 163.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 46,
+      "start": 163.7,
+      "end": 164.24,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 163.7,
+      "end": 164.24,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 163.7,
+      "end": 164.24,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 163.7,
+      "end": 164.24,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 40,
+      "start": 164.24,
+      "end": 164.78,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 55,
+      "start": 164.24,
+      "end": 164.78,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 58,
+      "start": 164.24,
+      "end": 164.78,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 67,
+      "start": 164.24,
+      "end": 164.78,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 164.78,
+      "end": 165.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 55,
+      "start": 164.78,
+      "end": 165.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 58,
+      "start": 164.78,
+      "end": 165.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 164.78,
+      "end": 165.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 165.29,
+      "end": 165.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 165.29,
+      "end": 165.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 165.29,
+      "end": 165.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 33,
+      "start": 165.84,
+      "end": 166.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 165.84,
+      "end": 166.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 165.84,
+      "end": 166.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 45,
+      "start": 166.68,
+      "end": 167.48,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 166.68,
+      "end": 167.48,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 61,
+      "start": 166.68,
+      "end": 167.48,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 166.68,
+      "end": 167.48,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 38,
+      "start": 167.48,
+      "end": 168.02,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 167.48,
+      "end": 168.02,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 167.48,
+      "end": 168.02,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 45,
+      "start": 168.02,
+      "end": 168.57,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 52,
+      "start": 168.02,
+      "end": 168.57,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 61,
+      "start": 168.02,
+      "end": 168.57,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 168.02,
+      "end": 168.57,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 57,
+      "start": 168.57,
+      "end": 169.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 168.57,
+      "end": 169.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 168.57,
+      "end": 169.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 50,
+      "start": 169.12,
+      "end": 169.7,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 65,
+      "start": 169.12,
+      "end": 169.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 169.12,
+      "end": 169.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 74,
+      "start": 169.12,
+      "end": 169.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 82,
+      "start": 170.28,
+      "end": 170.58,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 91,
+      "start": 170.28,
+      "end": 170.58,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 66,
+      "start": 170.36,
+      "end": 170.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 81,
+      "start": 170.58,
+      "end": 170.88,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 84,
+      "start": 170.58,
+      "end": 170.88,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 93,
+      "start": 170.58,
+      "end": 170.88,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 170.62,
+      "end": 170.88,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 67,
+      "start": 170.88,
+      "end": 171.15,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 82,
+      "start": 170.88,
+      "end": 171.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 86,
+      "start": 170.88,
+      "end": 171.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 94,
+      "start": 170.88,
+      "end": 171.7,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 74,
+      "start": 171.15,
+      "end": 171.43,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 171.43,
+      "end": 171.98,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 93,
+      "start": 171.7,
+      "end": 171.98,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 70,
+      "start": 171.98,
+      "end": 172.52,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 88,
+      "start": 171.98,
+      "end": 172.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 91,
+      "start": 171.98,
+      "end": 172.23,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 89,
+      "start": 172.23,
+      "end": 172.52,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 93,
+      "start": 172.23,
+      "end": 172.52,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 60,
+      "start": 172.52,
+      "end": 172.78,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 82,
+      "start": 172.52,
+      "end": 173.63,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 91,
+      "start": 172.52,
+      "end": 173.63,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 67,
+      "start": 172.78,
+      "end": 173.06,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 76,
+      "start": 173.06,
+      "end": 173.63,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 65,
+      "start": 173.63,
+      "end": 173.89,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 81,
+      "start": 173.63,
+      "end": 173.89,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 89,
+      "start": 173.63,
+      "end": 173.89,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 70,
+      "start": 173.89,
+      "end": 174.2,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 82,
+      "start": 173.89,
+      "end": 174.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 91,
+      "start": 173.89,
+      "end": 174.2,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 174.2,
+      "end": 174.44,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 84,
+      "start": 174.2,
+      "end": 175.0,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 93,
+      "start": 174.2,
+      "end": 175.0,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 72,
+      "start": 174.44,
+      "end": 174.73,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 174.73,
+      "end": 175.29,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 92,
+      "start": 175.0,
+      "end": 175.29,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 69,
+      "start": 175.29,
+      "end": 175.84,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 86,
+      "start": 175.29,
+      "end": 175.54,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 91,
+      "start": 175.29,
+      "end": 175.54,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 88,
+      "start": 175.54,
+      "end": 175.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 91,
+      "start": 175.54,
+      "end": 175.84,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 58,
+      "start": 175.84,
+      "end": 176.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 81,
+      "start": 175.84,
+      "end": 177.01,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 89,
+      "start": 175.84,
+      "end": 177.01,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 65,
+      "start": 176.12,
+      "end": 176.42000000000002,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 74,
+      "start": 176.42000000000002,
+      "end": 177.01,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 177.01,
+      "end": 177.32999999999998,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 79,
+      "start": 177.01,
+      "end": 177.32999999999998,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 88,
+      "start": 177.01,
+      "end": 177.32999999999998,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 65,
+      "start": 177.32999999999998,
+      "end": 177.68,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 81,
+      "start": 177.32999999999998,
+      "end": 177.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 89,
+      "start": 177.32999999999998,
+      "end": 177.68,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 177.68,
+      "end": 177.97,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 82,
+      "start": 177.68,
+      "end": 178.38,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 88,
+      "start": 177.68,
+      "end": 178.38,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 67,
+      "start": 177.97,
+      "end": 178.38,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 70,
+      "start": 178.38,
+      "end": 178.75,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 79,
+      "start": 178.38,
+      "end": 178.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 89,
+      "start": 178.38,
+      "end": 178.75,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 178.75,
+      "end": 179.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 76,
+      "start": 178.75,
+      "end": 179.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 88,
+      "start": 178.75,
+      "end": 179.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 179.12,
+      "end": 179.62,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 74,
+      "start": 179.12,
+      "end": 180.76,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 86,
+      "start": 179.12,
+      "end": 180.76,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 58,
+      "start": 179.62,
+      "end": 179.95,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 57,
+      "start": 179.95,
+      "end": 180.76,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 179.95,
+      "end": 180.76,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 67,
+      "start": 180.76,
+      "end": 181.3,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 73,
+      "start": 180.76,
+      "end": 181.3,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 79,
+      "start": 180.76,
+      "end": 181.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 89,
+      "start": 180.76,
+      "end": 181.3,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 181.3,
+      "end": 181.72,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 76,
+      "start": 181.3,
+      "end": 181.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 88,
+      "start": 181.3,
+      "end": 181.72,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 181.72,
+      "end": 182.12,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 74,
+      "start": 181.72,
+      "end": 182.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 86,
+      "start": 181.72,
+      "end": 182.12,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 61,
+      "start": 182.12,
+      "end": 182.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 64,
+      "start": 182.12,
+      "end": 182.91,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 73,
+      "start": 182.12,
+      "end": 182.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 85,
+      "start": 182.12,
+      "end": 182.91,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 50,
+      "start": 182.91,
+      "end": 183.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 62,
+      "start": 182.91,
+      "end": 183.27,
+      "velocity": 80,
+      "staff": "PL",
+      "source_window": 8
+    },
+    {
+      "note": 74,
+      "start": 182.91,
+      "end": 183.27,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 78,
+      "start": 183.27,
+      "end": 183.37,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 81,
+      "start": 183.37,
+      "end": 183.71,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 86,
+      "start": 183.71,
+      "end": 184.26,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    },
+    {
+      "note": 93,
+      "start": 184.26,
+      "end": 185.11,
+      "velocity": 80,
+      "staff": "PR",
+      "source_window": 8
+    }
+  ],
+  "pedals": [],
+  "pedal_events": []
+}

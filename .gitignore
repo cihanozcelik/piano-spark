@@ -1,0 +1,14 @@
+/build/
+/dist/
+__pycache__/
+.DS_Store
+
+# Local machine state and credentials never belong in a release repository.
+*.log
+*.pyc
+/bluetooth-connection/piano
+.env
+.env.*
+*.pem
+*.p12
+*.key

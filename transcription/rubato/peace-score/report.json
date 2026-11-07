@@ -1,0 +1,32 @@
+{
+  "model": "Rubato v1 score",
+  "package_version": "0.3.0",
+  "repository_revision": "325d90df334f7fe7e8e2c8c90a297c927e635dcc",
+  "audio": "transcription/transkun-v2/source.wav",
+  "audio_sha256": "8f518d9904115db40847124c56a5155712bfafe0eaca57520c7a89446a8d8567",
+  "checkpoint_sha256": "131649ff95b80713bd327b63d37b2771e1175b3c1c9aa4242a783c67bf27b1fc",
+  "duration_seconds": 426.0861875,
+  "elapsed_seconds": 18.165300707973074,
+  "device": "cpu",
+  "threads": 4,
+  "slots": 8,
+  "recover": "off",
+  "notes": 628,
+  "pedals": 0,
+  "visual_data_used_for_inference": false,
+  "parsing": "Official read_score and score_to_midi. Score note durations use predicted notation and timestamps; velocity is the converter constant 80, not estimated. No pedal prediction. Official parser repairs: {\"leading_interval\": 1, \"unmatched_release\": 23, \"duplicate_onset\": 12, \"stale_retracted\": 15, \"orphan_staff\": 2, \"unreleased_at_end\": 13}",
+  "inference_stats": {
+    "pieces": 1,
+    "audio_seconds": 426.0861875,
+    "enc_chunks": 21,
+    "t_encoder_host": 13.092373847961426,
+    "chunks": 21,
+    "wall": 17.147767066955566,
+    "tokens": 2008,
+    "steps": 320,
+    "token_cap": 1990,
+    "encoder_frames": 1000,
+    "slots": 8,
+    "kv_cache_gb": 0.786432
+  }
+}
