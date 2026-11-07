@@ -19,8 +19,8 @@ REPO = CONFIG['repository']
 DIST = ROOT/'dist'
 APP = DIST/'Piano Spark.app'
 TAG = 'v'+CONFIG['version']
-ARCHIVE = DIST/f'PianoSpark-{CONFIG["version"]}.tar.xz'
-BASE = ROOT/'build/previous-release'
+ARCHIVE = DIST/f'PianoSpark-{CONFIG["version"]}.zip'
+BASE = ROOT/'build/update-baseline'
 BASE_APP = BASE/'Piano Spark.app'
 NS = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
 ET.register_namespace('sparkle', NS)
@@ -84,14 +84,15 @@ def prepare_archive(previous_app=None):
         raise RuntimeError('Build PianoMan from the current release.json before packaging')
     command('codesign','--verify','--deep','--strict',APP)
     deltas = [prepare_delta(previous_app)] if previous_app else []
-    pending = ARCHIVE.with_suffix('.pending.tar.xz')
+    pending = ARCHIVE.with_suffix('.pending.zip')
     try:
-        command('tar','--no-xattrs','--options','xz:threads=4','-cJf',pending,'-C',DIST,APP.name)
+        command('ditto','-c','-k','--sequesterRsrc','--keepParent',APP,pending)
         if pending.stat().st_size >= 2*1024**3:
             raise RuntimeError('Update exceeds the GitHub Releases per-asset 2 GiB limit')
         pending.replace(ARCHIVE)
     finally:
         pending.unlink(missing_ok=True)
+    deltas = [patch for patch in deltas if patch['size'] < ARCHIVE.stat().st_size]
     signature=sign(ARCHIVE)
     verify_archive(ARCHIVE,signature)
     metadata={'version':CONFIG['version'],'build':CONFIG['build'],'signature':signature,'size':ARCHIVE.stat().st_size,'deltas':deltas}
@@ -162,15 +163,17 @@ def publish():
             old_feed.unlink(missing_ok=True)
     published_builds={item.findtext(f'{{{NS}}}version') for item in previous_items}
     patches=[patch for patch in metadata.get('deltas',[]) if str(patch['fromBuild']) in published_builds]
-    if published_builds and str(max(map(int,published_builds))) not in {str(p['fromBuild']) for p in patches}:
-        raise RuntimeError('A verified delta from the latest published build is required; bootstrap its exact app first')
     for patch in patches:
         path=DIST/patch['file']
         if path.stat().st_size != patch['size'] or patch['size'] >= metadata['size']:
             raise RuntimeError('Delta size must match its signed metadata and be smaller than the full archive')
         verify_archive(path,patch['signature'])
+    installer = DIST/'PianoSpark-Setup.dmg'
+    if not installer.is_file() or installer.stat().st_size >= 2*1024**3:
+        raise RuntimeError('Build the small DMG installer before publishing')
+    command('hdiutil','verify',installer)
     command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'Piano Spark {CONFIG["version"]}',
-            '--notes-file',DIST/'release-notes.txt',ARCHIVE,ROOT/'desktop/release.json',DIST/'update-signature.json',
+            '--notes-file',DIST/'release-notes.txt',ARCHIVE,installer,ROOT/'desktop/release.json',DIST/'update-signature.json',
             *(DIST/patch['file'] for patch in patches))
     # The by-tag endpoint excludes drafts; the authenticated list includes them.
     release=next(item for item in api(f'repos/{REPO}/releases') if item['tag_name']==TAG)
@@ -195,38 +198,38 @@ def publish():
     print(f'Published {TAG}: https://github.com/{REPO}/releases/tag/{TAG}')
 
 
-def bootstrap():
-    """Retain the exact signed previous app for deltas and reuse its engine."""
+def baseline():
+    """Fetch only a small signed app baseline. Never fetch the legacy 2 GB engine."""
     prepare()
     release=api(f'repos/{REPO}/releases/latest')
-    with tempfile.TemporaryDirectory(prefix='pianoman-engine-') as directory:
+    asset=next((a for a in release['assets'] if a['name'].startswith('PianoSpark-') and a['name'].endswith('.zip')),None)
+    if not asset or asset['size'] > 150*1024**2:
+        print('No small app baseline; this transition uses the small full update.',flush=True)
+        return
+    with tempfile.TemporaryDirectory(prefix='piano-baseline-') as directory:
         folder=Path(directory)
-        command('gh','release','download',release['tag_name'],'--repo',REPO,'--pattern','PianoSpark-*.tar.xz','--pattern','update-signature.json','--dir',folder)
-        archive=next(folder.glob('PianoSpark-*.tar.xz'))
+        command('gh','release','download',release['tag_name'],'--repo',REPO,'--pattern',asset['name'],
+                '--pattern','update-signature.json','--dir',folder)
+        archive=folder/asset['name']
         metadata=json.loads((folder/'update-signature.json').read_text())
         verify_archive(archive,metadata['signature'])
-        command('tar','-xJf',archive,'-C',folder,'Piano Spark.app')
-        command('codesign','--verify','--deep','--strict',folder/'Piano Spark.app')
-        with (folder/'Piano Spark.app/Contents/Info.plist').open('rb') as stream: old=plistlib.load(stream)
+        command('ditto','-x','-k',archive,folder)
+        app=folder/'Piano Spark.app'
+        command('codesign','--verify','--deep','--strict',app)
+        with (app/'Contents/Info.plist').open('rb') as stream: old=plistlib.load(stream)
         if old['CFBundleVersion'] != str(metadata['build']) or int(old['CFBundleVersion']) >= CONFIG['build']:
-            raise RuntimeError('The previous release must match its metadata and be older than this build')
+            raise RuntimeError('Baseline must match the signed release and be older than this build')
         if BASE.exists(): shutil.rmtree(BASE)
         BASE.mkdir(parents=True)
-        shutil.move(folder/'Piano Spark.app',BASE_APP)
-        # APFS clones avoid keeping a second physical copy of unchanged models.
-        engine=APP/'Contents/Resources/Engine'
-        if engine.exists(): shutil.rmtree(engine)
-        engine.parent.mkdir(parents=True,exist_ok=True)
-        command('cp','-cR',BASE_APP/'Contents/Resources/Engine',engine)
-    command('python3',ROOT/'desktop/build.py','--app-only','--reuse-engine')
+        shutil.move(app,BASE_APP)
 
 
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--publish',action='store_true',help='Publish an already prepared, signed archive and update feed')
-    parser.add_argument('--bootstrap-engine',action='store_true',help='CI: fetch previous signed engine and rebuild app')
+    parser.add_argument('--baseline',action='store_true',help='Fetch the small signed previous application for an optional delta')
     parser.add_argument('--previous-app',type=Path,help='Exact older signed application used to generate and verify a delta')
     args=parser.parse_args()
-    if args.bootstrap_engine: bootstrap()
+    if args.baseline: baseline()
     elif args.publish: publish()
     else: prepare_archive(args.previous_app or (BASE_APP if BASE_APP.exists() else None))

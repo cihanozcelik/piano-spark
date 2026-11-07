@@ -13,7 +13,7 @@ jobs:
   release:
     # macos-15 is Apple Silicon; macos-15-intel cannot prepare the arm64 engine.
     runs-on: macos-15
-    timeout-minutes: 120
+    timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
       SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Validate release inputs before downloading models
+      - name: Validate release inputs
         run: |
           python3 - <<'PY'
           import json, os, platform, subprocess
@@ -38,26 +38,7 @@ jobs:
           assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==subprocess.check_output(['git','rev-list','-n','1',os.environ['GITHUB_REF_NAME']],text=True).strip(), 'Checkout must match the release tag'
           assert isinstance(release['build'],int) and release['build']>0, 'Release build must be a positive integer'
           PY
-      - name: Find published engine baseline
-        id: bootstrap
-        run: |
-          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases" > "$RUNNER_TEMP/piano-releases.json"
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          pages=json.loads((Path(os.environ['RUNNER_TEMP'])/'piano-releases.json').read_text())
-          releases=[release for page in pages for release in page]
-          config=json.loads(Path('desktop/release.json').read_text())
-          tag='v'+config['version']
-          assert not any(release['tag_name']==tag for release in releases), 'This tag already has a release or draft; use a new version'
-          ready=any(not release['draft'] and not release['prerelease'] for release in releases)
-          with open(os.environ['GITHUB_OUTPUT'],'a') as stream:
-              stream.write('ready='+str(ready).lower()+'\n')
-          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as stream:
-              stream.write('Reusing the signed published engine.\n' if ready else 'First public release: preparing pinned engine on this Apple Silicon runner.\n')
-          PY
       - uses: astral-sh/setup-uv@v6
-        if: steps.bootstrap.outputs.ready == 'false'
         with:
           version: '0.10.4'
           enable-cache: false
@@ -76,18 +57,13 @@ jobs:
           finally:
               probe.unlink(missing_ok=True)
           PY
-      - name: Prepare pinned engine for first public release
-        if: steps.bootstrap.outputs.ready == 'false'
+      - name: Prepare small portable runtime
         run: python3 desktop/prepare_engine.py
-      - name: Build first application and free engine staging
-        if: steps.bootstrap.outputs.ready == 'false'
-        run: |
-          python3 desktop/build.py --app-only
-          python3 desktop/prepare_engine.py --clean-inputs
-      - name: Keep signed baseline and build current application
-        if: steps.bootstrap.outputs.ready == 'true'
-        run: python3 desktop/release.py --bootstrap-engine
-      - name: Create and verify signed package and applicable delta
+      - name: Build application and DMG installer
+        run: python3 desktop/build.py
+      - name: Fetch small signed baseline when available
+        run: python3 desktop/release.py --baseline
+      - name: Create and verify ZIP update and optional delta
         run: python3 desktop/release.py
-      - name: Publish release and signed feed
+      - name: Publish installer, update and signed feed
         run: python3 desktop/release.py --publish

@@ -191,6 +191,25 @@
     .lesson-create-actions input[type=text] { width:100%; margin-top:6px; padding:10px; border:1px solid var(--line); border-radius:7px; background:#202023; color:var(--ink); }
     .lesson-create-actions .buttons { display:flex; gap:10px; }
     #lesson-progress { width:100%; height:10px; accent-color:var(--accent); }
+    .tool-card { display:flex; align-items:center; gap:13px; padding:15px 17px; border:1px solid #ffffff0c; border-radius:13px; background:linear-gradient(110deg,#83adf80b,#ffffff03); }
+    .tool-card[hidden], .tool-transfer[hidden] { display:none; }
+    .tool-icon { display:grid; place-items:center; flex:0 0 32px; height:32px; border-radius:10px; background:#8cb9ff14; color:#abcaff; font-size:18px; }
+    .tool-copy { min-width:0; flex:1; }
+    .tool-copy strong { display:block; font-size:12px; font-weight:600; letter-spacing:.01em; }
+    .tool-copy small { display:block; margin-top:4px; color:var(--muted); font-size:11px; line-height:1.5; }
+    .tool-size { flex-shrink:0; font-size:12px; font-variant-numeric:tabular-nums; color:#b7d1f9; }
+    .tool-card[data-ready=true] .tool-icon { background:#83d6ad14; color:#9cd8b6; }
+    .tool-card[data-ready=true] .tool-size { color:#9cd8b6; }
+    .tool-transfer { border:1px solid #a9caff20; border-radius:15px; padding:18px; background:linear-gradient(130deg,#28364b80,#202125); }
+    .tool-transfer-heading,.tool-transfer-metrics { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+    .tool-transfer-heading strong { font-size:13px; font-weight:500; }
+    #tool-percent { font-size:20px; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+    .tool-transfer progress { display:block; width:100%; height:5px; margin:15px 0 11px; border:0; border-radius:8px; overflow:hidden; accent-color:#a9caff; }
+    .tool-transfer progress::-webkit-progress-bar { background:#ffffff0d; border-radius:8px; }
+    .tool-transfer progress::-webkit-progress-value { background:linear-gradient(90deg,#76a8fb,#c5dcff); border-radius:8px; transition:width .15s linear; }
+    .tool-transfer-metrics { color:#a6b1c1; font-size:11px; font-variant-numeric:tabular-nums; }
+    .tool-transfer-note { margin:12px 0 0; color:#8f99a7; font-size:11px; line-height:1.5; }
+    @media(prefers-reduced-motion:reduce) { .tool-transfer progress::-webkit-progress-value { transition:none; } }
     .lesson-row { display:flex; gap:6px; align-items:center; }
     .lesson-row > button:first-child { flex:1; min-width:0; }
     .lesson-row > button:not(:first-child) { width:auto; flex:0 0 auto; }
@@ -364,8 +383,17 @@
         </div>
         <div class="lesson-create-actions">
           <label><span data-i18n="Ders adı">Ders adı</span><input id="lesson-title" type="text" maxlength="160" placeholder="Parçanın adı" data-i18n-placeholder="Parçanın adı"></label>
+          <div id="lesson-tools" class="tool-card" hidden><span class="tool-icon" aria-hidden="true">↓</span><div class="tool-copy"><strong id="lesson-tools-title"></strong><small id="lesson-tools-detail"></small></div><span class="tool-size" id="lesson-tools-size"></span></div>
           <label class="control"><input id="separate-vocals" type="checkbox" checked><span data-i18n="Vokali ayır">Vokali ayır</span></label>
+          <div id="separation-tools" class="tool-card" hidden><span class="tool-icon" aria-hidden="true">↓</span><div class="tool-copy"><strong data-i18n="Vokal ayırma">Vokal ayırma</strong><small id="separation-tools-detail"></small></div><span class="tool-size" id="separation-tools-size"></span></div>
+          <button id="retry-tools" type="button" class="subtle-button" hidden data-i18n="Araç durumunu yeniden yükle">Araç durumunu yeniden yükle</button>
           <div class="buttons"><button id="create-lesson" type="button" class="primary" disabled data-i18n-initial="Ders oluştur">Ders oluştur</button><button id="cancel-lesson" type="button" hidden data-i18n-initial="İptal">İptal</button></div>
+          <div id="tool-transfer" class="tool-transfer" hidden>
+            <div class="tool-transfer-heading"><strong id="tool-stage" role="status"></strong><span id="tool-percent"></span></div>
+            <progress id="tool-progress" max="1" value="0" aria-label="Araç indirme ilerlemesi" data-i18n-aria-label="Araç indirme ilerlemesi"></progress>
+            <div class="tool-transfer-metrics"><span id="tool-bytes"></span><span id="tool-speed"></span></div>
+            <p class="tool-transfer-note" data-i18n="Bir kez indir, sonraki derslerde kullan. İptal edersen indirilenler korunur.">Bir kez indir, sonraki derslerde kullan. İptal edersen indirilenler korunur.</p>
+          </div>
           <progress id="lesson-progress" max="1" value="0" aria-label="Ders oluşturma ilerlemesi" data-i18n-aria-label="Ders oluşturma ilerlemesi" hidden></progress>
         </div>
         <p id="create-status" role="status" aria-live="polite"></p>

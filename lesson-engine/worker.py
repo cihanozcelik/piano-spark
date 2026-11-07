@@ -98,7 +98,7 @@ def transcribe(audio_path, models, work):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--job', type=Path, required=True)
-    parser.add_argument('--models', type=Path, required=True)
+    parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--library', type=Path, required=True)
     parser.add_argument('--parent', type=int)
     args = parser.parse_args()
@@ -114,10 +114,12 @@ def main():
     os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
     started = time.monotonic()
     try:
+        from tools_manager import prepare
+        args.models = prepare(request, args.tools, emit)
         if request.get('kind') in ('midi','pdf'):
             from score_import import import_score
             source=args.job/request['input']
-            lesson=import_score(source,request,args.job,args.models.parent,emit)
+            lesson=import_score(source,request,args.job,Path(__file__).resolve().parent,emit)
             emit('saving','Ders kaydediliyor…',.98)
             args.library.mkdir(parents=True,exist_ok=True)
             assets=args.library/(job_id+'.assets');assets.mkdir(exist_ok=True)

@@ -1,0 +1,4 @@
+[console_scripts]
+intermo-lite = rubato.convert.__main__:main
+rubato = rubato.cli:main
+rubato-convert = rubato.convert.__main__:main

@@ -1,19 +1,21 @@
 # Piano Spark
 
 Fiziksel piyanoyla, kendi hızında çalışmaya odaklanan masaüstü eğitim uygulaması.
-Model motorunu içeren paket **Apple Silicon, macOS 14 veya sonrası** içindir.
+Küçük, bağımsız uygulama paketi **Apple Silicon, macOS 14 veya sonrası** içindir.
 
 ## Uygulama ve paylaşım
 
 **`dist/PianoSpark-Setup.dmg`** kurulum dosyasıdır. İçindeki **Piano Spark Installer**,
 uygulamayı `~/Applications/Piano Spark.app` konumuna kurar. Güncellemede uygulamayı
 kapatır ve kayıtlı dersleri korur. Kullanıcı Python, Rubato veya başka paket kurmaz;
-portable Python, FFmpeg, Rubato ve vokal ayırma modeli uygulamaya dahildir.
-Yerel video çözümlemesi çevrimdışı çalışır; YouTube için internet gerekir.
+küçük portable Python uygulamaya dahildir. Nota çıkarma, vokal ayırma ve PDF
+araçları ilk kullanımda indirilir. Gereken boyut ilgili seçeneğin yanında görünür;
+ilerleme, indirilen/toplam boyut ve hız gösterilir. İptal indirmeleri korur.
+İndirilen araçlarla yerel dosyalar çevrimdışı işlenir; YouTube için internet gerekir.
 Sistem Python'u, Homebrew, başlangıç öğesi veya sistem servisi kurulmaz.
 
 **Piano Spark → Piano Spark’ı kaldır…**, onaydan sonra çalışan işlerini durdurur;
-uygulamayı (içindeki modeller dahil), `~/Library/Application Support/PianoMan/`,
+uygulamayı, indirilen araçları, `~/Library/Application Support/PianoMan/`,
 uygulama tercihlerini, WebKit/önbellek ve pencere durumunu siler. Kayıtlı dersler de
 silinir. Orijinal videolar, dışarı aktarılan MIDI'ler ve indirilen DMG kullanıcı
 belgeleridir; korunur. Yalnızca uygulamayı Finder'dan silmek kayıtlı dersleri
@@ -30,8 +32,8 @@ Bu, paylaşım paketinin mevcut dağıtım sınırlamasıdır.
 
 ## Otomatik güncellemeler
 
-Uygulama yeni sürümün yalnız değişen dosyalarını imzalı yama olarak indirir;
-değişmeyen modeller tekrar indirilmez. Üst çubuktaki güncelleme lambası
+Uygulama yeni sürümü küçük imzalı ZIP veya uygun olduğunda delta olarak indirir;
+araçlar Application Support altında tutulur ve uygulama güncellemesinde tekrar indirilmez. Üst çubuktaki güncelleme lambası
 yeni sürümü ve değişikliklerini gösterir. Paket doğrulanınca ders sürse de çalışma
 konumunu kaydedip otomatik yeniden açılır. Devam eden dönüştürme işi iptal edilir.
 Yeni sürüm yüklendi bildirimi ve sürüm notları üst çubukta kalır. İndirme ve güncelleme
@@ -41,8 +43,8 @@ Yayın, imzalama ve ilk kurulum: [Güncelleme sistemi](desktop/UPDATES.md).
 ## Kaynaktan paketleme
 
 Geliştirici bilgisayarında Python 3 ve Xcode Command Line Tools gerekir.
-`./build-app.command` native uygulamayı derler, hazır yerel motoru/modelleri
-paketler, ad-hoc imzalar ve `dist/PianoSpark-Setup.dmg` üretir.
+Önce `python3 desktop/prepare_engine.py` küçük Python ortamını hazırlar (uv gerekir).
+`./build-app.command` native uygulamayı ve bu ortamı paketler, ad-hoc imzalar ve `dist/PianoSpark-Setup.dmg` üretir.
 `python3 desktop/build.py --app-only` yalnızca uygulamayı;
 `--installer-only` mevcut uygulamadan kurulum dosyasını üretir.
 Paketleme girdileri ve motor yaşam döngüsü `lesson-engine/README.md` içindedir.

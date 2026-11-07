@@ -22,18 +22,13 @@ def run(*args):
 def bundle_engine(resources):
     engine = resources/'Engine'
     runtime = ROOT/'build/lesson-python/cpython-3.12.12-macos-aarch64-none'
-    packages = ROOT/'transcription/separation/.venv/lib/python3.12/site-packages'
     ignore = shutil.ignore_patterns('__pycache__', '*.pyc', 'tests', '.DS_Store')
     shutil.copytree(runtime,engine/'python',symlinks=True,ignore=ignore)
-    shutil.copytree(packages,engine/'site-packages',symlinks=True,ignore=ignore)
-    for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py','pdf_recognizer.py']:
+    for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py',
+                 'pdf_recognizer.py','tools_manager.py','tools.json','cacert.pem']:
         shutil.copy2(ROOT/'lesson-engine'/name,engine/name)
-    shutil.copytree(ROOT/'build/omr/.venv/lib/python3.12/site-packages',engine/'omr-site-packages',symlinks=True,ignore=ignore)
-    shutil.copy2(ROOT/'lesson-engine/omr-requirements.lock.txt',engine/'omr-requirements.lock.txt')
-    shutil.copytree(ROOT/'transcription/separation/models',engine/'models/separation',
-                    ignore=shutil.ignore_patterns('*.aria2'))
-    shutil.copy2(ROOT/'transcription/rubato/models/rubato.ckpt',engine/'models/rubato.ckpt')
-    shutil.copy2(ROOT/'transcription/separation/requirements.lock.txt',engine/'requirements.lock.txt')
+    for name in ['vendor','model-config']:
+        shutil.copytree(ROOT/'lesson-engine'/name,engine/name,ignore=ignore)
     # Sign every native dependency in the portable runtime, before sealing the app.
     magic = {b'\xcf\xfa\xed\xfe',b'\xce\xfa\xed\xfe',b'\xca\xfe\xba\xbe',b'\xbe\xba\xfe\xca'}
     for path in engine.rglob('*'):
@@ -137,7 +132,6 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--app-only',action='store_true')
     parser.add_argument('--installer-only',action='store_true')
-    parser.add_argument('--reuse-engine',action='store_true',help='Reuse this Mac’s unchanged bundled engine with APFS clones')
     parser.add_argument('--capture-assets',type=Path,help='Export actual app screenshots with an isolated development-only capture build')
     args=parser.parse_args()
     BUILD.mkdir(parents=True, exist_ok=True)
@@ -163,10 +157,6 @@ def main():
     if args.installer_only:
         build_installer(); return
     prepare_sparkle()
-    cached_engine = BUILD/'reused-engine'
-    if args.reuse_engine:
-        if cached_engine.exists(): raise RuntimeError('A previous build left build/desktop/reused-engine; recover it before rebuilding')
-        run('cp','-cR',APP/'Contents/Resources/Engine',cached_engine)
     if APP.exists():
         shutil.rmtree(APP)
     resources = APP / 'Contents/Resources'
@@ -183,12 +173,7 @@ def main():
 
     write_ui(resources)
     shutil.copytree(ROOT / 'assets/bravura', resources / 'assets/bravura')
-    if args.reuse_engine:
-        cached_engine.rename(resources/'Engine')
-        for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py','pdf_recognizer.py']:
-            shutil.copy2(ROOT/'lesson-engine'/name,resources/'Engine'/name)
-    else:
-        bundle_engine(resources)
+    bundle_engine(resources)
     shutil.copy2(ROOT/'desktop/release.json',resources/'release.json')
     frameworks = APP/'Contents/Frameworks'
     frameworks.mkdir()

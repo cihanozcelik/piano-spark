@@ -70,7 +70,7 @@ def import_score(source,request,work,engine,emit):
         emit('notation','PDF sayfalarındaki notalar okunuyor…',.12)
         output=work/'recognized-pages.json'
         environment=os.environ.copy()
-        environment['PYTHONPATH']=str(engine/'omr-site-packages')
+        environment['PYTHONPATH']=os.environ['PIANO_OMR_PATH']
         environment['PYTHONNOUSERSITE']='1'
         subprocess.run([sys.executable,'-u',str(engine/'pdf_recognizer.py'),
                         str(source),str(output)],env=environment,check=True)

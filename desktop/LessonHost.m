@@ -30,6 +30,7 @@ int main(int argc, const char *argv[]) {
                         NSError *error = nil; id result = nil;
                         NSString *command = request[@"command"];
                         if ([command isEqual:@"lesson-state"]) result = [service snapshot];
+                        else if ([command isEqual:@"lesson-tools"]) result = [service tools];
                         else if ([command isEqual:@"lesson-list"]) result = [service lessons];
                         else if ([command isEqual:@"lesson-delete"]) result = @([service deleteLesson:request[@"id"] error:&error]);
                         else if ([command isEqual:@"lesson-load"]) result = [service lesson:request[@"id"] error:&error];

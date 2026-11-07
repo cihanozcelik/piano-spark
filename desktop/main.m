@@ -406,6 +406,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         NSLog(@"PianoMan JavaScript: %@", message.body[@"message"]); replyHandler(@{}, nil);
     } else if ([command isEqual:@"lesson-state"]) {
         replyHandler([self.lessons snapshot], nil);
+    } else if ([command isEqual:@"lesson-tools"]) {
+        replyHandler([self.lessons tools], nil);
     } else if ([command isEqual:@"lesson-list"]) {
         replyHandler([self.lessons lessons], nil);
     } else if ([command isEqual:@"lesson-delete"]) {

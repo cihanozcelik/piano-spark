@@ -14,19 +14,10 @@ Modelin notaları elle düzeltilmez. Bu motor pedal işaretlerini desteklemez;
 açıkça otomatik okuma olarak etiketlenir. Sayısal tempo bulunmadığında kullanıcının
 seçtiği tempo (başlangıçta 60 BPM) uygulanır ve ders açıklamasında belirtilir.
 
-`python3 tools/prepare_omr.py` yalnız proje altındaki `build/omr/.venv` ortamını
-hazırlar. Sürümler `omr-requirements.lock.txt`, model SHA-256 değerleri hazırlama
-aracında sabittir. Üç ONNX modeli ve RapidOCR model dosyaları paketlemeden önce
-indirilir. `desktop/build.py`, bu ortamın paketlerini `Engine/omr-site-packages`
-içine kopyalar; aynı taşınabilir Python ayrı bir iş sürecinde kullanılır. Ayrı
-paket dizini mevcut ses motorunun Pillow/NumPy sürümlerini değiştirmez. Kullanıcının
-sistemine Java, Python, servis veya başlangıç öğesi kurulmaz.
-
-PDF işi düşük süreç önceliğiyle çalışır, sayfa ilerlemesi bildirir; iptal ve uygulama
-çıkışı aynı iş süreç grubunu sonlandırır. Kaynak dosyanın uygulamaya ait kopyası
-`Lessons/UUID.assets` içinde kalır. Ders silme bu kopyayı ve `UUID.json` dosyasını
-kaldırır; dışarıdaki özgün dosyaya dokunmaz. Örnek kaynaklar ve lisanslar
-`assets/example-lessons/README.md` içindedir.
+PDF araçları yalnız PDF seçilip ders oluşturulduğunda indirilir. Model URL, boyut
+ve SHA-256 değerleri `tool-models.json` içinde; tüm bağımlılıkların sabitlenmiş
+kataloğu `tools.json` içindedir. `tools/prepare_omr.py` yalnız geliştirme ortamını
+hazırlamak içindir; uygulama dağıtımı bu ortamı paketlemez.
 
 ## Çalışma durumunun sahipliği
 
@@ -51,42 +42,56 @@ en fazla 150 ms başlangıç farkıyla bire bir eşleştirilir; eşleşmeyen not
 kullanılır ve sayısı açıklamada belirtilir. Pedal ikilidir; fiziksel basınç değildir.
 
 CPU dört thread ile sınırlıdır. Vokal ayırma MPS varsa kullanır; MPS süreç bütçesi
-önerilen GPU belleğinin %20'sidir. Rubato CPU kullanır. Python, NumPy, FFmpeg ve
-model bağımlılıkları app Resources/Engine içindedir. Kullanıcıya kurulum yapılmaz.
-Python bytecode yazımı kapalıdır; model/paketler salt okunur kullanılır. FFmpeg,
-model sembolik bağları, indirme ve kütüphane önbellekleri iş klasörüne aittir.
+önerilen GPU belleğinin %20'sidir. Rubato CPU kullanır. Küçük Python çalışma ortamı ve işçi kaynakları app Resources/Engine içindedir.
+Diğer araçlar kullanıcıya ait `Application Support/PianoMan/Tools/1` altında saklanır.
+Python bytecode yazımı kapalıdır. Dersin geçici medya dosyaları Jobs dizinine aittir.
 
-## Paketleme girdileri
+## İhtiyaç anında indirme
 
-`desktop/build.py` bu mevcut yerel girdileri tek uygulamaya kopyalar:
+`tools_manager.py` tek indirme/kurulum sahibidir; LessonService'in başlattığı worker
+sürecinde çalışır. `lesson-tools` köprüsü aynı katalog ve tamamlanma işaretlerinden
+arayüze hazır/eksik durumunu verir. Seçim yapmak indirme başlatmaz; kullanıcı
+**İndir ve ders oluştur** ile başlatır. Ortak paketlerin boyutu bir kez sayılır.
 
-- `build/lesson-python/cpython-3.12.12-macos-aarch64-none`: uv ile
-  `--no-bin --install-dir build/lesson-python` kullanılarak hazırlanmış taşınabilir Python.
-- `transcription/separation/.venv/lib/python3.12/site-packages`:
-  `transcription/separation/requirements.lock.txt` ile kaydedilmiş bağımlılıklar.
-- `transcription/separation/models`: `vocals_mel_band_roformer.ckpt`, YAML ve
-  audio-separator indirme doğrulama metaverisi; dosyalar ilk çalıştırmada indirilmez.
-- `transcription/rubato/models/rubato.ckpt`: Rubato ağırlıkları.
+- MIDI: nota yazım araçları.
+- Video: nota yazım araçları, ses çözme ve Rubato; YouTube için ayrıca indirici.
+- Vokal ayırma: yalnız seçiliyken ek paketler ve ayırma modeli.
+- PDF: nota yazım araçları, homr/ONNX, PDFium ve başlık okuma modelleri.
 
-Dağıtım Apple Silicon/macOS 14+ içindir. Paketleyici tüm Mach-O bağımlılıklarını
-ve uygulamayı ad-hoc imzalar; ardından `codesign --verify --deep --strict` çalışır.
-Developer ID/notarization bu yerel build'e dahil değildir.
+Her dosya sabit HTTPS URL, boyut ve SHA-256 ile tanımlıdır. Wheel'ler PyPI'den,
+modeller özgün proje dağıtımlarından alınır. TLS, uygulamadaki public CA bundle
+ile doğrulanır. Çalışma anında sürüm çözümleme, kaynak derleme ve sistem kurulumu yoktur.
+`pip --isolated --no-index --no-deps` yalnız doğrulanmış yerel wheel'i kurar.
 
-Rubato: `rubato-transcription` 0.3.0, kaynak revizyonu
-`325d90df334f7fe7e8e2c8c90a297c927e635dcc`, AGPL-3.0.
-Python paketlerinin lisans metinleri dağıtımdaki `.dist-info` dizinlerinde korunur.
-Vokal ayrımı: audio-separator 0.48.0 / Mel-Band-Roformer.
+İndirme gerçek byte sayısı/yüzde/hız ile bildirilir; doğrulama ve kurulum ayrı
+fazlardır. `.part` dosyaları iptal/çıkışta kalır; sunucu Range destekliyorsa devam
+edilir, desteklemiyorsa dosya baştan alınır. Hash uyuşmazlığında bozuk dosya silinir.
+Kurulum staging dizininden atomik taşınır; `.ready` yalnız başarıdan sonra görünür.
+İndirilen wheel/ZIP kurulumdan sonra silinir. Dosya kilidi aynı cache'e eşzamanlı
+kurulumları engeller; süreç kapanınca kilit otomatik serbest kalır.
 
-| Model | SHA-256 |
-| --- | --- |
-| Rubato | `131649ff95b80713bd327b63d37b2771e1175b3c1c9aa4242a783c67bf27b1fc` |
-| Mel-Band-Roformer | `87201f4d31afb5bc79993230fc49446918425574db48c01c405e44f365c7559e` |
+Paketler hash başına saklanır; PDF ayrı subprocess/PYTHONPATH kullanır, böylece
+ses motoruyla farklı Pillow sürümleri karışmaz. Model profilleri büyük dosyalara
+symlink verir. Güncelleme `.app` dosyasını değiştirir, bu cache'i değiştirmez.
+Kaldırma menüsü uygulamaya ait cache'i ve dersleri de kaldırır.
 
-Kurucu uygulamayı kullanıcı hesabının Applications dizinine taşır. Güncellemede
-eski uygulama yeni kopya hazır olana kadar korunur. Uninstall uygulama menüsündedir;
-çalışan işler bitirilip uygulama kapandıktan sonra yardımcı süreç uygulamayı,
-modelleri ve yalnız PianoMan'e ait kullanıcı verilerini kaldırır. Geliştirme deposu,
-geliştirme ortamları, kaynak videolar ve dışa aktarılan dosyalar bunun dışındadır.
+## Paketleme ve katalog bakımı
+
+`desktop/prepare_engine.py` yalnız Python 3.12.12'yi hazırlar. `desktop/build.py`
+runtime, worker'lar, katalog, CA bundle ve küçük vendor kaynaklarını paketler;
+ML paketlerini/model ağırlıklarını **paketlemez**. Mach-O dosyaları ad-hoc imzalanır.
+Dağıtım Apple Silicon/macOS 14+ içindir; Developer ID/notarization yoktur.
+
+`desktop/lock_tools.py` iki sabit geliştirme ortamındaki metadata üzerinden
+macOS 14 ARM64 / CPython 3.12 wheel'lerini PyPI metadata'sından seçer; bağımlılık
+kapanımlarını ve indirme boyut/hash'lerini `tools.json` içine yazar. Yalnız sürüm
+bakımında separation ortamının Python'u ile çalıştırılır; uygulama build'inde
+ve kullanıcı Mac'inde çalışmaz. `tool-models.json` model katalog girdisidir.
+
+Rubato 0.3.0 kaynak revizyonu `325d90df334f7fe7e8e2c8c90a297c927e635dcc` ve
+CPython 3.12 wheel'i olmayan diffq 0.2.4, küçük `vendor` dizininde lisanslarıyla
+bulunur; model ağırlıkları içermez. Ayrıntılar `vendor/README.md` içindedir.
+Diğer paketler indirildiklerinde `.dist-info` lisanslarıyla saklanır.
 
 ## Partisyon
 
@@ -142,7 +147,7 @@ ses ayırması da bir bestecinin ses yürüyüşü analizi değildir. Görsel de
 notalar kopyalanarak ses dersinin hataları gizlenmez.
 
 music21 ve bağımlılıkları `transcription/separation/requirements.lock.txt` içinde
-sabittir ve uygulamanın Engine/site-packages dizinine lisanslarıyla paketlenir.
+sabittir; `tools.json` bunların doğrulanmış indirme kataloğudur.
 Kullanıcıdan ayrı kurulum istenmez. `tools/update_notation.py --output-directory
 build/notation-review/music21` yayınlamadan aday ders dosyaları üretir; seçenek
 olmadan yerleşik Rubato Peace dersi ve kayıtlı Pervane dersleri yenilenir. Kaynak

@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT/'build/browser'
 ENGINE = BUILD/'Engine'
 HOST = BUILD/'lesson-host'
-SOURCES = [ROOT/'desktop'/name for name in ('LessonHost.m','LessonService.m','LessonService.h')]
+SOURCES = [ROOT/'desktop'/name for name in ('LessonHost.m','LessonService.m','Localization.m','LessonService.h','Localization.h')]
 
 
 def prepare():
@@ -17,22 +17,16 @@ def prepare():
     if not HOST.exists() or any(path.stat().st_mtime_ns>HOST.stat().st_mtime_ns for path in SOURCES):
         pending = HOST.with_suffix('.pending')
         subprocess.run(['xcrun','clang','-arch','arm64','-fobjc-arc','-fblocks','-Wall','-Wextra','-Werror',
-                        '-mmacosx-version-min=14.0',str(SOURCES[0]),str(SOURCES[1]),
+                        '-mmacosx-version-min=14.0',str(SOURCES[0]),str(SOURCES[1]),str(SOURCES[2]),
                         '-framework','Foundation','-o',str(pending)],check=True)
         pending.replace(HOST)
-    links = {
-        'python': ROOT/'build/lesson-python/cpython-3.12.12-macos-aarch64-none',
-        'site-packages': ROOT/'transcription/separation/.venv/lib/python3.12/site-packages',
-        'worker.py': ROOT/'lesson-engine/worker.py',
-        'notation.py': ROOT/'lesson-engine/notation.py',
-        'score_writer.py': ROOT/'lesson-engine/score_writer.py',
-        'score_import.py': ROOT/'lesson-engine/score_import.py',
-        'pdf_recognizer.py': ROOT/'lesson-engine/pdf_recognizer.py',
-        'omr-site-packages': ROOT/'build/omr/.venv/lib/python3.12/site-packages',
-        'notation_source.py': ROOT/'lesson-engine/notation_source.py',
-        'models/separation': ROOT/'transcription/separation/models',
-        'models/rubato.ckpt': ROOT/'transcription/rubato/models/rubato.ckpt',
-    }
+    links = {'python': ROOT/'build/lesson-python/cpython-3.12.12-macos-aarch64-none'}
+    for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py',
+                 'pdf_recognizer.py','tools_manager.py','tools.json','cacert.pem','vendor','model-config']:
+        links[name] = ROOT/'lesson-engine'/name
+    for name in ['site-packages','omr-site-packages','models/separation','models/rubato.ckpt']:
+        old = ENGINE/name
+        if old.is_symlink(): old.unlink()
     for name,target in links.items():
         path = ENGINE/name
         path.parent.mkdir(parents=True,exist_ok=True)

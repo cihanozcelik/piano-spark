@@ -19,7 +19,10 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     'youtube-preview', 'youtube-title', 'youtube-link', 'remove-youtube', 'create-status',
     'create-lesson', 'cancel-lesson', 'lesson-progress', 'lesson-title', 'separate-vocals',
     'saved-lessons', 'saved-lessons-menu','source-document','document-source','choose-document',
-    'lesson-document','document-name','document-tempo'];
+    'lesson-document','document-name','document-tempo','lesson-tools','lesson-tools-title',
+    'lesson-tools-detail','lesson-tools-size','separation-tools','separation-tools-detail',
+    'separation-tools-size','retry-tools','tool-transfer','tool-stage','tool-percent',
+    'tool-progress','tool-bytes','tool-speed'];
   const ui = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
   const video = ui['source-preview'];
   let source = 'video';
@@ -31,6 +34,64 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   const available = Boolean(native) || location.protocol === 'http:';
   const draft=workspaceState.data.create;
   let statusSource='';
+  let toolsCatalog=null, transfer=null, lastPhase='idle';
+  const bytes=value=> {
+    const unit=value>=1e9?'GB':value>=1e6?'MB':'KB';
+    const amount=value/(unit==='GB'?1e9:unit==='MB'?1e6:1e3);
+    return amount.toLocaleString(window.PianoI18n.language==='tr'?'tr-TR':'en-US',
+      {maximumFractionDigits:1})+' '+unit;
+  };
+  function toolPlan() {
+    if(!toolsCatalog) return null;
+    const pdf=source==='document'&&/\.pdf$/i.test(selectedDocument?.name||'');
+    const base=['notation',...(source==='document'?(pdf?['pdf']:[]):['transcription']),
+      ...(source==='youtube'?['youtube']:[])];
+    const keys=new Set(base.flatMap(group=>toolsCatalog.groups[group]));
+    const separation=source!=='document'&&ui['separate-vocals'].checked
+      ?toolsCatalog.groups.separation.filter(key=>!keys.has(key)):[];
+    const summary=ids=> {
+      const missing=[...ids].map(key=>toolsCatalog.artifacts[key]).filter(a=>!a.ready);
+      return {ready:!missing.length,remaining:missing.reduce((total,a)=>total+a.size-a.received,0)};
+    };
+    return {base:summary(keys),separation:summary(separation),showSeparation:source!=='document'&&ui['separate-vocals'].checked,
+      title:pdf?'PDF nota okuyucu':source==='document'?'MIDI ve partisyon':'Videodan piyano notaları'};
+  }
+  function renderTools() {
+    const plan=toolPlan();
+    ui['lesson-tools'].hidden=!plan||(source==='document'&&!selectedDocument);
+    ui['separation-tools'].hidden=!plan||!plan.showSeparation;
+    if(!plan) return;
+    ui['lesson-tools-title'].textContent=t(plan.title);
+    for(const [prefix,state] of [['lesson',plan.base],['separation',plan.separation]]) {
+      const card=ui[prefix+'-tools'];
+      card.dataset.ready=String(state.ready);
+      card.querySelector('.tool-icon').textContent=state.ready?'✓':'↓';
+      ui[prefix+'-tools-size'].textContent=state.ready?t('Hazır'):bytes(state.remaining);
+      ui[prefix+'-tools-detail'].textContent=t(state.ready?'Bu Mac’te hazır. Yeniden indirilmez.':
+        state.remaining?'İlk kullanımda indirilir. Bu Mac’te saklanır.':'İndirme tamamlandı. Kullanım öncesi hazırlanacak.');
+    }
+    const amount=plan.base.remaining+plan.separation.remaining;
+    ui['create-lesson'].textContent=t(busy?'Ders hazırlanıyor…':amount?'İndir ve ders oluştur · {size}':'Ders oluştur',{size:bytes(amount)});
+  }
+  async function refreshTools() {
+    try {
+      toolsCatalog=await lessonCommand('lesson-tools'); ui['retry-tools'].hidden=true;
+    } catch(error) {
+      toolsCatalog=null; ui['retry-tools'].hidden=false; announce(error.message,'error');
+    }
+    updateControls();
+  }
+  function renderTransfer() {
+    ui['tool-transfer'].hidden=!transfer;
+    if(!transfer) return;
+    const downloading=transfer.stage==='tools-download';
+    ui['tool-stage'].textContent=t(downloading?'Ders araçları indiriliyor…':transfer.stage==='tools-verify'?'İndirme doğrulanıyor…':'Ders araçları hazırlanıyor…');
+    ui['tool-percent'].textContent=Math.floor(100*transfer.received/Math.max(1,transfer.total))+'%';
+    if(downloading) ui['tool-progress'].value=transfer.received/Math.max(1,transfer.total);
+    else ui['tool-progress'].removeAttribute('value');
+    ui['tool-bytes'].textContent=bytes(transfer.received)+' / '+bytes(transfer.total);
+    ui['tool-speed'].textContent=downloading&&transfer.speed>0?bytes(transfer.speed)+'/s':t('Hazırlanıyor…');
+  }
   const libraryLabels=new Map();
   function label(node,source,params={},attribute='textContent') {
     if(!libraryLabels.has(node)) libraryLabels.set(node,new Map());
@@ -46,9 +107,10 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
 
 
   function updateControls() {
-    ui['create-lesson'].disabled = !available || busy || (source==='video'?!videoReady:source==='document'?!selectedDocument:!youtubeURL);
+    ui['create-lesson'].disabled = !available || !toolsCatalog || busy || (source==='video'?!videoReady:source==='document'?!selectedDocument:!youtubeURL);
     for (const id of ['source-video','source-youtube','source-document','choose-document','document-tempo','choose-video','remove-video','remove-youtube','youtube-url','lesson-title','separate-vocals']) ui[id].disabled=busy;
     ui['cancel-lesson'].hidden=!busy;
+    renderTools();
   }
 
   async function openLesson(id) {
@@ -97,10 +159,14 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     const wasBusy=busy;
     const terminal=['idle','complete','cancelled','error'];
     busy=!terminal.includes(event.phase);
-    ui['lesson-progress'].hidden=event.phase==='idle';
+    transfer=event.toolDownload||null;
+    renderTransfer();
+    ui['lesson-progress'].hidden=event.phase==='idle'||Boolean(transfer);
     ui['lesson-progress'].value=event.progress||0;
     announce(event.message,event.phase==='error'?'error':event.phase==='complete'?'ready':'idle');
     updateControls();
+    if(lastPhase!==event.phase&&terminal.includes(event.phase)) refreshTools();
+    lastPhase=event.phase;
     if(busy&&!wasBusy) { video.pause(); onShowCreate(); }
     if(event.phase==='complete'&&event.id!==loadedResult) {
       loadedResult=event.id; saveDraft();
@@ -294,6 +360,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     if (event.detail.tab !== 'create') video.pause();
   });
   window.addEventListener('pianoman-language-change',()=> {
+    renderTools(); renderTransfer();
     ui['create-status'].textContent=translated(statusSource);
     if(youtubeURL) ui['youtube-title'].textContent=t('YouTube videosu');
     if(selectedVideo) {
@@ -358,8 +425,11 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     ui['youtube-preview'].hidden=false;
   }
   for(const id of ['lesson-title','separate-vocals','document-tempo']) ui[id].addEventListener('input',saveDraft);
+  ui['separate-vocals'].addEventListener('change',renderTools);
+  ui['retry-tools'].addEventListener('click',refreshTools);
   showSource(['youtube','document'].includes(draft.source)?draft.source:'video');
   if(available) {
+    refreshTools();
     refreshLessons().catch(error=>announce(error.message,'error'));
     let stopped=false;
     async function pollState() {

@@ -33,11 +33,11 @@ def download_context(release_path):
         raise RuntimeError('The website requires a published stable release')
     tag = release['tag_name']
     version = tag.removeprefix('v')
-    names = (f'PianoSpark-{version}.tar.xz', f'PianoMan-{version}.tar.xz')
+    names = ('PianoSpark-Setup.dmg',)
     asset = next((asset for name in names for asset in release['assets']
                   if asset['name'] == name and asset['state'] == 'uploaded' and asset['size'] > 0), None)
     if asset is None:
-        raise RuntimeError('Published release has no complete downloadable Mac application archive')
+        return download_context(None)
 
     url = asset['browser_download_url']
     parsed = urlsplit(url)
@@ -47,12 +47,12 @@ def download_context(release_path):
         raise RuntimeError('Download must point directly to this repository’s published binary asset')
     escaped_url = html.escape(url, quote=True)
     notes_url = html.escape(f'https://github.com/{REPOSITORY}/releases/tag/{tag}', quote=True)
-    size = asset['size'] / 1024**3
+    size = asset['size'] / 1e6
     return {
         '__DOWNLOAD_CTA__': f'<a class="button button-primary download-link" href="{escaped_url}">Download for Mac <span aria-hidden="true">↓</span></a>',
         '__DOWNLOAD_CTA_COMPACT__': f'<a class="button button-small download-link" href="{escaped_url}">Download</a>',
         '__RELEASE_LABEL__': html.escape(tag),
-        '__DOWNLOAD_DETAILS__': f'macOS 14 or later · Apple Silicon · {size:.1f} GiB initial download',
+        '__DOWNLOAD_DETAILS__': f'macOS 14 or later · Apple Silicon · {size:.1f} MB · DMG installer',
         '__RELEASE_NOTES_LINK__': f'<a class="release-link" href="{notes_url}">Release notes <span aria-hidden="true">↗</span></a>',
     }
 

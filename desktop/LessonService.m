@@ -32,6 +32,24 @@
 }
 - (BOOL)running { return self.identifier != nil; }
 - (NSDictionary *)snapshot { return PianoLocalizedStatus(self.state); }
+- (NSDictionary *)tools {
+    NSData *data = [NSData dataWithContentsOfURL:[self.engine URLByAppendingPathComponent:@"tools.json"]];
+    NSDictionary *catalog = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+    NSURL *cache = [self.supportURL URLByAppendingPathComponent:@"Tools/1"];
+    NSMutableDictionary *artifacts = [NSMutableDictionary new];
+    for (NSString *key in catalog[@"artifacts"]) {
+        NSMutableDictionary *artifact = [catalog[@"artifacts"][key] mutableCopy];
+        NSString *hash = artifact[@"sha256"];
+        NSURL *marker = [cache URLByAppendingPathComponent:[NSString stringWithFormat:@"artifacts/%@/.ready",hash]];
+        NSString *installed = [NSString stringWithContentsOfURL:marker encoding:NSUTF8StringEncoding error:NULL];
+        artifact[@"ready"] = @([installed isEqual:hash]);
+        NSURL *partial = [cache URLByAppendingPathComponent:[NSString stringWithFormat:@"downloads/%@.part",hash]];
+        NSDictionary *attributes = [NSFileManager.defaultManager attributesOfItemAtPath:partial.path error:NULL];
+        artifact[@"received"] = @(MIN([attributes fileSize],[artifact[@"size"] unsignedLongLongValue]));
+        artifacts[key] = artifact;
+    }
+    return @{@"groups":catalog[@"groups"],@"artifacts":artifacts};
+}
 - (void)publish:(NSDictionary *)state {
     self.state = state;
     [NSFileManager.defaultManager createDirectoryAtURL:self.supportURL withIntermediateDirectories:YES attributes:nil error:NULL];
@@ -121,11 +139,11 @@
     NSTask *task = [NSTask new];
     task.executableURL = [engine URLByAppendingPathComponent:@"python/bin/python3.12"];
     task.arguments = @[@"-u",[engine URLByAppendingPathComponent:@"worker.py"].path,@"--job",self.jobURL.path,
-                       @"--models",[engine URLByAppendingPathComponent:@"models"].path,
+                       @"--tools",[self.supportURL URLByAppendingPathComponent:@"Tools/1"].path,
                        @"--library",[self libraryURL].path,@"--parent",@(getpid()).stringValue];
     NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy];
     environment[@"PYTHONHOME"] = [engine URLByAppendingPathComponent:@"python"].path;
-    environment[@"PYTHONPATH"] = [engine URLByAppendingPathComponent:@"site-packages"].path;
+    environment[@"PYTHONPATH"] = engine.path;
     environment[@"PYTHONNOUSERSITE"] = @"1"; environment[@"PYTHONDONTWRITEBYTECODE"] = @"1";
     environment[@"PATH"] = @"/usr/bin:/bin";
     NSURL *temp = [self.jobURL URLByAppendingPathComponent:@"tmp"];

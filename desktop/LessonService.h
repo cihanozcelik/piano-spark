@@ -7,6 +7,7 @@
 @property (nonatomic, readonly) NSURL *supportURL;
 - (instancetype)initWithEngine:(NSURL *)engine support:(NSURL *)support;
 - (NSDictionary *)snapshot;
+- (NSDictionary *)tools;
 - (NSArray *)lessons;
 - (NSDictionary *)lesson:(NSString *)identifier error:(NSError **)error;
 - (BOOL)deleteLesson:(NSString *)identifier error:(NSError **)error;

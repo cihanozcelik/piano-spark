@@ -39,69 +39,53 @@ olarak kullanır. Anahtar loglara/komut argümanlarına yazılmaz; sign_update�
 verilir. Bağımsız CryptoKit doğrulaması paketin gömülü açık anahtarla eşleştiğini
 kontrol eder.
 
-## İlk yayın ve sonraki sürümler
+## Yayın ve paketleme
 
-İlk yayın GitHub Actions tarafından Apple Silicon runner üzerinde hazırlanabilir.
-`desktop/prepare_engine.py` sabit Python/paket sürümlerini ve SHA-256 ile doğrulanan
-modelleri indirir; tam uygulama oluşturulduktan sonra yalnız CI hazırlık dosyaları
-silinir. Yerel Mac’e ek model indirilmez. Yerel paketleme de desteklenir:
+İnsanların indirdiği dosya **PianoSpark-Setup.dmg**: içindeki Installer kullanıcı
+Applications dizinine kurar. **PianoSpark-<version>.zip** yalnız otomatik güncelleme
+paketidir. XZ sıkıştırma yapılmaz. ZIP `ditto` ile hazırlanır; DMG UDZO kullanır.
+Ders araçları/model ağırlıkları bu paketlerde yoktur; ihtiyaç anında özgün
+kaynaklarından indirilir ve Application Support altında tutulur.
+
+`desktop/release.json` version/build/notes güncellendikten sonra eşleşen `v*`
+etiketi push edilir. `.github/workflows/release.yml` GitHub Apple Silicon runner'da:
+
+1. Sürüm, etiket, repo ve imza anahtarı eşleşmesini doğrular.
+2. Yalnız küçük portable Python ortamını hazırlar.
+3. Uygulama ve DMG kurulum dosyasını oluşturur.
+4. Önceki sürüm küçük ZIP içeriyorsa imzasını doğrulayıp delta tabanı olarak alır.
+   Eski 2 GB arşivler indirilmez; 0.4.0 geçişi küçük tam ZIP ile gerçekleşir.
+5. ZIP'i ve varsa daha küçük delta'yı Ed25519 ile imzalar. Delta gerçek tabana
+   uygulanır; hedef hash ve codesign doğrulanır. DMG checksum kontrolünden geçer.
+6. Release asset'lerini yayımlar, imzalı feed'i günceller ve Pages'i tetikler.
+
+Sonraki sürümler Python/model motorunu önceki uygulamadan kopyalamaz. Büyük model
+indirip yeniden paketleyen CI adımı yoktur. Küçük ZIP tabanı 150 MiB üstündeyse
+atlanır; uygulama yine tam küçük güncelleme ile dağıtılır. Yama tam ZIP'ten küçük
+değilse feed'e eklenmez. Eski feed imzası doğrulanmadan devralınmaz.
+
+Yerel paketleme:
 
 ```sh
-python3 desktop/build.py --app-only
+python3 desktop/prepare_engine.py
+python3 desktop/build.py
 python3 desktop/release.py
 ```
 
-Motor değişmediyse `--reuse-engine` mevcut uygulamadaki motoru APFS clone ile
-kullanır; güncel Python worker kaynaklarını, UI’ı ve native uygulamayı yeniden
-paketler. Python paket/model sürümleri değiştiğinde tam build gerekir.
-`--installer-only`, mevcut uygulamadan paylaşılabilir `PianoSpark-Setup.dmg` üretir.
+`--app-only` yalnız uygulamayı; `--installer-only` mevcut uygulamadan DMG üretir.
+`release.py --baseline` küçük yayımlanmış tabanı alır; `--previous-app <path>`
+açıkça verilen eski imzalı uygulamadan delta üretir. `--publish`, temiz ve push
+edilmiş etiketin hazır paketlerini yayımlar. Aynı sürümün üzerine yazılmaz; artan
+build sayısı gerekir. Main'e her push uygulama yayını değildir.
 
-`desktop/release.py` varsayılan olarak **yerel** imzalı `.tar.xz` tam paketi ve
-metadata üretir; GitHub’a yazmaz. `--previous-app "<eski-Piano Spark.app>"` verildiğinde
-(eski sürüm `build/previous-release/Piano Spark.app` içindeyse otomatik olarak) aynı
-paketleme akışı Sparkle BinaryDelta format 4 yamasını da üretir. Yayın öncesinde
-yamayı gerçekten eski uygulamaya uygular: BinaryDelta hedef ağaç hash’ini,
-`codesign` ortaya çıkan uygulamanın imzasını, CryptoKit ise yamanın Ed25519
-imzasını doğrular. Geçici uygulanmış kopya işlem sonunda silinir.
-Tam paket ve yama ayrı imzalanır. Normal indirmede yama kullanılır; tam paket
-ilk kurulum, CI’ın sonraki build’i hazırlaması ve bozuk kurulumun onarımı içindir.
-Paket başına GitHub’ın 2 GiB sınırı kontrol edilir.
-Sürüm numarasıyla eşleşen `v0.3.3` gibi bir etiketin commit’i remote’a gönderildikten
-sonra `python3 desktop/release.py --publish` yayınlar. Bu komut aynı sürümün üzerine
-yazmaz, build numarasının artmasını ister ve önce release paketini, sonra imzalı
-feed’i yayımlar. Feed güncellenemezse mevcut feed korunur; yeni release’i ve feed’i
-incelemeden aynı etiketi zorla değiştirmeyin.
+Feed önceki imzalı girdileri korur; Sparkle uygun deltayı seçer, yama bulunmazsa
+tam ZIP'i kullanır. Paket önce yayımlanır, feed sonra taşınır. Model cache'i ve
+kayıtlı dersler uygulama güncellemesinden bağımsızdır. Çalışan dönüştürme işi
+kapanışta iptal edilir; tamamlanmış araçlar ve kısmi indirmeler saklanır.
 
-`.github/workflows/release.yml`, `v*` etiketi push edildiğinde sonraki sürümleri
-GitHub’ın Apple Silicon macOS runner’ında oluşturur. Önceden yayımlanmış sürüm
-varsa imzalı paketin tamamını doğrulayıp yama tabanı olarak saklar ve motorunu
-APFS clone ile kullanır. İlk yayında sabitlenmiş motor girdileri bulutta hazırlanır.
-Taslak sürümler taban sayılmaz; aynı etikette mevcut release/taslak varsa yayın
-reddedilir. İmza anahtarı modeller indirilmeden önce açık anahtarla doğrulanır. Sonraki sürümlerde
-`release.json` içindeki version/build/notes güncellenir ve eşleşen yeni tag push
-edilir. Main’e her push yayın değildir. Pages yayını imzalı feed hazır olduktan sonra tetiklenir.
-
-CI için repo secret’ın bir kez kurulması gerekir. `generate_keys --account
-com.pianoman.desktop -x <güvenli-geçici-dosya>` ile alınan anahtar GitHub secret’a
-stdin üzerinden aktarılır ve geçici dosya silinir. Bu işlem kaynak değişikliklerinin
-GitHub’a gönderilmesi ve ilk release ile birlikte ayrı yayın adımıdır; build kendi
-kendine hesap ayarlarını veya Git geçmişini değiştirmez.
-
-`appcast.xml` önceki sürümlerin imzalı yama bağlantılarını korur. İstemci,
-kurulu build’den ulaşılabilen en yeni yaması bulunan sürümü seçer. Örneğin 4 → 5
-ve 5 → 6 yamaları yayımlanmışsa build 4 doğrudan büyük build 6 paketini indirmek
-yerine önce 5’i, yeniden açılınca 6’yı uygular. Sparkle işletim sistemi ve
-uyumluluk filtrelerini, yama seçimini ve kurulum bütünlüğünü yönetir. Eski
-release asset’lerini silmek zinciri bozar; bunlar GitHub’da korunmalıdır.
-Yama uygulanamazsa Sparkle tam paketle onarır. Gerçek model değişikliği de yamanın
-boyutunu artırır; fark güncelleme her değişikliğin küçük olacağı anlamına gelmez.
-
-Publisher mevcut en yeni yayımlanmış build’den doğrulanmış yama olmadan sonraki
-sürümü yayımlamayı reddeder. İlk yayında yayımlanmamış yerel deneme tabanlarına
-ait yamalar feed’e eklenmez. Feed imzası doğrulanmadan geçmiş zincir devralınmaz.
-Büyük model paketlerini Git’e veya GitHub Pages’e koymayın. İlk dağıtım ve gerçek iki sürüm
-arasındaki indirme/yeniden başlatma kabulü yayımlanmış feed ve alıcı Mac
-ile yapılır; yalnız build ve imza kontrolü bu uçtan uca kabulün yerine geçmez.
+`SPARKLE_PRIVATE_KEY` GitHub repo secret'ıdır. Anahtar loglara veya kaynaklara
+yazılmaz. Kaynak/paket imza kontrolleri, başka Mac'teki indirme ve yeniden açılma
+kabulünün yerine geçmez.
 
 ## Tanıtım
 
