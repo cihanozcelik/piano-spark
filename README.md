@@ -1,18 +1,18 @@
-# PianoMan
+# Piano Spark
 
 Fiziksel piyanoyla, kendi hızında çalışmaya odaklanan masaüstü eğitim uygulaması.
 Model motorunu içeren paket **Apple Silicon, macOS 14 veya sonrası** içindir.
 
 ## Uygulama ve paylaşım
 
-**`dist/PianoMan-Setup.dmg`** kurulum dosyasıdır. İçindeki **PianoMan Kur**,
-uygulamayı `~/Applications/PianoMan.app` konumuna kurar. Güncellemede uygulamayı
+**`dist/PianoSpark-Setup.dmg`** kurulum dosyasıdır. İçindeki **Piano Spark Installer**,
+uygulamayı `~/Applications/Piano Spark.app` konumuna kurar. Güncellemede uygulamayı
 kapatır ve kayıtlı dersleri korur. Kullanıcı Python, Rubato veya başka paket kurmaz;
 portable Python, FFmpeg, Rubato ve vokal ayırma modeli uygulamaya dahildir.
 Yerel video çözümlemesi çevrimdışı çalışır; YouTube için internet gerekir.
 Sistem Python'u, Homebrew, başlangıç öğesi veya sistem servisi kurulmaz.
 
-**PianoMan → PianoMan’i kaldır…**, onaydan sonra çalışan işlerini durdurur;
+**Piano Spark → Piano Spark’ı kaldır…**, onaydan sonra çalışan işlerini durdurur;
 uygulamayı (içindeki modeller dahil), `~/Library/Application Support/PianoMan/`,
 uygulama tercihlerini, WebKit/önbellek ve pencere durumunu siler. Kayıtlı dersler de
 silinir. Orijinal videolar, dışarı aktarılan MIDI'ler ve indirilen DMG kullanıcı
@@ -42,7 +42,7 @@ Yayın, imzalama ve ilk kurulum: [Güncelleme sistemi](desktop/UPDATES.md).
 
 Geliştirici bilgisayarında Python 3 ve Xcode Command Line Tools gerekir.
 `./build-app.command` native uygulamayı derler, hazır yerel motoru/modelleri
-paketler, ad-hoc imzalar ve `dist/PianoMan-Setup.dmg` üretir.
+paketler, ad-hoc imzalar ve `dist/PianoSpark-Setup.dmg` üretir.
 `python3 desktop/build.py --app-only` yalnızca uygulamayı;
 `--installer-only` mevcut uygulamadan kurulum dosyasını üretir.
 Paketleme girdileri ve motor yaşam döngüsü `lesson-engine/README.md` içindedir.
@@ -316,3 +316,14 @@ https://cihanozcelik.github.io/piano-spark/
 
 `site/` tanıtım kaynağı, `.github/workflows/pages.yml` Pages yayın akışıdır.
 İndirme bağlantısı en son yayımlanmış sürümü gösterir.
+
+Native product screenshots: `python3 desktop/build.py --capture-assets site/assets` builds a development-only capture executable, exports the actual application renderer using an isolated WebKit store and preferences, then removes that executable. No personal lessons or workspace state are used.
+
+## Public website
+
+The English GitHub Pages website lives in `site/`. `site/build.py` builds only the
+explicit public asset list into `build/site`; download buttons use an actual
+published release asset. The real application screenshots can be refreshed with
+`python3 desktop/build.py --capture-assets site/assets`. This uses an isolated,
+development-only capture build and does not alter the user’s library or preferences.
+Generated artwork provenance is recorded in `site/IMAGEGEN.md`.

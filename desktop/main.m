@@ -27,6 +27,10 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 @property (nonatomic, strong) NSURL *pendingVideo;
 @property (nonatomic) BOOL uninstalling;
 @property (nonatomic, strong) UpdateController *updates;
+#ifdef PIANO_CAPTURE
+@property (nonatomic, copy) NSString *captureDirectory;
+@property (nonatomic) BOOL captureStarted;
+#endif
 @end
 
 @implementation PianoApp
@@ -40,6 +44,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.deviceUUID = [NSUserDefaults.standardUserDefaults stringForKey:@"BluetoothDeviceUUID"];
     NSURL *support = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory
         inDomains:NSUserDomainMask].firstObject;
+#ifdef PIANO_CAPTURE
+    support = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"PianoSparkCapture"]];
+#endif
     self.runtimeURL = [support URLByAppendingPathComponent:@"PianoMan/Bluetooth" isDirectory:YES];
     self.lessons = [[LessonService alloc] initWithEngine:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Engine"]
         support:[support URLByAppendingPathComponent:@"PianoMan" isDirectory:YES]];
@@ -50,6 +57,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 
     WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
     configuration.websiteDataStore = WKWebsiteDataStore.defaultDataStore;
+#ifdef PIANO_CAPTURE
+    configuration.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
+#endif
     [configuration.userContentController addScriptMessageHandlerWithReply:self
         contentWorld:WKContentWorld.pageWorld name:@"pianoman"];
     WKUserScript *errors = [[WKUserScript alloc] initWithSource:
@@ -66,7 +76,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.window = [[NSWindow alloc] initWithContentRect:frame
         styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
         backing:NSBackingStoreBuffered defer:NO];
-    self.window.title = @"PianoMan";
+    self.window.title = @"Piano Spark";
     self.window.delegate = self;
     self.window.releasedWhenClosed = NO;
     self.window.minSize = NSMakeSize(820, 620);
@@ -79,7 +89,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.updates = [UpdateController new];
     self.updates.onChange = ^(NSDictionary *event) { [weakSelf publish:event]; };
     [self makeMenus];
+#ifndef PIANO_CAPTURE
     [self.updates start];
+#endif
     [self.webView loadFileURL:self.pageURL allowingReadAccessToURL:NSBundle.mainBundle.resourceURL];
     [self.window makeKeyAndOrderFront:nil];
     [NSApp activateIgnoringOtherApps:YES];
@@ -93,15 +105,15 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)makeMenus {
     NSMenu *bar = [NSMenu new];
     NSMenuItem *appItem = [NSMenuItem new];
-    NSMenu *app = [[NSMenu alloc] initWithTitle:@"PianoMan"];
-    [app addItemWithTitle:@"PianoMan Hakkında" action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
+    NSMenu *app = [[NSMenu alloc] initWithTitle:@"Piano Spark"];
+    [app addItemWithTitle:@"Piano Spark Hakkında" action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
     NSMenuItem *updates = [app addItemWithTitle:@"Güncellemeleri denetle…" action:@selector(check:) keyEquivalent:@""];
     updates.target = self.updates;
     [app addItem:NSMenuItem.separatorItem];
-    [app addItemWithTitle:@"PianoMan’i Gizle" action:@selector(hide:) keyEquivalent:@"h"];
-    NSMenuItem *uninstall = [app addItemWithTitle:@"PianoMan’i kaldır…" action:@selector(uninstall:) keyEquivalent:@""];
+    [app addItemWithTitle:@"Piano Spark’ı Gizle" action:@selector(hide:) keyEquivalent:@"h"];
+    NSMenuItem *uninstall = [app addItemWithTitle:@"Piano Spark’ı kaldır…" action:@selector(uninstall:) keyEquivalent:@""];
     uninstall.target = self;
-    [app addItemWithTitle:@"PianoMan’den Çık" action:@selector(terminate:) keyEquivalent:@"q"];
+    [app addItemWithTitle:@"Piano Spark’tan Çık" action:@selector(terminate:) keyEquivalent:@"q"];
     appItem.submenu = app; [bar addItem:appItem];
     NSMenuItem *editItem = [NSMenuItem new];
     NSMenu *edit = [[NSMenu alloc] initWithTitle:@"Düzenle"];
@@ -117,6 +129,54 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     viewItem.submenu = view; [bar addItem:viewItem];
     NSApp.mainMenu = bar;
 }
+
+#ifdef PIANO_CAPTURE
+// Development-only export of the real app renderer. Never compiled into releases.
+- (void)captureView:(NSString *)name completion:(void (^)(void))completion {
+    WKSnapshotConfiguration *configuration = [WKSnapshotConfiguration new];
+    configuration.snapshotWidth = @1600;
+    [self.webView takeSnapshotWithConfiguration:configuration completionHandler:^(NSImage *image, NSError *error) {
+        if (error) { NSLog(@"Capture failed: %@",error); exit(1); }
+        NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithData:image.TIFFRepresentation];
+        NSData *png = [bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}];
+        NSString *path = [self.captureDirectory stringByAppendingPathComponent:name];
+        if (![png writeToFile:path atomically:YES]) { NSLog(@"Capture could not be saved"); exit(1); }
+        NSLog(@"Saved application screenshot: %@",name); completion();
+    }];
+}
+- (void)captureWhenReady:(NSUInteger)attempt {
+    [self.webView callAsyncJavaScript:@"return !!document.querySelector('#sheet-paper svg') && !document.getElementById('sheet-paper').hidden;"
+        arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id ready,NSError *error) {
+        if (error || ![ready boolValue]) {
+            if (attempt == 5) {
+                [self.webView evaluateJavaScript:@"document.getElementById('sheet-loading-text').textContent" completionHandler:^(id value,NSError *diagnosticError) {
+                    NSLog(@"Capture readiness: %@ %@",value,diagnosticError);
+                }];
+            }
+            if (attempt >= 30) { NSLog(@"Application score was not ready for capture: %@",error); exit(1); }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC),dispatch_get_main_queue(),^{ [self captureWhenReady:attempt+1]; });
+            return;
+        }
+        [self.webView callAsyncJavaScript:@"document.getElementById('tab-practice').click(); const seek=document.getElementById('seek'); seek.value=25; seek.dispatchEvent(new Event('input',{bubbles:true}));"
+            arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id result,NSError *seekError) {
+            (void)result;
+            if (seekError) { NSLog(@"Capture positioning failed: %@",seekError); exit(1); }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW,2*NSEC_PER_SEC),dispatch_get_main_queue(),^{
+                [self captureView:@"practice.png" completion:^{
+                    [self.webView callAsyncJavaScript:@"document.getElementById('tab-create').click();"
+                        arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id value,NSError *tabError) {
+                        (void)value;
+                        if (tabError) { NSLog(@"Capture tab failed: %@",tabError); exit(1); }
+                        dispatch_after(dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC),dispatch_get_main_queue(),^{
+                            [self captureView:@"create-lesson.png" completion:^{ [NSApp terminate:nil]; }];
+                        });
+                    }];
+                }];
+            });
+        }];
+    }];
+}
+#endif
 
 - (NSDictionary *)snapshot {
     return @{@"event":@"snapshot", @"status":[self.state copy], @"held":self.held.allValues,
@@ -289,6 +349,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         self.pageReady = YES;
         NSLog(@"PianoMan arayüzü hazır");
         replyHandler([self snapshot], nil);
+#ifdef PIANO_CAPTURE
+        if (!self.captureStarted) { self.captureStarted = YES; [self captureWhenReady:0]; }
+#endif
     } else if ([command isEqual:@"update-state"]) {
         replyHandler([self.updates snapshot], nil);
     } else if ([command isEqual:@"update-check"]) {
@@ -380,9 +443,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)uninstall:(id)sender {
     (void)sender;
     NSAlert *alert = [NSAlert new];
-    alert.messageText = @"PianoMan kaldırılsın mı?";
+    alert.messageText = @"Piano Spark kaldırılsın mı?";
     alert.informativeText = @"Uygulama, modeller, kayıtlı dersler ve PianoMan'in geçici verileri kalıcı olarak silinecek. Orijinal videolar ve dışarı aktardığın MIDI dosyaları korunacak.";
-    [alert addButtonWithTitle:@"Vazgeç"]; [alert addButtonWithTitle:@"PianoMan’i kaldır"];
+    [alert addButtonWithTitle:@"Vazgeç"]; [alert addButtonWithTitle:@"Piano Spark’ı kaldır"];
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse response) {
         if (response==NSAlertSecondButtonReturn) { self.uninstalling = YES; [NSApp terminate:nil]; }
     }];
@@ -396,7 +459,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     return YES;
 }
 - (void)showLessonError:(NSError *)error {
-    NSAlert *alert = [NSAlert new]; alert.messageText = @"PianoMan";
+    NSAlert *alert = [NSAlert new]; alert.messageText = @"Piano Spark";
     alert.informativeText = error.localizedDescription ?: @"İşlem tamamlanamadı.";
     [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
@@ -426,7 +489,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 }
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     (void)webView; (void)navigation;
-    NSAlert *alert = [NSAlert new]; alert.messageText = @"PianoMan açılamadı";
+    NSAlert *alert = [NSAlert new]; alert.messageText = @"Piano Spark açılamadı";
     alert.informativeText = error.localizedDescription; [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
 - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView {
@@ -507,6 +570,9 @@ int main(int argc, const char *argv[]) {
         NSApplication *app = NSApplication.sharedApplication;
         [app setActivationPolicy:NSApplicationActivationPolicyRegular];
         __attribute__((objc_precise_lifetime)) PianoApp *delegate = [PianoApp new];
+#ifdef PIANO_CAPTURE
+        delegate.captureDirectory = [NSString stringWithUTF8String:argv[1]];
+#endif
         app.delegate = delegate;
         signal(SIGTERM,SIG_IGN);
         dispatch_source_t termination = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL,SIGTERM,0,dispatch_get_main_queue());

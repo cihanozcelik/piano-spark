@@ -1,0 +1,7 @@
+# Piano Spark hero artwork
+
+Generated with the built-in Imagegen tool. The original is `assets/keyboard-hero-source.png`; `assets/keyboard-hero.jpg` is the web delivery copy. Actual application screenshots are separate assets and are not generated.
+
+Prompt:
+
+Use case: ads-marketing. Create a stunning premium product hero artwork for an English macOS piano-learning app called Piano Spark. No text anywhere, no logos, no letters, no UI screenshots. Landscape 16:9 composition. A meticulously realistic section of elegant black and ivory piano keys, viewed at a beautiful low three-quarter angle, floating across the lower two thirds of an immaculate soft white to very pale cool gray studio background. Precise real piano geometry: repeating groups of two and three black keys, straight clean ivory keys. Thin translucent luminous note bars in refined ice blue and warm peach rise vertically above a few selected keys like music made visible, subtle light bloom and reflections, no rainbow neon. Sophisticated Apple product-launch photographic art direction, immaculate material detail, soft directional studio lighting, quiet sculptural shadows, exceptional spacious composition. Piano keys sweep diagonally across the foreground, cropped gracefully at side edges, generous clean breathing space above. The emotional feeling is focused, calm, inviting, beautifully crafted, music in your hands. No people, no hands, no laptop, no decorative objects, no watermark. High-end photorealistic product visualization, not an illustration.

@@ -11,7 +11,7 @@ from sparkle import prepare as prepare_sparkle, SPARKLE
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / 'build/desktop'
 DIST = ROOT / 'dist'
-APP = DIST / 'PianoMan.app'
+APP = DIST / 'Piano Spark.app'
 RELEASE = json.loads((ROOT/'desktop/release.json').read_text())
 
 
@@ -47,12 +47,12 @@ def bundle_engine(resources):
 def build_installer():
     stage = BUILD/'installer-image'
     if stage.exists(): shutil.rmtree(stage)
-    installer = stage/'PianoMan Kur.app'
+    installer = stage/'Piano Spark Installer.app'
     macos = installer/'Contents/MacOS'; macos.mkdir(parents=True)
     resources = installer/'Contents/Resources'; resources.mkdir()
-    run('cp','-cR',APP,resources/'PianoMan.app')
+    run('cp','-cR',APP,resources/'Piano Spark.app')
     plist = dict(CFBundleExecutable='PianoManInstaller',CFBundleIdentifier='com.pianoman.installer',
-                 CFBundleName='PianoMan Kur',CFBundlePackageType='APPL',CFBundleVersion=str(RELEASE['build']),
+                 CFBundleName='Piano Spark Installer',CFBundlePackageType='APPL',CFBundleVersion=str(RELEASE['build']),
                  CFBundleShortVersionString=RELEASE['version'],LSMinimumSystemVersion='14.0',
                  NSHighResolutionCapable=True,NSPrincipalClass='NSApplication')
     with (installer/'Contents/Info.plist').open('wb') as stream: plistlib.dump(plist,stream)
@@ -61,9 +61,9 @@ def build_installer():
         '-o',macos/'PianoManInstaller')
     run('codesign','--force','--sign','-','--timestamp=none',installer)
     run('codesign','--verify','--deep','--strict',installer)
-    image = DIST/'PianoMan-Setup.dmg'
+    image = DIST/'PianoSpark-Setup.dmg'
     if image.exists(): image.unlink()
-    run('hdiutil','create','-volname','PianoMan Kurulumu','-srcfolder',stage,'-format','UDZO',image)
+    run('hdiutil','create','-volname','Piano Spark Setup','-srcfolder',stage,'-format','UDZO',image)
     shutil.rmtree(stage)
     print(f'Installer: {image}\nSize: {image.stat().st_size/1000000:.1f} MB')
 
@@ -84,11 +84,12 @@ def write_ui(resources):
     module_tag = '<script type="module" src="/player.js"></script>'
     if module_tag not in html:
         raise RuntimeError('Player entry point changed; update the desktop packager')
-    html = html.replace(module_tag, '<script>\n' + compiled + '\n</script>')
+    notation = json.dumps((ROOT/'assets/notation/verovio-toolkit-wasm.js').read_text()).replace('</', '<\\/')
+    # Inline scripts execute immediately: prepare notation before starting the player.
+    html = html.replace(module_tag, '<script>window.PianoNotationRuntime='+notation+';</script><script>\n' + compiled + '\n</script>')
     html = html.replace('<script src="/desktop.js"></script>',
         '<script>\n' + (ROOT / 'desktop.js').read_text() + '\n</script>')
-    notation = json.dumps((ROOT/'assets/notation/verovio-toolkit-wasm.js').read_text()).replace('</', '<\\/')
-    html = html.replace('<!-- pianoman-notation-runtime -->', '<script>window.PianoNotationRuntime='+notation+';</script>')
+    html = html.replace('<!-- pianoman-notation-runtime -->', '')
     resources.mkdir(parents=True, exist_ok=True)
     licenses = resources/'Licenses/Verovio'
     licenses.mkdir(parents=True,exist_ok=True)
@@ -99,12 +100,13 @@ def write_ui(resources):
     pending.replace(resources / 'index.html')
 
 
-def compile_native(destination, objects_dir):
+def compile_native(destination, objects_dir, capture=False):
     objects_dir.mkdir(parents=True, exist_ok=True)
     # Compile the existing BLE implementation into the same executable under a
     # private helper entry point. Lesson jobs use the bundled portable runtime.
     flags = ['-fobjc-arc', '-fblocks', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
              '-mmacosx-version-min=14.0', '-F', str(SPARKLE)]
+    if capture: flags.append('-DPIANO_CAPTURE')
     binaries = []
     for arch in ['arm64']:
         objects = []
@@ -133,9 +135,28 @@ def main():
     parser.add_argument('--app-only',action='store_true')
     parser.add_argument('--installer-only',action='store_true')
     parser.add_argument('--reuse-engine',action='store_true',help='Reuse this Mac’s unchanged bundled engine with APFS clones')
+    parser.add_argument('--capture-assets',type=Path,help='Export actual app screenshots with an isolated development-only capture build')
     args=parser.parse_args()
     BUILD.mkdir(parents=True, exist_ok=True)
     DIST.mkdir(exist_ok=True)
+    if args.capture_assets:
+        destination=args.capture_assets.resolve(); destination.mkdir(parents=True,exist_ok=True)
+        capture_root=BUILD/'capture'
+        capture_app=capture_root/APP.name
+        if capture_root.exists(): shutil.rmtree(capture_root)
+        capture_root.mkdir()
+        try:
+            run('cp','-cR',APP,capture_app)
+            info_path=capture_app/'Contents/Info.plist'
+            info=plistlib.loads(info_path.read_bytes())
+            info['CFBundleIdentifier']='com.pianoman.capture'
+            info_path.write_bytes(plistlib.dumps(info))
+            compile_native(capture_app/'Contents/MacOS/PianoMan',capture_root/'objects',capture=True)
+            run('codesign','--force','--sign','-','--timestamp=none',capture_app)
+            run(capture_app/'Contents/MacOS/PianoMan',destination)
+        finally:
+            shutil.rmtree(capture_root)
+        return
     if args.installer_only:
         build_installer(); return
     prepare_sparkle()

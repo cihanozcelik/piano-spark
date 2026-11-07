@@ -1,4 +1,4 @@
-name: Publish PianoMan update
+name: Publish Piano Spark update
 on:
   push:
     tags: ['v*']
@@ -45,7 +45,7 @@ jobs:
         run: python3 desktop/release.py --bootstrap-engine
       - name: Create and verify signed delta and full package
         if: steps.bootstrap.outputs.ready == 'true'
-        run: python3 desktop/release.py --previous-app build/previous-release/PianoMan.app
+        run: python3 desktop/release.py --previous-app "build/previous-release/Piano Spark.app"
       - name: Publish release and signed feed
         if: steps.bootstrap.outputs.ready == 'true'
         run: python3 desktop/release.py --publish

@@ -1,4 +1,4 @@
-name: Publish PianoMan website
+name: Publish Piano Spark website
 on:
   push:
     branches: [main]
@@ -9,7 +9,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pianoman-pages
+  group: piano-spark-pages
   cancel-in-progress: false
 jobs:
   deploy:
@@ -20,12 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-      - name: Build product website and signed update feed
+      - name: Build website from the published release and signed update feed
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p build
-          if gh api "repos/$GITHUB_REPOSITORY/releases/latest" > build/published-release.json; then
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq '.[] | select(.draft == false and .prerelease == false) | .id' > build/published-release-ids.txt
+          if [ -s build/published-release-ids.txt ]; then
+            gh api "repos/$GITHUB_REPOSITORY/releases/latest" > build/published-release.json
             gh api "repos/$GITHUB_REPOSITORY/contents/appcast.xml?ref=updates" -H 'Accept: application/vnd.github.raw+json' > build/published-appcast.xml
             python3 site/build.py --release-info build/published-release.json --appcast build/published-appcast.xml
           else

@@ -1,7 +1,7 @@
-# PianoMan otomatik güncellemeleri
+# Piano Spark otomatik güncellemeleri
 
 Sürümün tek kaynağı `desktop/release.json`: görünen sürüm, artan build sayısı,
-repo, private/public seçimi, Ed25519 açık anahtarı ve Türkçe sürüm notları.
+repo, private/public seçimi, Ed25519 açık anahtarı ve sürüm notları.
 Repo: `cihanozcelik/piano-spark` (public). Kaynak kodu, Releases ve GitHub Pages
 aynı repodadır. Alıcı bilgisayarda GitHub hesabı veya erişim token’ı gerekmez.
 
@@ -51,11 +51,11 @@ python3 desktop/release.py
 Motor değişmediyse `--reuse-engine` mevcut uygulamadaki motoru APFS clone ile
 kullanır; güncel Python worker kaynaklarını, UI’ı ve native uygulamayı yeniden
 paketler. Python paket/model sürümleri değiştiğinde tam build gerekir.
-`--installer-only`, mevcut uygulamadan paylaşılabilir `PianoMan-Setup.dmg` üretir.
+`--installer-only`, mevcut uygulamadan paylaşılabilir `PianoSpark-Setup.dmg` üretir.
 
 `desktop/release.py` varsayılan olarak **yerel** imzalı `.tar.xz` tam paketi ve
-metadata üretir; GitHub’a yazmaz. `--previous-app <eski-PianoMan.app>` verildiğinde
-(eski sürüm `build/previous-release/PianoMan.app` içindeyse otomatik olarak) aynı
+metadata üretir; GitHub’a yazmaz. `--previous-app "<eski-Piano Spark.app>"` verildiğinde
+(eski sürüm `build/previous-release/Piano Spark.app` içindeyse otomatik olarak) aynı
 paketleme akışı Sparkle BinaryDelta format 4 yamasını da üretir. Yayın öncesinde
 yamayı gerçekten eski uygulamaya uygular: BinaryDelta hedef ağaç hash’ini,
 `codesign` ortaya çıkan uygulamanın imzasını, CryptoKit ise yamanın Ed25519
@@ -63,7 +63,7 @@ imzasını doğrular. Geçici uygulanmış kopya işlem sonunda silinir.
 Tam paket ve yama ayrı imzalanır. Normal indirmede yama kullanılır; tam paket
 ilk kurulum, CI’ın sonraki build’i hazırlaması ve bozuk kurulumun onarımı içindir.
 Paket başına GitHub’ın 2 GiB sınırı kontrol edilir.
-Sürüm numarasıyla eşleşen `v0.3.2` gibi bir etiketin commit’i remote’a gönderildikten
+Sürüm numarasıyla eşleşen `v0.3.3` gibi bir etiketin commit’i remote’a gönderildikten
 sonra `python3 desktop/release.py --publish` yayınlar. Bu komut aynı sürümün üzerine
 yazmaz, build numarasının artmasını ister ve önce release paketini, sonra imzalı
 feed’i yayımlar. Feed güncellenemezse mevcut feed korunur; yeni release’i ve feed’i
@@ -102,7 +102,7 @@ ile yapılır; yalnız build ve imza kontrolü bu uçtan uca kabulün yerine ge�
 ## Tanıtım
 
 `site/` bağımsız, bağımlılıksız tanıtım kaynağıdır. `python3 site/build.py`
-yalnız izin verilen HTML/CSS dosyalarını `build/site` içine üretir. Pages workflow’u
+yalnız izin verilen HTML/CSS ve görsel dosyalarını `build/site` içine üretir. Pages workflow’u
 indirme bağlantısını en son yayımlanmış release’den alır; gizli anahtarlar veya
 uygulama motorları Pages artefact’ına kopyalanmaz. `SPARKLE_PRIVATE_KEY` yalnız
 tag ile başlayan release workflow’unda kullanılır; PR workflow’u yoktur.

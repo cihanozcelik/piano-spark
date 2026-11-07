@@ -17,11 +17,11 @@ from sparkle import prepare, SPARKLE, ROOT
 CONFIG = json.loads((ROOT/'desktop/release.json').read_text())
 REPO = CONFIG['repository']
 DIST = ROOT/'dist'
-APP = DIST/'PianoMan.app'
+APP = DIST/'Piano Spark.app'
 TAG = 'v'+CONFIG['version']
-ARCHIVE = DIST/f'PianoMan-{CONFIG["version"]}.tar.xz'
+ARCHIVE = DIST/f'PianoSpark-{CONFIG["version"]}.tar.xz'
 BASE = ROOT/'build/previous-release'
-BASE_APP = BASE/'PianoMan.app'
+BASE_APP = BASE/'Piano Spark.app'
 NS = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
 ET.register_namespace('sparkle', NS)
 
@@ -62,13 +62,13 @@ def prepare_delta(previous_app):
     if int(old_build) >= CONFIG['build']:
         raise RuntimeError('Delta base must have an older build number')
     command('codesign','--verify','--deep','--strict',previous_app)
-    patch = DIST/f'PianoMan-{old_build}-{CONFIG["build"]}.delta'
+    patch = DIST/f'PianoSpark-{old_build}-{CONFIG["build"]}.delta'
     patch.unlink(missing_ok=True)
     command(SPARKLE/'bin/BinaryDelta','create','--version','4',previous_app,APP,patch)
     # Validate the actual deliverable: Sparkle checks its target tree hash while
     # applying, and codesign verifies the resulting bundle and nested executables.
     with tempfile.TemporaryDirectory(prefix='pianoman-patched-',dir=ROOT/'build') as directory:
-        patched = Path(directory)/'PianoMan.app'
+        patched = Path(directory)/'Piano Spark.app'
         command(SPARKLE/'bin/BinaryDelta','apply',previous_app,patched,patch)
         command('codesign','--verify','--deep','--strict',patched)
     signature = sign(patch)
@@ -103,9 +103,9 @@ def prepare_archive(previous_app=None):
 def make_feed(asset_url, metadata, delta_assets, previous_items):
     root=ET.Element('rss',{'version':'2.0'})
     channel=ET.SubElement(root,'channel')
-    ET.SubElement(channel,'title').text='PianoMan'
+    ET.SubElement(channel,'title').text='Piano Spark'
     item=ET.SubElement(channel,'item')
-    for name,value in [('title','PianoMan '+CONFIG['version']),('pubDate',format_datetime(datetime.now(timezone.utc))),
+    for name,value in [('title','Piano Spark '+CONFIG['version']),('pubDate',format_datetime(datetime.now(timezone.utc))),
                        ('description','\n'.join(CONFIG['notes'])),(f'{{{NS}}}version',str(CONFIG['build'])),
                        (f'{{{NS}}}shortVersionString',CONFIG['version']),(f'{{{NS}}}minimumSystemVersion','14.0.0')]:
         ET.SubElement(item,name).text=value
@@ -169,7 +169,7 @@ def publish():
         if path.stat().st_size != patch['size'] or patch['size'] >= metadata['size']:
             raise RuntimeError('Delta size must match its signed metadata and be smaller than the full archive')
         verify_archive(path,patch['signature'])
-    command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'PianoMan {CONFIG["version"]}',
+    command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'Piano Spark {CONFIG["version"]}',
             '--notes-file',DIST/'release-notes.txt',ARCHIVE,ROOT/'desktop/release.json',DIST/'update-signature.json',
             *(DIST/patch['file'] for patch in patches))
     release=api(f'repos/{REPO}/releases/tags/{TAG}')
@@ -198,18 +198,18 @@ def bootstrap():
     release=api(f'repos/{REPO}/releases/latest')
     with tempfile.TemporaryDirectory(prefix='pianoman-engine-') as directory:
         folder=Path(directory)
-        command('gh','release','download',release['tag_name'],'--repo',REPO,'--pattern','PianoMan-*.tar.xz','--pattern','update-signature.json','--dir',folder)
-        archive=next(folder.glob('PianoMan-*.tar.xz'))
+        command('gh','release','download',release['tag_name'],'--repo',REPO,'--pattern','PianoSpark-*.tar.xz','--pattern','update-signature.json','--dir',folder)
+        archive=next(folder.glob('PianoSpark-*.tar.xz'))
         metadata=json.loads((folder/'update-signature.json').read_text())
         verify_archive(archive,metadata['signature'])
-        command('tar','-xJf',archive,'-C',folder,'PianoMan.app')
-        command('codesign','--verify','--deep','--strict',folder/'PianoMan.app')
-        with (folder/'PianoMan.app/Contents/Info.plist').open('rb') as stream: old=plistlib.load(stream)
+        command('tar','-xJf',archive,'-C',folder,'Piano Spark.app')
+        command('codesign','--verify','--deep','--strict',folder/'Piano Spark.app')
+        with (folder/'Piano Spark.app/Contents/Info.plist').open('rb') as stream: old=plistlib.load(stream)
         if old['CFBundleVersion'] != str(metadata['build']) or int(old['CFBundleVersion']) >= CONFIG['build']:
             raise RuntimeError('The previous release must match its metadata and be older than this build')
         if BASE.exists(): shutil.rmtree(BASE)
         BASE.mkdir(parents=True)
-        shutil.move(folder/'PianoMan.app',BASE_APP)
+        shutil.move(folder/'Piano Spark.app',BASE_APP)
         # APFS clones avoid keeping a second physical copy of unchanged models.
         engine=APP/'Contents/Resources/Engine'
         if engine.exists(): shutil.rmtree(engine)

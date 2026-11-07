@@ -49,7 +49,7 @@
     panel.dataset.installed=String(update.newVersion&&!available);
     label.textContent=available?'Güncelleme':update.newVersion?'Yeni sürüm yüklendi':`v${update.version}`;
     document.getElementById('update-heading').textContent=available?`${update.availableVersion} sürümü hazır`:
-      update.newVersion?`${update.version} yüklendi`:`PianoMan ${update.version}`;
+      update.newVersion?`${update.version} yüklendi`:`Piano Spark ${update.version}`;
     document.getElementById('update-status').textContent=update.message;
     const notes=available?update.availableNotes.split('\n').filter(Boolean):update.notes;
     document.getElementById('update-notes').replaceChildren(...notes.map(note=>{
