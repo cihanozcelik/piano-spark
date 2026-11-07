@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>Piano Spark</title><item><title>Piano Spark 0.3.4</title><pubDate>Sat, 07 Nov 2026 16:03:36 +0000</pubDate><description>Choose English or Türkçe without leaving your lesson.
+Language preference is saved between sessions.
+Menus, practice controls, and lesson creation follow your selected language.
+Improved standalone score loading.</description><sparkle:version>7</sparkle:version><sparkle:shortVersionString>0.3.4</sparkle:shortVersionString><sparkle:minimumSystemVersion>14.0.0</sparkle:minimumSystemVersion><enclosure url="https://api.github.com/repos/cihanozcelik/piano-spark/releases/assets/721171077" length="2004064820" type="application/octet-stream" sparkle:edSignature="v4BgKskUKMsNpz1aywMS1sdU3RaRkJ6GyAfV0qeDyQA1eFpwBE+0ioFAblP3Gxh4BCK++AdqXCq7Zn07wCUoBw=="></enclosure></item></channel></rss><!-- sparkle-signatures:
+edSignature: H9c3OFBb6KajZP2T6Ww42O4VwUAFY3qbiZ/QAkKFX2HeAtg9CNnaBDPVjftYGWKIucC/EllIjxQ60vnsfZ0NBg==
+length: 1202
+-->
