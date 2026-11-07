@@ -1,3 +1,5 @@
+import { KeyboardLayout } from './keyboard-layout.js';
+import { HandGuide } from './hand-guide.js';
 import { WorkspaceState } from './workspace-state.js';
 import { lessonCommand } from './create-lesson.js';
 import { SheetMusic } from './sheet-music.js';
@@ -19,6 +21,7 @@ import { startAppShell } from './app-shell.js';
     ui['audio-output']=element('audio-output');
     ui['audio-output-status']=element('audio-output-status');
     for(const id of ['practice-settings','practice-strategy','practice-target','practice-timing','practice-rules','practice-reset','practice-availability','practice-progress','sheet-learning','sheet-learning-label','sheet-learning-meter']) ui[id]=element(id);
+    for(const id of ['show-hands','hand-size','keyboard-keys','piano-hands','hands-caption','hands-status','hands-progress']) ui[id]=element(id);
     const workspaceState=new WorkspaceState();
     workspaceState.onError=showError;
     workspaceState.restoreControls(ui);
@@ -60,6 +63,9 @@ import { startAppShell } from './app-shell.js';
     let audio, master, wave, compressor, timer, raf, width, height;
     let activePractice=true;
     let keys=[], keyMap=new Map(), voices=new Set();
+    const handGuide=new HandGuide({container:ui['piano-hands'],keys:ui['keyboard-keys'],
+      caption:ui['hands-caption'],status:ui['hands-status'],progress:ui['hands-progress'],
+      enabled:ui['show-hands'].checked,handSize:ui['hand-size'].value,onChange:()=>draw()});
     const nowSeconds=()=>performance.now()/1000;
     const practicing=()=>state.mode==='practice';
     const guided=()=>practicing()&&ui['practice-strategy'].value!=='whole';
@@ -345,14 +351,13 @@ import { startAppShell } from './app-shell.js';
         last=Math.min(108,Math.ceil((high+3)/12)*12);
         while(last-first<36) { first=Math.max(21,first-12); last=Math.min(108,last+12); }
       }
-      let whiteCount=0;
-      for(let midi=first;midi<=last;midi++) if(!sharp.has(midi%12)) whiteCount++;
-      const whiteWidth=width/whiteCount;
-      ui.keyboard.replaceChildren(); keys=[]; keyMap=new Map();
-      let whites=0;
-      for(let midi=first;midi<=last;midi++) {
-        const black=sharp.has(midi%12), keyWidth=black?whiteWidth*.62:whiteWidth;
-        const x=black?whites*whiteWidth-keyWidth/2:whites++*whiteWidth;
+      ui.keyboard.dataset.handHeight=String(Math.ceil(width/KeyboardLayout.range(first,last).width*.22)+25);
+      const projected=KeyboardLayout.project(first,last,width);
+      const whiteWidth=projected.find(key=>!key.black).width;
+      ui['keyboard-keys'].replaceChildren(); keys=[]; keyMap=new Map();
+      handGuide.setLayout({first,last});
+      for(const projectedKey of projected) {
+        const {midi,black,x,width:keyWidth}=projectedKey;
         const keyElement=document.createElement('div');
         keyElement.className='key'+(black?' black':'');
         keyElement.style.left=(x/width*100)+'%'; keyElement.style.width=(keyWidth/width*100)+'%';
@@ -361,7 +366,7 @@ import { startAppShell } from './app-shell.js';
         const label=document.createElement('span');
         if(ui.notation.value!=='none'&&(!black||whiteWidth>31)&&(whiteWidth>20||midi%12===0)) label.textContent=noteName(midi);
         keyElement.append(label);
-        ui.keyboard.append(keyElement);
+        ui['keyboard-keys'].append(keyElement);
         const key={midi,black,x,width:keyWidth,element:keyElement}; keys.push(key); keyMap.set(midi,key);
       }
     }
@@ -533,6 +538,7 @@ import { startAppShell } from './app-shell.js';
       ui.seek.value=String(visibleTime); ui.elapsed.textContent=formatTime(visibleTime);
       ui.seek.setAttribute('aria-valuetext',formatTime(visibleTime)+' / '+formatTime(state.duration));
       ui['current-notes'].textContent=active.size?[...active.keys()].sort((a,b)=>a-b).map(midi=>noteName(midi,ui.notation.value==='none'?'solfege':ui.notation.value)).join(' · '):'';
+      handGuide.update(time,shownNotes,{held,practice:practicing(),running:state.running});
       updateLessonStatus();
       updateExpression(time,current);
       drawPedal(time);
@@ -556,9 +562,10 @@ import { startAppShell } from './app-shell.js';
       const saved=workspaceState.lesson(currentKey);
       training=null;
       trainingContexts=saved.practice?.version===1?{...saved.practice.contexts}:{};
-      state.tracks=tracks.map(track=> {
+      handGuide.clear();
+      state.tracks=tracks.map((track,trackIndex)=> {
         const pedals=[...(track.pedals||[])].sort((a,b)=>a.time-b.time);
-        const notes=track.notes.map(note=>({...note,soundEnd:pedals.length?pedalRelease(pedals,note.end,duration):(note.soundEnd??note.end)}));
+        const notes=track.notes.map((note,noteIndex)=>({...note,sourceNoteId:String(trackIndex)+':'+String(noteIndex),hand:noteHand(note),soundEnd:pedals.length?pedalRelease(pedals,note.end,duration):(note.soundEnd??note.end)}));
         return {...track,pedals,notes};
       });
       state.duration=duration; state.position=Number.isFinite(saved.position)?Math.max(-2,Math.min(duration,saved.position)):-2; state.source=source;
@@ -576,6 +583,7 @@ import { startAppShell } from './app-shell.js';
       ui.seek.max=String(duration); ui.duration.textContent=formatTime(duration);
       showError(''); applyTracks(); updatePlayButton();
       changingLesson=false; workspaceState.update('current',reference);
+      handGuide.load(state.tracks.flatMap(track=>track.notes));
       zoomStage();
       requestAnimationFrame(()=> {
         if(currentReference!==reference) return;
@@ -595,7 +603,7 @@ import { startAppShell } from './app-shell.js';
       ui['file-description'].textContent=metadataDescription.split(' · ').map(message).join(' · ');
     }
     window.addEventListener('pianoman-language-change',()=> {
-      renderLessonLabels();updatePlayButton();showError(errorSource);rebuildKeys();draw();
+      renderLessonLabels();updatePlayButton();showError(errorSource);handGuide.translate();rebuildKeys();draw();
     });
     function loadSong(lesson=rubatoSong) {
       song=lesson;
@@ -686,7 +694,15 @@ import { startAppShell } from './app-shell.js';
     ui.volume.addEventListener('input',()=> { if(master) master.gain.setTargetAtTime(Number(ui.volume.value)/100*.55,audio.currentTime,.015); });
     ui.track.addEventListener('change',applyTracks);
     ui.viewport.addEventListener('scroll',()=>checkpoint(),{passive:true});
-    workspaceState.rememberControls(ui,['mode','speed','volume','range','notation','staff','zoom','loop','audio-output','practice-strategy','practice-target','practice-timing']);
+    workspaceState.rememberControls(ui,['mode','speed','volume','range','notation','staff','zoom','loop','audio-output','practice-strategy','practice-target','practice-timing','show-hands','hand-size']);
+    ui['show-hands'].addEventListener('change',()=> {
+      handGuide.setEnabled(ui['show-hands'].checked);
+      window.dispatchEvent(new CustomEvent('pianoman-hands-visibility',{detail:{visible:ui['show-hands'].checked}}));
+      draw();
+    });
+    ui['hand-size'].addEventListener('change',()=>handGuide.setHandSize(ui['hand-size'].value));
+    new ResizeObserver(()=>handGuide.resize()).observe(ui.keyboard);
+    window.addEventListener('pagehide',event=>{if(!event.persisted) handGuide.dispose();});
     ui.range.addEventListener('change',()=> { rebuildKeys(); draw(); });
     ui.notation.addEventListener('change',()=> { rebuildKeys(); draw(); });
     ui.staff.addEventListener('change',draw);
@@ -743,6 +759,7 @@ import { startAppShell } from './app-shell.js';
       },
       onTabChange: next=> {
         activePractice=next==='practice';
+        handGuide.setActive(activePractice);
         if(activePractice) {
           const horizontal=workspaceState.lesson(currentKey).horizontal||0;
           zoomStage(); resize(); ui.viewport.scrollLeft=horizontal;

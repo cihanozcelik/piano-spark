@@ -52,7 +52,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #endif
     self.runtimeURL = [support URLByAppendingPathComponent:@"PianoMan/Bluetooth" isDirectory:YES];
     self.lessons = [[LessonService alloc] initWithEngine:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Engine"]
-        support:[support URLByAppendingPathComponent:@"PianoMan" isDirectory:YES]];
+        support:[support URLByAppendingPathComponent:@"PianoMan" isDirectory:YES]
+        tools:[support URLByAppendingPathComponent:@"PianoMan/Tools/1" isDirectory:YES]];
     __weak PianoApp *weakSelf = self;
     self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
     self.lessons.onIdle = ^{ dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf finishTermination]; }); };

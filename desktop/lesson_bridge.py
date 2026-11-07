@@ -42,6 +42,7 @@ class LessonBridge:
         self.phase = 'idle'
         self.replies = queue.Queue()
         self.support = Path.home()/'Library/Application Support/PianoManDevelopment'
+        self.tools = Path.home()/'Library/Application Support/PianoMan/Tools/1'
 
     def _read(self,process,replies):
         try:
@@ -68,7 +69,7 @@ class LessonBridge:
             if self.process is None or self.process.poll() is not None:
                 self._stop(); prepare()
                 self.replies = queue.Queue()
-                self.process = subprocess.Popen([str(HOST),str(ENGINE),str(self.support)],
+                self.process = subprocess.Popen([str(HOST),str(ENGINE),str(self.support),str(self.tools)],
                     stdin=subprocess.PIPE,stdout=subprocess.PIPE,text=True,bufsize=1)
                 threading.Thread(target=self._read,args=(self.process,self.replies),daemon=True).start()
             try:

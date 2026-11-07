@@ -494,6 +494,41 @@ the standalone app with a real piano is performed by the user. Cross-device
 Bluetooth discovery and reconnection still need hardware verification; the latest
 change did not add automated regression tests.
 
+## 3D finger guide
+
+The View menu enables the **3D finger guide** in both Listen and Practice, with
+small, medium and large hand settings. The keyboard area contains two skinned
+hands, numbered finger contacts (1 = thumb, 5 = little finger), depressed keys
+and soft shadows. Its divider still controls the available height. The guide,
+hand size and divider settings persist locally.
+
+These are **suggested fingerings**, not detected fingers: MIDI reports keys and
+velocity, not which finger played them. An offline worker plans the whole lesson
+using published ergonomic fingering costs, held-key locks, chord constraints and
+bounded beam search. It preserves explicit finger anchors when present. The
+[method and limitations](docs/fingering-method.md) distinguish published rules
+from application-specific extensions. A passage without a feasible plan is
+identified in the guide; it does not receive invented finger numbers.
+
+`HandGuide` owns planning, cancellation and renderer lifetime. `player.js` assigns
+stable source-note IDs before track filtering or practice clipping and supplies
+the exact lesson position to `PianoHands`. Pauses, seeks, waiting for input and
+row repeats therefore share the existing transport clock. The guide does not
+send MIDI, schedule audio or change practice grading. Physical note release,
+rather than pedal-extended sound duration, determines finger contact.
+
+`KeyboardLayout` owns the physical coordinates used by the flat keys, falling
+note lanes and 3D scene. `PianoHandRig` poses licensed glTF skins with constrained
+finger joints; `PianoHands` owns key geometry, lighting and scene resources.
+Assets and licenses live in `assets/hands/`. The desktop packager embeds the
+renderer and both hand models, so installed users need no npm, external model
+service or CDN. Developers rebuild the pinned browser runtime with:
+
+```sh
+npm ci --prefix tools/hands --ignore-scripts
+npm run build --prefix tools/hands
+```
+
 ## Public website
 
 The English GitHub Pages website is at <https://cihanozcelik.github.io/piano-spark/>.

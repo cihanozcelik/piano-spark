@@ -1,5 +1,18 @@
 // Dynamic UI and known local-engine messages. Lesson titles and filenames are never translated.
 window.PianoI18n.register({
+  "3D parmak rehberi": "3D finger guide",
+  "El boyutu": "Hand size",
+  "Küçük": "Small",
+  "Orta": "Medium",
+  "Büyük": "Large",
+  "Önerilen parmaklar: 1 başparmak, 5 serçe. MIDI gerçek parmağını algılamaz. El boyutu değişince öneri yeniden hesaplanır.": "Suggested fingers: 1 is the thumb, 5 the little finger. MIDI cannot detect your actual finger. Changing hand size recalculates the recommendation.",
+  "Parmaklar hesaplanıyor… %{percent}": "Planning fingers… {percent}%",
+  "3D eller hazırlanıyor…": "Preparing 3D hands…",
+  "Parmak rehberi açılamadı: {reason}": "Finger guide unavailable: {reason}",
+  "Bu bölüm için güvenilir parmak önerisi bulunamadı.": "No reliable fingering suggestion for this passage.",
+  "3D el pozu tuşlarla tam örtüşmüyor.": "The 3D hand pose does not fully match the keys.",
+  "Önerilen parmaklar · 1 başparmak, 5 serçe": "Suggested fingers · 1 thumb, 5 little finger",
+  "{count} bölüm çözülemedi": "{count} unresolved passages",
   "Bekliyor": "Waiting",
   "Çalışılıyor": "Learning",
   "Öğrenildi": "Learned",

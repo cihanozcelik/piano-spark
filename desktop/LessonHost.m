@@ -5,10 +5,10 @@
 
 int main(int argc, const char *argv[]) {
     @autoreleasepool {
-        if (argc!=3) return 2;
+        if (argc!=4) return 2;
         LessonService *service = [[LessonService alloc]
             initWithEngine:[NSURL fileURLWithPath:@(argv[1])]
-            support:[NSURL fileURLWithPath:@(argv[2])]];
+            support:[NSURL fileURLWithPath:@(argv[2])] tools:[NSURL fileURLWithPath:@(argv[3])]];
         __block BOOL closing = NO;
         service.onIdle = ^{ if (closing) exit(0); };
         void (^close)(void) = ^{ closing = YES; [service cancel]; if (!service.running) exit(0); };

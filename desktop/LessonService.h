@@ -5,7 +5,7 @@
 @property (nonatomic, copy) void (^onIdle)(void);
 @property (nonatomic, readonly) BOOL running;
 @property (nonatomic, readonly) NSURL *supportURL;
-- (instancetype)initWithEngine:(NSURL *)engine support:(NSURL *)support;
+- (instancetype)initWithEngine:(NSURL *)engine support:(NSURL *)support tools:(NSURL *)tools;
 - (NSDictionary *)snapshot;
 - (NSDictionary *)tools;
 - (NSArray *)lessons;

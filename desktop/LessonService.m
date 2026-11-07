@@ -5,6 +5,7 @@
 
 @interface LessonService ()
 @property (nonatomic, strong) NSURL *engine;
+@property (nonatomic, strong) NSURL *toolsURL;
 @property (nonatomic, readwrite, strong) NSURL *supportURL;
 @property (nonatomic, strong) NSURL *jobURL;
 @property (nonatomic, strong) NSFileHandle *upload;
@@ -17,9 +18,9 @@
 @end
 
 @implementation LessonService
-- (instancetype)initWithEngine:(NSURL *)engine support:(NSURL *)support {
+- (instancetype)initWithEngine:(NSURL *)engine support:(NSURL *)support tools:(NSURL *)tools {
     if ((self = [super init])) {
-        self.engine = engine; self.supportURL = support;
+        self.engine = engine; self.supportURL = support; self.toolsURL = tools;
         self.state = @{@"event":@"lesson-progress",@"phase":@"idle",@"message":@"",@"progress":@0};
         NSURL *jobs = [support URLByAppendingPathComponent:@"Jobs"];
         for (NSURL *old in [NSFileManager.defaultManager contentsOfDirectoryAtURL:jobs includingPropertiesForKeys:nil options:0 error:NULL]) {
@@ -35,7 +36,7 @@
 - (NSDictionary *)tools {
     NSData *data = [NSData dataWithContentsOfURL:[self.engine URLByAppendingPathComponent:@"tools.json"]];
     NSDictionary *catalog = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-    NSURL *cache = [self.supportURL URLByAppendingPathComponent:@"Tools/1"];
+    NSURL *cache = self.toolsURL;
     NSMutableDictionary *artifacts = [NSMutableDictionary new];
     for (NSString *key in catalog[@"artifacts"]) {
         NSMutableDictionary *artifact = [catalog[@"artifacts"][key] mutableCopy];
@@ -139,7 +140,7 @@
     NSTask *task = [NSTask new];
     task.executableURL = [engine URLByAppendingPathComponent:@"python/bin/python3.12"];
     task.arguments = @[@"-u",[engine URLByAppendingPathComponent:@"worker.py"].path,@"--job",self.jobURL.path,
-                       @"--tools",[self.supportURL URLByAppendingPathComponent:@"Tools/1"].path,
+                       @"--tools",self.toolsURL.path,
                        @"--library",[self libraryURL].path,@"--parent",@(getpid()).stringValue];
     NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy];
     environment[@"PYTHONHOME"] = [engine URLByAppendingPathComponent:@"python"].path;
