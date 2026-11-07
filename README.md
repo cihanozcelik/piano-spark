@@ -65,7 +65,7 @@ izole yakalama sürümünde İngilizce arayüzden alınır.
 ## Uygulamanın yapısı
 
 **Görünüm → Dinleme sesi** ile **Uygulama sentezleyicisi** veya
-**Yamaha CLP · Bluetooth** seçilir. CLP çıkışı, mevcut piyano bağlantısından MIDI
+**Bağlı piyano · Bluetooth MIDI** seçilir. Piyano çıkışı, mevcut bağlantıdan MIDI
 nota/şiddet/sustain gönderir; uygulamanın sentezleyicisi aynı anda çalmaz. Ses düzeyi
 piyanodan ayarlanır. Bağlantı hazır değilse Dinle açıklayıcı hata verir; kendiliğinden
 başka çıkışa geçmez. Seçim kalıcıdır. Çıkış değişimi çalmayı durdurur; hız ve sarma
@@ -82,8 +82,8 @@ tutarsızlıkları partisyon durumunda açıkça gösterilir. Sayısal tempo yok
 tempo kullanılır. Örnekler ve lisanslar `assets/example-lessons/README.md` içindedir.
 
 Ayarlar, seçili ders ve konumu, partisyon sayfası, yatay kaydırma ve panel boyutları
-saklanır. Masaüstü pencere boyutu/konumu da korunur. Açılışta otomatik çalma veya
-Bluetooth bağlantısı başlatılmaz. Tarayıcı ve masaüstü kendi durumlarını ayrı tutar.
+saklanır. Masaüstü pencere boyutu/konumu da korunur. Açılışta otomatik çalma başlatılmaz. Bluetooth bağlantısı yalnız varsayılan cihaz için
+kullanıcı otomatik bağlantıyı etkinleştirmişse başlatılır. Tarayıcı ve masaüstü kendi durumlarını ayrı tutar.
 PDF motorunun geliştirme girdilerini hazırlamak için `python3 tools/prepare_omr.py`
 kullanılır; son kullanıcı bu adımı çalıştırmaz.
 
@@ -191,17 +191,43 @@ Bluetooth süreç sahibi native uygulamadır. Aynı çalıştırılabilir dosyan
 `--bluetooth` giriş noktası mevcut CoreBluetooth uygulamasını çalıştırır;
 ayrı kurulum, derleyici veya Python aracı kullanılmaz. JSON olayları uygulama
 üzerinden sayfadaki giriş arayüzüne iletilir. Native çalışma verileri
-`~/Library/Application Support/PianoMan/Bluetooth/` altında, son başarılı cihaz
-kimliği uygulama tercihlerinde saklanır; nota akışı kaydedilmez.
+`~/Library/Application Support/PianoMan/Bluetooth/` altındadır. Cihaz isimleri,
+UUID, çıkış kanalı, varsayılan seçim ve otomatik bağlantı tercihi ortak
+`WorkspaceState` sahibinin `bluetooth` bölümünde saklanır; nota akışı kaydedilmez.
 
 ## Bluetooth bağlantısı
 
-Üstteki piyano kontrolünün içindeki **Bağlan** düğmesi Yamaha CLP-835 bağlantısını başlatır.
-İlk kullanımda macOS Bluetooth izni isteyebilir. Piyano açık, Bluetooth etkin
-ve menzilde olmalıdır. Başarı, MIDI bildirim aboneliği doğrulandıktan sonra
-gösterilir. Panel son nota, basış şiddeti, basış sayısı ve sustain durumunu gösterir.
-Tek giriş fiziksel Bluetooth piyanodur; fiziksel piyano sesi tekrar üretilmez.
-Panel Dinle modunda da görünür.
+Üstteki piyano paneli açıldığında, bağlantı yoksa standart BLE-MIDI servisini sunan
+cihazlar taranır. Tarama 45 saniye sonra biter; sonuçlar seçilebilmek için tutulur.
+**Kayıtlı piyanolar** ile **Yakındaki MIDI cihazları** ayrıdır. Kayıtlı kimlik,
+cihazın şu an yakında olduğunu kanıtlamaz; tarama bitince sinyal göstergesi yerine
+son taramada görülme bilgisi gösterilir. Aynı isimli cihazlar UUID son ekiyle ayrılır.
+Cihazın **Bağlan** düğmesi yalnız seçilen UUID'ye bağlanır; ilk bulunan cihaz otomatik
+seçilmez. **Taramayı durdur** yalnız uygulamanın taramasını kapatır. Bağlıyken yeni
+cihaz aramak için önce bağlantı kesilir.
+
+MIDI bildirimi aboneliği tamamlanınca giriş hazır gösterilir; ilk gerçek tuş mesajıyla
+“tuş verisi alınıyor” olur. Çıkış durumu karakteristiğin MIDI yazma desteğinden gelir,
+hoparlörden ses geldiğinin kanıtı değildir. **Piyanoda kısa test sesi çal** yalnız
+kullanıcı tıklarsa mevcut çalmayı durdurup kısa bir Do4 gönderir. Otomatik test sesi yoktur.
+Dinle ve Çalış aynı fiziksel giriş arayüzünü kullanır; giriş notaları piyanoya geri yollanmaz.
+
+Başarılı bağlantı cihazı kaydeder. Kayıt satırını seçerek adını, **MIDI çıkış kanalını**
+(1–16), varsayılan seçimini ve otomatik bağlantı tercihini değiştirebilirsin. İki el
+aynı çıkış kanalına gönderilir; alıştırmanın el ayrımı korunur. Genel başlangıç kanalı
+1'dir; Roland FP-30X/60X/90X seçili ses için 4 önerir. Kanal değişimi çalmayı durdurur.
+**Bu cihazı unut** yalnız uygulama tercihini siler; macOS eşleştirmesine dokunmaz.
+
+Otomatik bağlantı varsayılan olarak kapalıdır. Etkinleştirilirse açılışta varsayılan
+piyano denenir; bağlantı kaybında veya erişilememe hatasında en fazla üç ek deneme
+(1/3/7 saniye bekleme) yapılır. İzin/Bluetooth kapalı hatalarında otomatik döngü yoktur.
+Vazgeçme, manuel kesme, tarama, sayfa gizlenmesi veya kapanması bekleyen denemeyi iptal
+eder. Yeniden bağlanmak dersi otomatik oynatmaz.
+
+Bluetooth Audio tek başına destek değildir; hedef standart Bluetooth MIDI'dir.
+Farklı marka/model desteği protokol düzeyindedir; gerçek cihaz doğrulaması ayrıca gerekir.
+İlk kullanımda macOS Bluetooth izni veya cihaz eşleştirme onayı isteyebilir. Panel
+Mac kaynaklı kesin hataları uzaktan kesinleştirilemeyen piyano erişim hatalarından ayırır.
 
 **Bağlantıyı kes**, **Vazgeç** ve uygulamadan çıkış, uygulamanın başlattığı
 Bluetooth sürecinin temiz kapanışını ister. Normal çıkış bağlantının kapanmasını

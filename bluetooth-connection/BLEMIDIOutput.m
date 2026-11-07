@@ -9,8 +9,8 @@
     NSArray<NSArray<NSNumber *> *> *_events;
     NSArray<NSArray<NSNumber *> *> *_releases;
     NSUInteger _index, _releaseIndex;
-    NSUInteger _held[2][128];
-    BOOL _used[2];
+    NSUInteger _held[16][128];
+    BOOL _used[16];
     NSString *_session;
     NSTimer *_timer;
     double _anchor, _lease, _end;
@@ -65,7 +65,7 @@
         double at = [item[0] doubleValue]; int status = [item[1] intValue];
         int first = [item[2] intValue], second = [item[3] intValue], type = status & 0xF0;
         if (!isfinite(at) || at < previous || at < 0 || at > duration ||
-            (status & 15) > 1 || (type != 0x80 && type != 0x90 && type != 0xB0) ||
+            (type != 0x80 && type != 0x90 && type != 0xB0) ||
             status > 255 || status < 0 || first < 0 || first > 127 || second < 0 || second > 127 ||
             (type == 0xB0 && first != 64)) return @{@"error":@"Desteklenmeyen MIDI olayı."};
         previous = at;
@@ -118,7 +118,7 @@
 - (void)stop {
     _session = nil; _events = nil;
     NSMutableArray *releases = [NSMutableArray new];
-    for (unsigned channel = 0; channel < 2; channel++) {
+    for (unsigned channel = 0; channel < 16; channel++) {
         if (!_used[channel]) continue;
         [releases addObject:@[@0,@(0xB0 | channel),@64,@0]];
         for (unsigned pitch = 0; pitch < 128; pitch++) {

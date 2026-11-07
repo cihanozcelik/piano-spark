@@ -54,7 +54,7 @@
     #bluetooth-panel[data-phase=connecting] .connection-dot { background:var(--target); }
     #bluetooth-panel[data-phase=error] .connection-dot { background:#ed797f; }
     .bluetooth-details strong { display:block; font-size:13px; font-weight:600; margin-bottom:5px; }
-    .bluetooth-details { width:min(380px,calc(100vw - 32px)); max-height:75vh; overflow:auto; }
+    .bluetooth-details { width:min(440px,calc(100vw - 32px)); max-height:75vh; overflow:auto; }
     #bluetooth-explanation, #bluetooth-help { font-size:12px; line-height:1.5; color:#c7c7ce; }
     #bluetooth-help { padding-left:20px; margin:10px 0; }
     #bluetooth-help li + li { margin-top:7px; }
@@ -64,7 +64,29 @@
     #bluetooth-status { display:block; color:#b5b5bf; font-size:12px; overflow-wrap:anywhere; }
     #bluetooth-activity { display:block; font-size:11px; color:var(--muted); margin-top:10px; }
     #bluetooth-activity:empty { display:none; }
-    #bluetooth-toggle { margin-top:14px; width:100%; }
+    .bluetooth-actions { display:flex; gap:8px; margin:12px 0; }
+    .bluetooth-actions button { flex:1; min-height:36px; font-size:12px; }
+    .bluetooth-devices { display:grid; gap:6px; margin:12px 0; }
+    .bluetooth-devices section { display:grid; gap:6px; }
+    #bluetooth-summary .connection-label { max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .bluetooth-devices h3 { font-size:11px; color:var(--muted); margin:8px 0 2px; }
+    .bluetooth-device { display:flex; gap:8px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:8px; }
+    .bluetooth-device[aria-current=true] { border-color:var(--accent); }
+    .bluetooth-device .device-select { display:block; white-space:normal; flex:1; min-width:0; text-align:left; background:none; border:0; padding:0; }
+    .device-select span { display:block; overflow-wrap:anywhere; }
+    .device-select small { display:block; color:var(--muted); font-size:11px; margin-top:4px; }
+    .bluetooth-device button { font-size:12px; min-height:32px; }
+    #bluetooth-settings { border:0; border-top:1px solid var(--line); padding:12px 0 0; margin-top:12px; min-width:0; }
+    #bluetooth-settings label { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; margin-bottom:10px; }
+    #bluetooth-settings input[type=text] { width:60%; min-width:0; color:var(--ink); background:var(--raised); border:1px solid var(--line); border-radius:7px; padding:6px 8px; }
+    #bluetooth-settings input[type=checkbox] { width:auto; }
+    #bluetooth-settings select { min-width:70px; }
+    #bluetooth-capabilities { font-size:12px; line-height:1.7; margin-top:10px; }
+    #bluetooth-not-found { font-size:12px; line-height:1.6; color:var(--muted); }
+    #bluetooth-not-found summary { cursor:pointer; }
+    #bluetooth-empty, #bluetooth-retry { font-size:12px; color:var(--muted); }
+    #bluetooth-retry:empty { display:none; }
+    #bluetooth-test { width:100%; margin-top:10px; font-size:12px; }
     #bluetooth-panel[data-phase=error] #bluetooth-status { color:#ffadb2; }
     .practice-panel { flex:1; min-height:0; display:flex; flex-direction:column; }
     .lesson-bar { flex:1; min-width:0; display:flex; align-items:center; gap:4px; padding:0; }
@@ -282,14 +304,33 @@
         <details class="popover" id="bluetooth-panel" data-popover data-phase="offline">
           <summary id="bluetooth-summary" aria-label="Piyano bağlantısı" data-i18n-aria-label="Piyano bağlantısı"><span class="connection-dot" aria-hidden="true"></span><span class="connection-label" data-i18n="Piyano">Piyano</span></summary>
           <div class="popover-content bluetooth-details">
-            <strong>Yamaha CLP-835</strong>
+            <strong data-i18n="Piyanonu bağla">Piyanonu bağla</strong>
             <span id="bluetooth-status" role="status" aria-live="polite" data-i18n-initial="Bağlantı hazırlanıyor…">Bağlantı hazırlanıyor…</span>
             <p id="bluetooth-explanation" hidden></p>
             <ol id="bluetooth-help" hidden></ol>
             <details id="bluetooth-technical" hidden><summary data-i18n="Teknik ayrıntı">Teknik ayrıntı</summary><pre id="bluetooth-technical-text"></pre></details>
             <span id="bluetooth-activity"></span>
-            <button id="bluetooth-toggle" disabled data-i18n-initial="Bağlan">Bağlan</button>
-            <button id="bluetooth-rediscover" class="subtle-button" type="button" hidden data-i18n="Kayıtlı piyanoyu yeniden ara">Kayıtlı piyanoyu yeniden ara</button>
+            <div id="bluetooth-capabilities" hidden></div>
+            <p id="bluetooth-retry" role="status"></p>
+            <div class="bluetooth-actions">
+              <button id="bluetooth-scan" type="button" disabled data-i18n-initial="Yakındaki piyanoları ara">Yakındaki piyanoları ara</button>
+              <button id="bluetooth-toggle" type="button" disabled hidden data-i18n-initial="Bağlantıyı kes">Bağlantıyı kes</button>
+            </div>
+            <div id="bluetooth-devices" class="bluetooth-devices" aria-label="MIDI cihazları" data-i18n-aria-label="MIDI cihazları"></div>
+            <p id="bluetooth-empty" data-i18n="Bluetooth MIDI cihazları burada görünür.">Bluetooth MIDI cihazları burada görünür.</p>
+            <fieldset id="bluetooth-settings" hidden>
+              <label><span data-i18n="Cihaz adı">Cihaz adı</span><input id="bluetooth-name" type="text" maxlength="64"></label>
+              <label><span data-i18n="MIDI çıkış kanalı">MIDI çıkış kanalı</span><select id="bluetooth-channel" aria-label="MIDI çıkış kanalı" data-i18n-aria-label="MIDI çıkış kanalı"></select></label>
+              <p class="hint" id="bluetooth-channel-help"></p>
+              <label><span data-i18n="Varsayılan piyanom">Varsayılan piyanom</span><input id="bluetooth-default" type="checkbox"></label>
+              <label><span data-i18n="Otomatik bağlan ve koparsa yeniden dene">Otomatik bağlan ve koparsa yeniden dene</span><input id="bluetooth-auto" type="checkbox"></label>
+              <button id="bluetooth-forget" class="subtle-button" type="button" data-i18n="Bu cihazı unut">Bu cihazı unut</button>
+            </fieldset>
+            <button id="bluetooth-test" type="button" hidden data-i18n="Piyanoda kısa test sesi çal">Piyanoda kısa test sesi çal</button>
+            <details id="bluetooth-not-found"><summary data-i18n="Piyanom görünmüyor">Piyanom görünmüyor</summary>
+              <p data-i18n="Piyanoyu aç, yakına getir ve Bluetooth MIDI özelliğini etkinleştir. Yalnız Bluetooth Audio desteği tuş verisi için yeterli değildir.">Piyanoyu aç, yakına getir ve Bluetooth MIDI özelliğini etkinleştir. Yalnız Bluetooth Audio desteği tuş verisi için yeterli değildir.</p>
+              <p data-i18n="Başka telefon, tablet veya müzik uygulaması bağlıysa o bağlantıyı kapatıp yeniden tara. Bazı modellerde ayrıca MIDI adaptörü gerekir.">Başka telefon, tablet veya müzik uygulaması bağlıysa o bağlantıyı kapatıp yeniden tara. Bazı modellerde ayrıca MIDI adaptörü gerekir.</p>
+            </details>
           </div>
         </details>
         <button id="fullscreen" class="icon-button" type="button" title="Tam ekran" data-i18n-title="Tam ekran"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg><span id="fullscreen-label" class="sr-only" data-i18n-initial="Tam ekran">Tam ekran</span></button>
@@ -316,7 +357,7 @@
               <label class="control"><span data-i18n="Nota adları">Nota adları</span> <select id="notation"><option value="solfege">Do · Re · Mi</option><option value="letters">C · D · E</option><option value="none" data-i18n="Gizle">Gizle</option></select></label>
               <label class="control"><span data-i18n="Klavye">Klavye</span> <select id="range"><option value="fit" data-i18n="Notalara sığdır">Notalara sığdır</option><option value="full" data-i18n="88 tuş">88 tuş</option></select></label>
               <label class="control toggle-control"><input type="checkbox" id="loop"><span data-i18n="Tekrarla">Tekrarla</span></label>
-              <label class="control"><span data-i18n="Dinleme sesi">Dinleme sesi</span> <select id="audio-output"><option value="app" data-i18n="Uygulama sentezleyicisi">Uygulama sentezleyicisi</option><option value="piano">Yamaha CLP · Bluetooth</option></select></label>
+              <label class="control"><span data-i18n="Dinleme sesi">Dinleme sesi</span> <select id="audio-output"><option value="app" data-i18n="Uygulama sentezleyicisi">Uygulama sentezleyicisi</option><option value="piano" data-i18n="Bağlı piyano · Bluetooth MIDI">Bağlı piyano · Bluetooth MIDI</option></select></label>
               <span class="hint" id="audio-output-status" role="status"></span>
               <label class="control" id="volume-control"><span data-i18n="Ses">Ses</span> <input id="volume" type="range" min="0" max="100" value="60" aria-label="Ses düzeyi" data-i18n-aria-label="Ses düzeyi"></label>
               <span class="hint"><span data-i18n="Boşluk: başlat / duraklat">Boşluk: başlat / duraklat</span><br><span data-i18n="← →: 5 saniye geri / ileri">← →: 5 saniye geri / ileri</span></span>

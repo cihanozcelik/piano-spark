@@ -17,6 +17,16 @@ NSString *PianoText(NSString *text) {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         english = @{
+            @"MIDI bağlantısı hazır":@"MIDI connection ready",
+            @"Tarama tamamlandı. Listeden bir piyano seç veya yeniden tara.":@"Scan complete. Select a piano or scan again.",
+            @"Seçilen piyanoya bağlanılıyor…":@"Connecting to the selected piano…",
+            @"Yakındaki Bluetooth MIDI cihazları aranıyor…":@"Scanning for nearby Bluetooth MIDI devices…",
+            @"Seçilen piyano aranıyor…":@"Looking for the selected piano…",
+            @"Listeden bir MIDI cihazı seç.":@"Select a MIDI device from the list.",
+            @"Önce mevcut bağlantıyı kes.":@"Disconnect the current device first.",
+            @"Bağlantı kapanıyor; tamamlanmasını bekle.":@"The connection is closing; wait for it to finish.",
+            @"Yeni tarama için önce mevcut bağlantıyı kes.":@"Disconnect the current device before scanning again.",
+            @"Mac’in Bluetooth servisi hazır değil.":@"The Mac’s Bluetooth service is not ready.",
             @"Tamam":@"OK",
             @"Geçersiz çalma oturumu.":@"Invalid playback session.",
             @"Geçersiz MIDI çıkış komutu.":@"Invalid MIDI output command.",

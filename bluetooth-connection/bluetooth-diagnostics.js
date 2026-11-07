@@ -1,15 +1,15 @@
 // Shared by the browser and packaged app. Facts come from CoreBluetooth;
 // an unreachable peripheral does not reveal the piano's power/Bluetooth switch.
 export function bluetoothDiagnostic(issue,native=false) {
-  const retry='Düzelttikten sonra “Tekrar dene”ye bas.';
+  const retry='Düzelttikten sonra listeden piyanonu seçip bağlan; görünmüyorsa yeniden tara.';
   const pianoChecks=[
     'Piyanonun açık olduğundan emin ol ve Mac’i piyanonun yakınına getir.',
-    'Piyano menüsündeki Bluetooth ayarının On olduğunu kontrol et. Pairing ekranı Bluetooth Audio içindir; MIDI bağlantısı için orada beklemen gerekmez.',
+    'Piyanonun Bluetooth MIDI özelliğini etkinleştir. Bluetooth Audio eşleştirmesi tek başına MIDI bağlantısı sağlamaz; modele ait MIDI bağlantı yönergesini kontrol et.',
     'Telefon, tablet veya başka bir uygulama piyanoya bağlıysa o bağlantıyı kapat.',
     retry,
   ];
   const midiSteps=['macOS eşleştirme onayı gösteriyorsa isteği onayla.',
-    'Smart Pianist veya başka bir cihazın piyano bağlantısı açıksa kapat.',retry];
+    'Başka bir müzik uygulamasının veya cihazın piyano bağlantısı açıksa kapat.',retry];
   const entries={
     mac_bluetooth_off:{title:'Mac’in Bluetooth’u kapalı',
       explanation:'Mac bunu doğrudan bildirdi. Piyanonun Bluetooth ayarını bu durumda okuyamıyoruz.',
@@ -38,9 +38,9 @@ export function bluetoothDiagnostic(issue,native=false) {
       explanation:'Mac henüz kullanılabilir bir Bluetooth durumu bildirmedi; piyanonun durumunu doğrulayamadık.',
       steps:['Sistem Ayarları → Bluetooth bölümünde Mac’in Bluetooth durumunu kontrol et.',
         'Servis hazır olduktan sonra tekrar dene. Sorun sürerse Piano Spark’i yeniden aç.']},
-    piano_unreachable:{title:'CLP-835’e ulaşılamadı',
+    piano_unreachable:{title:'Seçilen piyanoya ulaşılamadı',
       explanation:'Mac’in Bluetooth’u açık; piyanoyla bağlantı kurulamadı. Piyano kapalı, Bluetooth’u kapalı, menzil dışında veya başka bir bağlantıda olabilir. Hangisi olduğunu uzaktan ayıramıyoruz.',
-      steps:[...pianoChecks,'Piyanoyu değiştirdiysen veya önceki cihaz kaydı artık çalışmıyorsa “Kayıtlı piyanoyu yeniden ara”yı kullan. Bu yalnız Piano Spark’in cihaz seçimini temizler.']},
+      steps:[...pianoChecks,'Kayıtlı cihaz artık çalışmıyorsa yeniden tara ve görünen cihazı seç. “Bu cihazı unut” yalnız uygulamadaki kaydı kaldırır; macOS eşleştirmesini değiştirmez.']},
     connect_failed:{title:'Piyanoyla Bluetooth bağlantısı kurulamadı',
       explanation:'macOS bağlantı denemesini tamamlayamadı. Bu bilgi piyanonun Bluetooth’unun kapalı olduğunu kanıtlamaz.',
       steps:pianoChecks},

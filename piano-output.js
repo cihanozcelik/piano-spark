@@ -1,10 +1,11 @@
 // The player owns lesson time; the connected native BLE owner schedules output.
 export class PianoOutput {
   constructor(onError) {
-    this.onError=onError;this.connected=false;this.capable=false;this.session=null;
+    this.onError=onError;this.channel=0;this.connected=false;this.capable=false;this.session=null;
     this.queue=Promise.resolve();this.heartbeat=null;this.pinging=false;
     window.addEventListener('pianoman-bluetooth-status',({detail})=> {
       this.connected=detail.connected;
+      this.channel=(detail.output_channel||1)-1;
       // Existing Objective-C senders box a C comparison as NSNumber(0/1).
       // Accept that wire representation as well as JSON booleans during a live connection.
       this.capable=detail.output_capable===true||detail.output_capable===1;
@@ -34,7 +35,7 @@ export class PianoOutput {
   }
 
   async start(tracks,position,speed,duration) {
-    if(!this.connected) throw new Error('CLP’den dinlemek için önce piyanoyu bağla.');
+    if(!this.connected) throw new Error('Piyanodan dinlemek için önce piyanoyu bağla.');
     if(!this.capable) throw new Error('Piyano bağlantısında MIDI gönderimi hazır değil; yeniden bağlan.');
     const events=[],pedals=tracks.flatMap(track=>track.pedals||[]);
     const pedalTimes=[...new Set([position,...pedals.filter(event=>event.time>position).map(event=>event.time)])].sort((a,b)=>a-b);
@@ -46,11 +47,11 @@ export class PianoOutput {
       });
       const value=Math.round(Math.max(0,...values)*127);
       if(value===previous) continue;previous=value;
-      for(let channel=0;channel<2;channel++) events.push([(time-position)/speed,0xB0|channel,64,value]);
+      events.push([(time-position)/speed,0xB0|this.channel,64,value]);
     }
     for(const track of tracks) for(const note of track.notes) {
       if(note.soundEnd<=position) continue;
-      const channel=note.hand===0||note.hand===1?note.hand:(note.midi<60?0:1);
+      const channel=this.channel;
       const at=Math.max(0,(note.time-position)/speed);
       // Seeking into a sustained note rearticulates it once, then releases its key.
       const end=Math.max(at+.001,(note.end-position)/speed);

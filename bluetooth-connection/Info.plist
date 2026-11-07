@@ -3,12 +3,12 @@
 <plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>pianoman-bluetooth</string>
 <key>CFBundleIdentifier</key><string>com.pianoman.bluetooth-connection</string>
-<key>CFBundleName</key><string>PianoMan Bluetooth</string>
-<key>CFBundleDisplayName</key><string>PianoMan Bluetooth</string>
+<key>CFBundleName</key><string>Piano Spark Bluetooth</string>
+<key>CFBundleDisplayName</key><string>Piano Spark Bluetooth</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleVersion</key><string>1</string>
 <key>CFBundleShortVersionString</key><string>1.0</string>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>LSUIElement</key><true/>
-<key>NSBluetoothAlwaysUsageDescription</key><string>Connect to your Yamaha CLP-835 to read played notes and pedal movements.</string>
+<key>NSBluetoothAlwaysUsageDescription</key><string>Find and connect to Bluetooth MIDI instruments to read notes and pedals and play lessons on your instrument.</string>
 </dict></plist>

@@ -135,8 +135,8 @@ import { startAppShell } from './app-shell.js';
       ui.play.setAttribute('aria-label',ui.play.textContent);
       ui['volume-control'].hidden=practicing()||pianoListening();
       ui['audio-output-status'].textContent=ui['audio-output'].value==='piano'?
-        (!pianoOutput.connected?t("CLP’den dinlemek için piyanoyu bağla."):
-         !pianoOutput.capable?t("MIDI gönderimi hazır değil; yeniden bağlan."):t("Ses CLP’den gelir; ses düzeyini piyanodan ayarla.")):
+        (!pianoOutput.connected?t("Piyanodan dinlemek için piyanoyu bağla."):
+         !pianoOutput.capable?t("MIDI gönderimi hazır değil; yeniden bağlan."):t("Ses bağlı piyanodan gelir; ses düzeyini piyanodan ayarla.")):
         t("Ses uygulamanın sentezleyicisinden gelir.");
     }
     function pause() {
@@ -149,6 +149,7 @@ import { startAppShell } from './app-shell.js';
     }
     async function play() {
       if(state.running||state.starting||!activePractice) return;
+      pianoOutput.stop();
       const epoch=++state.epoch;
       if(state.position>=state.duration) {
         state.position=-2;
@@ -518,6 +519,16 @@ import { startAppShell } from './app-shell.js';
       practice.seek(state.position,nowSeconds(),selectedInput()); updatePlayButton(); draw();
     });
     ui.play.addEventListener('click',()=> { if(state.running||state.starting) pause(); else play(); });
+    window.addEventListener('pianoman-output-settings-change',pause);
+    window.addEventListener('pianoman-bluetooth-test',async event=> {
+      pause();
+      try {
+        const started=pianoOutput.start([{notes:[{time:0,end:.35,soundEnd:.35,midi:60,velocity:.45}],pedals:[]}],0,1,.35);
+        const session=pianoOutput.session;
+        await started;
+        setTimeout(()=>{if(pianoOutput.session===session) pianoOutput.stop();event.detail.complete(null);},900);
+      } catch(error) {event.detail.complete(error);}
+    });
     ui['audio-output'].addEventListener('change',()=>{pause();updatePlayButton();showError('');});
     ui.rewind.addEventListener('click',()=>seek(-2));
     ui.seek.addEventListener('input',()=>seek(Number(ui.seek.value)));
@@ -566,7 +577,7 @@ import { startAppShell } from './app-shell.js';
     }
     staff.prepare().then(draw).catch(()=>showError('Nota sembolleri yüklenemedi. Uygulamayı yeniden aç.'));
     new ResizeObserver(resize).observe(ui.roll);
-    startBluetooth(window.pianomanInput);
+    startBluetooth(window.pianomanInput,workspaceState);
     startAppShell({
       workspaceState,
       onLesson:loadSong,

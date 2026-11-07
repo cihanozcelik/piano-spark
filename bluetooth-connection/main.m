@@ -114,6 +114,9 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     dispatch_source_t _terminate;
     dispatch_source_t _hangup;
     NSTimer *_deadline;
+    NSMutableDictionary<NSUUID *, CBPeripheral *> *_discovered;
+    NSMutableDictionary<NSUUID *, NSNumber *> *_lastAdvertisement;
+    BOOL _browsing;
     NSTimer *_cleanupDeadline;
     NSTimer *_releaseDeadline;
     NSTimer *_duration;
@@ -145,6 +148,9 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     self = [super init];
     if (self) {
         _target = target;
+        _browsing = !target.length && !identifier;
+        _discovered = [NSMutableDictionary new];
+        _lastAdvertisement = [NSMutableDictionary new];
         _identifier = identifier;
         _socketPath = [runtime stringByAppendingPathComponent:@"control.sock"];
         _timeoutSeconds = timeout;
@@ -251,8 +257,7 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
             NSDictionary *response = [command isEqualToString:@"status"] ? [owner status] :
                 [command isEqualToString:@"stop"] ? @{@"event":@"stopping", @"pid":@(getpid())} : @{@"event":@"invalid_command"};
             if ([payload isKindOfClass:NSDictionary.class]) {
-                response = owner->_ready && !owner->_stopping ? [owner->_output command:payload] :
-                    @{@"error":@"Piyano bağlı değil."};
+                response = [owner command:payload];
             }
             NSData *reply = JSONLine(response);
             BOOL stopRequested = [command isEqualToString:@"stop"];
@@ -283,17 +288,77 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     dispatch_resume(_hangup);
 
     Emit(@"started", @{@"pid":@(getpid()), @"target":_target, @"transport":@"BLE MIDI"});
-    NSTimeInterval timeout = _timeoutSeconds;
-    _deadline = [NSTimer scheduledTimerWithTimeInterval:timeout repeats:NO block:^(NSTimer *timer) {
+    [self armDeadline];
+    _central = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()
+                                                options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
+}
+
+// Discovery and connection share one CoreBluetooth owner and one control socket.
+- (void)armDeadline {
+    [_deadline invalidate];
+    __weak PianoConnection *weakSelf = self;
+    _deadline = [NSTimer scheduledTimerWithTimeInterval:_timeoutSeconds repeats:NO block:^(NSTimer *timer) {
         (void)timer;
         PianoConnection *owner = weakSelf;
+        if (owner->_browsing && owner->_central.state == CBManagerStatePoweredOn) {
+            [owner->_central stopScan]; owner->_phase = @"idle";
+            Emit(@"scan_complete", @{}); return;
+        }
         NSString *reason = CBCentralManager.authorization == CBManagerAuthorizationNotDetermined ? @"permission_pending" :
             owner->_central.state != CBManagerStatePoweredOn ? @"mac_bluetooth_unavailable" :
             owner->_linkEstablished ? @"midi_timeout" : @"piano_unreachable";
         [owner stop:reason code:3];
     }];
-    _central = [[CBCentralManager alloc] initWithDelegate:self queue:dispatch_get_main_queue()
-                                                options:@{CBCentralManagerOptionShowPowerAlertKey:@YES}];
+}
+
+- (void)advertise:(CBPeripheral *)peripheral name:(NSString *)name rssi:(NSNumber *)rssi {
+    _discovered[peripheral.identifier] = peripheral;
+    double now = NSProcessInfo.processInfo.systemUptime;
+    if (_lastAdvertisement[peripheral.identifier] && now - _lastAdvertisement[peripheral.identifier].doubleValue < 1) return;
+    _lastAdvertisement[peripheral.identifier] = @(now);
+    NSMutableDictionary *device = [@{@"name":name.length ? name : @"Bluetooth MIDI",
+        @"uuid":peripheral.identifier.UUIDString} mutableCopy];
+    if (rssi && rssi.integerValue != 127) device[@"rssi"] = rssi;
+    Emit(@"discovered", device);
+}
+
+- (void)scan {
+    _phase = @"scanning";
+    [_discovered removeAllObjects]; [_lastAdvertisement removeAllObjects];
+    Emit(@"scanning", @{@"browsing":@(_browsing)});
+    CBUUID *service = [CBUUID UUIDWithString:ServiceUUID];
+    for (CBPeripheral *peripheral in [_central retrieveConnectedPeripheralsWithServices:@[service]]) {
+        if (_browsing) [self advertise:peripheral name:peripheral.name rssi:nil];
+        else if (_identifier ? [peripheral.identifier isEqual:_identifier] : Matches(peripheral.name ?: @"", _target)) {
+            [self connect:peripheral]; return;
+        }
+    }
+    [_central scanForPeripheralsWithServices:@[service]
+        options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@YES}];
+}
+
+- (NSDictionary *)command:(NSDictionary *)request {
+    if (_stopping) return @{@"error":@"Bağlantı kapanıyor; tamamlanmasını bekle."};
+    NSString *command = request[@"command"];
+    if ([command isEqual:@"scan"]) {
+        if (_peripheral) return @{@"error":@"Yeni tarama için önce mevcut bağlantıyı kes."};
+        if (_central.state != CBManagerStatePoweredOn) return @{@"error":@"Mac’in Bluetooth servisi hazır değil."};
+        _browsing = YES; _identifier = nil; _target = @"";
+        [self armDeadline]; [self scan]; return @{@"ok":@YES};
+    }
+    if ([command isEqual:@"connect"]) {
+        if (_peripheral) return @{@"error":@"Önce mevcut bağlantıyı kes."};
+        if (_central.state != CBManagerStatePoweredOn) return @{@"error":@"Mac’in Bluetooth servisi hazır değil."};
+        NSString *uuid = request[@"uuid"];
+        NSUUID *identifier = [uuid isKindOfClass:NSString.class] ? [[NSUUID alloc] initWithUUIDString:uuid] : nil;
+        if (!identifier) return @{@"error":@"Listeden bir MIDI cihazı seç."};
+        _identifier = identifier; _browsing = NO;
+        CBPeripheral *peripheral = _discovered[identifier] ?: [_central retrievePeripheralsWithIdentifiers:@[identifier]].firstObject;
+        [self armDeadline];
+        if (peripheral) [self connect:peripheral]; else [self scan];
+        return @{@"ok":@YES};
+    }
+    return _ready ? [_output command:request] : @{@"error":@"Piyano bağlı değil."};
 }
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
@@ -301,25 +366,11 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     switch (central.state) {
         case CBManagerStatePoweredOn: {
             if (_ready || _peripheral) return;
-            _phase = @"scanning";
             if (_identifier) {
                 NSArray<CBPeripheral *> *known = [central retrievePeripheralsWithIdentifiers:@[_identifier]];
-                if (known.count) {
-                    Emit(@"known_peripheral", @{@"uuid":_identifier.UUIDString, @"state":@(known.firstObject.state)});
-                    [self connect:known.firstObject];
-                    return;
-                }
+                if (known.count) { [self connect:known.firstObject]; return; }
             }
-            CBUUID *service = [CBUUID UUIDWithString:ServiceUUID];
-            for (CBPeripheral *peripheral in [central retrieveConnectedPeripheralsWithServices:@[service]]) {
-                if (_identifier ? [peripheral.identifier isEqual:_identifier] : Matches(peripheral.name ?: @"", _target)) {
-                    [self connect:peripheral];
-                    return;
-                }
-            }
-            [central scanForPeripheralsWithServices:@[service]
-                                           options:@{CBCentralManagerScanOptionAllowDuplicatesKey:@NO}];
-            Emit(@"scanning", @{@"target":_target});
+            [self scan];
             break;
         }
         case CBManagerStateUnauthorized:
@@ -349,15 +400,17 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
     (void)central;
     NSString *name = advertisementData[CBAdvertisementDataLocalNameKey] ?: peripheral.name ?: @"";
+    if (_peripheral || _ready || _stopping || ![_phase isEqual:@"scanning"]) return;
+    if (_browsing) { [self advertise:peripheral name:name rssi:RSSI]; return; }
     BOOL matches = _identifier ? [peripheral.identifier isEqual:_identifier] : Matches(name, _target);
-    if (!matches || _peripheral || _ready || _stopping) return;
+    if (!matches) return;
     _deviceSeen = YES;
-    Emit(@"discovered", @{@"name":name, @"uuid":peripheral.identifier.UUIDString, @"rssi":RSSI});
     [self connect:peripheral];
 }
 
 - (void)connect:(CBPeripheral *)peripheral {
     _peripheral = peripheral;
+    _target = peripheral.name.length ? peripheral.name : @"Bluetooth MIDI";
     _peripheral.delegate = self;
     _phase = @"connecting";
     [_central stopScan];
@@ -457,7 +510,7 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     _phase = @"listening";
     [_deadline invalidate];
     BOOL outputCapable = (characteristic.properties & CBCharacteristicPropertyWriteWithoutResponse) != 0;
-    Emit(@"ready", @{@"target":_target, @"uuid":_peripheral.identifier.UUIDString,
+    Emit(@"ready", @{@"name":_target, @"target":_target, @"input_capable":@YES, @"uuid":_peripheral.identifier.UUIDString,
         @"output_capable":@(outputCapable)});
     if (_durationSeconds > 0) {
         __weak PianoConnection *weakSelf = self;
@@ -659,14 +712,14 @@ int main(int argc, const char *argv[]) {
         signal(SIGPIPE, SIG_IGN);
         mach_timebase_info(&Timebase);
         if (argc < 3) {
-            fprintf(stderr, "Usage: piano start|stop|status [--name CLP-835] [--timeout 60] [--duration 0]\n");
+            fprintf(stderr, "Usage: piano start|stop|status [--uuid DEVICE-UUID | --name NAME] [--timeout 60] [--duration 0]\n");
             return 64;
         }
         NSString *runtime = [NSString stringWithUTF8String:argv[1]];
         NSString *command = [NSString stringWithUTF8String:argv[2]];
         if ([command isEqualToString:@"stop"] || [command isEqualToString:@"status"]) return Control(runtime, command);
         if (![command isEqualToString:@"start"]) return 64;
-        NSString *name = @"CLP-835";
+        NSString *name = @"";
         NSUUID *identifier = nil;
         double timeout = 60;
         double duration = 0;
@@ -688,7 +741,6 @@ int main(int argc, const char *argv[]) {
                 else return 64;
             }
         }
-        if (!Normalized(name).length) return 64;
         PianoConnection *connection = [[PianoConnection alloc] initWithTarget:name identifier:identifier runtime:runtime timeout:timeout duration:duration];
         [connection start];
         [[NSRunLoop mainRunLoop] run];

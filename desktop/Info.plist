@@ -17,7 +17,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Piyano tuşlarını ve pedalları okuyabilmek için Yamaha CLP-835 ile Bluetooth bağlantısı kurulur.</string>
+	<string>Yakındaki Bluetooth MIDI piyanolarını bulmak, tuş ve pedalları okumak ve dersleri piyanoda çalmak için Bluetooth kullanılır.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSPrincipalClass</key>

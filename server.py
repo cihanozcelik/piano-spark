@@ -137,14 +137,18 @@ class PianoHandler(BaseHTTPRequestHandler):
                 self.send_json({"error": str(error)}, HTTPStatus.CONFLICT)
             return
         actions = {"/api/bluetooth/connect": self.server.bluetooth.connect,
-                   "/api/bluetooth/forget-device": self.server.bluetooth.forget_device,
+                   "/api/bluetooth/scan": self.server.bluetooth.scan,
                    "/api/bluetooth/disconnect": self.server.bluetooth.disconnect}
         if path not in actions:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
         try:
-            self.send_json(actions[path]())
-        except RuntimeError as error:
+            length = int(self.headers.get("Content-Length", "0"))
+            if length <= 0 or length > 4096: raise ValueError("Geçersiz Bluetooth isteği")
+            request = json.loads(self.rfile.read(length))
+            if not isinstance(request, dict): raise ValueError("Geçersiz Bluetooth isteği")
+            self.send_json(actions[path](request.get("uuid")) if path.endswith("/connect") else actions[path]())
+        except (ValueError, RuntimeError) as error:
             self.send_json({"error": str(error)}, HTTPStatus.CONFLICT)
 
     def events(self):

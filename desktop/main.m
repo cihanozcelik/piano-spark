@@ -20,7 +20,6 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 @property (nonatomic, strong) NSMutableDictionary *state;
 @property (nonatomic, strong) NSMutableDictionary *held;
 @property (nonatomic, strong) NSMutableSet *downloads;
-@property (nonatomic, strong) NSString *deviceUUID;
 @property (nonatomic) BOOL pageReady;
 @property (nonatomic) BOOL quitting;
 @property (nonatomic) BOOL savingWorkspace;
@@ -42,10 +41,10 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     PianoSetLanguage(@"en");
 #endif
     self.state = [@{@"phase":@"disconnected", @"connected":@NO, @"message":PianoText(@"Piyano bağlı değil"),
-        @"device":@"Yamaha CLP-835", @"note_count":@0, @"last_note":NSNull.null, @"pedal":NSNull.null, @"active":@NO} mutableCopy];
+        @"device":@"", @"uuid":NSNull.null, @"devices":@[], @"input_capable":@NO, @"note_count":@0, @"last_note":NSNull.null, @"pedal":NSNull.null, @"active":@NO} mutableCopy];
     self.held = [NSMutableDictionary new];
     self.downloads = [NSMutableSet new];
-    self.deviceUUID = [NSUserDefaults.standardUserDefaults stringForKey:@"BluetoothDeviceUUID"];
+    self.state[@"remembered_device"] = [NSUserDefaults.standardUserDefaults stringForKey:@"BluetoothDeviceUUID"] ?: (id)NSNull.null;
     NSURL *support = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory
         inDomains:NSUserDomainMask].firstObject;
 #ifdef PIANO_CAPTURE
@@ -202,21 +201,24 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)setPhase:(NSString *)phase message:(NSString *)message {
     BOOL connected = [phase isEqualToString:@"connected"];
     [self.state addEntriesFromDictionary:@{@"phase":phase, @"connected":@(connected), @"message":message}];
-    if (!connected) { [self.held removeAllObjects]; self.state[@"pedal"] = NSNull.null; self.state[@"output_capable"] = @NO; }
+    if (!connected) { [self.held removeAllObjects]; self.state[@"pedal"] = NSNull.null; self.state[@"output_capable"] = @NO; self.state[@"input_capable"] = @NO; }
     [self publish:@{@"event":@"status", @"status":[self.state copy]}];
 }
 
-- (void)startBluetooth {
+- (void)startBluetooth:(NSString *)identifier {
     if (self.bluetooth || self.quitting) return;
     self.state[@"active"] = @YES;
     [self.state removeObjectForKey:@"diagnostic"];
     self.state[@"note_count"] = @0;
     self.state[@"last_note"] = NSNull.null;
-    [self setPhase:@"connecting" message:PianoText(@"Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla.")];
+    self.state[@"uuid"] = identifier ?: (id)NSNull.null;
+    self.state[@"device"] = @""; self.state[@"devices"] = @[];
+    self.state[@"browsing"] = @(!identifier);
+    [self setPhase:@"starting" message:PianoText(@"Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla.")];
     NSTask *task = [NSTask new];
     task.executableURL = NSBundle.mainBundle.executableURL;
     NSMutableArray *args = [@[@"--bluetooth", self.runtimeURL.path, @"start", @"--timeout", @"45", @"--duration", @"0"] mutableCopy];
-    if (self.deviceUUID.length) [args addObjectsFromArray:@[@"--uuid", self.deviceUUID]];
+    if (identifier.length) [args addObjectsFromArray:@[@"--uuid", identifier]];
     task.arguments = args;
     NSPipe *pipe = [NSPipe pipe];
     task.standardOutput = pipe;
@@ -294,21 +296,36 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     } else if ([kind isEqual:@"ready"]) {
         [self.state removeObjectForKey:@"diagnostic"];
         self.state[@"output_capable"] = event[@"output_capable"] ?: @NO;
-        self.deviceUUID = event[@"uuid"];
-        [NSUserDefaults.standardUserDefaults setObject:self.deviceUUID forKey:@"BluetoothDeviceUUID"];
-        [self setPhase:@"connected" message:PianoText(@"Yamaha CLP-835 bağlı · tuşlar dinleniyor")];
+        self.state[@"uuid"] = event[@"uuid"];
+        self.state[@"device"] = event[@"name"] ?: @"Bluetooth MIDI";
+        self.state[@"input_capable"] = event[@"input_capable"] ?: @YES;
+        [self setPhase:@"connected" message:PianoText(@"MIDI bağlantısı hazır")];
+    } else if ([kind isEqual:@"discovered"]) {
+        NSMutableArray *devices = [self.state[@"devices"] mutableCopy];
+        NSIndexSet *old = [devices indexesOfObjectsPassingTest:^BOOL(NSDictionary *device, NSUInteger index, BOOL *stop) {
+            (void)index; (void)stop; return [device[@"uuid"] isEqual:event[@"uuid"]];
+        }];
+        [devices removeObjectsAtIndexes:old]; [devices addObject:event];
+        self.state[@"devices"] = [devices copy];
+        [self publish:@{@"event":@"status", @"status":[self.state copy]}];
+    } else if ([kind isEqual:@"scan_complete"]) {
+        [self setPhase:@"idle" message:PianoText(@"Tarama tamamlandı. Listeden bir piyano seç veya yeniden tara.")];
     } else if ([kind isEqual:@"connection_timeout"]) {
         [self setPhase:@"error" message:PianoText(@"Piyanoya ulaşılamadı. Piyanonun açık ve Bluetooth’un etkin olduğunu kontrol et.")];
     } else if ([kind isEqual:@"disconnected"]) {
         [self setPhase:@"disconnected" message:PianoText(@"Piyano bağlantısı kesildi")];
     } else if ([kind isEqual:@"scanning"]) {
-        [self setPhase:@"connecting" message:PianoText(@"Mac’in Bluetooth’u açık. Yakındaki CLP-835 MIDI bağlantısı aranıyor…")];
+        self.state[@"devices"] = @[]; self.state[@"browsing"] = event[@"browsing"] ?: @NO;
+        [self setPhase:[self.state[@"browsing"] boolValue] ? @"scanning" : @"connecting"
+            message:PianoText([self.state[@"browsing"] boolValue] ? @"Yakındaki Bluetooth MIDI cihazları aranıyor…" : @"Seçilen piyano aranıyor…")];
     } else if ([kind isEqual:@"bluetooth_waiting"]) {
-        [self setPhase:@"connecting" message:PianoText(@"Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı.")];
+        [self setPhase:@"starting" message:PianoText(@"Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı.")];
     } else if ([kind isEqual:@"midi_discovery"]) {
         [self setPhase:@"connecting" message:PianoText(@"Piyanoya Bluetooth bağlantısı kuruldu. MIDI hizmeti kontrol ediliyor…")];
     } else if ([kind isEqual:@"connecting"]) {
-        [self setPhase:@"connecting" message:PianoText(@"Yamaha CLP-835 bağlantısı kuruluyor…")];
+        self.state[@"uuid"] = event[@"uuid"]; self.state[@"device"] = event[@"name"];
+        self.state[@"browsing"] = @NO;
+        [self setPhase:@"connecting" message:PianoText(@"Seçilen piyanoya bağlanılıyor…")];
     } else if ([kind isEqual:@"midi_initial_read"]) {
         [self setPhase:@"connecting" message:PianoText(@"MIDI bağlantısı hazırlanıyor… macOS eşleştirme onayı sorarsa onayla.")];
     } else if ([self.state[@"connected"] boolValue]) {
@@ -380,17 +397,25 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     } else if ([command isEqual:@"update-read"]) {
         [self.updates acknowledge]; replyHandler(@{}, nil);
 
-    } else if ([command isEqual:@"connect"]) {
-        [self startBluetooth]; replyHandler(@{}, nil);
+    } else if ([command isEqual:@"connect"] || [command isEqual:@"scan"]) {
+        NSString *identifier = nil;
+        if ([command isEqual:@"connect"]) {
+            id raw = message.body[@"uuid"];
+            identifier = [raw isKindOfClass:NSString.class] ? [[NSUUID alloc] initWithUUIDString:raw].UUIDString : nil;
+            if (!identifier) { replyHandler(nil,PianoText(@"Listeden bir MIDI cihazı seç.")); return; }
+        }
+        if (!self.bluetooth) { [self startBluetooth:identifier]; replyHandler(@{}, nil); return; }
+        if (![@[@"scanning",@"idle"] containsObject:self.state[@"phase"]]) {
+            replyHandler(nil,PianoText(@"Önce mevcut bağlantıyı kes.")); return;
+        }
+        NSDictionary *request = identifier ? @{@"command":@"connect",@"uuid":identifier} : @{@"command":@"scan"};
+        NSString *runtime = self.runtimeURL.path;
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0), ^{
+            NSError *error = nil; NSDictionary *result = PianoBluetoothCommand(runtime, request, &error);
+            dispatch_async(dispatch_get_main_queue(), ^{ replyHandler(result,PianoText(error.localizedDescription ?: result[@"error"])); });
+        });
     } else if ([command isEqual:@"disconnect"]) {
         [self stopBluetooth]; replyHandler(@{}, nil);
-    } else if ([command isEqual:@"forget-device"]) {
-        if (self.bluetooth) { replyHandler(nil,PianoText(@"Önce mevcut bağlantının kapanmasını bekle.")); return; }
-        self.deviceUUID = nil;
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:@"BluetoothDeviceUUID"];
-        [self.state removeObjectForKey:@"diagnostic"];
-        [self setPhase:@"disconnected" message:PianoText(@"Piano Spark’ın kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin.")];
-        replyHandler(@{},nil);
     } else if ([@[@"output-start",@"output-stop",@"output-heartbeat"] containsObject:command]) {
         if (![self.state[@"connected"] boolValue]) { replyHandler(nil,PianoText(@"Piyano bağlı değil.")); return; }
         NSString *runtime = self.runtimeURL.path; NSDictionary *request = message.body;

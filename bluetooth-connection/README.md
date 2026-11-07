@@ -1,6 +1,6 @@
 # PianoMan Bluetooth connection
 
-Yamaha CLP-835 için macOS 13+ üzerinde çalışan yerel BLE MIDI giriş/çıkışı.
+Standart Bluetooth MIDI cihazları için macOS 13+ üzerinde çalışan yerel BLE MIDI giriş/çıkışı.
 Objective-C ve CoreBluetooth kullanır. CoreMIDI sürücüsü oluşturmaz;
 MIDI karakteristiğinin bildirimlerini doğrudan okuyup JSON olarak verir.
 Xcode/Command Line Tools dışında paket gerektirmez.
@@ -25,10 +25,11 @@ Kaynak değiştirdikten sonra çalışan aracı durdurup yeniden derlemek gereki
 ./piano start --uuid <PIANO_DEVICE_UUID>
 ```
 
-Varsayılan hedef `--name CLP-835`, bağlantı süresi `--timeout 60` saniyedir.
+Varsayılan işlem markadan bağımsız taramadır; CLI süre sınırı `--timeout 60` saniyedir
+(uygulama 45 saniye kullanır).
 `--duration 0` kullanıcı durdurana kadar dinler; pozitif süre ready sonrasında başlar.
 `--uuid` macOS'un daha önce gördüğü belirli bir cihaz kimliğine yeniden bağlanır.
-Verilmezse BLE MIDI servisi yayınlayan CLP-835 / CLP-835 MIDI adlı cihaz aranır.
+Verilmezse BLE MIDI servisi yayınlayan cihazlar listelenir; bağlantı açık seçim gerektirir.
 
 ## Kaynak sahipliği ve güvenlik
 
@@ -53,18 +54,19 @@ uygulama bu adımları atlatmaz. BLE MIDI standardı tek başına piyanonun PIN 
 üzerinden fiziksel onay zorunlu tuttuğu garantisini vermez. UUID seçimi de
 kriptografik cihaz kimlik doğrulaması değildir.
 
-Piyano açık, Bluetooth On ve menzilde olmalıdır. Ses için kullanılan Bluetooth
-Pairing ekranının açık kalması gerekmez. Başlangıç GATT okuması ve MIDI bildirimi
-aboneliğine ek olarak, kullanıcı CLP ses çıkışını seçip Dinle'yi başlattığında
+Piyano açık, Bluetooth MIDI etkin ve menzilde olmalıdır. Bluetooth Audio
+eşleştirmesi ayrı bir işlevdir; modelin MIDI bağlantı yönergesi izlenmelidir. Başlangıç GATT okuması ve MIDI bildirimi
+aboneliğine ek olarak, kullanıcı piyano ses çıkışını seçip Dinle'yi başlattığında
 nota ve sustain CC64 mesajları gönderilir. Program değişimi, SysEx veya cihaz
 ayar komutu gönderilmez.
 
 ## Dinleme çıkışı
 
-Görünüm → Dinleme sesi, uygulamanın sentezleyicisini veya CLP'yi seçer; tercih
-kaydedilir. CLP seçiliyken uygulama ses üretmez, çıkış sesi piyanonun ses düğmesinden
-ayarlanır. Bu Bluetooth Audio aktarımı değildir: CLP'nin ses motoru MIDI notalarını
-çalar. Kanal 1/2 sol/sağ el için kullanılır; mevcut cihaz ses/program ayarı korunur.
+Görünüm → Dinleme sesi, uygulamanın sentezleyicisini veya bağlı piyanoyu seçer; tercih
+kaydedilir. Piyano seçiliyken uygulama ses üretmez, çıkış sesi piyanonun ses düğmesinden
+ayarlanır. Bu Bluetooth Audio aktarımı değildir: piyanonun ses motoru MIDI notalarını
+çalar. Kullanıcının cihaz başına seçtiği kanal (1–16) iki el için de kullanılır; cihazın
+ses/program ayarı değiştirilmez. Genel kanal 1; Roland FP-30X/60X/90X için kanal 4 önerilir.
 
 `piano-output.js`, seçili ellerin nota başlangıçlarını, gerçek tuş bırakma
 zamanlarını, velocity ve birleşik sustain olaylarını hazırlar. `BLEMIDIOutput`
@@ -142,3 +144,50 @@ Sayfadaki Bağlan / Bağlantıyı kes düğmeleri için ayrıca CLI açmak gerek
 Native CLI kendi TCP portunu açmaz; yerel HTTP/SSE servisi Python'a aittir.
 
 Protokol: https://midi.org/midi-over-bluetooth-low-energy-ble-midi
+
+
+## Genel cihaz keşfi ve sahiplik
+
+`piano start` artık marka filtresi olmadan keşif başlatır; kendiliğinden bağlanmaz.
+`piano start --uuid <UUID>` açıkça seçilmiş/kayıtlı cihazı bağlar. `--name <NAME>`
+yalnız CLI'nin açık isim seçimi için korunur; ürün arayüzü adla eşleştirme yapmaz.
+Tarama servisi `03B80E5A-EDE8-4B33-A751-6CE34EC4C700`, MIDI karakteristiği
+`7772E5DB-3868-4112-A1A9-F2669D106BF3` kullanılır. Tüm markalar aynı yoldadır.
+
+Tek native `PianoConnection`, bulunan periferalleri, taramayı, bağlantı aşamalarını,
+izin hatalarını, decoder ve output yaşam döngüsünü sahiplenir. CoreBluetooth kuyruğu
+üzerinden seri çalışır. UUID kimlik doğrulaması değildir; macOS/peripheral eşleştirmesi
+aynen korunur. İşletim sisteminin Bluetooth ayarları değiştirilmez.
+
+Kontrol soketi JSON `{"command":"scan"}` ve `{"command":"connect","uuid":"…"}`
+komutlarını kabul eder. Aktif bağlantı varken başka bağlantı/tarama reddedilir.
+Keşif `discovered {uuid,name,rssi?,time_unix}` olaylarıyla gelir; tekrar reklamlar cihaz
+başına saniyede en çok bir kez yayımlanır. `scanning {browsing:true}` yeni listeyi açar;
+45 saniye sonra `scan_complete` gelir ve süreç `idle` olarak seçimi bekler. `scan`
+yeniden başlatabilir. Bağlantı denemesinde ayrı 45 saniyelik süre yeniden kurulur.
+Kayıtlı UUID'de `retrievePeripheralsWithIdentifiers` sonucu fiziksel yakınlık sayılmaz.
+
+Python ve native uygulama yalnız süreç sahipliği/olay aktarımı yapar; `status.devices`
+keşif listesidir, `status.uuid/device/input_capable/output_capable` mevcut bağlantıdır.
+HTTP `POST /api/bluetooth/scan`, `POST /api/bluetooth/connect {uuid}` ve `disconnect`
+aynı sözleşmeyi sunar. Geçersiz UUID ve aşırı istek boyutu bağlantı başlatmadan reddedilir.
+
+Cihaz tercihlerinin tek sahibi mevcut `WorkspaceState` içindeki `bluetooth` bölümüdür:
+`{version:1, devices:{UUID:{name,originalName,channel,auto}}, defaultUUID, migrated}`.
+Tarayıcı ile paketlenmiş arayüz aynı JavaScript'i kullanır; kendi çalışma alanları ayrıdır.
+Eski tek CLP UUID kaydı `remembered_device` üzerinden bir kez içeri alınır; yeni bağlantılar
+eski host tercihini yazmaz. Yeni kayıt yalnız başarılı MIDI aboneliğinden sonra oluşur.
+Tek cihaz için 1–16 kanaldan biri kullanılır; native sender 16 kanalın tamamında sahip
+olduğu notaları takip eder ve durdurmada bırakır. Program change/SysEx gönderilmez.
+
+Otomatik bağlantı ve sınırlı yeniden deneme frontend oturumu tarafından kullanıcı
+tercihine göre talep edilir. Native hostun bağımsız yeniden bağlanma döngüsü yoktur.
+Sayfa yoksa Python mevcut beş saniyelik istemci gözetimiyle sahibi olduğu süreci kapatır;
+native uygulama kapanışı aynı temiz bağlantı kesme yolunu kullanır. Radyo kaybında
+nota bırakmanın teslim edilmesi garanti edilemez; yeniden bağlantı müziği başlatmaz.
+
+Üretici belgelerine göre uyumluluk adayları: Yamaha CLP-835/P-525; Roland FP-10/FP-30X;
+Kawai ES120/CN201/CA401; WU-BT10 ile Casio PX-S1100/S3100/S5000/S6000/S7000 ve
+AP-S200/AP-300/AP-S450/AP-550/AP-750. Bu liste cihaz test sertifikası değildir ve
+bağlantıda izin listesi olarak kullanılmaz. Yalnız Bluetooth Audio sunan cihazlar
+bu transport ile tuş verisi sağlayamaz. USB MIDI bu değişikliğin kapsamına dahil değildir.

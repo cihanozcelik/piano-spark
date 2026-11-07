@@ -5,6 +5,7 @@ import socket
 import subprocess
 import threading
 import time
+import uuid
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -29,11 +30,12 @@ class BluetoothBridge:
         self.last_client = time.monotonic()
         self.held = {}
         self.state = {"phase": "disconnected", "connected": False, "message": "Piyano bağlı değil",
-                      "device": "Yamaha CLP-835", "note_count": 0, "last_note": None, "pedal": None, "active": False}
+                      "device": "", "uuid": None, "devices": [], "input_capable": False, "note_count": 0, "last_note": None, "pedal": None, "active": False}
         try:
-            self.uuid = json.loads(DEVICE_FILE.read_text())["uuid"]
+            remembered = json.loads(DEVICE_FILE.read_text())["uuid"]
         except (OSError, ValueError, KeyError):
-            self.uuid = None
+            remembered = None
+        self.state["remembered_device"] = remembered
         self.shutdown = threading.Event()
         self.monitor = threading.Thread(target=self._watch_clients, daemon=True)
         self.monitor.start()
@@ -59,6 +61,7 @@ class BluetoothBridge:
         self.state.update(phase=phase, connected=phase == "connected", message=message)
         if phase != "connected":
             self.state["output_capable"] = False
+            self.state["input_capable"] = False
             self.held.clear()
             self.state["pedal"] = None
         self._publish({"event": "status", "status": dict(self.state)})
@@ -77,20 +80,35 @@ class BluetoothBridge:
             self.clients.discard(client)
             self.last_client = time.monotonic()
 
-    def connect(self):
+    def scan(self):
+        return self._start(None)
+
+    def connect(self, identifier):
+        try: identifier = str(uuid.UUID(identifier)).upper()
+        except (ValueError, TypeError, AttributeError): raise RuntimeError("Listeden bir MIDI cihazı seç.")
+        return self._start(identifier)
+
+    def _start(self, identifier):
         with self.commands, self.lock:
             if self.closed:
                 raise RuntimeError("Servis kapanıyor")
             if not self.clients:
                 raise RuntimeError("Sayfanın canlı bağlantısı hazır değil; tekrar dene")
             if self.process is not None:
+                if self.state["phase"] not in ("scanning", "idle"):
+                    raise RuntimeError("Önce mevcut bağlantıyı kes.")
+                self._send_command({"command": "connect", "uuid": identifier} if identifier else {"command": "scan"})
                 return self.snapshot()
             self.state.update(note_count=0, last_note=None, active=True)
             self.state.pop("diagnostic", None)
-            self._status("connecting", "Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla.")
+            self.state["uuid"] = identifier
+            self.state["devices"] = []
+            self.state["device"] = ""
+            self.state["browsing"] = identifier is None
+            self._status("starting", "Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla.")
             command = [str(HERE / "piano"), "start", "--timeout", "45", "--duration", "0"]
-            if self.uuid:
-                command += ["--uuid", self.uuid]
+            if identifier:
+                command += ["--uuid", identifier]
             try:
                 prepare_native()
                 self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -138,12 +156,17 @@ class BluetoothBridge:
                     elif kind == "ready":
                         self.state.pop("diagnostic", None)
                         self.state["output_capable"] = event.get("output_capable", False)
-                        self.uuid = event["uuid"]
-                        try:
-                            DEVICE_FILE.write_text(json.dumps({"uuid": self.uuid}) + "\n")
-                        except OSError:
-                            pass  # Remembering the device is optional; live MIDI remains available.
-                        self._status("connected", "Yamaha CLP-835 bağlı · tuşlar dinleniyor")
+                        self.state["uuid"] = event["uuid"]
+                        self.state["device"] = event.get("name", "Bluetooth MIDI")
+                        self.state["input_capable"] = event.get("input_capable", True)
+                        self._status("connected", "MIDI bağlantısı hazır")
+                    elif kind == "discovered":
+                        devices = [item for item in self.state["devices"] if item["uuid"] != event["uuid"]]
+                        devices.append({key: event[key] for key in ("uuid", "name", "rssi", "time_unix") if key in event})
+                        self.state["devices"] = devices
+                        self._publish({"event": "status", "status": dict(self.state)})
+                    elif kind == "scan_complete":
+                        self._status("idle", "Tarama tamamlandı. Listeden bir piyano seç veya yeniden tara.")
                     elif kind in ("note_on", "note_off") and self.state["connected"]:
                         key = (event.get("channel", 1), event["note"])
                         if kind == "note_on" and event.get("velocity", 0) > 0:
@@ -164,11 +187,17 @@ class BluetoothBridge:
                                 self.held.pop(key)
                                 self._publish(dict(note, event="note_off", velocity=0))
                     elif kind == "connecting":
-                        self._status("connecting", "Yamaha CLP-835 bağlantısı kuruluyor…")
+                        self.state["uuid"] = event["uuid"]
+                        self.state["device"] = event["name"]
+                        self.state["browsing"] = False
+                        self._status("connecting", "Seçilen piyanoya bağlanılıyor…")
                     elif kind == "scanning":
-                        self._status("connecting", "Mac’in Bluetooth’u açık. Yakındaki CLP-835 MIDI bağlantısı aranıyor…")
+                        self.state["devices"] = []
+                        self.state["browsing"] = event.get("browsing", False)
+                        self._status("scanning" if self.state["browsing"] else "connecting",
+                                     "Yakındaki Bluetooth MIDI cihazları aranıyor…" if self.state["browsing"] else "Seçilen piyano aranıyor…")
                     elif kind == "bluetooth_waiting":
-                        self._status("connecting", "Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı.")
+                        self._status("starting", "Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı.")
                     elif kind == "midi_discovery":
                         self._status("connecting", "Piyanoya Bluetooth bağlantısı kuruldu. MIDI hizmeti kontrol ediliyor…")
                     elif kind == "midi_initial_read":
@@ -213,32 +242,25 @@ class BluetoothBridge:
             with self.lock:
                 if not self.state["connected"] or self.closed:
                     raise RuntimeError("Piyano bağlı değil")
-            try:
-                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
-                    connection.settimeout(3)
-                    connection.connect(str(HERE / ".runtime/control.sock"))
-                    connection.sendall((json.dumps(request)+"\n").encode())
-                    reply = bytearray()
-                    while True:
-                        chunk = connection.recv(4096)
-                        if not chunk: break
-                        reply.extend(chunk)
-                        if len(reply)>65536: raise RuntimeError("Geçersiz MIDI çıkış yanıtı")
-                result = json.loads(reply)
-            except (OSError, ValueError) as error:
-                raise RuntimeError(f"Piyano MIDI gönderimi başarısız: {error}") from error
-            if result.get("error"): raise RuntimeError(result["error"])
-            return result
+            return self._send_command(request)
 
-    def forget_device(self):
-        with self.commands, self.lock:
-            if self.process is not None: raise RuntimeError("Önce mevcut bağlantının kapanmasını bekle")
-            try: DEVICE_FILE.unlink(missing_ok=True)
-            except OSError as error: raise RuntimeError(f"Kayıtlı piyano temizlenemedi: {error}") from error
-            self.uuid = None
-            self.state.pop("diagnostic", None)
-            self._status("disconnected", "PianoMan’in kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin.")
-            return self.snapshot()
+    def _send_command(self, request):
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
+                connection.settimeout(3)
+                connection.connect(str(HERE / ".runtime/control.sock"))
+                connection.sendall((json.dumps(request)+"\n").encode())
+                reply = bytearray()
+                while True:
+                    chunk = connection.recv(4096)
+                    if not chunk: break
+                    reply.extend(chunk)
+                    if len(reply)>65536: raise RuntimeError("Geçersiz MIDI çıkış yanıtı")
+            result = json.loads(reply)
+        except (OSError, ValueError) as error:
+            raise RuntimeError(f"Piyano MIDI gönderimi başarısız: {error}") from error
+        if result.get("error"): raise RuntimeError(result["error"])
+        return result
 
     def _watch_clients(self):
         while not self.shutdown.wait(1):
