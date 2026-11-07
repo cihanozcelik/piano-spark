@@ -2,6 +2,8 @@
 export class SheetMusic {
   constructor({onViewChange=()=>{}}={}) {
     this.onViewChange=onViewChange;
+    this.statusSource=''; this.progressSource='';
+    window.addEventListener('pianoman-language-change',()=>this.renderLanguage());
     this.viewport=document.getElementById('sheet-viewport');
     this.paper=document.getElementById('sheet-paper');
     this.status=document.getElementById('sheet-status');
@@ -21,9 +23,15 @@ export class SheetMusic {
 
   }
 
+  renderLanguage() {
+    this.loadingText.textContent=window.PianoI18n.message(this.progressSource);
+    const translated=window.PianoI18n.message(this.statusSource);
+    this.status.textContent=translated!==this.statusSource?translated:this.statusSource.split(' · ').map(text=>window.PianoI18n.message(text)).join(' · ');
+  }
+
   setProgress(message,value=null,max=1) {
-    this.loading.hidden=false; this.loadingText.textContent=message;
-    this.status.textContent=message; this.progress.hidden=false;
+    this.progressSource=this.statusSource=message;this.renderLanguage();
+    this.loading.hidden=false; this.progress.hidden=false;
     this.viewport.setAttribute('aria-busy','true');
     this.progress.max=max;
     if(value===null) this.progress.removeAttribute('value');
@@ -86,10 +94,11 @@ export class SheetMusic {
       this.pageCount=result.pages.length;
       this.pages=new Map(result.pages.map((svg,index)=>[index+1,svg]));
       this.prepareTimeline(result.timeline);
-      this.status.textContent=lesson.provenance?.sourceKind==='pdf'?
-        'PDF okuma (deneme) · '+(lesson.provenance.warnings||['Nota ve ritim hataları olabilir']).join(' '):
+      this.statusSource=lesson.provenance?.sourceKind==='pdf'?
+        'PDF okuma (deneme) · '+(lesson.provenance.warnings||['Nota ve ritim hataları olabilir']).join(' · '):
         lesson.provenance?.sourceKind==='midi'?'MIDI’den oluşturulan partisyon':
         'Otomatik partisyon · ritim, pedal ve nüans tahmini';
+      this.renderLanguage();
       this.loading.hidden=true; this.viewport.setAttribute('aria-busy','false');
       this.paper.hidden=false;
       this.showPage(Math.max(1,Math.min(this.pageCount,savedView.page||1)));

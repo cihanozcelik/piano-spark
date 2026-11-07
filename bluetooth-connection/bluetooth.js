@@ -1,6 +1,8 @@
 // The host (native app or Python developer server) owns BLE. The lesson consumes the same input API.
 import { bluetoothDiagnostic } from './bluetooth-diagnostics.js';
 export function startBluetooth(input) {
+  const t=(source,params)=>window.PianoI18n.t(source,params);
+  const message=source=>window.PianoI18n.message(source);
   const button = document.getElementById('bluetooth-toggle');
   const rediscover=document.getElementById('bluetooth-rediscover');
   const status = document.getElementById('bluetooth-status');
@@ -18,7 +20,7 @@ export function startBluetooth(input) {
   let localDiagnostic=null,renderedDiagnostic='';
 
   function renderDiagnostic(issue) {
-    const key=JSON.stringify(issue);
+    const key=window.PianoI18n.language+JSON.stringify(issue);
     if(key===renderedDiagnostic) return;
     renderedDiagnostic=key;
     help.replaceChildren();explanation.textContent='';technicalText.textContent='';
@@ -31,10 +33,10 @@ export function startBluetooth(input) {
     if(issue.stage) parts.push(`Aşama: ${issue.stage}`);
     if(issue.domain) parts.push(`Kaynak: ${issue.domain}`);
     if(issue.osCode!==undefined&&issue.osCode!==null) parts.push(`Kod: ${issue.osCode}`);
-    if(issue.detail) parts.push(issue.detail);
-    if(issue.linkEstablished!==undefined) parts.push(`Bu denemede Bluetooth bağlantısı kuruldu: ${issue.linkEstablished?'evet':'hayır'}`);
-    if(issue.cleanupConfirmed!==undefined) parts.push(`Bağlantının kapanması onaylandı: ${issue.cleanupConfirmed?'evet':'hayır'}`);
-    technicalText.textContent=parts.join('\n');
+    if(issue.detail) parts.push(message(issue.detail));
+    if(issue.linkEstablished!==undefined) parts.push(t('Bu denemede Bluetooth bağlantısı kuruldu: {value}',{value:t(issue.linkEstablished?'evet':'hayır')}));
+    if(issue.cleanupConfirmed!==undefined) parts.push(t('Bağlantının kapanması onaylandı: {value}',{value:t(issue.cleanupConfirmed?'evet':'hayır')}));
+    technicalText.textContent=parts.map(message).join('\n');
     panel.open=true;
   }
 
@@ -42,19 +44,19 @@ export function startBluetooth(input) {
     const issue=localDiagnostic||state.diagnostic||(state.phase==='error'?{code:'service_failed',detail:state.message}:null);
     const closing=state.phase==='stopping'||(state.phase==='error'&&state.active);
     panel.dataset.phase = live ? state.phase : 'offline';
-    summary.textContent = !live ? 'Piyano' : state.connected ? 'Piyano bağlı' :
-      state.phase === 'connecting' ? 'Bağlanıyor…' : state.phase === 'stopping' ? 'Kapatılıyor…' :
-      state.phase === 'error' ? 'Bağlantı hatası' : 'Piyanoyu bağla';
+    summary.textContent = !live ? t("Piyano") : state.connected ? t("Piyano bağlı") :
+      state.phase === 'connecting' ? t("Bağlanıyor…") : state.phase === 'stopping' ? t("Kapatılıyor…") :
+      state.phase === 'error' ? t("Bağlantı hatası") : t("Piyanoyu bağla");
     status.textContent = issue?bluetoothDiagnostic(issue,Boolean(native)).title:
-      live ? state.message : (native ? 'Piyano bağlantısı hazırlanıyor…' : 'Yerel servise bağlanılıyor…');
-    button.textContent = closing?'Kapatılıyor…':state.phase === 'connecting' ? 'Vazgeç' :
-      state.connected ? 'Bağlantıyı kes' : state.phase==='error'?'Tekrar dene':'Bağlan';
+      live ? message(state.message) : (native ? t("Piyano bağlantısı hazırlanıyor…") : t("Yerel servise bağlanılıyor…"));
+    button.textContent = closing?t("Kapatılıyor…"):state.phase === 'connecting' ? t("Vazgeç") :
+      state.connected ? t("Bağlantıyı kes") : state.phase==='error'?t("Tekrar dene"):t("Bağlan");
     button.disabled = !live || pending || closing;
     rediscover.hidden=!issue||!['piano_unreachable','connect_failed'].includes(issue.code);
     rediscover.disabled=!live||pending||state.active;
     renderDiagnostic(issue);
-    const note = lastNote ? `${lastNote.name} · şiddet ${lastNote.velocity} · ${noteCount} basış` : 'Tuş verisi bekleniyor';
-    activity.textContent = state.connected ? note + (pedal ? ' · sustain basılı' : '') : '';
+    const note = lastNote ? t('{note} · şiddet {velocity} · {count} basış',{note:lastNote.name,velocity:lastNote.velocity,count:noteCount}) : t("Tuş verisi bekleniyor");
+    activity.textContent = state.connected ? note + (pedal ? t(" · sustain basılı") : '') : '';
   }
 
   function applyStatus(next) {
@@ -161,6 +163,7 @@ export function startBluetooth(input) {
     offline();
   });
   window.addEventListener('pageshow', event => { if (event.persisted) openStream(); });
+  window.addEventListener('pianoman-language-change',render);
   openStream();
   render();
 }

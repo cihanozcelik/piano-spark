@@ -172,7 +172,8 @@ def publish():
     command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'Piano Spark {CONFIG["version"]}',
             '--notes-file',DIST/'release-notes.txt',ARCHIVE,ROOT/'desktop/release.json',DIST/'update-signature.json',
             *(DIST/patch['file'] for patch in patches))
-    release=api(f'repos/{REPO}/releases/tags/{TAG}')
+    # The by-tag endpoint excludes drafts; the authenticated list includes them.
+    release=next(item for item in api(f'repos/{REPO}/releases') if item['tag_name']==TAG)
     asset=next(a for a in release['assets'] if a['name']==ARCHIVE.name)
     # GitHub's Content-Disposition gives Sparkle the actual archive filename.
     delta_assets=[(patch,next(a['url'] for a in release['assets'] if a['name']==patch['file'])) for patch in patches]
@@ -180,13 +181,15 @@ def publish():
     command('gh','release','upload',TAG,feed,'--repo',REPO)
     # Publish the archive before moving the feed; clients never receive a dangling link.
     api(f'repos/{REPO}/releases/{release["id"]}',{'draft':False},'PATCH')
+    account=api('users/'+REPO.split('/')[0])
+    author={'name':account['login'],'email':f"{account['id']}+{account['login']}@users.noreply.github.com"}
     if not refs:
         tree=api(f'repos/{REPO}/git/trees',{'tree':[{'path':'appcast.xml','mode':'100644','type':'blob','content':feed.read_text()}]})
-        commit=api(f'repos/{REPO}/git/commits',{'message':f'Publish {TAG} update feed','tree':tree['sha']})
+        commit=api(f'repos/{REPO}/git/commits',{'message':f'Publish {TAG} update feed','tree':tree['sha'],'author':author,'committer':author})
         api(f'repos/{REPO}/git/refs',{'ref':'refs/heads/updates','sha':commit['sha']})
     else:
         current=api(f'repos/{REPO}/contents/appcast.xml?ref=updates')
-        api(f'repos/{REPO}/contents/appcast.xml',{'message':f'Publish {TAG} update feed','branch':'updates',
+        api(f'repos/{REPO}/contents/appcast.xml',{'message':f'Publish {TAG} update feed','branch':'updates','author':author,'committer':author,
             'sha':current['sha'],'content':base64.b64encode(feed.read_bytes()).decode()},'PUT')
     command('gh','workflow','run','pages.yml','--repo',REPO,'--ref','main')
     print(f'Published {TAG}: https://github.com/{REPO}/releases/tag/{TAG}')

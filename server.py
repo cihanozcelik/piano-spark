@@ -17,6 +17,8 @@ from bluetooth_bridge import BluetoothBridge, prepare_native
 from desktop.lesson_bridge import LessonBridge
 
 FILES = {
+    "/i18n.js": ("i18n.js", "text/javascript; charset=utf-8"),
+    "/i18n-messages.js": ("i18n-messages.js", "text/javascript; charset=utf-8"),
     "/bluetooth-diagnostics.js": ("bluetooth-connection/bluetooth-diagnostics.js", "text/javascript; charset=utf-8"),
     "/piano-output.js": ("piano-output.js", "text/javascript; charset=utf-8"),
     "/workspace-state.js": ("workspace-state.js", "text/javascript; charset=utf-8"),

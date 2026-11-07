@@ -1,3 +1,4 @@
+#import "Localization.h"
 #import "LessonService.h"
 #import <signal.h>
 #import <unistd.h>
@@ -30,16 +31,16 @@
     return self;
 }
 - (BOOL)running { return self.identifier != nil; }
-- (NSDictionary *)snapshot { return self.state; }
+- (NSDictionary *)snapshot { return PianoLocalizedStatus(self.state); }
 - (void)publish:(NSDictionary *)state {
     self.state = state;
     [NSFileManager.defaultManager createDirectoryAtURL:self.supportURL withIntermediateDirectories:YES attributes:nil error:NULL];
     [[NSJSONSerialization dataWithJSONObject:state options:0 error:NULL]
         writeToURL:[self.supportURL URLByAppendingPathComponent:@"LastJob.json"] options:NSDataWritingAtomic error:NULL];
-    if (self.onEvent) self.onEvent(state);
+    if (self.onEvent) self.onEvent([self snapshot]);
 }
 - (BOOL)fail:(NSString *)message error:(NSError **)error {
-    if (error) *error = [NSError errorWithDomain:@"PianoMan.Lessons" code:1 userInfo:@{NSLocalizedDescriptionKey:message}];
+    if (error) *error = [NSError errorWithDomain:@"PianoMan.Lessons" code:1 userInfo:@{NSLocalizedDescriptionKey:PianoText(message)}];
     return NO;
 }
 - (NSURL *)libraryURL { return [self.supportURL URLByAppendingPathComponent:@"Lessons"]; }

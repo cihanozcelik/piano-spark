@@ -1,3 +1,5 @@
+const t=(source,params)=>window.PianoI18n.t(source,params);
+const translated=source=>window.PianoI18n.message(source);
 export async function lessonCommand(command,fields={}) {
   const native=window.webkit?.messageHandlers?.pianoman;
     if (native) return native.postMessage({ command, ...fields });
@@ -28,6 +30,14 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   const native = window.webkit?.messageHandlers?.pianoman;
   const available = Boolean(native) || location.protocol === 'http:';
   const draft=workspaceState.data.create;
+  let statusSource='';
+  const libraryLabels=new Map();
+  function label(node,source,params={},attribute='textContent') {
+    if(!libraryLabels.has(node)) libraryLabels.set(node,new Map());
+    libraryLabels.get(node).set(attribute,{source,params});
+    if(attribute==='textContent') node.textContent=t(source,params);
+    else node.setAttribute(attribute,t(source,params));
+  }
   let busy = false, cancelled = false, loadedResult = draft.completedJob||'';
   function saveDraft() {
     workspaceState.update('create',{source,title:ui['lesson-title'].value,url:ui['youtube-url'].value,
@@ -49,22 +59,23 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   async function refreshLessons() {
     if (!available) return;
     const lessons=await lessonCommand('lesson-list');
+    libraryLabels.clear();
     for(const container of [ui['saved-lessons'],ui['saved-lessons-menu']]) {
       container.replaceChildren();
       for(const lesson of lessons) {
         const row=document.createElement('div');row.className='lesson-row';
         const button=document.createElement('button'); button.type='button';
-        button.textContent=lesson.title+' · '+lesson.noteCount+' nota';
+        label(button,'{title} · {count} nota',{title:lesson.title,count:lesson.noteCount});
         button.dataset.closePopover='';
         button.addEventListener('click',()=>openLesson(lesson.id)); row.append(button);
         const remove=document.createElement('button');remove.type='button';remove.className='lesson-delete';
-        remove.textContent='Sil';remove.setAttribute('aria-label',lesson.title+' dersini sil');row.append(remove);
+        label(remove,'Sil');label(remove,'{title} dersini sil',{title:lesson.title},'aria-label');row.append(remove);
         remove.addEventListener('click',()=> {
           remove.hidden=true;
           const confirm=document.createElement('button'),cancel=document.createElement('button');
-          confirm.type=cancel.type='button';confirm.textContent='Dersi sil';cancel.textContent='Vazgeç';
+          confirm.type=cancel.type='button';label(confirm,'Dersi sil');label(cancel,'Vazgeç');
           row.append(confirm,cancel);
-          cancel.onclick=()=>{confirm.remove();cancel.remove();remove.hidden=false;};
+          cancel.onclick=()=>{libraryLabels.delete(confirm);libraryLabels.delete(cancel);confirm.remove();cancel.remove();remove.hidden=false;};
           confirm.onclick=async()=> {
             confirm.disabled=cancel.disabled=true;
             try {
@@ -78,7 +89,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
         container.append(row);
       }
     }
-    if(!lessons.length) ui['saved-lessons'].textContent='Oluşturduğun dersler burada saklanır.';
+    if(!lessons.length) label(ui['saved-lessons'],'Oluşturduğun dersler burada saklanır.');
   }
 
   async function jobState(event) {
@@ -98,7 +109,8 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   }
 
   function announce(message, state = 'idle') {
-    ui['create-status'].textContent = message;
+    statusSource=message;
+    ui['create-status'].textContent = translated(message);
     ui['create-status'].dataset.state = state;
   }
 
@@ -149,7 +161,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     selectedVideo = file;
     ui['lesson-title'].value=file.name.replace(/\.[^.]+$/,'');
     ui['video-name'].textContent = file.name;
-    ui['video-detail'].textContent = 'Video açılıyor…';
+    ui['video-detail'].textContent = t('Video açılıyor…');
     ui['video-preview'].hidden = false;
     videoURL = URL.createObjectURL(file);
     video.preload = 'metadata';
@@ -172,14 +184,17 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
       return;
     }
     videoReady = true;
-    const seconds = Math.floor(video.duration);
-    const duration = Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
-    const size = selectedVideo.size / (1024 * 1024);
-    const sizeText = size < 1 ? Math.max(1, Math.ceil(selectedVideo.size / 1024)) + ' KB' : size.toLocaleString('tr-TR', {maximumFractionDigits: 1}) + ' MB';
-    ui['video-detail'].textContent = duration + ' · ' + sizeText;
+    renderVideoDetails();
     if (source === 'video') announce('Video seçildi.', 'ready');
     updateControls();
   });
+  function renderVideoDetails() {
+    const seconds = Math.floor(video.duration);
+    const duration = Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+    const size = selectedVideo.size / (1024 * 1024);
+    const sizeText = size < 1 ? Math.max(1, Math.ceil(selectedVideo.size / 1024)) + ' KB' : size.toLocaleString(window.PianoI18n.language==='tr'?'tr-TR':'en-US', {maximumFractionDigits: 1}) + ' MB';
+    ui['video-detail'].textContent = duration + ' · ' + sizeText;
+  }
   video.addEventListener('error', videoFailed);
 
   ui['source-video'].addEventListener('click', () => {showSource('video');saveDraft();});
@@ -252,7 +267,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     youtubeURL = canonical;
     ui['youtube-url'].removeAttribute('aria-invalid');
     ui['youtube-url'].value = canonical;
-    ui['youtube-title'].textContent = 'YouTube videosu';
+    ui['youtube-title'].textContent = t('YouTube videosu');
     ui['youtube-link'].textContent = canonical;
     ui['youtube-preview'].hidden = false;
     announce('Bağlantı seçildi.', 'ready');
@@ -277,6 +292,21 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
 
   window.addEventListener('pianoman-tab-change', event => {
     if (event.detail.tab !== 'create') video.pause();
+  });
+  window.addEventListener('pianoman-language-change',()=> {
+    ui['create-status'].textContent=translated(statusSource);
+    if(youtubeURL) ui['youtube-title'].textContent=t('YouTube videosu');
+    if(selectedVideo) {
+      if(videoReady) renderVideoDetails();
+      else ui['video-detail'].textContent=t('Video açılıyor…');
+    }
+    for(const [node,attributes] of libraryLabels) {
+      if(!node.isConnected) continue;
+      for(const [attribute,{source,params}] of attributes) {
+        if(attribute==='textContent') node.textContent=t(source,params);
+        else node.setAttribute(attribute,t(source,params));
+      }
+    }
   });
   window.addEventListener('pagehide', releaseVideoURL);
   window.addEventListener('pageshow', event => {
@@ -324,7 +354,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   if(typeof draft.separate==='boolean') ui['separate-vocals'].checked=draft.separate;
   youtubeURL=draft.youtubeURL||'';
   if(youtubeURL) {
-    ui['youtube-title'].textContent='YouTube videosu'; ui['youtube-link'].textContent=youtubeURL;
+    ui['youtube-title'].textContent=t('YouTube videosu'); ui['youtube-link'].textContent=youtubeURL;
     ui['youtube-preview'].hidden=false;
   }
   for(const id of ['lesson-title','separate-vocals','document-tempo']) ui[id].addEventListener('input',saveDraft);
@@ -340,5 +370,5 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     window.addEventListener('pagehide',()=>{stopped=true;});
     window.addEventListener('pageshow',event=>{if(event.persisted){stopped=false;pollState();}});
     pollState();
-  } else announce('Ders oluşturmak için PianoMan masaüstü uygulamasını aç.');
+  } else announce('Ders oluşturmak için Piano Spark masaüstü uygulamasını aç.');
 }

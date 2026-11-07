@@ -9,11 +9,16 @@ import { StaffNotation } from './staff-notation.js';
 import { startAppShell } from './app-shell.js';
   (async () => {
     'use strict';
+    await window.PianoI18n.ready;
+    const t=(source,params)=>window.PianoI18n.t(source,params);
+    const message=source=>window.PianoI18n.message(source);
+    let errorSource='', metadataDescription='';
     const element = id => document.getElementById(id);
     const ui = Object.fromEntries(['play','rewind','speed','track','volume','volume-control','seek','elapsed','duration','notation','staff','zoom','range','loop','roll','keyboard','stage','viewport','error','file-badge','file-title','file-description','current-notes','midi-file','legend-left','legend-right','mode','lesson-panel','lesson-feedback'].map(id => [id, element(id)]));
     ui['audio-output']=element('audio-output');
     ui['audio-output-status']=element('audio-output-status');
     const workspaceState=new WorkspaceState();
+    workspaceState.onError=showError;
     workspaceState.restoreControls(ui);
     let currentReference=null,currentKey='',changingLesson=false,lastCheckpoint=0;
     const rubatoSong = JSON.parse(element('rubato-song-data').textContent);
@@ -26,6 +31,7 @@ import { startAppShell } from './app-shell.js';
     const sharp = new Set([1,3,6,8,10]);
     const letterNames = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
     const solfegeNames = ['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];
+    const englishSolfegeNames=solfegeNames.map(name=>name==='Si'?'Ti':name);
     const colors = ['#75a7ff','#efab91'];
     const state = { tracks:[], selectedTracks:[], notes:[], duration:0, position:-2, speed:Number(ui.speed.value), running:false, anchor:0, anchorPosition:0, next:0, epoch:0, source:'builtin', mode:ui.mode.value };
     const input = new PianoInput(), practice = new PracticeClock();
@@ -58,8 +64,8 @@ import { startAppShell } from './app-shell.js';
         horizontal:activePractice?ui.viewport.scrollLeft:workspaceState.lesson(currentKey).horizontal||0});
     }
 
-    function showError(message) { ui.error.textContent=message; ui.error.hidden=!message; }
-    function noteName(midi, mode=ui.notation.value) { return (mode==='letters'?letterNames:solfegeNames)[midi%12] + (Math.floor(midi/12)-1); }
+    function showError(source) { delete ui.error.dataset.persistenceMessage; errorSource=source; ui.error.textContent=message(source); ui.error.hidden=!source; }
+    function noteName(midi, mode=ui.notation.value) { return (mode==='letters'?letterNames:(window.PianoI18n.language==='en'?englishSolfegeNames:solfegeNames))[midi%12] + (Math.floor(midi/12)-1); }
     function noteHand(note) { return note.hand===0||note.hand===1 ? note.hand : (note.midi<60?0:1); }
     function formatTime(value) { const seconds=Math.floor(Math.max(0,value)); return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0'); }
     function lowerBound(notes, time) {
@@ -125,13 +131,13 @@ import { startAppShell } from './app-shell.js';
       return state.running ? state.anchorPosition+Math.max(0,nowSeconds()-state.anchor)*state.speed : state.position;
     }
     function updatePlayButton() {
-      ui.play.textContent=state.starting?'Vazgeç':state.running?'Duraklat':(practicing()?'Başlat':'Dinle');
+      ui.play.textContent=state.starting?t("Vazgeç"):state.running?t("Duraklat"):(practicing()?t("Başlat"):t("Dinle"));
       ui.play.setAttribute('aria-label',ui.play.textContent);
       ui['volume-control'].hidden=practicing()||pianoListening();
       ui['audio-output-status'].textContent=ui['audio-output'].value==='piano'?
-        (!pianoOutput.connected?'CLP’den dinlemek için piyanoyu bağla.':
-         !pianoOutput.capable?'MIDI gönderimi hazır değil; yeniden bağlan.':'Ses CLP’den gelir; ses düzeyini piyanodan ayarla.'):
-        'Ses uygulamanın sentezleyicisinden gelir.';
+        (!pianoOutput.connected?t("CLP’den dinlemek için piyanoyu bağla."):
+         !pianoOutput.capable?t("MIDI gönderimi hazır değil; yeniden bağlan."):t("Ses CLP’den gelir; ses düzeyini piyanodan ayarla.")):
+        t("Ses uygulamanın sentezleyicisinden gelir.");
     }
     function pause() {
       state.epoch++;
@@ -241,15 +247,15 @@ import { startAppShell } from './app-shell.js';
       const snapshot=selectedInput(), status=practice.status;
       const names=notes=>notes.sort((a,b)=>a-b).map(midi=>noteName(midi,ui.notation.value==='none'?'solfege':ui.notation.value)).join(' · ');
       let text;
-      if(!snapshot.connected) text='Piyanoyu bağla';
-      else if(!state.running) text=practice.time>=state.duration?'Tamamlandı':'Hazır';
+      if(!snapshot.connected) text=t("Piyanoyu bağla");
+      else if(!state.running) text=practice.time>=state.duration?t("Tamamlandı"):t("Hazır");
       else {
         const instructions=[];
-        if(status.missing.length) instructions.push('Bas: '+names(status.missing));
-        if(status.extra.length) instructions.push('Bırak: '+names(status.extra));
-        if(status.repeat.length) instructions.push('Yeniden bas: '+names(status.repeat));
-        text=instructions.length?'Bekliyorum — '+instructions.join(' / '):
-          practice.expected.size?'Basılı tut: '+names([...practice.expected.keys()]):'Sıradaki notayı bekle';
+        if(status.missing.length) instructions.push(t("Bas: ")+names(status.missing));
+        if(status.extra.length) instructions.push(t("Bırak: ")+names(status.extra));
+        if(status.repeat.length) instructions.push(t("Yeniden bas: ")+names(status.repeat));
+        text=instructions.length?t("Bekliyorum — ")+instructions.join(' / '):
+          practice.expected.size?t("Basılı tut: ")+names([...practice.expected.keys()]):t("Sıradaki notayı bekle");
       }
       if(ui['lesson-feedback'].textContent!==text) ui['lesson-feedback'].textContent=text;
       ui['lesson-feedback'].classList.toggle('waiting',state.running&&status.blocked);
@@ -257,7 +263,7 @@ import { startAppShell } from './app-shell.js';
 
     function updateExpression(time, current) {
       const pressed=state.selectedTracks.some(track=>pedalValue(track.pedals,time)>=.5);
-      const pedalText=hasPedal?(pressed?'BASILI':'BIRAKILMIŞ'):'VERİ YOK';
+      const pedalText=hasPedal?(pressed?t("BASILI"):t("BIRAKILMIŞ")):t("VERİ YOK");
       if(expression.pedalStatus.textContent!==pedalText) expression.pedalStatus.textContent=pedalText;
       expression.pedal.classList.toggle('pressed',pressed);
       let notes=current, upcoming=false;
@@ -270,9 +276,9 @@ import { startAppShell } from './app-shell.js';
         }
       }
       const values=notes.map(note=>noteName(note.midi,ui.notation.value==='none'?'solfege':ui.notation.value)+' '+Math.round(note.velocity*127));
-      const velocityText=(upcoming?'Sıradaki şiddet':'Şiddet')+' (1–127): '+(values.join(' · ')||'—');
+      const velocityText=(upcoming?t("Sıradaki şiddet"):t("Şiddet"))+' (1–127): '+(values.join(' · ')||'—');
       if(expression.velocity.textContent!==velocityText) expression.velocity.textContent=velocityText;
-      const hint=practicing()?'Çalışta şiddet ve pedal isteğe bağlı':'Şiddet ve pedal duyulan sese uygulanır';
+      const hint=practicing()?t("Çalışta şiddet ve pedal isteğe bağlı"):t("Şiddet ve pedal duyulan sese uygulanır");
       if(expression.hint.textContent!==hint) expression.hint.textContent=hint;
     }
 
@@ -313,7 +319,7 @@ import { startAppShell } from './app-shell.js';
       }
       context.fillStyle='#211d2ae6'; context.fillRect(0,0,pedalWidth,24);
       context.font='9px -apple-system,BlinkMacSystemFont,sans-serif'; context.textAlign='center';
-      context.fillStyle='#d6c0f1'; context.fillText(hasPedal?'SUSTAIN':'VERİ YOK',pedalWidth/2,15);
+      context.fillStyle='#d6c0f1'; context.fillText(hasPedal?'SUSTAIN':t("VERİ YOK"),pedalWidth/2,15);
     }
 
     function resize() {
@@ -382,7 +388,7 @@ import { startAppShell } from './app-shell.js';
         key.element.classList.toggle('active',active.has(key.midi));
         key.element.classList.toggle('expected',practicing()&&practice.expected.has(key.midi));
         key.element.classList.toggle('wrong',practicing()&&practice.status.extra.includes(key.midi));
-        key.element.setAttribute('aria-label',noteName(key.midi,'solfege')+(held.has(key.midi)?' · basılı':''));
+        key.element.setAttribute('aria-label',noteName(key.midi,'solfege')+(held.has(key.midi)?t(" · basılı"):''));
         if(active.has(key.midi)) key.element.style.setProperty('--active',colors[active.get(key.midi)]);
       }
       for(const [midi,hand] of active) {
@@ -393,7 +399,7 @@ import { startAppShell } from './app-shell.js';
       }
       if(time<0) {
         ctx.font='11px -apple-system,BlinkMacSystemFont,sans-serif'; ctx.fillStyle='#a4a7ae'; ctx.textAlign='right';
-        ctx.fillText(state.running?'Hazır… '+Math.ceil(-time):'Notayı çizgide karşıla',width-15,23); ctx.textAlign='left';
+        ctx.fillText(state.running?t("Hazır… ")+Math.ceil(-time):t("Notayı çizgide karşıla"),width-15,23); ctx.textAlign='left';
       }
       const visibleTime=Math.max(0,Math.min(state.duration,time));
       ui.seek.value=String(visibleTime); ui.elapsed.textContent=formatTime(visibleTime);
@@ -427,15 +433,15 @@ import { startAppShell } from './app-shell.js';
       state.duration=duration; state.position=Number.isFinite(saved.position)?Math.max(-2,Math.min(duration,saved.position)):-2; state.source=source;
       sheet.load(notationLesson,saved.sheet);
       practice.seek(state.position,nowSeconds(),selectedInput());
-      ui.track.replaceChildren(new Option(source==='builtin'?'İki el birlikte':'Tüm melodik kanallar','all'));
-      for(const track of tracks) ui.track.add(new Option(source==='builtin'?(track.id===0?'Sol el':'Sağ el'):track.name,String(track.id)));
+      ui.track.replaceChildren(new Option(source==='builtin'?t("İki el birlikte"):t("Tüm melodik kanallar"),'all'));
+      for(const track of tracks) ui.track.add(new Option(source==='builtin'?(track.id===0?t("Sol el"):t("Sağ el")):track.name,String(track.id)));
       if([...ui.track.options].some(option=>option.value===saved.track)) ui.track.value=saved.track;
       ui.track.disabled=tracks.length===1;
-      ui['file-badge'].textContent=source==='builtin'?'DERS HAZIR':'MIDI AÇILDI';
+      ui['file-badge'].textContent=source==='builtin'?t("DERS HAZIR"):t("MIDI AÇILDI");
       element('download-midi').disabled=source!=='builtin';
-      ui['legend-left'].textContent=source==='builtin'?'Sol el':'Do4 altı';
-      ui['legend-right'].textContent=source==='builtin'?'Sağ el':'Do4 ve üstü';
-      ui['file-title'].textContent=title; ui['file-description'].textContent=description;
+      ui['legend-left'].textContent=source==='builtin'?t("Sol el"):t("Do4 altı");
+      ui['legend-right'].textContent=source==='builtin'?t("Sağ el"):t("Do4 ve üstü");
+      ui['file-title'].textContent=title; metadataDescription=description; renderLessonLabels();
       ui.seek.max=String(duration); ui.duration.textContent=formatTime(duration);
       showError(''); applyTracks(); updatePlayButton();
       changingLesson=false; workspaceState.update('current',reference);
@@ -447,11 +453,24 @@ import { startAppShell } from './app-shell.js';
         checkpoint();workspaceState.flush();
       });
     }
+    function renderLessonLabels() {
+      for(const option of ui.track.options) {
+        if(option.value==='all') option.textContent=t(state.source==='builtin'?'İki el birlikte':'Tüm melodik kanallar');
+        else if(state.source==='builtin') option.textContent=t(Number(option.value)===0?'Sol el':'Sağ el');
+      }
+      ui['file-badge'].textContent=t(state.source==='builtin'?'DERS HAZIR':'MIDI AÇILDI');
+      ui['legend-left'].textContent=t(state.source==='builtin'?'Sol el':'Do4 altı');
+      ui['legend-right'].textContent=t(state.source==='builtin'?'Sağ el':'Do4 ve üstü');
+      ui['file-description'].textContent=metadataDescription.split(' · ').map(message).join(' · ');
+    }
+    window.addEventListener('pianoman-language-change',()=> {
+      renderLessonLabels();updatePlayButton();showError(errorSource);rebuildKeys();draw();
+    });
     function loadSong(lesson=rubatoSong) {
       song=lesson;
       const detail=song.description?' · '+song.description:'';
       const reference=lesson===rubatoSong?{kind:'builtin',id:'rubato'}:{kind:'library',id:lesson.id};
-      load(song.tracks,song.duration,'builtin',song.title.replace(/ · Piano Tutorial$/, ''),song.noteCount.toLocaleString('tr-TR')+' nota · '+formatTime(song.duration)+detail,reference,lesson);
+      load(song.tracks,song.duration,'builtin',song.title.replace(/ · Piano Tutorial$/, ''),song.noteCount+' nota · '+formatTime(song.duration)+detail,reference,lesson);
     }
     function downloadMidi() {
       const midi=new Midi(); midi.name=song.title; midi.header.setTempo(60);

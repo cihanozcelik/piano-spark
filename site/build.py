@@ -1,6 +1,7 @@
 """Build the public Piano Spark website from published release metadata only."""
 import argparse
 import html
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -74,11 +75,16 @@ def main():
     if output.exists():
         shutil.rmtree(output)
     output.mkdir(parents=True)
-    (output/'index.html').write_text(source)
     for name in STATIC_FILES:
-        target = output/name
+        asset = ROOT/'site'/name
+        digest = hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
+        relative = Path(name)
+        versioned = relative.with_name(f'{relative.stem}-{digest}{relative.suffix}')
+        target = output/versioned
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT/'site'/name, target)
+        shutil.copy2(asset, target)
+        source = source.replace(name, versioned.as_posix())
+    (output/'index.html').write_text(source)
     (output/'.nojekyll').write_text('')
     if args.appcast:
         shutil.copy2(args.appcast, output/'appcast.xml')

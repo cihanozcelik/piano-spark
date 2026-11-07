@@ -1,3 +1,4 @@
+#import "Localization.h"
 #import <AppKit/AppKit.h>
 #import <unistd.h>
 
@@ -19,26 +20,26 @@
     self.destination = [NSURL fileURLWithPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Applications/Piano Spark.app"]];
     self.window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,540,290)
         styleMask:NSWindowStyleMaskTitled|NSWindowStyleMaskClosable backing:NSBackingStoreBuffered defer:NO];
-    self.window.title = @"Piano Spark Setup"; self.window.delegate = self;
+    self.window.title = PianoText(@"Piano Spark Kurulumu"); self.window.delegate = self;
     self.window.releasedWhenClosed = NO;
-    NSTextField *heading = [NSTextField labelWithString:@"Install Piano Spark"];
+    NSTextField *heading = [NSTextField labelWithString:PianoText(@"Piano Spark’ı yükle")];
     heading.font = [NSFont boldSystemFontOfSize:24]; heading.frame = NSMakeRect(28,232,480,32);
     [self.window.contentView addSubview:heading];
     self.status = [NSTextField wrappingLabelWithString:
-        @"Piyano derslerini videodan bu Mac’te oluştur. Gerekli motorlar ve modeller pakete dahildir.\n\nUygulama hesabının Applications klasörüne kurulacak. Ayrı Python kurulmaz, sistem servisi eklenmez. Güncelleme sırasında açık Piano Spark kapanır."];
+        PianoText(@"Piyano derslerini videodan bu Mac’te oluştur. Gerekli motorlar ve modeller pakete dahildir.\n\nUygulama hesabının Applications klasörüne kurulacak. Ayrı Python kurulmaz, sistem servisi eklenmez. Güncelleme sırasında açık Piano Spark kapanır.")];
     self.status.frame = NSMakeRect(28,98,480,124); [self.window.contentView addSubview:self.status];
     self.progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(28,78,480,10)];
     self.progress.indeterminate = YES; self.progress.style = NSProgressIndicatorStyleBar;
     self.progress.hidden = YES; [self.window.contentView addSubview:self.progress];
-    self.install = [NSButton buttonWithTitle:@"Yükle" target:self action:@selector(installApp:)];
+    self.install = [NSButton buttonWithTitle:PianoText(@"Yükle") target:self action:@selector(installApp:)];
     self.install.frame = NSMakeRect(382,24,130,34); [self.window.contentView addSubview:self.install];
-    self.cancel = [NSButton buttonWithTitle:@"Vazgeç" target:self action:@selector(cancelInstall:)];
+    self.cancel = [NSButton buttonWithTitle:PianoText(@"Vazgeç") target:self action:@selector(cancelInstall:)];
     self.cancel.frame = NSMakeRect(264,24,110,34); [self.window.contentView addSubview:self.cancel];
     [self.window center]; [self.window makeKeyAndOrderFront:nil]; [NSApp activateIgnoringOtherApps:YES];
 }
 - (void)cancelInstall:(id)sender {
     (void)sender;
-    if (self.working) { self.cancelled = YES; self.status.stringValue = @"Kurulum iptal ediliyor…"; self.cancel.enabled = NO; }
+    if (self.working) { self.cancelled = YES; self.status.stringValue = PianoText(@"Kurulum iptal ediliyor…"); self.cancel.enabled = NO; }
     else [NSApp terminate:nil];
 }
 - (BOOL)windowShouldClose:(NSWindow *)sender { (void)sender; [self cancelInstall:nil]; return NO; }
@@ -46,7 +47,7 @@
     (void)sender;
     if (self.installed) { [NSWorkspace.sharedWorkspace openURL:self.destination]; [NSApp terminate:nil]; return; }
     self.working = YES; self.install.enabled = NO;
-    self.status.stringValue = @"Uygulama ve modeller kopyalanıyor…\n\nBu işlem bitene kadar mevcut uygulama korunur.";
+    self.status.stringValue = PianoText(@"Uygulama ve modeller kopyalanıyor…\n\nBu işlem bitene kadar mevcut uygulama korunur.");
     self.progress.hidden = NO; [self.progress startAnimation:nil];
     dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0), ^{
         NSFileManager *files = NSFileManager.defaultManager;
@@ -63,7 +64,7 @@
                 if ([app.bundleURL.path isEqual:self.destination.path]) {
                     [app terminate];
                     for (int i=0;i<300 && !app.terminated && !self.cancelled;i++) usleep(100000);
-                    if (!app.terminated) { ok = NO; error = [NSError errorWithDomain:@"PianoMan.Installer" code:1 userInfo:@{NSLocalizedDescriptionKey:@"Açık Piano Spark kapanmadı. Kapatıp kurulumu tekrar başlat."}]; break; }
+                    if (!app.terminated) { ok = NO; error = [NSError errorWithDomain:@"PianoMan.Installer" code:1 userInfo:@{NSLocalizedDescriptionKey:PianoText(@"Açık Piano Spark kapanmadı. Kapatıp kurulumu tekrar başlat.")}]; break; }
                 }
             }
         }
@@ -86,9 +87,9 @@
             if (self.cancelled && !didInstall) { [NSApp terminate:nil]; return; }
             self.install.enabled = YES; self.cancel.enabled = YES;
             if (ok) {
-                self.installed = YES; self.install.title = @"Open Piano Spark"; self.cancel.title = @"Kapat";
-                self.status.stringValue = @"Piano Spark installed.\n\nVideonu seçip Ders oluştur düğmesine basabilirsin. Uygulamayı ve verilerini kaldırmak için Piano Spark menüsündeki “Piano Spark’ı kaldır…” seçeneğini kullan.";
-            } else self.status.stringValue = [@"Kurulum tamamlanamadı.\n\n" stringByAppendingString:error.localizedDescription ?: @"Dosya kopyalanamadı."];
+                self.installed = YES; self.install.title = PianoText(@"Piano Spark’ı aç"); self.cancel.title = PianoText(@"Kapat");
+                self.status.stringValue = PianoText(@"Piano Spark yüklendi.\n\nVideonu seçip Ders oluştur düğmesine basabilirsin. Uygulamayı ve verilerini kaldırmak için Piano Spark menüsündeki “Piano Spark’ı kaldır…” seçeneğini kullan.");
+            } else self.status.stringValue = [PianoText(@"Kurulum tamamlanamadı.\n\n") stringByAppendingString:error.localizedDescription ?: PianoText(@"Dosya kopyalanamadı.")];
         });
     });
 }

@@ -79,6 +79,7 @@ export function startAppShell({ onTabWillChange, onTabChange, onLesson, onLesson
 
 // The workspace owns both split sizes; rendering only observes its dimensions.
 function startWorkspaceLayout(workspaceState) {
+  const { t } = window.PianoI18n;
   const workspace=document.querySelector('.workspace');
   const sheet=document.getElementById('sheet-viewport');
   const viewport=document.getElementById('viewport');
@@ -111,9 +112,9 @@ function startWorkspaceLayout(workspaceState) {
       handle.setAttribute('aria-valuemin',String(Math.round(min)));
       handle.setAttribute('aria-valuemax',String(Math.round(max)));
       handle.setAttribute('aria-valuenow',String(Math.round(rendered[name])));
-      handle.setAttribute('aria-valuetext',Math.round(rendered[name])+' piksel');
+      handle.setAttribute('aria-valuetext',t('{count} piksel',{count:Math.round(rendered[name])}));
     }
-    expand.textContent=expanded?'Küçült':'Büyüt';
+    expand.textContent=t(expanded?'Küçült':'Büyüt');
     expand.setAttribute('aria-expanded',String(expanded));
   }
   function save() { workspaceState.update('layout',{...sizes,expanded}); workspaceState.flush(); }
@@ -160,6 +161,7 @@ function startWorkspaceLayout(workspaceState) {
     expanded=!expanded;
     apply();save();
   });
+  window.addEventListener('pianoman-language-change',apply);
   new ResizeObserver(apply).observe(workspace);
   apply();
 }

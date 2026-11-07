@@ -41,7 +41,10 @@ kontrol eder.
 
 ## İlk yayın ve sonraki sürümler
 
-İlk yayın yerel tam motorlu uygulamadan hazırlanır:
+İlk yayın GitHub Actions tarafından Apple Silicon runner üzerinde hazırlanabilir.
+`desktop/prepare_engine.py` sabit Python/paket sürümlerini ve SHA-256 ile doğrulanan
+modelleri indirir; tam uygulama oluşturulduktan sonra yalnız CI hazırlık dosyaları
+silinir. Yerel Mac’e ek model indirilmez. Yerel paketleme de desteklenir:
 
 ```sh
 python3 desktop/build.py --app-only
@@ -70,10 +73,11 @@ feed’i yayımlar. Feed güncellenemezse mevcut feed korunur; yeni release’i 
 incelemeden aynı etiketi zorla değiştirmeyin.
 
 `.github/workflows/release.yml`, `v*` etiketi push edildiğinde sonraki sürümleri
-GitHub’ın macOS runner’ında oluşturur. İlk yayın bu workflow’dan önce yerelden
-sağlanmalıdır; workflow önceki imzalı release’in tamamını doğrulayıp yama tabanı olarak saklar;
-motorunu APFS clone ile yeni build’de kullanır. Önceki yayın yoksa workflow build’i atlar ve ilk yerel yayının gerektiğini
-Actions özetinde gösterir. Sonraki sürümlerde
+GitHub’ın Apple Silicon macOS runner’ında oluşturur. Önceden yayımlanmış sürüm
+varsa imzalı paketin tamamını doğrulayıp yama tabanı olarak saklar ve motorunu
+APFS clone ile kullanır. İlk yayında sabitlenmiş motor girdileri bulutta hazırlanır.
+Taslak sürümler taban sayılmaz; aynı etikette mevcut release/taslak varsa yayın
+reddedilir. İmza anahtarı modeller indirilmeden önce açık anahtarla doğrulanır. Sonraki sürümlerde
 `release.json` içindeki version/build/notes güncellenir ve eşleşen yeni tag push
 edilir. Main’e her push yayın değildir. Pages yayını imzalı feed hazır olduktan sonra tetiklenir.
 

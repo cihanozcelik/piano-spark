@@ -4,9 +4,14 @@ export class WorkspaceState {
     this.key='pianoman.workspace.v1';
     this.data={version:1,controls:{},layout:{},lessons:{},tab:'practice',create:{}};
     this.dirty=false;
+    window.addEventListener('pianoman-language-change',()=> {
+      const error=document.getElementById('error');
+      if(error.dataset.persistenceMessage&&!error.hidden) error.textContent=window.PianoI18n.message(error.dataset.persistenceMessage);
+    });
     this.onError=message=> {
       const error=document.getElementById('error');
-      error.textContent=message; error.hidden=false;
+      error.dataset.persistenceMessage=message;
+      error.textContent=window.PianoI18n.message(message); error.hidden=false;
     };
     try {
       const saved=JSON.parse(localStorage.getItem(this.key));

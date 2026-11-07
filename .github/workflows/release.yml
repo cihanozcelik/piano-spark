@@ -11,41 +11,83 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    runs-on: macos-15-intel
-    timeout-minutes: 60
+    # macos-15 is Apple Silicon; macos-15-intel cannot prepare the arm64 engine.
+    runs-on: macos-15
+    timeout-minutes: 120
     env:
       GH_TOKEN: ${{ github.token }}
       SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      UV_NO_CACHE: '1'
+      PIP_NO_CACHE_DIR: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check bootstrap release
+      - name: Validate release inputs before downloading models
+        run: |
+          python3 - <<'PY'
+          import json, os, platform, subprocess
+          from pathlib import Path
+          release=json.loads(Path('desktop/release.json').read_text())
+          assert platform.machine()=='arm64', 'Use the macos-15 Apple Silicon runner'
+          assert os.environ['SPARKLE_PRIVATE_KEY'], 'Configure the SPARKLE_PRIVATE_KEY repository secret first'
+          assert os.environ['GITHUB_REF_TYPE']=='tag', 'Run this workflow on a version tag'
+          assert os.environ['GITHUB_REF_NAME']=='v'+release['version'], 'Run on the matching release.json version tag'
+          assert os.environ['GITHUB_REPOSITORY']==release['repository'], 'Wrong release repository'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==subprocess.check_output(['git','rev-list','-n','1',os.environ['GITHUB_REF_NAME']],text=True).strip(), 'Checkout must match the release tag'
+          assert isinstance(release['build'],int) and release['build']>0, 'Release build must be a positive integer'
+          PY
+      - name: Find published engine baseline
         id: bootstrap
         run: |
-          if gh release view --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null 2>&1; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "Publish the first signed, full-engine release from the developer Mac. Future tags build automatically." >> "$GITHUB_STEP_SUMMARY"
-          fi
-      - name: Validate release inputs
-        if: steps.bootstrap.outputs.ready == 'true'
-        run: |
+          gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/releases" > "$RUNNER_TEMP/piano-releases.json"
           python3 - <<'PY'
           import json, os
           from pathlib import Path
-          release=json.loads(Path('desktop/release.json').read_text())
-          assert os.environ['SPARKLE_PRIVATE_KEY'], 'Configure the SPARKLE_PRIVATE_KEY repository secret first'
-          assert os.environ['GITHUB_REF_NAME']=='v'+release['version'], 'Run this workflow on the matching version tag'
-          assert os.environ['GITHUB_REPOSITORY']==release['repository'], 'Wrong release repository'
+          pages=json.loads((Path(os.environ['RUNNER_TEMP'])/'piano-releases.json').read_text())
+          releases=[release for page in pages for release in page]
+          config=json.loads(Path('desktop/release.json').read_text())
+          tag='v'+config['version']
+          assert not any(release['tag_name']==tag for release in releases), 'This tag already has a release or draft; use a new version'
+          ready=any(not release['draft'] and not release['prerelease'] for release in releases)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as stream:
+              stream.write('ready='+str(ready).lower()+'\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as stream:
+              stream.write('Reusing the signed published engine.\n' if ready else 'First public release: preparing pinned engine on this Apple Silicon runner.\n')
           PY
+      - uses: astral-sh/setup-uv@v6
+        if: steps.bootstrap.outputs.ready == 'false'
+        with:
+          version: '0.10.4'
+          enable-cache: false
+      - name: Verify signing secret matches the app public key
+        run: |
+          python3 - <<'PY'
+          import os, sys
+          from pathlib import Path
+          sys.path.insert(0, str(Path('desktop').resolve()))
+          from release import prepare, sign, verify_archive
+          prepare()
+          probe=Path(os.environ['RUNNER_TEMP'])/'piano-signing-input'
+          probe.write_text('Piano Spark release signing verification')
+          try:
+              verify_archive(probe, sign(probe))
+          finally:
+              probe.unlink(missing_ok=True)
+          PY
+      - name: Prepare pinned engine for first public release
+        if: steps.bootstrap.outputs.ready == 'false'
+        run: python3 desktop/prepare_engine.py
+      - name: Build first application and free engine staging
+        if: steps.bootstrap.outputs.ready == 'false'
+        run: |
+          python3 desktop/build.py --app-only
+          python3 desktop/prepare_engine.py --clean-inputs
       - name: Keep signed baseline and build current application
         if: steps.bootstrap.outputs.ready == 'true'
         run: python3 desktop/release.py --bootstrap-engine
-      - name: Create and verify signed delta and full package
-        if: steps.bootstrap.outputs.ready == 'true'
-        run: python3 desktop/release.py --previous-app "build/previous-release/Piano Spark.app"
+      - name: Create and verify signed package and applicable delta
+        run: python3 desktop/release.py
       - name: Publish release and signed feed
-        if: steps.bootstrap.outputs.ready == 'true'
         run: python3 desktop/release.py --publish

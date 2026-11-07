@@ -1,0 +1,151 @@
+#import "Localization.h"
+
+NSString *PianoLanguage(void) {
+    NSString *saved = [NSUserDefaults.standardUserDefaults stringForKey:@"PianoSparkLanguage"];
+    // The optional setup helper uses the installed app's preference when available.
+    if (!saved && [NSBundle.mainBundle.bundleIdentifier isEqual:@"com.pianoman.installer"])
+        saved = [NSUserDefaults.standardUserDefaults persistentDomainForName:@"com.pianoman.desktop"][@"PianoSparkLanguage"];
+    if ([saved isEqual:@"en"] || [saved isEqual:@"tr"]) return saved;
+    return [NSLocale.preferredLanguages.firstObject.lowercaseString hasPrefix:@"tr"] ? @"tr" : @"en";
+}
+
+void PianoSetLanguage(NSString *language) {
+    [NSUserDefaults.standardUserDefaults setObject:language forKey:@"PianoSparkLanguage"];
+}
+
+NSString *PianoText(NSString *text) {
+    if (!text) return nil;
+    static NSDictionary<NSString *, NSString *> *english;
+    static NSDictionary<NSString *, NSString *> *turkish;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        english = @{
+            @"Tamam":@"OK",
+            @"Geçersiz çalma oturumu.":@"Invalid playback session.",
+            @"Geçersiz MIDI çıkış komutu.":@"Invalid MIDI output command.",
+            @"Önce mevcut piyano çalmasını durdur.":@"Stop the current piano playback first.",
+            @"Bu bağlantıda MIDI gönderimi hazır değil.":@"MIDI output is not ready on this connection.",
+            @"Ders MIDI çıkışı için çok büyük veya geçersiz.":@"The lesson is too large or invalid for MIDI output.",
+            @"Geçersiz MIDI olayı.":@"Invalid MIDI event.",
+            @"Geçersiz MIDI değeri.":@"Invalid MIDI value.",
+            @"Desteklenmeyen MIDI olayı.":@"Unsupported MIDI event.",
+            @"Çalma sayfasıyla iletişim kesildi; piyano çalması durduruldu.":@"Playback lost its connection to the app and was stopped.",
+            @"Bluetooth MIDI gönderimi gecikti; çalma durduruldu.":@"Bluetooth MIDI output was delayed. Playback has stopped.",
+            @"Piyano çalma komutuna yanıt alınamadı.":@"The piano did not respond to the playback command.",
+            @"Nota bırakma gönderimi tamamlanmadan bağlantı kapanıyor.":@"The connection is closing before all note releases were sent.",
+            @"Piyano bağlı değil":@"Piano not connected",
+            @"Piyano bağlı değil.":@"Piano is not connected.",
+            @"Piano Spark Hakkında":@"About Piano Spark",
+            @"Güncellemeleri denetle…":@"Check for Updates…",
+            @"Piano Spark’ı Gizle":@"Hide Piano Spark",
+            @"Piano Spark’ı kaldır…":@"Uninstall Piano Spark…",
+            @"Piano Spark’tan Çık":@"Quit Piano Spark",
+            @"Düzenle":@"Edit",
+            @"Kopyala":@"Copy",
+            @"Yapıştır":@"Paste",
+            @"Tümünü Seç":@"Select All",
+            @"Görünüm":@"View",
+            @"Tam Ekran":@"Full Screen",
+            @"Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla.":@"Checking Bluetooth access… Allow access if macOS asks.",
+            @"Bluetooth bağlantı servisi kapandı.":@"The Bluetooth connection service stopped.",
+            @"Piyano bağlantısı kapalı":@"Piano disconnected",
+            @"Bluetooth bağlantısı tamamlanamadı.":@"Bluetooth could not connect.",
+            @"Bluetooth bağlantısında hata oluştu":@"A Bluetooth connection error occurred",
+            @"macOS bağlantının kapandığını doğrulamadı.":@"macOS has not confirmed the disconnection.",
+            @"Yamaha CLP-835 bağlı · tuşlar dinleniyor":@"Yamaha CLP-835 connected · listening for notes",
+            @"Piyanoya ulaşılamadı. Piyanonun açık ve Bluetooth’un etkin olduğunu kontrol et.":@"Could not reach your piano. Make sure it is on and Bluetooth is enabled.",
+            @"Piyano bağlantısı kesildi":@"Piano disconnected",
+            @"Mac’in Bluetooth’u açık. Yakındaki CLP-835 MIDI bağlantısı aranıyor…":@"Bluetooth is on. Looking for a nearby CLP-835…",
+            @"Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı.":@"Preparing Bluetooth. Your piano is not connected yet.",
+            @"Piyanoya Bluetooth bağlantısı kuruldu. MIDI hizmeti kontrol ediliyor…":@"Bluetooth connected. Checking the MIDI service…",
+            @"Yamaha CLP-835 bağlantısı kuruluyor…":@"Connecting to Yamaha CLP-835…",
+            @"MIDI bağlantısı hazırlanıyor… macOS eşleştirme onayı sorarsa onayla.":@"Preparing MIDI… Confirm pairing if macOS asks.",
+            @"Bağlantı kapatılıyor…":@"Disconnecting…",
+            @"Önce mevcut bağlantının kapanmasını bekle.":@"Wait for the current connection to close.",
+            @"Piano Spark’ın kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin.":@"Your saved piano connection has been cleared. You can search again.",
+            @"Piano Spark kaldırılsın mı?":@"Uninstall Piano Spark?",
+            @"Uygulama, modeller, kayıtlı dersler ve Piano Spark’ın geçici verileri kalıcı olarak silinecek. Orijinal videolar ve dışarı aktardığın MIDI dosyaları korunacak.":@"The app, models, saved lessons, and temporary Piano Spark data will be permanently deleted. Your original videos and exported MIDI files will be kept.",
+            @"Vazgeç":@"Cancel",
+            @"Piano Spark’ı kaldır":@"Uninstall Piano Spark",
+            @"İşlem tamamlanamadı.":@"The operation could not be completed.",
+            @"Piano Spark açılamadı":@"Piano Spark could not open",
+            @"Dosya kaydedilemedi":@"The file could not be saved",
+            @"Bazı Piano Spark dosyaları silinemedi":@"Some Piano Spark files could not be deleted",
+            @"Aç":@"Open",
+            @"Kaydet":@"Save",
+            @"Güncellemeler otomatik denetlenir.":@"Updates are checked automatically.",
+            @"Yeni sürüm aranıyor…":@"Checking for updates…",
+            @"Yeni sürüm yükleniyor; çalışma konumu kaydedilip Piano Spark yeniden açılacak…":@"Installing the update. Your place will be saved and Piano Spark will reopen…",
+            @"Yeni sürüm bulundu. Arka planda hazırlanıyor…":@"An update is available. Preparing it in the background…",
+            @"Yeni sürüm arka planda indiriliyor…":@"Downloading the update in the background…",
+            @"En güncel sürüm yüklü.":@"You’re up to date.",
+            @"Güncelleme tamamlanamadı. İnternet bağlantısını kontrol et; mevcut sürümle devam edebilirsin.":@"The update could not finish. Check your internet connection; you can continue with the current version.",
+            @"Yeni sürüm var. Güncelleme menüsünden ayrıntıları açabilirsin.":@"An update is available. Open Check for Updates for details.",
+            @"Geçersiz ders kimliği":@"Invalid lesson ID",
+            @"Önce mevcut işlemi tamamla veya iptal et.":@"Finish or cancel the current task first.",
+            @"Geçerli bir YouTube bağlantısı seç.":@"Choose a valid YouTube link.",
+            @"En fazla 4 GB video seçebilirsin.":@"Choose a video no larger than 4 GB.",
+            @"Dosya hazırlanıyor…":@"Preparing your file…",
+            @"Video aktarımı kapalı.":@"The video transfer is closed.",
+            @"Video aktarım boyutu geçersiz.":@"The video transfer size is invalid.",
+            @"Ders işlemi bulunamadı.":@"The lesson task could not be found.",
+            @"Video aktarımı tamamlanmadı.":@"The video transfer is incomplete.",
+            @"Ders motoru başlatılıyor…":@"Starting the lesson engine…",
+            @"İşlem iptal edildi":@"Cancelled",
+            @"Ders oluşturulamadı. İşlem beklenmedik şekilde kapandı.":@"The lesson could not be created. The process stopped unexpectedly.",
+            @"İşlem durduruluyor…":@"Cancelling…",
+            @"Piyano notaları çıkarılıyor…":@"Transcribing piano notes…",
+            @"Basma şiddeti ve pedal tahmin ediliyor…":@"Estimating dynamics and pedal…",
+            @"Ders kaydediliyor…":@"Saving your lesson…",
+            @"Ders hazır":@"Your lesson is ready",
+            @"Video indiriliyor…":@"Downloading video…",
+            @"Videonun sesi hazırlanıyor…":@"Preparing the video’s audio…",
+            @"Vokal ve eşlik ayrılıyor…":@"Separating vocals and accompaniment…",
+            @"Partisyon hazırlanıyor…":@"Preparing the score…",
+            @"PDF sayfalarındaki notalar okunuyor…":@"Reading notes from the PDF…",
+            @"MIDI notaları ve ritimleri okunuyor…":@"Reading MIDI notes and rhythms…",
+            @"Ders ve partisyon eşleniyor…":@"Matching your lesson to the score…",
+            @"Bu kayıttan çalınabilir piyano notası çıkarılamadı.":@"No playable piano notes could be transcribed from this recording.",
+            @"Vuruş tabanlı, eşzamanlı standart MIDI gerekiyor (tip 0 veya 1).":@"A standard MIDI file with beat-based, synchronized tracks is required (type 0 or 1).",
+            @"Dosyada çalınabilir piyano notası bulunamadı.":@"No playable piano notes were found in this file.",
+            @"PDF sayfalarında farklı sayıda porte okundu; sayfalar güvenilir biçimde birleştirilemedi.":@"Different staff counts were detected across PDF pages, so they could not be reliably combined.",
+            @"Dosyada okunabilir bir nota partisi bulunamadı.":@"No readable score part was found in this file.",
+            @"Nota okuyucu sıfır uzunlukta ölçü üretti; PDF’den güvenilir ders çıkarılamadı.":@"The score reader produced an empty measure. A reliable lesson could not be created from this PDF.",
+            @"Piano Spark Kurulumu":@"Piano Spark Setup",
+            @"Piano Spark’ı yükle":@"Install Piano Spark",
+            @"Piyano derslerini videodan bu Mac’te oluştur. Gerekli motorlar ve modeller pakete dahildir.\n\nUygulama hesabının Applications klasörüne kurulacak. Ayrı Python kurulmaz, sistem servisi eklenmez. Güncelleme sırasında açık Piano Spark kapanır.":@"Create piano lessons from video on this Mac. The required engines and models are included.\n\nPiano Spark will be installed in your Applications folder. No separate Python installation or system service is needed. A running copy of Piano Spark will close during installation.",
+            @"Yükle":@"Install",
+            @"Kurulum iptal ediliyor…":@"Cancelling installation…",
+            @"Uygulama ve modeller kopyalanıyor…\n\nBu işlem bitene kadar mevcut uygulama korunur.":@"Copying the app and models…\n\nYour existing installation is kept until this finishes.",
+            @"Açık Piano Spark kapanmadı. Kapatıp kurulumu tekrar başlat.":@"Piano Spark did not close. Quit it and start the installation again.",
+            @"Piano Spark’ı aç":@"Open Piano Spark",
+            @"Kapat":@"Close",
+            @"Piano Spark yüklendi.\n\nVideonu seçip Ders oluştur düğmesine basabilirsin. Uygulamayı ve verilerini kaldırmak için Piano Spark menüsündeki “Piano Spark’ı kaldır…” seçeneğini kullan.":@"Piano Spark is installed.\n\nChoose your video in Create a Lesson to begin. To remove the app and its data, choose “Uninstall Piano Spark…” from the Piano Spark menu.",
+            @"Kurulum tamamlanamadı.\n\n":@"Installation could not finish.\n\n",
+            @"Dosya kopyalanamadı.":@"The file could not be copied.",
+            @"Desteklenmeyen dil.":@"Unsupported language."
+        };
+        NSMutableDictionary *reverse = [NSMutableDictionary new];
+        [english enumerateKeysAndObjectsUsingBlock:^(NSString *tr, NSString *en, BOOL *stop) {
+            (void)stop; reverse[en] = tr;
+        }];
+        turkish = [reverse copy];
+    });
+    BOOL useTurkish = [PianoLanguage() isEqual:@"tr"];
+    NSString *translated = (useTurkish ? turkish : english)[text];
+    if (translated) return translated;
+    // The worker emits a count after this app-owned progress prefix.
+    NSString *source = useTurkish ? @"Preparing note sections: " : @"Nota bölümleri hazırlanıyor: ";
+    NSString *target = useTurkish ? @"Nota bölümleri hazırlanıyor: " : @"Preparing note sections: ";
+    if ([text hasPrefix:source]) return [target stringByAppendingString:[text substringFromIndex:source.length]];
+    return text;
+}
+
+NSDictionary *PianoLocalizedStatus(NSDictionary *status) {
+    NSMutableDictionary *localized = [status mutableCopy];
+    for (NSString *key in @[@"message", @"detail", @"error"])
+        if ([status[key] isKindOfClass:NSString.class]) localized[key] = PianoText(status[key]);
+    if ([status[@"diagnostic"] isKindOfClass:NSDictionary.class])
+        localized[@"diagnostic"] = PianoLocalizedStatus(status[@"diagnostic"]);
+    return localized;
+}

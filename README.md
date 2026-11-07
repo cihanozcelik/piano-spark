@@ -49,6 +49,15 @@ Paketleme girdileri ve motor yaşam döngüsü `lesson-engine/README.md` içinde
 `build/` ve `dist/` üretilen dosyalardır ve Git dışında tutulur.
 Günlük arayüz geliştirmesinde paketleme gerekmez; aşağıdaki tarayıcı akışı kullanılır.
 
+## Dil seçimi
+
+Üst çubuktaki **English / Türkçe** seçimi çalışma ekranını, ders oluşturmayı,
+uygulama menülerini ve durum mesajlarını anında değiştirir; açık ders ve konumu
+korunur. Masaüstünde tercih native uygulama ayarlarında, tarayıcıda yerel depolamada
+saklanır. Ders adları ve kullanıcı içeriği çevrilmez. macOS ve Sparkle’ın kendi
+sistem pencereleri işletim sistemi dilini kullanır. Web sitesi ekran görüntüleri
+izole yakalama sürümünde İngilizce arayüzden alınır.
+
 ## Uygulamanın yapısı
 
 **Görünüm → Dinleme sesi** ile **Uygulama sentezleyicisi** veya

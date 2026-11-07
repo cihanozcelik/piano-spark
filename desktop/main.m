@@ -1,3 +1,4 @@
+#import "Localization.h"
 #import <AppKit/AppKit.h>
 #import <WebKit/WebKit.h>
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
@@ -37,7 +38,10 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     (void)notification;
-    self.state = [@{@"phase":@"disconnected", @"connected":@NO, @"message":@"Piyano bağlı değil",
+#ifdef PIANO_CAPTURE
+    PianoSetLanguage(@"en");
+#endif
+    self.state = [@{@"phase":@"disconnected", @"connected":@NO, @"message":PianoText(@"Piyano bağlı değil"),
         @"device":@"Yamaha CLP-835", @"note_count":@0, @"last_note":NSNull.null, @"pedal":NSNull.null, @"active":@NO} mutableCopy];
     self.held = [NSMutableDictionary new];
     self.downloads = [NSMutableSet new];
@@ -106,24 +110,24 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     NSMenu *bar = [NSMenu new];
     NSMenuItem *appItem = [NSMenuItem new];
     NSMenu *app = [[NSMenu alloc] initWithTitle:@"Piano Spark"];
-    [app addItemWithTitle:@"Piano Spark Hakkında" action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
-    NSMenuItem *updates = [app addItemWithTitle:@"Güncellemeleri denetle…" action:@selector(check:) keyEquivalent:@""];
+    [app addItemWithTitle:PianoText(@"Piano Spark Hakkında") action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
+    NSMenuItem *updates = [app addItemWithTitle:PianoText(@"Güncellemeleri denetle…") action:@selector(check:) keyEquivalent:@""];
     updates.target = self.updates;
     [app addItem:NSMenuItem.separatorItem];
-    [app addItemWithTitle:@"Piano Spark’ı Gizle" action:@selector(hide:) keyEquivalent:@"h"];
-    NSMenuItem *uninstall = [app addItemWithTitle:@"Piano Spark’ı kaldır…" action:@selector(uninstall:) keyEquivalent:@""];
+    [app addItemWithTitle:PianoText(@"Piano Spark’ı Gizle") action:@selector(hide:) keyEquivalent:@"h"];
+    NSMenuItem *uninstall = [app addItemWithTitle:PianoText(@"Piano Spark’ı kaldır…") action:@selector(uninstall:) keyEquivalent:@""];
     uninstall.target = self;
-    [app addItemWithTitle:@"Piano Spark’tan Çık" action:@selector(terminate:) keyEquivalent:@"q"];
+    [app addItemWithTitle:PianoText(@"Piano Spark’tan Çık") action:@selector(terminate:) keyEquivalent:@"q"];
     appItem.submenu = app; [bar addItem:appItem];
     NSMenuItem *editItem = [NSMenuItem new];
-    NSMenu *edit = [[NSMenu alloc] initWithTitle:@"Düzenle"];
-    [edit addItemWithTitle:@"Kopyala" action:@selector(copy:) keyEquivalent:@"c"];
-    [edit addItemWithTitle:@"Yapıştır" action:@selector(paste:) keyEquivalent:@"v"];
-    [edit addItemWithTitle:@"Tümünü Seç" action:@selector(selectAll:) keyEquivalent:@"a"];
+    NSMenu *edit = [[NSMenu alloc] initWithTitle:PianoText(@"Düzenle")];
+    [edit addItemWithTitle:PianoText(@"Kopyala") action:@selector(copy:) keyEquivalent:@"c"];
+    [edit addItemWithTitle:PianoText(@"Yapıştır") action:@selector(paste:) keyEquivalent:@"v"];
+    [edit addItemWithTitle:PianoText(@"Tümünü Seç") action:@selector(selectAll:) keyEquivalent:@"a"];
     editItem.submenu = edit; [bar addItem:editItem];
     NSMenuItem *viewItem = [NSMenuItem new];
-    NSMenu *view = [[NSMenu alloc] initWithTitle:@"Görünüm"];
-    NSMenuItem *full = [view addItemWithTitle:@"Tam Ekran" action:@selector(toggleFullScreen:) keyEquivalent:@"f"];
+    NSMenu *view = [[NSMenu alloc] initWithTitle:PianoText(@"Görünüm")];
+    NSMenuItem *full = [view addItemWithTitle:PianoText(@"Tam Ekran") action:@selector(toggleFullScreen:) keyEquivalent:@"f"];
     full.keyEquivalentModifierMask = NSEventModifierFlagCommand | NSEventModifierFlagControl;
     full.target = self.window;
     viewItem.submenu = view; [bar addItem:viewItem];
@@ -145,7 +149,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     }];
 }
 - (void)captureWhenReady:(NSUInteger)attempt {
-    [self.webView callAsyncJavaScript:@"return !!document.querySelector('#sheet-paper svg') && !document.getElementById('sheet-paper').hidden;"
+    [self.webView callAsyncJavaScript:@"return window.PianoI18n?.language === 'en' && !!document.querySelector('#sheet-paper svg') && !document.getElementById('sheet-paper').hidden;"
         arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id ready,NSError *error) {
         if (error || ![ready boolValue]) {
             if (attempt == 5) {
@@ -179,14 +183,16 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #endif
 
 - (NSDictionary *)snapshot {
-    return @{@"event":@"snapshot", @"status":[self.state copy], @"held":self.held.allValues,
+    return @{@"event":@"snapshot", @"language":PianoLanguage(), @"status":PianoLocalizedStatus(self.state), @"held":self.held.allValues,
         @"fullscreen":@((self.window.styleMask & NSWindowStyleMaskFullScreen) != 0)};
 }
 
 - (void)publish:(NSDictionary *)event {
     if (!self.pageReady || self.quitting) return;
+    NSMutableDictionary *localized = [PianoLocalizedStatus(event) mutableCopy];
+    if (event[@"status"]) localized[@"status"] = PianoLocalizedStatus(event[@"status"]);
     [self.webView callAsyncJavaScript:@"window.dispatchEvent(new CustomEvent('pianoman-native-event', {detail: event}));"
-        arguments:@{@"event":event} inFrame:nil inContentWorld:WKContentWorld.pageWorld
+        arguments:@{@"event":localized} inFrame:nil inContentWorld:WKContentWorld.pageWorld
         completionHandler:^(id result, NSError *error) {
             (void)result;
             if (error) NSLog(@"PianoMan arayüz aktarımı: %@", error.localizedDescription);
@@ -206,7 +212,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     [self.state removeObjectForKey:@"diagnostic"];
     self.state[@"note_count"] = @0;
     self.state[@"last_note"] = NSNull.null;
-    [self setPhase:@"connecting" message:@"Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla."];
+    [self setPhase:@"connecting" message:PianoText(@"Mac’in Bluetooth erişimi kontrol ediliyor… macOS izin sorarsa onayla.")];
     NSTask *task = [NSTask new];
     task.executableURL = NSBundle.mainBundle.executableURL;
     NSMutableArray *args = [@[@"--bluetooth", self.runtimeURL.path, @"start", @"--timeout", @"45", @"--duration", @"0"] mutableCopy];
@@ -258,9 +264,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
             else {
                 if (task.terminationStatus != 0) {
                     owner.state[@"diagnostic"] = @{@"code":@"service_failed", @"osCode":@(task.terminationStatus)};
-                    [owner setPhase:@"error" message:@"Bluetooth bağlantı servisi kapandı."];
+                    [owner setPhase:@"error" message:PianoText(@"Bluetooth bağlantı servisi kapandı.")];
                 }
-                else [owner setPhase:@"disconnected" message:@"Piyano bağlantısı kapalı"];
+                else [owner setPhase:@"disconnected" message:PianoText(@"Piyano bağlantısı kapalı")];
             }
             [owner finishTermination];
         });
@@ -272,16 +278,16 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     if ([kind isEqual:@"output_error"]) { [self publish:event]; return; }
     if ([kind isEqual:@"connection_issue"] || ([kind isEqual:@"stopped"] && event[@"diagnostic"])) {
         self.state[@"diagnostic"] = event[@"diagnostic"];
-        [self setPhase:@"error" message:@"Bluetooth bağlantısı tamamlanamadı."]; return;
+        [self setPhase:@"error" message:PianoText(@"Bluetooth bağlantısı tamamlanamadı.")]; return;
     }
     if ([kind isEqual:@"error"]) {
         if (!self.state[@"diagnostic"]) self.state[@"diagnostic"] = @{@"code":@"service_failed",
             @"detail":event[@"message"] ?: @"", @"stage":event[@"operation"] ?: @"", @"osCode":event[@"code"] ?: NSNull.null};
-        [self setPhase:@"error" message:event[@"message"] ?: @"Bluetooth bağlantısında hata oluştu"];
+        [self setPhase:@"error" message:event[@"message"] ?: PianoText(@"Bluetooth bağlantısında hata oluştu")];
     } else if ([kind isEqual:@"stopped"]) {
         if (![event[@"own_connection_closed"] boolValue]) {
             self.state[@"diagnostic"] = @{@"code":@"disconnect_unconfirmed"};
-            [self setPhase:@"error" message:@"macOS bağlantının kapandığını doğrulamadı."];
+            [self setPhase:@"error" message:PianoText(@"macOS bağlantının kapandığını doğrulamadı.")];
         }
     } else if ([self.state[@"phase"] isEqual:@"stopping"]) {
         return;
@@ -290,21 +296,21 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         self.state[@"output_capable"] = event[@"output_capable"] ?: @NO;
         self.deviceUUID = event[@"uuid"];
         [NSUserDefaults.standardUserDefaults setObject:self.deviceUUID forKey:@"BluetoothDeviceUUID"];
-        [self setPhase:@"connected" message:@"Yamaha CLP-835 bağlı · tuşlar dinleniyor"];
+        [self setPhase:@"connected" message:PianoText(@"Yamaha CLP-835 bağlı · tuşlar dinleniyor")];
     } else if ([kind isEqual:@"connection_timeout"]) {
-        [self setPhase:@"error" message:@"Piyanoya ulaşılamadı. Piyanonun açık ve Bluetooth’un etkin olduğunu kontrol et."];
+        [self setPhase:@"error" message:PianoText(@"Piyanoya ulaşılamadı. Piyanonun açık ve Bluetooth’un etkin olduğunu kontrol et.")];
     } else if ([kind isEqual:@"disconnected"]) {
-        [self setPhase:@"disconnected" message:@"Piyano bağlantısı kesildi"];
+        [self setPhase:@"disconnected" message:PianoText(@"Piyano bağlantısı kesildi")];
     } else if ([kind isEqual:@"scanning"]) {
-        [self setPhase:@"connecting" message:@"Mac’in Bluetooth’u açık. Yakındaki CLP-835 MIDI bağlantısı aranıyor…"];
+        [self setPhase:@"connecting" message:PianoText(@"Mac’in Bluetooth’u açık. Yakındaki CLP-835 MIDI bağlantısı aranıyor…")];
     } else if ([kind isEqual:@"bluetooth_waiting"]) {
-        [self setPhase:@"connecting" message:@"Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı."];
+        [self setPhase:@"connecting" message:PianoText(@"Mac’in Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı.")];
     } else if ([kind isEqual:@"midi_discovery"]) {
-        [self setPhase:@"connecting" message:@"Piyanoya Bluetooth bağlantısı kuruldu. MIDI hizmeti kontrol ediliyor…"];
+        [self setPhase:@"connecting" message:PianoText(@"Piyanoya Bluetooth bağlantısı kuruldu. MIDI hizmeti kontrol ediliyor…")];
     } else if ([kind isEqual:@"connecting"]) {
-        [self setPhase:@"connecting" message:@"Yamaha CLP-835 bağlantısı kuruluyor…"];
+        [self setPhase:@"connecting" message:PianoText(@"Yamaha CLP-835 bağlantısı kuruluyor…")];
     } else if ([kind isEqual:@"midi_initial_read"]) {
-        [self setPhase:@"connecting" message:@"MIDI bağlantısı hazırlanıyor… macOS eşleştirme onayı sorarsa onayla."];
+        [self setPhase:@"connecting" message:PianoText(@"MIDI bağlantısı hazırlanıyor… macOS eşleştirme onayı sorarsa onayla.")];
     } else if ([self.state[@"connected"] boolValue]) {
         NSString *key = [NSString stringWithFormat:@"%@:%@", event[@"channel"] ?: @1, event[@"note"]];
         if ([kind isEqual:@"note_on"] && [event[@"velocity"] intValue] > 0) {
@@ -333,7 +339,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 
 - (void)stopBluetooth {
     if (!self.bluetooth) return;
-    [self setPhase:@"stopping" message:@"Bağlantı kapatılıyor…"];
+    [self setPhase:@"stopping" message:PianoText(@"Bağlantı kapatılıyor…")];
     if (self.bluetooth.running) [self.bluetooth terminate];
 }
 
@@ -345,7 +351,21 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         replyHandler(nil, @"Unknown page"); return;
     }
     NSString *command = message.body[@"command"];
-    if ([command isEqual:@"subscribe"]) {
+    if ([command isEqual:@"get-language"]) {
+        replyHandler(@{@"language":PianoLanguage()}, nil);
+    } else if ([command isEqual:@"set-language"]) {
+        NSString *language = message.body[@"language"];
+        if (![@[@"en", @"tr"] containsObject:language]) {
+            replyHandler(nil, PianoText(@"Desteklenmeyen dil.")); return;
+        }
+        PianoSetLanguage(language);
+        [self makeMenus];
+        replyHandler(@{@"language":PianoLanguage()}, nil);
+        [self publish:@{@"event":@"language", @"language":PianoLanguage()}];
+        [self publish:[self snapshot]];
+        [self publish:[self.updates snapshot]];
+        [self publish:[self.lessons snapshot]];
+    } else if ([command isEqual:@"subscribe"]) {
         self.pageReady = YES;
         NSLog(@"PianoMan arayüzü hazır");
         replyHandler([self snapshot], nil);
@@ -365,18 +385,18 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     } else if ([command isEqual:@"disconnect"]) {
         [self stopBluetooth]; replyHandler(@{}, nil);
     } else if ([command isEqual:@"forget-device"]) {
-        if (self.bluetooth) { replyHandler(nil,@"Önce mevcut bağlantının kapanmasını bekle."); return; }
+        if (self.bluetooth) { replyHandler(nil,PianoText(@"Önce mevcut bağlantının kapanmasını bekle.")); return; }
         self.deviceUUID = nil;
         [NSUserDefaults.standardUserDefaults removeObjectForKey:@"BluetoothDeviceUUID"];
         [self.state removeObjectForKey:@"diagnostic"];
-        [self setPhase:@"disconnected" message:@"PianoMan’in kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin."];
+        [self setPhase:@"disconnected" message:PianoText(@"Piano Spark’ın kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin.")];
         replyHandler(@{},nil);
     } else if ([@[@"output-start",@"output-stop",@"output-heartbeat"] containsObject:command]) {
-        if (![self.state[@"connected"] boolValue]) { replyHandler(nil,@"Piyano bağlı değil."); return; }
+        if (![self.state[@"connected"] boolValue]) { replyHandler(nil,PianoText(@"Piyano bağlı değil.")); return; }
         NSString *runtime = self.runtimeURL.path; NSDictionary *request = message.body;
         dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0), ^{
             NSError *error; NSDictionary *result = PianoBluetoothCommand(runtime, request, &error);
-            dispatch_async(dispatch_get_main_queue(), ^{ replyHandler(result,error.localizedDescription ?: result[@"error"]); });
+            dispatch_async(dispatch_get_main_queue(), ^{ replyHandler(result,PianoText(error.localizedDescription ?: result[@"error"])); });
         });
     } else if ([command isEqual:@"fullscreen"]) {
         [self.window toggleFullScreen:nil]; replyHandler(@{}, nil);
@@ -443,9 +463,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)uninstall:(id)sender {
     (void)sender;
     NSAlert *alert = [NSAlert new];
-    alert.messageText = @"Piano Spark kaldırılsın mı?";
-    alert.informativeText = @"Uygulama, modeller, kayıtlı dersler ve PianoMan'in geçici verileri kalıcı olarak silinecek. Orijinal videolar ve dışarı aktardığın MIDI dosyaları korunacak.";
-    [alert addButtonWithTitle:@"Vazgeç"]; [alert addButtonWithTitle:@"Piano Spark’ı kaldır"];
+    alert.messageText = PianoText(@"Piano Spark kaldırılsın mı?");
+    alert.informativeText = PianoText(@"Uygulama, modeller, kayıtlı dersler ve Piano Spark’ın geçici verileri kalıcı olarak silinecek. Orijinal videolar ve dışarı aktardığın MIDI dosyaları korunacak.");
+    [alert addButtonWithTitle:PianoText(@"Vazgeç")]; [alert addButtonWithTitle:PianoText(@"Piano Spark’ı kaldır")];
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse response) {
         if (response==NSAlertSecondButtonReturn) { self.uninstalling = YES; [NSApp terminate:nil]; }
     }];
@@ -460,7 +480,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 }
 - (void)showLessonError:(NSError *)error {
     NSAlert *alert = [NSAlert new]; alert.messageText = @"Piano Spark";
-    alert.informativeText = error.localizedDescription ?: @"İşlem tamamlanamadı.";
+    [alert addButtonWithTitle:PianoText(@"Tamam")];
+    alert.informativeText = PianoText(error.localizedDescription) ?: PianoText(@"İşlem tamamlanamadı.");
     [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
 - (void)application:(NSApplication *)sender openFiles:(NSArray<NSString *> *)filenames {
@@ -489,7 +510,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 }
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     (void)webView; (void)navigation;
-    NSAlert *alert = [NSAlert new]; alert.messageText = @"Piano Spark açılamadı";
+    NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"Piano Spark açılamadı");
+    [alert addButtonWithTitle:PianoText(@"Tamam")];
     alert.informativeText = error.localizedDescription; [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
 - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView {
@@ -499,6 +521,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSArray<NSURL *> *))completionHandler {
     (void)webView; (void)frame;
     NSOpenPanel *panel = [NSOpenPanel openPanel];
+    panel.title = PianoText(@"Aç"); panel.prompt = PianoText(@"Aç");
     panel.canChooseDirectories = NO; panel.allowsMultipleSelection = parameters.allowsMultipleSelection;
     // Both imports use the standard WebKit file input. Each flow verifies its
     // own format after selection; the native panel must also admit videos.
@@ -516,6 +539,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     suggestedFilename:(NSString *)suggestedFilename completionHandler:(void (^)(NSURL *))completionHandler {
     (void)download; (void)response;
     NSSavePanel *panel = [NSSavePanel savePanel]; panel.nameFieldStringValue = suggestedFilename;
+    panel.title = PianoText(@"Kaydet"); panel.prompt = PianoText(@"Kaydet");
     [panel beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse result) {
         completionHandler(result == NSModalResponseOK ? panel.URL : nil);
     }];
@@ -524,7 +548,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)download:(WKDownload *)download didFailWithError:(NSError *)error resumeData:(NSData *)resumeData {
     (void)resumeData; [self.downloads removeObject:download];
     if (error.code == NSURLErrorCancelled) return;
-    NSAlert *alert = [NSAlert new]; alert.messageText = @"Dosya kaydedilemedi";
+    NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"Dosya kaydedilemedi");
+    [alert addButtonWithTitle:PianoText(@"Tamam")];
     alert.informativeText = error.localizedDescription; [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
 @end
@@ -549,7 +574,8 @@ int main(int argc, const char *argv[]) {
             }
             if (failures.count) {
                 [NSApplication sharedApplication];
-                NSAlert *alert = [NSAlert new]; alert.messageText = @"Bazı PianoMan dosyaları silinemedi";
+                NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"Bazı Piano Spark dosyaları silinemedi");
+                [alert addButtonWithTitle:PianoText(@"Tamam")];
                 alert.informativeText = [failures componentsJoinedByString:@"\n"]; [alert runModal];
                 return 1;
             }

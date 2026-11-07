@@ -1,3 +1,4 @@
+#import "Localization.h"
 #import "UpdateController.h"
 #import <Sparkle/Sparkle.h>
 
@@ -30,8 +31,8 @@
     return self;
 }
 - (NSDictionary *)snapshot {
-    return @{@"event":@"update",@"version":self.releaseInfo[@"version"],@"notes":self.releaseInfo[@"notes"],
-        @"newVersion":@(self.newVersion),@"message":self.status,
+    return @{@"event":@"update",@"version":self.releaseInfo[@"version"],@"notes":self.releaseInfo[@"localizedNotes"][PianoLanguage()] ?: self.releaseInfo[@"notes"],
+        @"newVersion":@(self.newVersion),@"message":PianoText(self.status),
         @"availableVersion":self.pending.displayVersionString ?: @"",@"availableNotes":self.pending.itemDescription ?: @""};
 }
 - (void)changed { if (self.onChange) self.onChange([self snapshot]); }

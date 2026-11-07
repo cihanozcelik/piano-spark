@@ -57,7 +57,7 @@ def build_installer():
                  NSHighResolutionCapable=True,NSPrincipalClass='NSApplication')
     with (installer/'Contents/Info.plist').open('wb') as stream: plistlib.dump(plist,stream)
     run('xcrun','clang','-arch','arm64','-fobjc-arc','-fblocks','-Wall','-Wextra','-Werror',
-        '-mmacosx-version-min=14.0',ROOT/'desktop/Installer.m','-framework','AppKit',
+        '-mmacosx-version-min=14.0',ROOT/'desktop/Installer.m',ROOT/'desktop/Localization.m','-framework','AppKit',
         '-o',macos/'PianoManInstaller')
     run('codesign','--force','--sign','-','--timestamp=none',installer)
     run('codesign','--verify','--deep','--strict',installer)
@@ -87,6 +87,8 @@ def write_ui(resources):
     notation = json.dumps((ROOT/'assets/notation/verovio-toolkit-wasm.js').read_text()).replace('</', '<\\/')
     # Inline scripts execute immediately: prepare notation before starting the player.
     html = html.replace(module_tag, '<script>window.PianoNotationRuntime='+notation+';</script><script>\n' + compiled + '\n</script>')
+    for script in ['i18n.js','i18n-messages.js']:
+        html = html.replace(f'<script src="/{script}"></script>', '<script>\n'+(ROOT/script).read_text().replace('</script','<\\/script')+'\n</script>')
     html = html.replace('<script src="/desktop.js"></script>',
         '<script>\n' + (ROOT / 'desktop.js').read_text() + '\n</script>')
     html = html.replace('<!-- pianoman-notation-runtime -->', '')
@@ -112,6 +114,7 @@ def compile_native(destination, objects_dir, capture=False):
         objects = []
         for source, extra, name in [
             ('desktop/main.m', [], 'desktop'),
+            ('desktop/Localization.m', [], 'localization'),
             ('desktop/LessonService.m', [], 'lessons'),
             ('desktop/UpdateController.m', [], 'updates'),
             ('bluetooth-connection/main.m', ['-Dmain=PianoBluetoothMain'], 'bluetooth'),
