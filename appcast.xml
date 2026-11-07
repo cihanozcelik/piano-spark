@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
 IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
---><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>Piano Spark</title><item><title>Piano Spark 0.3.4</title><pubDate>Sat, 07 Nov 2026 16:03:36 +0000</pubDate><description>Choose English or Türkçe without leaving your lesson.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>Piano Spark</title><item><title>Piano Spark 0.4.0</title><pubDate>Sat, 07 Nov 2026 16:53:11 +0000</pubDate><description>A much smaller Mac installer. Open the DMG to install Piano Spark.
+Download transcription, vocal removal and PDF tools only when needed.
+See download size, real progress and speed where you create a lesson. Cancel and resume without losing downloaded files.
+Downloaded tools stay on your Mac across app updates.</description><sparkle:version>8</sparkle:version><sparkle:shortVersionString>0.4.0</sparkle:shortVersionString><sparkle:minimumSystemVersion>14.0.0</sparkle:minimumSystemVersion><enclosure url="https://api.github.com/repos/cihanozcelik/piano-spark/releases/assets/721304794" length="23598600" type="application/octet-stream" sparkle:edSignature="Gymo47K1kL194U2Uci0QGeROf4TU6WSHobKWuPFEP8CLK/CLeq1hUfg9yKvDnwWw3xjLDmUHveH5Uo310d8TBw=="></enclosure></item><item><title>Piano Spark 0.3.4</title><pubDate>Sat, 07 Nov 2026 16:03:36 +0000</pubDate><description>Choose English or Türkçe without leaving your lesson.
 Language preference is saved between sessions.
 Menus, practice controls, and lesson creation follow your selected language.
 Improved standalone score loading.</description><sparkle:version>7</sparkle:version><sparkle:shortVersionString>0.3.4</sparkle:shortVersionString><sparkle:minimumSystemVersion>14.0.0</sparkle:minimumSystemVersion><enclosure url="https://api.github.com/repos/cihanozcelik/piano-spark/releases/assets/721171077" length="2004064820" type="application/octet-stream" sparkle:edSignature="v4BgKskUKMsNpz1aywMS1sdU3RaRkJ6GyAfV0qeDyQA1eFpwBE+0ioFAblP3Gxh4BCK++AdqXCq7Zn07wCUoBw=="></enclosure></item></channel></rss><!-- sparkle-signatures:
-edSignature: H9c3OFBb6KajZP2T6Ww42O4VwUAFY3qbiZ/QAkKFX2HeAtg9CNnaBDPVjftYGWKIucC/EllIjxQ60vnsfZ0NBg==
-length: 1202
+edSignature: jTuBr47nbV4G15Pnhz0e5n1cYpOPr1d3fpo5OT9MZvo3gHD0TWbzx4qy6qR1oiRc0TtRN1E34jExKWUX0gHyCg==
+length: 2070
 -->
