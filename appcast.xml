@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
 IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
---><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>Piano Spark</title><item><title>Piano Spark 0.5.0</title><pubDate>Sat, 07 Nov 2026 18:37:16 +0000</pubDate><description>Discover nearby Bluetooth MIDI instruments and choose which piano to connect to, across brands.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0"><channel><title>Piano Spark</title><item><title>Piano Spark 0.6.0</title><pubDate>Sat, 07 Nov 2026 20:57:55 +0000</pubDate><description>Practice each score row until you reach your clean-repetition goal, or build up rows progressively.
+Choose 3, 5, or 10 consecutive clean passes and Off, Easy, Normal, or Hard timing.
+Resume saved practice progress separately for each lesson, part, speed, method, and timing setting.
+See row status and mastery percentages beside the score, with combined-stage and overall plan progress.
+Keep falling notes clear with compact practice feedback in the bottom timeline.
+All practice methods require a connected piano and pause on disconnection; improved interface translations.</description><sparkle:version>11</sparkle:version><sparkle:shortVersionString>0.6.0</sparkle:shortVersionString><sparkle:minimumSystemVersion>14.0.0</sparkle:minimumSystemVersion><enclosure url="https://api.github.com/repos/cihanozcelik/piano-spark/releases/assets/721915095" length="23617625" type="application/octet-stream" sparkle:edSignature="jl7i2tChU6P5TA/5okURbTMuy8FzI9SCYHXBPXB5oC7QMaeIlKSZmMo1bD84YS86zgQT96DnwGNj3qkB7VFwAw=="></enclosure><sparkle:deltas><enclosure url="https://api.github.com/repos/cihanozcelik/piano-spark/releases/assets/721915094" length="17650" type="application/octet-stream" sparkle:edSignature="H/ow/Wf4/+iDZ1phcMzGxrljeABgGtXmsdOFZKQNjbysxDSbpbp6p5bwN/pg+Oil5wZYPgqCKZwsXzoEvG3+Bg==" sparkle:deltaFrom="10"></enclosure></sparkle:deltas></item><item><title>Piano Spark 0.5.0</title><pubDate>Sat, 07 Nov 2026 18:37:16 +0000</pubDate><description>Discover nearby Bluetooth MIDI instruments and choose which piano to connect to, across brands.
 Save and rename pianos, choose a default device, and configure MIDI output channels 1–16.
 See separate MIDI input and output status, with a short test note available on request.
 Enable optional automatic connection and bounded reconnect attempts without automatically resuming playback.
@@ -13,6 +18,6 @@ Downloaded tools stay on your Mac across app updates.</description><sparkle:vers
 Language preference is saved between sessions.
 Menus, practice controls, and lesson creation follow your selected language.
 Improved standalone score loading.</description><sparkle:version>7</sparkle:version><sparkle:shortVersionString>0.3.4</sparkle:shortVersionString><sparkle:minimumSystemVersion>14.0.0</sparkle:minimumSystemVersion><enclosure url="https://api.github.com/repos/cihanozcelik/piano-spark/releases/assets/721171077" length="2004064820" type="application/octet-stream" sparkle:edSignature="v4BgKskUKMsNpz1aywMS1sdU3RaRkJ6GyAfV0qeDyQA1eFpwBE+0ioFAblP3Gxh4BCK++AdqXCq7Zn07wCUoBw=="></enclosure></item></channel></rss><!-- sparkle-signatures:
-edSignature: 5CKlN4RiWy6k5cGyzK/3I7NWttCiPqaK1zYHiaxeWBPZibDvzalGZ1Osgk8ftbjvN9/vzGVIuqqDwcvFHhF5Bw==
-length: 4503
+edSignature: 74CjT8m8If+J/kuMrq8pXEq6MgrOkEXHeIqF0f3HUxlcSIgmTvN27j7XVJRN0FojrBBDjoCG/UGYBlXmcalnCQ==
+length: 5958
 -->
