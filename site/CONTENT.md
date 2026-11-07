@@ -116,7 +116,7 @@ an active Download button.
 Small supporting information:
 
 - **No account required.**
-- **Small DMG installer.** Lesson tools download at first use with visible size, progress and cancellation. They remain on the Mac across app updates.
+- **Small DMG download.** Drag Piano Spark to Applications. There is no separate installer app. Lesson tools download at first use with visible size, progress and cancellation. They remain on the Mac across app updates.
 - **Smaller updates afterward.** Unchanged model files are not downloaded again in normal delta updates.
 
 Do not promise that every update is 16 KB or 24 KB: those measurements describe

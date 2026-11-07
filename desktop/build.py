@@ -1,4 +1,4 @@
-"""Build a self-contained Apple Silicon app and a per-user installer disk image."""
+"""Build a self-contained Apple Silicon app and a drag-to-Applications disk image."""
 import argparse
 import json
 from pathlib import Path
@@ -42,23 +42,13 @@ def bundle_engine(resources):
 def build_installer():
     stage = BUILD/'installer-image'
     if stage.exists(): shutil.rmtree(stage)
-    installer = stage/'Piano Spark Installer.app'
-    macos = installer/'Contents/MacOS'; macos.mkdir(parents=True)
-    resources = installer/'Contents/Resources'; resources.mkdir()
-    run('cp','-cR',APP,resources/'Piano Spark.app')
-    plist = dict(CFBundleExecutable='PianoManInstaller',CFBundleIdentifier='com.pianoman.installer',
-                 CFBundleName='Piano Spark Installer',CFBundlePackageType='APPL',CFBundleVersion=str(RELEASE['build']),
-                 CFBundleShortVersionString=RELEASE['version'],LSMinimumSystemVersion='14.0',
-                 NSHighResolutionCapable=True,NSPrincipalClass='NSApplication')
-    with (installer/'Contents/Info.plist').open('wb') as stream: plistlib.dump(plist,stream)
-    run('xcrun','clang','-arch','arm64','-fobjc-arc','-fblocks','-Wall','-Wextra','-Werror',
-        '-mmacosx-version-min=14.0',ROOT/'desktop/Installer.m',ROOT/'desktop/Localization.m','-framework','AppKit',
-        '-o',macos/'PianoManInstaller')
-    run('codesign','--force','--sign','-','--timestamp=none',installer)
-    run('codesign','--verify','--deep','--strict',installer)
+    stage.mkdir(parents=True)
+    run('cp','-cR',APP,stage/APP.name)
+    (stage/'Applications').symlink_to('/Applications',target_is_directory=True)
+    run('codesign','--verify','--deep','--strict',stage/APP.name)
     image = DIST/'PianoSpark-Setup.dmg'
     if image.exists(): image.unlink()
-    run('hdiutil','create','-volname','Piano Spark Setup','-srcfolder',stage,'-format','UDZO',image)
+    run('hdiutil','create','-volname','Piano Spark','-srcfolder',stage,'-format','UDZO',image)
     shutil.rmtree(stage)
     print(f'Installer: {image}\nSize: {image.stat().st_size/1000000:.1f} MB')
 

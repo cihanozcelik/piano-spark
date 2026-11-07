@@ -5,9 +5,11 @@ Küçük, bağımsız uygulama paketi **Apple Silicon, macOS 14 veya sonrası** 
 
 ## Uygulama ve paylaşım
 
-**`dist/PianoSpark-Setup.dmg`** kurulum dosyasıdır. İçindeki **Piano Spark Installer**,
-uygulamayı `~/Applications/Piano Spark.app` konumuna kurar. Güncellemede uygulamayı
-kapatır ve kayıtlı dersleri korur. Kullanıcı Python, Rubato veya başka paket kurmaz;
+**`dist/PianoSpark-Setup.dmg`** içinde doğrudan **Piano Spark.app** ve
+**Applications** kısayolu bulunur. Uygulama bu kısayola sürüklenerek kopyalanır;
+ardından Applications içindeki kopyası açılır. Ayrı bir Installer uygulaması yoktur.
+Önceki kurulumlar otomatik güncellemeyi mevcut konumlarında alır; kayıtlı dersler
+korunur. Kullanıcı Python, Rubato veya başka paket kurmaz;
 küçük portable Python uygulamaya dahildir. Nota çıkarma, vokal ayırma ve PDF
 araçları ilk kullanımda indirilir. Gereken boyut ilgili seçeneğin yanında görünür;
 ilerleme, indirilen/toplam boyut ve hız gösterilir. İptal indirmeleri korur.

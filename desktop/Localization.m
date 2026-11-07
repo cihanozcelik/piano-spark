@@ -2,9 +2,6 @@
 
 NSString *PianoLanguage(void) {
     NSString *saved = [NSUserDefaults.standardUserDefaults stringForKey:@"PianoSparkLanguage"];
-    // The optional setup helper uses the installed app's preference when available.
-    if (!saved && [NSBundle.mainBundle.bundleIdentifier isEqual:@"com.pianoman.installer"])
-        saved = [NSUserDefaults.standardUserDefaults persistentDomainForName:@"com.pianoman.desktop"][@"PianoSparkLanguage"];
     if ([saved isEqual:@"en"] || [saved isEqual:@"tr"]) return saved;
     return [NSLocale.preferredLanguages.firstObject.lowercaseString hasPrefix:@"tr"] ? @"tr" : @"en";
 }
@@ -111,18 +108,6 @@ NSString *PianoText(NSString *text) {
             @"PDF sayfalarında farklı sayıda porte okundu; sayfalar güvenilir biçimde birleştirilemedi.":@"Different staff counts were detected across PDF pages, so they could not be reliably combined.",
             @"Dosyada okunabilir bir nota partisi bulunamadı.":@"No readable score part was found in this file.",
             @"Nota okuyucu sıfır uzunlukta ölçü üretti; PDF’den güvenilir ders çıkarılamadı.":@"The score reader produced an empty measure. A reliable lesson could not be created from this PDF.",
-            @"Piano Spark Kurulumu":@"Piano Spark Setup",
-            @"Piano Spark’ı yükle":@"Install Piano Spark",
-            @"Piyano derslerini videodan bu Mac’te oluştur. Gerekli motorlar ve modeller pakete dahildir.\n\nUygulama hesabının Applications klasörüne kurulacak. Ayrı Python kurulmaz, sistem servisi eklenmez. Güncelleme sırasında açık Piano Spark kapanır.":@"Create piano lessons from video on this Mac. The required engines and models are included.\n\nPiano Spark will be installed in your Applications folder. No separate Python installation or system service is needed. A running copy of Piano Spark will close during installation.",
-            @"Yükle":@"Install",
-            @"Kurulum iptal ediliyor…":@"Cancelling installation…",
-            @"Uygulama ve modeller kopyalanıyor…\n\nBu işlem bitene kadar mevcut uygulama korunur.":@"Copying the app and models…\n\nYour existing installation is kept until this finishes.",
-            @"Açık Piano Spark kapanmadı. Kapatıp kurulumu tekrar başlat.":@"Piano Spark did not close. Quit it and start the installation again.",
-            @"Piano Spark’ı aç":@"Open Piano Spark",
-            @"Kapat":@"Close",
-            @"Piano Spark yüklendi.\n\nVideonu seçip Ders oluştur düğmesine basabilirsin. Uygulamayı ve verilerini kaldırmak için Piano Spark menüsündeki “Piano Spark’ı kaldır…” seçeneğini kullan.":@"Piano Spark is installed.\n\nChoose your video in Create a Lesson to begin. To remove the app and its data, choose “Uninstall Piano Spark…” from the Piano Spark menu.",
-            @"Kurulum tamamlanamadı.\n\n":@"Installation could not finish.\n\n",
-            @"Dosya kopyalanamadı.":@"The file could not be copied.",
             @"Desteklenmeyen dil.":@"Unsupported language."
         };
         NSMutableDictionary *reverse = [NSMutableDictionary new];
