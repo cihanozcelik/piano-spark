@@ -81,8 +81,8 @@ Lessons created from audio on Intel match Apple Silicon: for the same recording,
 notes, timing, velocity, pedal, rhythm, and score are identical, and separated
 accompaniment differs only below 16-bit resolution. PDF recognition uses an older
 ONNX Runtime on Intel and can read a few measures differently; on the bundled Bach
-example both read 608 notes and match its reference MIDI equally well (86.2% and
-85.6% of the pitch sequence).
+example Apple Silicon reads 608 notes and Intel 608–609, and both match its
+reference MIDI about equally well.
 Vocal separation runs on the processor rather than the graphics processor on Intel,
 so it is considerably slower there.
 
