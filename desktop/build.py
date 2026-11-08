@@ -57,7 +57,7 @@ def write_ui(resources):
     # Flatten our known ES modules into one offline document. Tone's bundled
     # dependency and embedded song already live in piano.html, including license.
     scripts = []
-    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
+    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'hand-reach.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
         code = (ROOT / name).read_text()
         code = re.sub(r'^import .*?;\s*$', '', code, flags=re.MULTILINE)
         code = re.sub(r'^export (?=(?:async )?(?:class |function ))', '', code, flags=re.MULTILINE)

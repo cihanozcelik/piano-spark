@@ -6,6 +6,7 @@ import { PianoInput } from './piano-input.js';
 import { PianoOutput } from './piano-output.js';
 import { PracticeClock } from './practice-clock.js';
 import { PracticeSession } from './practice-session.js';
+import { HandReach } from './hand-reach.js';
 import { StaffNotation } from './staff-notation.js';
 import { startAppShell } from './app-shell.js';
   (async () => {
@@ -18,7 +19,7 @@ import { startAppShell } from './app-shell.js';
     const ui = Object.fromEntries(['play','rewind','speed','track','volume','volume-control','seek','elapsed','duration','notation','staff','zoom','range','loop','roll','keyboard','stage','viewport','error','file-badge','file-title','file-description','current-notes','midi-file','legend-left','legend-right','mode','lesson-panel','lesson-feedback'].map(id => [id, element(id)]));
     ui['audio-output']=element('audio-output');
     ui['audio-output-status']=element('audio-output-status');
-    for(const id of ['practice-settings','practice-strategy','practice-target','practice-timing','practice-rules','practice-reset','practice-availability','practice-progress','practice-line','practice-previous','practice-next','sheet-learning','sheet-learning-label','sheet-learning-meter']) ui[id]=element(id);
+    for(const id of ['practice-settings','practice-strategy','practice-target','practice-timing','practice-rules','practice-reset','practice-availability','practice-progress','practice-line','practice-previous','practice-next','practice-profile','profile-name','profile-add','profile-delete','profile-reach','profile-measure','profile-clear-reach','profile-measure-status','sheet-learning','sheet-learning-label','sheet-learning-meter']) ui[id]=element(id);
     const workspaceState=new WorkspaceState();
     workspaceState.onError=showError;
     workspaceState.restoreControls(ui);
@@ -35,7 +36,7 @@ import { startAppShell } from './app-shell.js';
     const solfegeNames = ['Do','Do♯','Re','Re♯','Mi','Fa','Fa♯','Sol','Sol♯','La','La♯','Si'];
     const englishSolfegeNames=solfegeNames.map(name=>name==='Si'?'Ti':name);
     const colors = ['#75a7ff','#efab91'];
-    const state = { tracks:[], selectedTracks:[], notes:[], duration:0, position:-2, speed:Number(ui.speed.value), running:false, anchor:0, anchorPosition:0, next:0, epoch:0, source:'builtin', mode:ui.mode.value };
+    const state = { tracks:[], selectedTracks:[], notes:[], practiceNotes:[], duration:0, position:-2, speed:Number(ui.speed.value), running:false, anchor:0, anchorPosition:0, next:0, epoch:0, source:'builtin', mode:ui.mode.value };
     const input = new PianoInput(), practice = new PracticeClock();
     let training=null, trainingContexts={}, scoreRows={status:'loading',segments:[],signature:''};
     const pianoOutput=new PianoOutput(message=>{pause();showError(message);});
@@ -67,7 +68,86 @@ import { startAppShell } from './app-shell.js';
     const selectedInput=()=>input.snapshot('bluetooth');
     const canStart=()=> (!practicing()||selectedInput().connected)&&(!guided()||(training?.active&&!training.done));
     const trainingRange=()=>guided()&&training?.active?(training.current||training.stages.at(-1)):null;
-    const displayNotes=()=>trainingRange()?.notes||state.notes;
+    const displayNotes=()=>trainingRange()?.notes||(practicing()?state.practiceNotes:state.notes);
+
+    // Profiles keep a player's hand span and practice progress apart. The
+    // default profile has no span and keeps every existing progress context.
+    let profiles=normalizeProfiles(workspaceState.data.profiles), measuring=null;
+    function normalizeProfiles(saved) {
+      const list=(Array.isArray(saved?.list)?saved.list:[])
+        .filter(profile=>profile&&typeof profile.id==='string'&&typeof profile.name==='string')
+        .map(profile=>({id:profile.id,name:profile.name.slice(0,40),reach:HandReach.valid(profile.reach)?{left:profile.reach.left,right:profile.reach.right}:null}));
+      if(!list.some(profile=>profile.id==='default')) list.unshift({id:'default',name:'',reach:null});
+      return {active:list.some(profile=>profile.id===saved?.active)?saved.active:'default',list};
+    }
+    const activeProfile=()=>profiles.list.find(profile=>profile.id===profiles.active);
+    // Practice targets only; listening and the lesson itself keep every note.
+    function adaptNotes() { state.practiceNotes=HandReach.adapt(state.notes,activeProfile().reach); }
+    function spanLabel(span) {
+      return span<12?t('{count} yarım ses',{count:span}):span===12?t('1 oktav'):t('1 oktav + {count} yarım ses',{count:span-12});
+    }
+    function renderProfiles() {
+      const select=ui['practice-profile'];
+      select.replaceChildren(...profiles.list.map(profile=>new Option(profile.id==='default'?t('Varsayılan'):profile.name,profile.id)));
+      select.value=profiles.active;
+      const reach=activeProfile().reach;
+      const text=reach?t('El açıklığı: sağ {right} · sol {left}. Uzanamadığın akor notaları soluk görünür ve isteğe bağlıdır.',
+        {right:spanLabel(reach.right),left:spanLabel(reach.left)}):t('El açıklığı ölçülmedi; akorlardaki tüm notalar çalınır.');
+      if(ui['profile-reach'].textContent!==text) ui['profile-reach'].textContent=text;
+      ui['profile-delete'].disabled=profiles.active==='default';
+      ui['profile-clear-reach'].disabled=!reach||!!measuring;
+      ui['profile-measure'].textContent=measuring?t('Ölçümü iptal et'):t('El açıklığını ölç');
+      ui['profile-measure-status'].hidden=!measuring;
+    }
+    function applyProfile(change) {
+      stopMeasure(); pause(); change();
+      workspaceState.update('profiles',profiles);
+      adaptNotes(); configureTraining(); renderProfiles(); draw(); checkpoint();
+    }
+    // One hand at a time: hold the widest comfortable pair of keys for three seconds.
+    function startMeasure() {
+      pause();
+      measuring={hand:1,keys:'',since:0,result:{},release:false,timer:setInterval(stepMeasure,100)};
+      renderProfiles(); stepMeasure();
+    }
+    function stopMeasure() {
+      if(!measuring) return;
+      clearInterval(measuring.timer); measuring=null; renderProfiles();
+    }
+    function stepMeasure() {
+      const snapshot=selectedInput(), held=[...snapshot.held].sort((a,b)=>a-b), now=performance.now();
+      const hand=t(measuring.hand===1?'Sağ el':'Sol el');
+      let text;
+      if(!snapshot.connected) text=t('Ölçüm için piyanoyu bağla.');
+      else if(measuring.release) {
+        if(held.length) text=t('Sağ el kaydedildi. Tuşları bırak, sonra sol elle aynısını yap.');
+        else { measuring.release=false; return stepMeasure(); }
+      } else {
+        const span=HandReach.measure(held);
+        if(span===null) {
+          measuring.keys='';
+          text=held.length<2?t('{hand}: başparmak ve serçe parmakla rahatça uzanabildiğin en uzak iki tuşa bas ve 3 saniye tut.',{hand}):
+            t('Bu tuşlar tek elin açıklığı olarak ölçülemiyor; yeniden dene.');
+        } else {
+          const keys=held.join(',');
+          if(keys!==measuring.keys) {measuring.keys=keys;measuring.since=now;}
+          const remaining=3-(now-measuring.since)/1000;
+          if(remaining>0) text=t('{hand}: {span} · tutmaya devam et ({seconds} sn)',{hand,span:spanLabel(span),seconds:Math.ceil(remaining)});
+          else {
+            measuring.result[measuring.hand===1?'right':'left']=span;
+            if(measuring.hand===1) {
+              measuring.hand=0; measuring.keys=''; measuring.release=true;
+              text=t('Sağ el kaydedildi. Tuşları bırak, sonra sol elle aynısını yap.');
+            } else {
+              const reach={right:measuring.result.right,left:span};
+              applyProfile(()=>{activeProfile().reach=reach;});
+              return;
+            }
+          }
+        }
+      }
+      if(ui['profile-measure-status'].textContent!==text) ui['profile-measure-status'].textContent=text;
+    }
 
     function checkpoint() {
       if(!currentKey||changingLesson) return;
@@ -83,7 +163,8 @@ import { startAppShell } from './app-shell.js';
       practice.setTiming(ui['practice-timing'].value);
       if(guided()&&scoreRows.status==='ready') {
         training=new PracticeSession();
-        training.configure({segments:scoreRows.segments,signature:scoreRows.signature,notes:state.notes,
+        training.configure({segments:scoreRows.segments,signature:scoreRows.signature,notes:state.practiceNotes,
+          profile:profiles.active==='default'?'':profiles.active,
           strategy:ui['practice-strategy'].value,target:Number(ui['practice-target'].value),
           track:ui.track.value,speed:state.speed,timing:practice.timing,saved:trainingContexts});
       }
@@ -93,7 +174,7 @@ import { startAppShell } from './app-shell.js';
         state.position=training.done?stage.end:stage.start-1.5*state.speed;
         practice.load(stage.notes,state.position,nowSeconds(),selectedInput());
         sheet.follow(stage.start,false,true);
-      } else practice.load(state.notes,state.position,nowSeconds(),selectedInput());
+      } else practice.load(state.practiceNotes,state.position,nowSeconds(),selectedInput());
       updatePlayButton();
     }
 
@@ -281,6 +362,7 @@ import { startAppShell } from './app-shell.js';
     }
     async function play() {
       if(state.running||state.starting||!activePractice) return;
+      stopMeasure();
       if(!canStart()) return;
       pianoOutput.stop();
       const epoch=++state.epoch;
@@ -509,7 +591,9 @@ import { startAppShell } from './app-shell.js';
         const isActive=note.time<=time&&note.end>time;
         if(isActive) current.push(note);
         const hand=noteHand(note), color=colors[hand];
-        if(isActive) { if(!practicing()) active.set(note.midi,hand); ctx.shadowColor=color; ctx.shadowBlur=16; }
+        // Optional notes stay visible but quiet: played or skipped, both pass.
+        if(note.optional) ctx.globalAlpha=.28;
+        else if(isActive) { if(!practicing()) active.set(note.midi,hand); ctx.shadowColor=color; ctx.shadowBlur=16; }
         ctx.fillStyle=color; roundedRect(key.x+inset,top,barWidth,barHeight,3); ctx.fill();
         ctx.shadowBlur=0;
         ctx.fillStyle='#ffffff33'; ctx.fillRect(key.x+inset+1,top+3,2,Math.max(0,barHeight-6));
@@ -525,6 +609,7 @@ import { startAppShell } from './app-shell.js';
           ctx.fillStyle='#191b20'; ctx.font='600 '+Math.min(11,barWidth/3.5)+'px -apple-system,BlinkMacSystemFont,sans-serif'; ctx.textAlign='center';
           ctx.fillText(noteName(note.midi),key.x+key.width/2,Math.min(bottom-7,Math.max(13,top+17))); ctx.textAlign='left';
         }
+        ctx.globalAlpha=1;
 
       }
       ctx.restore();
@@ -563,6 +648,7 @@ import { startAppShell } from './app-shell.js';
       const selected=ui.track.value;
       state.selectedTracks=state.tracks.filter(track=>selected==='all'||String(track.id)===selected);
       state.notes=state.selectedTracks.flatMap(track=>track.notes).sort((a,b)=>a.time-b.time||a.midi-b.midi);
+      adaptNotes();
       rebuildPedalTimeline();
       state.position=Math.min(time,state.duration);
       configureTraining(); rebuildKeys(); draw(); checkpoint();
@@ -683,6 +769,24 @@ import { startAppShell } from './app-shell.js';
       if(training) delete trainingContexts[training.key];
       configureTraining();draw();checkpoint();
     });
+    ui['practice-profile'].addEventListener('change',()=>applyProfile(()=>{profiles.active=ui['practice-profile'].value;}));
+    function addProfile() {
+      const name=ui['profile-name'].value.trim().slice(0,40);
+      if(!name) return;
+      const id='p'+Date.now().toString(36);
+      ui['profile-name'].value='';
+      applyProfile(()=>{profiles.list.push({id,name,reach:null});profiles.active=id;});
+    }
+    ui['profile-add'].addEventListener('click',addProfile);
+    ui['profile-name'].addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();addProfile();}});
+    ui['profile-delete'].addEventListener('click',()=> {
+      if(profiles.active==='default') return;
+      applyProfile(()=>{profiles.list=profiles.list.filter(profile=>profile.id!==profiles.active);profiles.active='default';});
+    });
+    ui['profile-clear-reach'].addEventListener('click',()=>applyProfile(()=>{activeProfile().reach=null;}));
+    ui['profile-measure'].addEventListener('click',()=>measuring?stopMeasure():startMeasure());
+    window.addEventListener('pianoman-language-change',()=>renderProfiles());
+    renderProfiles();
     ui['practice-previous'].addEventListener('click',()=>selectStage(-1));
     ui['practice-next'].addEventListener('click',()=>selectStage(1));
     ui.play.addEventListener('click',()=> { if(state.running||state.starting) pause(); else play(); });

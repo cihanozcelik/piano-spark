@@ -37,7 +37,7 @@ export class PracticeSession {
     this.seenAttacks = new Map();
   }
 
-  configure({segments, signature, notes, strategy, target, track, speed, timing = PracticeClock.timingProfile('hard'), saved = {}}) {
+  configure({segments, signature, notes, strategy, target, track, speed, timing = PracticeClock.timingProfile('hard'), profile = '', saved = {}}) {
     this.target = target;
     this.timing = timing;
     this.stages = [];
@@ -100,6 +100,10 @@ export class PracticeSession {
     // Saved stage indices stay valid unless a row held only carried-over tails
     // and therefore no longer has an exercise. Only that layout gets a new context.
     if (scoreRows.some(row => row.legacyTracked !== row.notes.length > 0)) context.push('onset-rows');
+    // Each player profile and each hand-span adaptation is its own exercise.
+    if (profile) context.push(['profile', profile]);
+    const optional = clockNotes.filter(note => note.optional).map(note => [note.midi, note.time]);
+    if (optional.length) context.push(['optional', optional]);
     const identity = JSON.stringify(context);
     let hash = 2166136261;
     for (let index = 0; index < identity.length; index++) {

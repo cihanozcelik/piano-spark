@@ -36,6 +36,7 @@ FILES = {
     "/piano-input.js": ("piano-input.js", "text/javascript; charset=utf-8"),
     "/practice-clock.js": ("practice-clock.js", "text/javascript; charset=utf-8"),
     "/practice-session.js": ("practice-session.js", "text/javascript; charset=utf-8"),
+    "/hand-reach.js": ("hand-reach.js", "text/javascript; charset=utf-8"),
     "/bluetooth.js": ("bluetooth-connection/bluetooth.js", "text/javascript; charset=utf-8"),
     "/transcription.json": ("transcription.json", "application/json; charset=utf-8"),
     "/a-small-measure-of-peace-video.mid": ("a-small-measure-of-peace-video.mid", "audio/midi"),

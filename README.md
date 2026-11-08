@@ -469,6 +469,25 @@ accept mouse, touch, or computer-keyboard note input. Playback pauses when the a
 loses focus or the mode changes. Seeking or changing parts rebuilds the target
 notes. Resizing the view does not reset physically held keys.
 
+### Profiles and hand span
+
+**Practice method** starts with a **Profile** selector, so people sharing a piano keep
+separate practice progress. The **Default** profile keeps all progress saved before
+profiles existed. **Measure hand span** asks for each hand in turn: press the two
+farthest keys the thumb and little finger reach comfortably and hold them for three
+seconds. The connected piano reports the exact keys, so the span is stored in
+semitones (5–24); keys that cannot be one hand's span are rejected.
+
+With a measured span, practice adapts chords wider than that hand's reach. The
+right hand keeps its highest note (usually the melody), the left hand its lowest
+(the bass); notes farther away from that anchor than the span become optional. Optional
+notes are dimmed in the falling notes, are never awaited, and are accepted when
+played, for example by rolling the chord. Wrong notes remain errors. This is
+calculated during practice only: the lesson, its score, listening and MIDI export
+keep every note. Each profile and adaptation has its own progress context. Notes
+are grouped per hand by their part, or by middle C when a lesson has no hand parts,
+so a lesson whose parts assign notes to the wrong hand can mark extra notes optional.
+
 ## Note input interface
 
 `piano-input.js` tracks held keys and fresh-press identities per source.

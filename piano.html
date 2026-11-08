@@ -112,6 +112,11 @@
     .practice-options p { margin:0; color:var(--muted); font-size:11px; line-height:1.6; }
     .practice-options .practice-rules { border-top:1px solid var(--line); padding-top:10px; }
     #practice-reset { align-self:flex-start; font-size:12px; }
+    .practice-profile { display:flex; flex-direction:column; gap:8px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+    .profile-row { display:flex; flex-wrap:wrap; gap:6px; }
+    .profile-row input { flex:1; min-width:0; color:var(--ink); background:var(--raised); border:1px solid var(--line); border-radius:7px; padding:5px 8px; font:inherit; font-size:12px; }
+    .profile-row button { font-size:12px; padding:5px 10px; }
+    .profile-measure-status { padding:8px 10px; border:1px solid #c5963e66; border-radius:8px; background:#2c261b; color:#f0d6a0 !important; }
     .practice-progress { min-width:0; color:#a8b7ad; font-size:11px; line-height:14px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .practice-line { display:flex; align-items:center; gap:4px; min-width:0; }
     .practice-line[hidden] { display:none; }
@@ -321,6 +326,13 @@
           <details class="popover practice-settings" id="practice-settings" data-popover>
             <summary aria-label="Çalışma yöntemi" data-i18n-aria-label="Çalışma yöntemi" title="Çalışma yöntemi" data-i18n-title="Çalışma yöntemi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7H7a4 4 0 0 0 0 8h2m-5 2h13a4 4 0 0 0 0-8h-2M17 4l3 3-3 3M7 14l-3 3 3 3"/></svg><span data-i18n="Çalışma yöntemi">Çalışma yöntemi</span></summary>
             <div class="popover-content practice-options">
+              <section class="practice-profile" aria-labelledby="practice-profile-label">
+                <label class="control" for="practice-profile"><span id="practice-profile-label" data-i18n="Profil">Profil</span><select id="practice-profile"></select></label>
+                <div class="profile-row"><input id="profile-name" type="text" maxlength="40" autocomplete="off" placeholder="Yeni profil adı" data-i18n-placeholder="Yeni profil adı" aria-label="Yeni profil adı" data-i18n-aria-label="Yeni profil adı"><button id="profile-add" type="button" data-i18n="Ekle">Ekle</button></div>
+                <p id="profile-reach" role="status"></p>
+                <p class="profile-measure-status" id="profile-measure-status" role="status" aria-live="polite" hidden></p>
+                <div class="profile-row"><button id="profile-measure" type="button">El açıklığını ölç</button><button id="profile-clear-reach" type="button" data-i18n="Ölçümü kaldır">Ölçümü kaldır</button><button id="profile-delete" type="button" data-i18n="Profili sil">Profili sil</button></div>
+              </section>
               <label class="control" for="practice-strategy"><span data-i18n="Yöntem">Yöntem</span><select id="practice-strategy" aria-describedby="practice-strategy-help practice-availability"><option value="whole" selected data-i18n="Parçayı çalış">Parçayı çalış</option><option value="rows" data-i18n="Satır satır ustalaş">Satır satır ustalaş</option><option value="build" data-i18n="Satırları birleştir">Satırları birleştir</option></select></label>
               <p id="practice-strategy-help" data-i18n="Parçayı çalış: doğru tuşları bekleyerek ilerle. Satır satır: her satırı tamamla, sonra sonrakine geç. Birleştir: yeni satırı öğren, sonra önceki satırlarla birlikte çal.">Parçayı çalış: doğru tuşları bekleyerek ilerle. Satır satır: her satırı tamamla, sonra sonrakine geç. Birleştir: yeni satırı öğren, sonra önceki satırlarla birlikte çal.</p>
               <label class="control" for="practice-target"><span data-i18n="Ardışık hatasız tekrar">Ardışık hatasız tekrar</span><select id="practice-target"><option value="3">3</option><option value="5">5</option><option value="10" selected>10</option></select></label>

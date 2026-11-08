@@ -19,6 +19,8 @@ export class PracticeClock {
     this.speed = 1;
     this.lastWall = 0;
     this.expected = new Map();
+    // Optional notes (see HandReach) are accepted while they sound, never awaited.
+    this.allowed = new Map();
     this.pending = new Map();
     this.usedAttacks = new Map();
     this.seenAttacks = new Map();
@@ -40,12 +42,12 @@ export class PracticeClock {
     const boundaries = new Map();
     const boundary = time => {
       const key = Math.round(time * 1000000);
-      if (!boundaries.has(key)) boundaries.set(key, { time: key / 1000000, starts: [], ends: [] });
+      if (!boundaries.has(key)) boundaries.set(key, { time: key / 1000000, starts: [], ends: [], optionalStarts: [], optionalEnds: [] });
       return boundaries.get(key);
     };
     for (const note of notes) {
-      boundary(note.time).starts.push(note.midi);
-      boundary(note.end).ends.push(note.midi);
+      boundary(note.time)[note.optional ? 'optionalStarts' : 'starts'].push(note.midi);
+      boundary(note.end)[note.optional ? 'optionalEnds' : 'ends'].push(note.midi);
     }
     this.events = [...boundaries.values()].sort((a, b) => a.time - b.time);
     this.seek(time, now, input);
@@ -56,6 +58,7 @@ export class PracticeClock {
     this.lastWall = now;
     this.next = 0;
     this.expected.clear();
+    this.allowed.clear();
     this.pending.clear();
     this.usedAttacks = new Map([...input.attacks].map(([note, attack]) => [note, attack.serial]));
     this.seenAttacks = new Map(this.usedAttacks);
@@ -72,6 +75,16 @@ export class PracticeClock {
   resume(now) { this.lastWall = now; }
 
   enter(event) {
+    for (const note of event.optionalEnds) {
+      const count = this.allowed.get(note) - 1;
+      if (count > 0) this.allowed.set(note, count);
+      else {
+        this.allowed.delete(note);
+        // A played optional note gets the normal release allowance.
+        if (!this.expected.has(note)) this.releasedAt.set(note, event.time);
+      }
+    }
+    for (const note of event.optionalStarts) this.allowed.set(note, (this.allowed.get(note) || 0) + 1);
     for (const note of event.ends) {
       const count = this.expected.get(note) - 1;
       if (count > 0) this.expected.set(note, count);
@@ -107,9 +120,11 @@ export class PracticeClock {
       }
     }
     const horizon = this.time + this.earlySeconds * this.speed;
+    const optional = new Set(this.allowed.keys());
     if (this.timing.enabled) {
       for (let i = this.next; i < this.events.length && this.events[i].time <= horizon; i++) {
         for (const note of this.events[i].starts) early.add(note);
+        for (const note of this.events[i].optionalStarts) optional.add(note);
       }
     } else if (!this.pending.size) {
       // Timing off accepts the next onset group at any time, not every future
@@ -117,6 +132,7 @@ export class PracticeClock {
       for (let i = this.next; i < this.events.length; i++) {
         if (!this.events[i].starts.length) continue;
         for (const note of this.events[i].starts) early.add(note);
+        for (const note of this.events[i].optionalStarts) optional.add(note);
         break;
       }
     }
@@ -127,7 +143,7 @@ export class PracticeClock {
       this.seenAttacks.set(note, attack.serial);
       // A fresh attack must satisfy an onset, not simply hit a pitch that is
       // already supposed to be held. Retain its serial across reconciliations.
-      if (input.held.has(note) && !this.pending.has(note) && !early.has(note)) {
+      if (input.held.has(note) && !this.pending.has(note) && !early.has(note) && !optional.has(note)) {
         this.unexpectedAttacks.set(note, attack.serial);
       }
       if (input.held.has(note) && (this.expected.has(note) || early.has(note))) {
@@ -154,7 +170,7 @@ export class PracticeClock {
     const missing = [...this.expected.keys()].filter(note => !input.held.has(note) &&
       (this.pending.has(note) || (this.timing.enabled && !releasing.has(note))));
     const extra = [...input.held].filter(note => !this.expected.has(note) && !early.has(note) &&
-      !this.releasedAt.has(note));
+      !optional.has(note) && !this.releasedAt.has(note));
     const repeat = [...this.pending.keys()].filter(note => input.held.has(note));
     this.status = {
       connected: input.connected, missing, extra, repeat,
