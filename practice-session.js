@@ -2,6 +2,27 @@ import { PracticeClock } from './practice-clock.js';
 // PracticeClock owns matching and time. This session owns only the learning plan
 // and completed progress; the player owns transport, input and loop restarts.
 export class PracticeSession {
+  // Seconds. A performed downbeat this close to a barline is that barline.
+  static boundaryTolerance = .08;
+  // Seconds between onsets of one spread or rolled chord.
+  static chordSpread = .03;
+
+  // Returns a function that moves a score barline to the earliest onset of
+  // the nearest chord performed around it, or keeps it when nothing is near.
+  static boundaryFinder(onsets) {
+    const times = [...new Set(onsets)].sort((a, b) => a - b);
+    return barline => {
+      const near = times.filter(time => Math.abs(time - barline) <= PracticeSession.boundaryTolerance);
+      const groups = [];
+      for (const time of near) {
+        if (groups.length && time - groups.at(-1).at(-1) <= PracticeSession.chordSpread) groups.at(-1).push(time);
+        else groups.push([time]);
+      }
+      const distance = group => Math.min(...group.map(time => Math.abs(time - barline)));
+      return groups.reduce((best, group) => !best || distance(group) < distance(best) ? group : best, null)?.[0] ?? barline;
+    };
+  }
+
   constructor() {
     this.key = '';
     this.stages = [];
@@ -25,18 +46,32 @@ export class PracticeSession {
     const tick = time => Math.round(time * 1000000) / 1000000;
     const clockNotes = notes.map(note => ({...note, time: tick(note.time), end: tick(note.end)}))
       .filter(note => note.end > note.time);
+    // A held note crossing the start of an isolated stage is pressed again
+    // there. A carried-over fragment shorter than the boundary tolerance is
+    // only timing skew between the score and the performance, never a target.
     const clip = (start, end) => clockNotes
-      .filter(note => note.time < end && note.end > start)
+      .filter(note => note.time < end && note.end > start &&
+        (note.time >= start || note.end - start > PracticeSession.boundaryTolerance))
       .map(note => ({...note, time: Math.max(start, note.time), end: Math.min(end, note.end)}));
-    const scoreRows = segments.map((segment, index) => ({
-      id: segment.id, page: segment.page,
-      firstMeasure: segment.firstMeasure, lastMeasure: segment.lastMeasure,
-      start: tick(segment.start),
-      end: tick(segment.end),
-      firstRow: (segment.index ?? index) + 1,
-      lastRow: (segment.index ?? index) + 1,
-      notes: clip(tick(segment.start), tick(segment.end)),
-    }));
+    // Score barlines and performed onsets disagree by a few milliseconds. Use
+    // the performed downbeat as the shared boundary of adjacent rows. The piece
+    // end is never moved: no following row could own a note left out there.
+    const boundary = PracticeSession.boundaryFinder(clockNotes.map(note => note.time));
+    const scoreRows = segments.map((segment, index) => {
+      let start = boundary(tick(segment.start));
+      let end = index === segments.length - 1 ? tick(segment.end) : boundary(tick(segment.end));
+      if (end <= start) [start, end] = [tick(segment.start), tick(segment.end)];
+      return {
+        id: segment.id, page: segment.page,
+        firstMeasure: segment.firstMeasure, lastMeasure: segment.lastMeasure,
+        start, end,
+        firstRow: (segment.index ?? index) + 1,
+        lastRow: (segment.index ?? index) + 1,
+        notes: clip(start, end),
+        // Tracked under the 0.6.0 overlap rule; see the progress context below.
+        legacyTracked: clockNotes.some(note => note.time < tick(segment.end) && note.end > tick(segment.start)),
+      };
+    });
     const rows = scoreRows.filter(row => row.notes.length);
     this.rows = scoreRows;
     this.masteryCache = null;
@@ -61,6 +96,9 @@ export class PracticeSession {
       notes.map(note => [note.midi, note.time, note.end])];
     // Hard is the original grading contract; its existing progress stays valid.
     if (timing.id !== 'hard') context.push(timing);
+    // Saved stage indices stay valid unless a row held only carried-over tails
+    // and therefore no longer has an exercise. Only that layout gets a new context.
+    if (scoreRows.some(row => row.legacyTracked !== row.notes.length > 0)) context.push('onset-rows');
     const identity = JSON.stringify(context);
     let hash = 2166136261;
     for (let index = 0; index < identity.length; index++) {

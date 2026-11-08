@@ -60,6 +60,8 @@ The developer machine needs Python 3 and Xcode Command Line Tools.
 `python3 desktop/build.py --app-only` builds only the application.
 `python3 desktop/build.py --installer-only` creates the DMG from an existing app bundle.
 
+`node --test tests/*.test.js` runs the practice tests; it needs only Node.js.
+
 Packaging inputs and the engine lifecycle are documented in
 [`lesson-engine/README.md`](lesson-engine/README.md). `build/` and `dist/` contain
 generated files and are excluded from Git. Everyday UI development does not require
@@ -431,8 +433,11 @@ practice context, update on reset or context changes, and appear in row-based
 practice methods; ungraded listening and whole-piece practice award no mastery.
 
 Row boundaries come from the notation's measure playback times, not arbitrary time
-windows or screen coordinates. A held note crossing the start of an isolated row
-must be pressed again for that exercise. Within combined rows, the original holds
+windows or screen coordinates. A barline within 80 ms of a performed downbeat
+moves to that downbeat (the earliest onset of the nearest chord), so adjacent rows
+share the boundary the performance actually played. A held note crossing the start
+of an isolated row must be pressed again for that exercise; a carried-over fragment
+shorter than 80 ms is timing skew and never a target. Within combined rows, the original holds
 continue across their boundaries. Only the exercise targets are cropped; the
 original lesson notes and score remain unchanged. Rows with no notes in the
 selected part do not earn empty repetitions. The score still reflects its imported
