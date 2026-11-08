@@ -1,25 +1,28 @@
 {
-  "version": "0.7.0",
-  "build": 13,
+  "version": "0.8.0",
+  "build": 14,
   "repository": "cihanozcelik/piano-spark",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Move to the previous or next practice section at any time with the arrows beside the practice status, even after finishing the plan.",
-    "Row mastery is now tracked per section: skipping ahead never marks a row as learned and going back keeps earned progress.",
-    "After mastering a section, practice continues with the next unfinished one and returns to any you skipped; existing progress is preserved."
+    "Create practice profiles so people sharing a piano keep separate progress; earlier progress stays in the Default profile.",
+    "Measure each hand's span on your piano: hold the two farthest keys you comfortably reach for three seconds.",
+    "Chords wider than your span keep the melody and bass required; out-of-reach notes are dimmed and optional, and accepted when played.",
+    "Lessons, scores, listening and MIDI export always keep every note; only practice targets adapt."
   ],
   "feedURL": "https://cihanozcelik.github.io/piano-spark/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Move to the previous or next practice section at any time with the arrows beside the practice status, even after finishing the plan.",
-      "Row mastery is now tracked per section: skipping ahead never marks a row as learned and going back keeps earned progress.",
-      "After mastering a section, practice continues with the next unfinished one and returns to any you skipped; existing progress is preserved."
+      "Create practice profiles so people sharing a piano keep separate progress; earlier progress stays in the Default profile.",
+      "Measure each hand's span on your piano: hold the two farthest keys you comfortably reach for three seconds.",
+      "Chords wider than your span keep the melody and bass required; out-of-reach notes are dimmed and optional, and accepted when played.",
+      "Lessons, scores, listening and MIDI export always keep every note; only practice targets adapt."
     ],
     "tr": [
-      "Çalışma durumunun yanındaki oklarla istediğin an önceki veya sonraki bölüme geç; plan bittikten sonra da geri dönebilirsin.",
-      "Satır öğrenimi artık her bölüm için ayrı tutuluyor: ileri atlamak satırı öğrenilmiş saymaz, geri dönmek kazanılan ilerlemeyi silmez.",
-      "Bir bölümü öğrendikten sonra sıradaki bitmemiş bölüme geçilir, atladıkların sonra tekrar gelir; mevcut ilerlemen korunur."
+      "Aynı piyanoyu kullananlar için çalışma profilleri oluştur; her profilin ilerlemesi ayrı tutulur, önceki ilerlemen Varsayılan profilde kalır.",
+      "Her elinin açıklığını piyanoda ölç: rahatça uzanabildiğin en uzak iki tuşu 3 saniye basılı tut.",
+      "Açıklığını aşan akorlarda melodi ve bas zorunlu kalır; uzanamadığın notalar soluk görünür, isteğe bağlıdır ve basarsan da kabul edilir.",
+      "Dersler, partisyon, dinleme ve MIDI dışa aktarma her notayı korur; yalnızca çalışma hedefleri uyarlanır."
     ]
   }
 }
