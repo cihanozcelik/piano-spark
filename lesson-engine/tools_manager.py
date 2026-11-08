@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import platform
 import shutil
 import site
 import ssl
@@ -14,7 +15,9 @@ import urllib.request
 import zipfile
 
 ENGINE = Path(__file__).resolve().parent
-CATALOG_BYTES = (ENGINE/'tools.json').read_bytes()
+# Intel Macs need their own wheels; PyTorch stopped publishing them after 2.2.2.
+CATALOG_NAME = 'tools-x86_64.json' if platform.machine() == 'x86_64' else 'tools.json'
+CATALOG_BYTES = (ENGINE/CATALOG_NAME).read_bytes()
 CATALOG = json.loads(CATALOG_BYTES)
 
 

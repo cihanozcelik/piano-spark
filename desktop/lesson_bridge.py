@@ -22,7 +22,8 @@ def prepare():
         pending.replace(HOST)
     links = {'python': ROOT/'build/lesson-python/cpython-3.12.12-macos-aarch64-none'}
     for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py',
-                 'pdf_recognizer.py','tools_manager.py','tools.json','cacert.pem','vendor','model-config']:
+                 'pdf_recognizer.py','tools_manager.py','torch_compat.py','tools.json','tools-x86_64.json',
+                 'cacert.pem','vendor','model-config']:
         links[name] = ROOT/'lesson-engine'/name
     for name in ['site-packages','omr-site-packages','models/separation','models/rubato.ckpt']:
         old = ENGINE/name

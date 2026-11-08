@@ -17,6 +17,16 @@
 @property (nonatomic) unsigned long long uploadedSize;
 @end
 
+// The universal app runs one slice; each slice uses its own portable Python and
+// tool catalog. Intel tools are pinned to the last PyTorch with Intel wheels.
+#if defined(__x86_64__)
+static NSString *const PianoEngineRuntime = @"python-x86_64";
+static NSString *const PianoToolCatalog = @"tools-x86_64.json";
+#else
+static NSString *const PianoEngineRuntime = @"python";
+static NSString *const PianoToolCatalog = @"tools.json";
+#endif
+
 @implementation LessonService
 - (instancetype)initWithEngine:(NSURL *)engine support:(NSURL *)support tools:(NSURL *)tools {
     if ((self = [super init])) {
@@ -34,7 +44,7 @@
 - (BOOL)running { return self.identifier != nil; }
 - (NSDictionary *)snapshot { return PianoLocalizedStatus(self.state); }
 - (NSDictionary *)tools {
-    NSData *data = [NSData dataWithContentsOfURL:[self.engine URLByAppendingPathComponent:@"tools.json"]];
+    NSData *data = [NSData dataWithContentsOfURL:[self.engine URLByAppendingPathComponent:PianoToolCatalog]];
     NSDictionary *catalog = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
     NSURL *cache = self.toolsURL;
     NSMutableDictionary *artifacts = [NSMutableDictionary new];
@@ -138,12 +148,12 @@
     [self.upload closeAndReturnError:NULL]; self.upload = nil;
     NSURL *engine = self.engine;
     NSTask *task = [NSTask new];
-    task.executableURL = [engine URLByAppendingPathComponent:@"python/bin/python3.12"];
+    task.executableURL = [engine URLByAppendingPathComponent:[PianoEngineRuntime stringByAppendingPathComponent:@"bin/python3.12"]];
     task.arguments = @[@"-u",[engine URLByAppendingPathComponent:@"worker.py"].path,@"--job",self.jobURL.path,
                        @"--tools",self.toolsURL.path,
                        @"--library",[self libraryURL].path,@"--parent",@(getpid()).stringValue];
     NSMutableDictionary *environment = [NSProcessInfo.processInfo.environment mutableCopy];
-    environment[@"PYTHONHOME"] = [engine URLByAppendingPathComponent:@"python"].path;
+    environment[@"PYTHONHOME"] = [engine URLByAppendingPathComponent:PianoEngineRuntime].path;
     environment[@"PYTHONPATH"] = engine.path;
     environment[@"PYTHONNOUSERSITE"] = @"1"; environment[@"PYTHONDONTWRITEBYTECODE"] = @"1";
     environment[@"PATH"] = @"/usr/bin:/bin";

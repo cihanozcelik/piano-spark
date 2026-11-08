@@ -131,6 +131,8 @@ def main():
             return 0
         import torch
         import imageio_ffmpeg
+        import torch_compat
+        torch_compat.install()
         torch.set_num_threads(4)
         torch.set_num_interop_threads(1)
         if torch.backends.mps.is_available():

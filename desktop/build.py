@@ -1,4 +1,4 @@
-"""Build a self-contained Apple Silicon app and a drag-to-Applications disk image."""
+"""Build a self-contained universal (Apple Silicon and Intel) app and a drag-to-Applications disk image."""
 import argparse
 import json
 from pathlib import Path
@@ -21,11 +21,14 @@ def run(*args):
 
 def bundle_engine(resources):
     engine = resources/'Engine'
-    runtime = ROOT/'build/lesson-python/cpython-3.12.12-macos-aarch64-none'
     ignore = shutil.ignore_patterns('__pycache__', '*.pyc', 'tests', '.DS_Store')
-    shutil.copytree(runtime,engine/'python',symlinks=True,ignore=ignore)
+    # LessonService.m picks the runtime matching the running slice of the app.
+    for arch, folder in [('aarch64','python'), ('x86_64','python-x86_64')]:
+        runtime = ROOT/f'build/lesson-python/cpython-3.12.12-macos-{arch}-none'
+        shutil.copytree(runtime,engine/folder,symlinks=True,ignore=ignore)
     for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py',
-                 'pdf_recognizer.py','tools_manager.py','tools.json','cacert.pem']:
+                 'pdf_recognizer.py','tools_manager.py','torch_compat.py','tools.json','tools-x86_64.json',
+                 'cacert.pem']:
         shutil.copy2(ROOT/'lesson-engine'/name,engine/name)
     for name in ['vendor','model-config']:
         shutil.copytree(ROOT/'lesson-engine'/name,engine/name,ignore=ignore)
@@ -95,7 +98,7 @@ def compile_native(destination, objects_dir, capture=False):
              '-mmacosx-version-min=14.0', '-F', str(SPARKLE)]
     if capture: flags.append('-DPIANO_CAPTURE')
     binaries = []
-    for arch in ['arm64']:
+    for arch in ['arm64', 'x86_64']:
         objects = []
         for source, extra, name in [
             ('desktop/main.m', [], 'desktop'),

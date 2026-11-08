@@ -91,11 +91,18 @@ Kaldırma menüsü uygulamaya ait cache'i ve dersleri de kaldırır.
 `desktop/prepare_engine.py` yalnız Python 3.12.12'yi hazırlar. `desktop/build.py`
 runtime, worker'lar, katalog, CA bundle ve küçük vendor kaynaklarını paketler;
 ML paketlerini/model ağırlıklarını **paketlemez**. Mach-O dosyaları ad-hoc imzalanır.
-Dağıtım Apple Silicon/macOS 14+ içindir; Developer ID/notarization yoktur.
+Uygulama universal'dır: Apple Silicon `python`, Intel `python-x86_64` runtime'ını kullanır.
+Dağıtım macOS 14+ içindir; Developer ID/notarization yoktur.
 
-`desktop/lock_tools.py` iki sabit geliştirme ortamındaki metadata üzerinden
-macOS 14 ARM64 / CPython 3.12 wheel'lerini PyPI metadata'sından seçer; bağımlılık
-kapanımlarını ve indirme boyut/hash'lerini `tools.json` içine yazar. Yalnız sürüm
+`desktop/lock_tools.py` sabit geliştirme ortamlarındaki metadata üzerinden
+macOS 14 ARM64 ve x86_64 / CPython 3.12 wheel'lerini PyPI metadata'sından seçer; bağımlılık
+kapanımlarını ve indirme boyut/hash'lerini `tools.json` (Apple Silicon) ve
+`tools-x86_64.json` (Intel) içine yazar. Intel ortamlarını `desktop/prepare_intel_lock.py`
+kurar: Apple Silicon kilit dosyalarından başlar, yalnız Intel wheel'i olmayan paketleri
+(PyTorch 2.2.2, numpy 1.26 ve onlara bağlı birkaç paket) değiştirir. audio-separator ve
+homr'un Intel'de karşılanamayan alt sınırları vardır; aynı sürümler bağımlılık
+çözülmeden kurulur ve Intel uçtan uca testleriyle doğrulanır. diffq'nun vendor
+`.so` dosyası iki mimarili tek binary'dir. Yalnız sürüm
 bakımında separation ortamının Python'u ile çalıştırılır; uygulama build'inde
 ve kullanıcı Mac'inde çalışmaz. `tool-models.json` model katalog girdisidir.
 

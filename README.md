@@ -1,7 +1,8 @@
 # Piano Spark
 
 A desktop piano learning app built around practicing on a physical piano at your own pace.
-The small, self-contained application supports **Apple Silicon Macs running macOS 14 or later**.
+The small, self-contained application supports **Macs running macOS 14 or later, with Apple Silicon or
+Intel processors**. See [Intel Macs](#intel-macs) for how lesson creation differs there.
 
 [Website](https://cihanozcelik.github.io/piano-spark/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
 
@@ -54,8 +55,8 @@ See [the update system guide](desktop/UPDATES.md) for publishing, signing, and i
 
 The developer machine needs Python 3 and Xcode Command Line Tools.
 
-1. Run `python3 desktop/prepare_engine.py` to prepare the small Python runtime. This step requires uv.
-2. Run `./build-app.command` to bundle the native application and runtime, apply an ad-hoc signature, and create `dist/PianoSpark-Setup.dmg`.
+1. Run `python3 desktop/prepare_engine.py` to prepare the small Apple Silicon and Intel Python runtimes. This step requires uv.
+2. Run `./build-app.command` to bundle the universal native application and both runtimes, apply an ad-hoc signature, and create `dist/PianoSpark-Setup.dmg`.
 
 `python3 desktop/build.py --app-only` builds only the application.
 `python3 desktop/build.py --installer-only` creates the DMG from an existing app bundle.
@@ -66,6 +67,24 @@ Packaging inputs and the engine lifecycle are documented in
 [`lesson-engine/README.md`](lesson-engine/README.md). `build/` and `dist/` contain
 generated files and are excluded from Git. Everyday UI development does not require
 repackaging; use the browser development workflow below.
+
+## Intel Macs
+
+The app is a universal binary. Practice, Bluetooth, MIDI and PDF import, and
+lesson creation from audio and YouTube work the same way on Intel. Intel lesson
+tools come from `lesson-engine/tools-x86_64.json`: PyTorch stopped publishing Intel
+macOS packages after 2.2.2, so Intel uses PyTorch 2.2.2 with numpy 1.26 and the
+other packages that still support them. `lesson-engine/torch_compat.py` adds the
+two small PyTorch 2.3 functions that vocal separation expects.
+
+Lessons created from audio on Intel match Apple Silicon: for the same recording,
+notes, timing, velocity, pedal, rhythm, and score are identical, and separated
+accompaniment differs only below 16-bit resolution. PDF recognition uses an older
+ONNX Runtime on Intel and can read a few measures differently; on the bundled Bach
+example both read 608 notes and match its reference MIDI equally well (86.2% and
+85.6% of the pitch sequence).
+Vocal separation runs on the processor rather than the graphics processor on Intel,
+so it is considerably slower there.
 
 ## Language selection
 

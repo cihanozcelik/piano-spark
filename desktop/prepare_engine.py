@@ -1,4 +1,5 @@
-"""Prepare only the small portable runtime. Lesson tools are downloaded at first use."""
+"""Prepare the small portable runtimes, one per architecture. Lesson tools are
+downloaded at first use."""
 import os
 from pathlib import Path
 import platform
@@ -16,11 +17,14 @@ MIRROR = ROOT/'build/python-mirror'
 STANDALONE = 'https://github.com/astral-sh/python-build-standalone/releases/download/'
 
 
-def local_mirror(environment):
+ARCHITECTURES = ('aarch64', 'x86_64')
+
+
+def local_mirror(environment, request):
     """Download uv's pinned CPython archive through the GitHub API into a
     file:// mirror. uv still verifies the archive against its own checksum.
     Returns None, keeping uv's normal download, when this is not possible."""
-    listing = subprocess.run(['uv','python','list',PYTHON,'--show-urls','--only-downloads'],
+    listing = subprocess.run(['uv','python','list',request,'--show-urls','--only-downloads'],
                              env=environment,capture_output=True,text=True)
     urls = [part for line in listing.stdout.splitlines() for part in line.split() if part.startswith(STANDALONE)]
     if listing.returncode or len(urls) != 1:
@@ -36,16 +40,19 @@ def local_mirror(environment):
 
 
 def main():
-    if platform.system() != 'Darwin' or platform.machine() != 'arm64':
-        raise RuntimeError('Use an Apple Silicon macOS build machine')
+    if platform.system() != 'Darwin':
+        raise RuntimeError('Use a macOS build machine')
     environment = os.environ.copy()
     environment['UV_NO_CACHE'] = '1'
     target = Path(environment.get('PIANOMAN_PYTHON_DIR') or ROOT/'build/lesson-python')
-    if not any(target.glob(f'cpython-{PYTHON}-*')):
-        mirror = local_mirror(environment)
-        if mirror: environment['UV_PYTHON_INSTALL_MIRROR'] = mirror.as_uri()
-    subprocess.run(['uv','python','install',PYTHON,'--no-bin','--install-dir',str(target)],check=True,env=environment)
-    print('Portable runtime ready; no lesson packages or models downloaded.')
+    for arch in ARCHITECTURES:
+        request = f'cpython-{PYTHON}-macos-{arch}-none'
+        install = dict(environment)
+        if not (target/request).exists():
+            mirror = local_mirror(install, request)
+            if mirror: install['UV_PYTHON_INSTALL_MIRROR'] = mirror.as_uri()
+        subprocess.run(['uv','python','install',request,'--no-bin','--install-dir',str(target)],check=True,env=install)
+    print('Portable runtimes ready; no lesson packages or models downloaded.')
 
 
 if __name__ == '__main__': main()

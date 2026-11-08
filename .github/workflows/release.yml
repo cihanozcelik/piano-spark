@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   release:
-    # macos-15 is Apple Silicon; macos-15-intel cannot prepare the arm64 engine.
+    # macos-15 is Apple Silicon. It builds the universal app with both portable runtimes.
     runs-on: macos-15
     timeout-minutes: 30
     env:
