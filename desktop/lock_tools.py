@@ -53,7 +53,9 @@ def main():
         'notation':closure('audio',['music21','mido']),
         'transcription':closure('audio',['rubato-transcription','soundfile','scipy','imageio-ffmpeg']),
         'youtube':closure('audio',['yt-dlp']),
-        'separation':closure('audio',['audio-separator','onnxruntime']),
+        # audio-separator imports audioread but no longer declares it, and
+        # librosa 1.0 dropped it, so it must be a root of this closure.
+        'separation':closure('audio',['audio-separator','onnxruntime','audioread']),
         'pdf':closure('pdf',['homr','pypdfium2']),
     }
     def package(item):

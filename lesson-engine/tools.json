@@ -15,6 +15,13 @@
       "sha256": "c97b3bedcd54b401c22df7d518284a9ed143f66071496347e9f8da9d32ca7aec",
       "size": 447552
     },
+    "audioread-3.1.0": {
+      "kind": "wheel",
+      "name": "audioread-3.1.0-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/7e/16/fbe8e1e185a45042f7cd3a282def5bb8d95bb69ab9e9ef6a5368aa17e426/audioread-3.1.0-py3-none-any.whl",
+      "sha256": "b30d1df6c5d3de5dcef0fb0e256f6ea17bdcf5f979408df0297d8a408e2971b4",
+      "size": 23143
+    },
     "beartype-0.18.5": {
       "kind": "wheel",
       "name": "beartype-0.18.5-py3-none-any.whl",
@@ -709,6 +716,7 @@
     "separation": [
       "absl-py-2.5.1",
       "audio-separator-0.48.0",
+      "audioread-3.1.0",
       "beartype-0.18.5",
       "certifi-2026.10.23",
       "cffi-2.1.1",
