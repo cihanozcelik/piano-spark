@@ -3,6 +3,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build, sign and verify everything without a tag or publishing
+        type: boolean
+        default: true
 permissions:
   contents: write
   actions: write
@@ -17,6 +22,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
       UV_NO_CACHE: '1'
       PIP_NO_CACHE_DIR: '1'
       PYTHONDONTWRITEBYTECODE: '1'
@@ -32,10 +38,11 @@ jobs:
           release=json.loads(Path('desktop/release.json').read_text())
           assert platform.machine()=='arm64', 'Use the macos-15 Apple Silicon runner'
           assert os.environ['SPARKLE_PRIVATE_KEY'], 'Configure the SPARKLE_PRIVATE_KEY repository secret first'
-          assert os.environ['GITHUB_REF_TYPE']=='tag', 'Run this workflow on a version tag'
-          assert os.environ['GITHUB_REF_NAME']=='v'+release['version'], 'Run on the matching release.json version tag'
           assert os.environ['GITHUB_REPOSITORY']==release['repository'], 'Wrong release repository'
-          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==subprocess.check_output(['git','rev-list','-n','1',os.environ['GITHUB_REF_NAME']],text=True).strip(), 'Checkout must match the release tag'
+          if not os.environ['DRY_RUN']:
+              assert os.environ['GITHUB_REF_TYPE']=='tag', 'Run this workflow on a version tag'
+              assert os.environ['GITHUB_REF_NAME']=='v'+release['version'], 'Run on the matching release.json version tag'
+              assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==subprocess.check_output(['git','rev-list','-n','1',os.environ['GITHUB_REF_NAME']],text=True).strip(), 'Checkout must match the release tag'
           assert isinstance(release['build'],int) and release['build']>0, 'Release build must be a positive integer'
           PY
       - uses: astral-sh/setup-uv@v6
@@ -62,8 +69,11 @@ jobs:
       - name: Build application and DMG installer
         run: python3 desktop/build.py
       - name: Fetch small signed baseline when available
+        # A dry run has no newer build than the latest release to patch onto.
+        if: ${{ !inputs.dry_run }}
         run: python3 desktop/release.py --baseline
       - name: Create and verify ZIP update and optional delta
         run: python3 desktop/release.py
       - name: Publish installer, update and signed feed
+        if: ${{ !inputs.dry_run }}
         run: python3 desktop/release.py --publish
