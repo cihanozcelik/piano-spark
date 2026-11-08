@@ -1,34 +1,22 @@
 {
-  "version": "0.6.0",
-  "build": 11,
+  "version": "0.6.1",
+  "build": 12,
   "repository": "cihanozcelik/piano-spark",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Practice each score row until you reach your clean-repetition goal, or build up rows progressively.",
-    "Choose 3, 5, or 10 consecutive clean passes and Off, Easy, Normal, or Hard timing.",
-    "Resume saved practice progress separately for each lesson, part, speed, method, and timing setting.",
-    "See row status and mastery percentages beside the score, with combined-stage and overall plan progress.",
-    "Keep falling notes clear with compact practice feedback in the bottom timeline.",
-    "All practice methods require a connected piano and pause on disconnection; improved interface translations."
+    "Row practice now starts each row on its own first chord instead of asking you to briefly replay notes left over from the previous measure.",
+    "Row boundaries follow the performed downbeat, so notes played slightly before or after a barline stay in the right row; notes really held into a row are still practiced there."
   ],
   "feedURL": "https://cihanozcelik.github.io/piano-spark/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Practice each score row until you reach your clean-repetition goal, or build up rows progressively.",
-      "Choose 3, 5, or 10 consecutive clean passes and Off, Easy, Normal, or Hard timing.",
-      "Resume saved practice progress separately for each lesson, part, speed, method, and timing setting.",
-      "See row status and mastery percentages beside the score, with combined-stage and overall plan progress.",
-      "Keep falling notes clear with compact practice feedback in the bottom timeline.",
-      "All practice methods require a connected piano and pause on disconnection; improved interface translations."
+      "Row practice now starts each row on its own first chord instead of asking you to briefly replay notes left over from the previous measure.",
+      "Row boundaries follow the performed downbeat, so notes played slightly before or after a barline stay in the right row; notes really held into a row are still practiced there."
     ],
     "tr": [
-      "Her partisyon satırını hatasız tekrar hedefine ulaşana kadar çalış veya satırları adım adım birleştir.",
-      "3, 5 veya 10 ardışık hatasız tekrar ve Kapalı, Kolay, Normal ya da Zor zamanlama seç.",
-      "Ders, parti, hız, yöntem ve zamanlama ayarına göre ayrı kaydedilen çalışma ilerlemesine devam et.",
-      "Satır durumlarını ve öğrenme yüzdelerini partisyon kenarında; birleştirme ve toplam plan ilerlemesini ayrıca gör.",
-      "Akan notaları kapatmayan, alt zaman çizelgesindeki kompakt çalışma geri bildirimini kullan.",
-      "Tüm çalışma yöntemleri bağlı piyano gerektirir ve bağlantı kopunca duraklar; arayüz çevirileri iyileştirildi."
+      "Satır çalışması artık her satıra kendi ilk akoruyla başlıyor; önceki ölçüden kalan notalara kısaca yeniden basman gerekmiyor.",
+      "Satır sınırları icradaki gerçek vuruşa göre ayarlanıyor; ölçü çizgisinden biraz önce veya sonra çalınan notalar doğru satırda kalıyor, satıra uzanan gerçek uzun notalar ise orada çalışılmaya devam ediyor."
     ]
   }
 }
