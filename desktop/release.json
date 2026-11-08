@@ -1,28 +1,25 @@
 {
-  "version": "0.8.0",
-  "build": 14,
+  "version": "0.9.0",
+  "build": 15,
   "repository": "cihanozcelik/piano-spark",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Create practice profiles so people sharing a piano keep separate progress; earlier progress stays in the Default profile.",
-    "Measure each hand's span on your piano: hold the two farthest keys you comfortably reach for three seconds.",
-    "Chords wider than your span keep the melody and bass required; out-of-reach notes are dimmed and optional, and accepted when played.",
-    "Lessons, scores, listening and MIDI export always keep every note; only practice targets adapt."
+    "Piano Spark now runs on Intel Macs too: one download works on both Apple Silicon and Intel.",
+    "Lessons from videos, YouTube links, MIDI files and sheet-music PDFs can be created on Intel; removing vocals takes longer there because it runs on the processor.",
+    "Fixed lesson creation stopping with “No module named 'audioread'” when vocal separation was turned on."
   ],
   "feedURL": "https://cihanozcelik.github.io/piano-spark/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Create practice profiles so people sharing a piano keep separate progress; earlier progress stays in the Default profile.",
-      "Measure each hand's span on your piano: hold the two farthest keys you comfortably reach for three seconds.",
-      "Chords wider than your span keep the melody and bass required; out-of-reach notes are dimmed and optional, and accepted when played.",
-      "Lessons, scores, listening and MIDI export always keep every note; only practice targets adapt."
+      "Piano Spark now runs on Intel Macs too: one download works on both Apple Silicon and Intel.",
+      "Lessons from videos, YouTube links, MIDI files and sheet-music PDFs can be created on Intel; removing vocals takes longer there because it runs on the processor.",
+      "Fixed lesson creation stopping with “No module named 'audioread'” when vocal separation was turned on."
     ],
     "tr": [
-      "Aynı piyanoyu kullananlar için çalışma profilleri oluştur; her profilin ilerlemesi ayrı tutulur, önceki ilerlemen Varsayılan profilde kalır.",
-      "Her elinin açıklığını piyanoda ölç: rahatça uzanabildiğin en uzak iki tuşu 3 saniye basılı tut.",
-      "Açıklığını aşan akorlarda melodi ve bas zorunlu kalır; uzanamadığın notalar soluk görünür, isteğe bağlıdır ve basarsan da kabul edilir.",
-      "Dersler, partisyon, dinleme ve MIDI dışa aktarma her notayı korur; yalnızca çalışma hedefleri uyarlanır."
+      "Piano Spark artık Intel Mac'lerde de çalışıyor: aynı indirme hem Apple Silicon hem Intel'de çalışır.",
+      "Videolardan, YouTube bağlantılarından, MIDI dosyalarından ve nota PDF'lerinden Intel'de de ders oluşturulabilir; vokal ayırma orada işlemcide çalıştığı için daha uzun sürer.",
+      "Vokal ayırma açıkken ders oluşturmanın “No module named 'audioread'” hatasıyla durması düzeltildi."
     ]
   }
 }

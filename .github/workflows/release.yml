@@ -15,7 +15,7 @@ concurrency:
   group: pianoman-release
   cancel-in-progress: false
 jobs:
-  release:
+  build:
     # macos-15 is Apple Silicon. It builds the universal app with both portable runtimes.
     runs-on: macos-15
     timeout-minutes: 30
@@ -74,6 +74,82 @@ jobs:
         run: python3 desktop/release.py --baseline
       - name: Create and verify ZIP update and optional delta
         run: python3 desktop/release.py
-      - name: Publish installer, update and signed feed
+      - name: Keep the signed release files for Intel verification and publishing
+        uses: actions/upload-artifact@v4
+        with:
+          name: piano-spark-release
+          path: |
+            dist/PianoSpark-*.zip
+            dist/PianoSpark-*.delta
+            dist/PianoSpark-Setup.dmg
+            dist/update-signature.json
+            dist/release-notes.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  intel:
+    # Real Intel hardware. Nothing is published unless the universal app works here.
+    needs: build
+    runs-on: macos-15-intel
+    timeout-minutes: 75
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: piano-spark-release
+          path: dist
+      - name: Unpack the signed update exactly as Sparkle receives it
+        run: ditto -x -k dist/PianoSpark-*.zip dist
+      - name: Check the DMG installs the same signed app on Intel
+        run: |
+          hdiutil verify dist/PianoSpark-Setup.dmg
+          mount="$RUNNER_TEMP/piano-dmg"
+          hdiutil attach -nobrowse -readonly -mountpoint "$mount" dist/PianoSpark-Setup.dmg
+          codesign --verify --deep --strict "$mount/Piano Spark.app"
+          diff -rq "$mount/Piano Spark.app" "dist/Piano Spark.app"
+          test "$(readlink "$mount/Applications")" = /Applications
+          hdiutil detach "$mount"
+      - name: Fetch the signed baseline that update deltas start from
         if: ${{ !inputs.dry_run }}
+        run: python3 desktop/release.py --baseline
+      - name: Verify bundle, updates and the Intel lesson engine
+        run: python3 desktop/verify_intel.py
+      - name: Open the Intel app and capture its screens
+        run: |
+          python3 desktop/sparkle.py
+          python3 desktop/build.py --capture-assets "$RUNNER_TEMP/intel-screens"
+          test -s "$RUNNER_TEMP/intel-screens/practice.png"
+          test -s "$RUNNER_TEMP/intel-screens/create-lesson.png"
+      - name: Keep the Intel screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: intel-screens
+          path: ${{ runner.temp }}/intel-screens
+          if-no-files-found: ignore
+          retention-days: 14
+
+  publish:
+    needs: [build, intel]
+    if: ${{ !inputs.dry_run }}
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: piano-spark-release
+          path: dist
+      - name: Prepare Sparkle signing tools
+        run: python3 desktop/sparkle.py
+      - name: Publish installer, update and signed feed
         run: python3 desktop/release.py --publish

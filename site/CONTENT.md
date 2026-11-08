@@ -14,7 +14,8 @@ move on — so you can focus on making music, one phrase at a time.
 Primary action: **Download for Mac** when a published binary is available.
 Pending state: **Download coming soon**, without a live download link.
 Secondary action: **See how practice works** (in-page section).
-Requirements: **macOS 14 or later · Apple Silicon**.
+Requirements: **macOS 14 or later · Apple Silicon and Intel** (from 0.9.0, the first universal
+release; `site/build.py` keeps Apple Silicon only wording for older published releases).
 
 Use the real practice screenshot directly below the main statement, large enough
 to read the score, see the falling notes and identify the keyboard together.
@@ -95,12 +96,15 @@ attention on the instrument in front of you. The app includes the tools it needs
 there’s no separate runtime to install and no account to create.
 
 Compatibility detail, visible near setup/download:
-**Apple Silicon Mac · macOS 14 or later. Bluetooth connection is currently configured
-for Yamaha CLP-835.**
+**Apple Silicon or Intel Mac · macOS 14 or later. Pianos with standard Bluetooth MIDI
+appear in the app's device list.**
 
-The current native connection starts the BLE helper without a custom device name,
-and that helper defaults to CLP-835. There is no general device picker in the app.
-Do not claim that every Bluetooth or USB MIDI keyboard is currently supported.
+One universal download serves both kinds of Mac; the download section shows both
+chips and how to check which one a Mac has (Apple menu → About This Mac). On Intel,
+vocal separation runs on the processor and takes longer; say so plainly.
+The app scans for the standard BLE-MIDI service without a brand filter. Do not claim
+that every Bluetooth keyboard has been tested, and do not claim USB MIDI support.
+Bluetooth audio alone does not carry keys.
 
 ## Download
 
@@ -131,5 +135,6 @@ do not claim updates always wait until a lesson ends.
 - `sheet-music.js` / `staff-notation.js`: score rendering and note display.
 - `workspace-state.js`: local persistent controls, layout, lesson selection/position and draft state.
 - `create-lesson.js` / `lesson-engine/worker.py`: video, YouTube, MIDI and PDF import paths.
-- `desktop/main.m` / `bluetooth-connection/main.m`: native BLE service and CLP-835 target.
+- `desktop/main.m` / `bluetooth-connection/main.m`: native BLE service with brand-independent discovery.
+- `desktop/LessonService.m` / `lesson-engine/tools-x86_64.json`: universal app, per-architecture runtime and Intel tools.
 - `desktop/release.py` / `desktop/UpdateController.m`: signed delta update publication and automatic restart.

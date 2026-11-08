@@ -18,9 +18,38 @@ STATIC_FILES = (
 )
 
 
+# The first release built as a universal app (Apple Silicon and Intel). Older
+# published releases keep their Apple Silicon only wording, so the site never
+# promises Intel support before an Intel-capable DMG is actually published.
+UNIVERSAL_SINCE = (0, 9, 0)
+CHIP_HELP = ('One download works on both. Not sure which Mac you have? Choose Apple menu '
+             '→ About This Mac: “Chip” means Apple Silicon, “Processor” means Intel.')
+
+
+def compatibility(universal):
+    if not universal:
+        return {
+            '__PLATFORM_LINE__': 'Made for Mac. Played on your piano.',
+            '__MAC_TITLE__': 'Apple Silicon.<br>macOS 14 or later.',
+            '__MAC_TEXT__': 'Open the DMG, drag Piano Spark to Applications, then open it from there. No separate Python installation or background service to manage.',
+            '__CHIP_SUPPORT__': '<ul class="chip-list" aria-label="Supported Macs"><li><strong>Apple Silicon</strong><span>M1 and later</span></li></ul>',
+            '__CHIP_SUMMARY__': 'Apple Silicon',
+        }
+    return {
+        '__PLATFORM_LINE__': 'For Apple Silicon and Intel Macs. Played on your piano.',
+        '__MAC_TITLE__': 'Apple Silicon or Intel.<br>macOS 14 or later.',
+        '__MAC_TEXT__': 'One download for both kinds of Mac. Open the DMG, drag Piano Spark to Applications, then open it from there. No separate Python installation or background service to manage. On Intel, removing vocals from a video takes longer.',
+        '__CHIP_SUPPORT__': ('<ul class="chip-list" aria-label="Supported Macs"><li><strong>Apple Silicon</strong><span>M1 and later</span></li>'
+                             '<li><strong>Intel</strong><span>macOS 14 or later</span></li></ul>'
+                             f'<p class="chip-help">{html.escape(CHIP_HELP)}</p>'),
+        '__CHIP_SUMMARY__': 'Apple Silicon and Intel',
+    }
+
+
 def download_context(release_path):
     if release_path is None:
         return {
+            **compatibility(True),
             '__DOWNLOAD_CTA__': '<button class="button button-primary download-link" type="button" disabled>Download coming soon</button>',
             '__DOWNLOAD_CTA_COMPACT__': '<button class="button button-small download-link" type="button" disabled>Coming soon</button>',
             '__RELEASE_LABEL__': 'First release coming soon',
@@ -33,6 +62,7 @@ def download_context(release_path):
         raise RuntimeError('The website requires a published stable release')
     tag = release['tag_name']
     version = tag.removeprefix('v')
+    universal = tuple(int(part) for part in version.split('.')[:3]) >= UNIVERSAL_SINCE
     names = ('PianoSpark-Setup.dmg',)
     asset = next((asset for name in names for asset in release['assets']
                   if asset['name'] == name and asset['state'] == 'uploaded' and asset['size'] > 0), None)
@@ -48,11 +78,13 @@ def download_context(release_path):
     escaped_url = html.escape(url, quote=True)
     notes_url = html.escape(f'https://github.com/{REPOSITORY}/releases/tag/{tag}', quote=True)
     size = asset['size'] / 1e6
+    chips = compatibility(universal)
     return {
+        **chips,
         '__DOWNLOAD_CTA__': f'<a class="button button-primary download-link" href="{escaped_url}">Download for Mac <span aria-hidden="true">↓</span></a>',
         '__DOWNLOAD_CTA_COMPACT__': f'<a class="button button-small download-link" href="{escaped_url}">Download</a>',
         '__RELEASE_LABEL__': html.escape(tag),
-        '__DOWNLOAD_DETAILS__': f'macOS 14 or later · Apple Silicon · {size:.1f} MB · DMG installer',
+        '__DOWNLOAD_DETAILS__': f'macOS 14 or later · {chips["__CHIP_SUMMARY__"]} · {size:.1f} MB · DMG installer',
         '__RELEASE_NOTES_LINK__': f'<a class="release-link" href="{notes_url}">Release notes <span aria-hidden="true">↗</span></a>',
     }
 
@@ -63,6 +95,7 @@ def main():
     parser.add_argument('--appcast', type=Path, help='Already signed public update feed')
     args = parser.parse_args()
     replacements = download_context(args.release_info)
+    replacements.pop('__CHIP_SUMMARY__', None)
     source = (ROOT/'site/index.html').read_text()
     for placeholder, value in replacements.items():
         source = source.replace(placeholder, value)

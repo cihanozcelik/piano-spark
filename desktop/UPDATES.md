@@ -51,16 +51,26 @@ Ders araçları/model ağırlıkları bu paketlerde yoktur; ihtiyaç anında öz
 kaynaklarından indirilir ve Application Support altında tutulur.
 
 `desktop/release.json` version/build/notes güncellendikten sonra eşleşen `v*`
-etiketi push edilir. `.github/workflows/release.yml` GitHub Apple Silicon runner'da:
+etiketi push edilir. `.github/workflows/release.yml` üç işten oluşur. `build` GitHub
+Apple Silicon runner'da:
 
 1. Sürüm, etiket, repo ve imza anahtarı eşleşmesini doğrular.
-2. Yalnız küçük portable Python ortamını hazırlar.
-3. Uygulama ve DMG kurulum dosyasını oluşturur.
+2. Apple Silicon ve Intel için küçük portable Python ortamlarını hazırlar.
+3. Universal uygulamayı ve DMG kurulum dosyasını oluşturur.
 4. Önceki sürüm küçük ZIP içeriyorsa imzasını doğrulayıp delta tabanı olarak alır.
    Eski 2 GB arşivler indirilmez; 0.4.0 geçişi küçük tam ZIP ile gerçekleşir.
 5. ZIP'i ve varsa daha küçük delta'yı Ed25519 ile imzalar. Delta gerçek tabana
    uygulanır; hedef hash ve codesign doğrulanır. DMG checksum kontrolünden geçer.
-6. Release asset'lerini yayımlar, imzalı feed'i günceller ve Pages'i tetikler.
+6. İmzalı dosyaları sonraki işlere artifact olarak verir.
+
+`intel` gerçek Intel runner'da (`macos-15-intel`) yayımlamadan önce DMG'deki uygulamanın
+güncelleme ZIP'iyle aynı ve imzalı olduğunu, universal binary'leri, Ed25519 güncelleme
+imzasını ve delta'ların önceki sürüme uygulanabildiğini doğrular. `desktop/verify_intel.py`
+Intel araç kataloğunu yeni bir Mac gibi indirip MIDI, PDF ve vokal ayırmalı ses dersi
+oluşturur; ardından uygulama açılıp ekran görüntüleri alınır. `publish` yalnız iki iş de
+başarılıysa release asset'lerini yayımlar, imzalı feed'i günceller ve Pages'i tetikler.
+Güncelleme feed'i tektir: universal ZIP ve delta'lar iki mimaride de aynı Sparkle akışıyla
+uygulanır.
 
 Sonraki sürümler Python/model motorunu önceki uygulamadan kopyalamaz. Büyük model
 indirip yeniden paketleyen CI adımı yoktur. Küçük ZIP tabanı 150 MiB üstündeyse
