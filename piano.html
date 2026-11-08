@@ -113,6 +113,12 @@
     .practice-options .practice-rules { border-top:1px solid var(--line); padding-top:10px; }
     #practice-reset { align-self:flex-start; font-size:12px; }
     .practice-progress { min-width:0; color:#a8b7ad; font-size:11px; line-height:14px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .practice-line { display:flex; align-items:center; gap:4px; min-width:0; }
+    .practice-line[hidden] { display:none; }
+    .practice-step { flex-shrink:0; width:18px; height:16px; min-height:0; padding:1px; border-color:transparent; background:transparent; color:#a8b7ad; }
+    .practice-step:not(:disabled):hover { background:var(--raised); color:var(--ink); }
+    .practice-step:disabled { opacity:.35; }
+    .practice-step svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
     .timeline-track { flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
     .seek-track { display:flex; align-items:center; gap:13px; min-width:0; height:20px; }
     .piano-region { position:relative; display:flex; flex:1; min-height:0; }
@@ -423,7 +429,11 @@
           </div>
           <label class="control"><span class="sr-only" data-i18n="Çalma hızı">Çalma hızı</span><select id="speed"><option value="0.25" data-i18n="0,25×">0,25×</option><option value="0.5" data-i18n="0,50×">0,50×</option><option value="0.75" data-i18n="0,75×">0,75×</option><option value="1" selected data-i18n="1,00×">1,00×</option><option value="1.25" data-i18n="1,25×">1,25×</option><option value="1.5" data-i18n="1,50×">1,50×</option><option value="2" data-i18n="2,00×">2,00×</option></select></label>
           <div class="timeline-track">
-            <div class="practice-progress" id="practice-progress" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+            <div class="practice-line" id="practice-line" hidden>
+              <button id="practice-previous" class="practice-step" type="button" aria-label="Önceki bölüm" data-i18n-aria-label="Önceki bölüm" title="Önceki bölüm" data-i18n-title="Önceki bölüm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
+              <div class="practice-progress" id="practice-progress" role="status" aria-live="polite" aria-atomic="true"></div>
+              <button id="practice-next" class="practice-step" type="button" aria-label="Sonraki bölüm" data-i18n-aria-label="Sonraki bölüm" title="Sonraki bölüm" data-i18n-title="Sonraki bölüm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+            </div>
             <div class="seek-track"><time id="elapsed">0:00</time><input id="seek" type="range" min="0" max="12" step="0.01" value="0" aria-label="Parçada konum" data-i18n-aria-label="Parçada konum"><time id="duration">0:12</time></div>
           </div>
         </div>

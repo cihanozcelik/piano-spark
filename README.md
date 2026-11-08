@@ -405,7 +405,14 @@ the sheet music:
 The row strategies require **3, 5, or 10 consecutive clean repetitions**, with 10
 selected initially. An error immediately resets the current streak; the attempt
 finishes at the normal boundary and repeats the same section. A compact status line within the bottom timeline
-shows the current section, streak, and attempt feedback. Velocity and pedal use
+shows the current section, streak, and attempt feedback.
+
+The **‹** and **›** buttons beside that status line move to the previous or next
+section of the plan at any time, including after the plan is complete. Mastery is
+kept per section: skipping ahead never marks a section as learned, and going back
+never removes earned mastery. Leaving a section discards its unfinished streak.
+After a section is mastered, practice continues with the next section that is not
+yet mastered, wrapping back to any that were skipped. Velocity and pedal use
 remain optional and are never graded. Timing follows the selected preset above;
 with timing off, waiting and hold durations never invalidate an attempt.
 

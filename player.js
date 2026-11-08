@@ -18,7 +18,7 @@ import { startAppShell } from './app-shell.js';
     const ui = Object.fromEntries(['play','rewind','speed','track','volume','volume-control','seek','elapsed','duration','notation','staff','zoom','range','loop','roll','keyboard','stage','viewport','error','file-badge','file-title','file-description','current-notes','midi-file','legend-left','legend-right','mode','lesson-panel','lesson-feedback'].map(id => [id, element(id)]));
     ui['audio-output']=element('audio-output');
     ui['audio-output-status']=element('audio-output-status');
-    for(const id of ['practice-settings','practice-strategy','practice-target','practice-timing','practice-rules','practice-reset','practice-availability','practice-progress','sheet-learning','sheet-learning-label','sheet-learning-meter']) ui[id]=element(id);
+    for(const id of ['practice-settings','practice-strategy','practice-target','practice-timing','practice-rules','practice-reset','practice-availability','practice-progress','practice-line','practice-previous','practice-next','sheet-learning','sheet-learning-label','sheet-learning-meter']) ui[id]=element(id);
     const workspaceState=new WorkspaceState();
     workspaceState.onError=showError;
     workspaceState.restoreControls(ui);
@@ -97,6 +97,22 @@ import { startAppShell } from './app-shell.js';
       updatePlayButton();
     }
 
+    // Jump through the plan without awarding or removing mastery. A running
+    // session restarts the chosen section with the usual release and count-in.
+    function selectStage(offset) {
+      if(!guided()||!training?.active) return;
+      const index=training.stage+offset;
+      if(index<0||index>=training.stages.length) return;
+      const running=state.running||state.starting;
+      pause();training.select(index);
+      const stage=training.current;
+      state.position=stage.start-1.5*state.speed;
+      practice.load(stage.notes,state.position,nowSeconds(),selectedInput());
+      sheet.follow(stage.start,false,true);
+      updatePlayButton();draw();checkpoint();
+      if(running) play();
+    }
+
     // The animation loop and MIDI timestamps share one completion boundary.
     // Interruptions never award an unfinished pass.
     function advancePractice(now,snapshot) {
@@ -153,10 +169,12 @@ import { startAppShell } from './app-shell.js';
         guided()&&!training?.active?t('Seçili partide çalışılacak nota yok.'):'';
       ui['practice-availability'].textContent=unavailable;
       ui['practice-availability'].hidden=!unavailable;
-      ui['practice-progress'].hidden=!guided();
+      ui['practice-line'].hidden=!guided();
+      ui['practice-previous'].disabled=!training?.active||training.stage<=0;
+      ui['practice-next'].disabled=!training?.active||training.stage>=training.stages.length-1;
       let text=unavailable;
       if(training?.active) {
-        if(training.done) text=t('Bu çalışma tamamlandı. Yeniden çalışmak için ilerlemeyi sıfırla.');
+        if(training.done) text=t('Bu çalışma tamamlandı. Bir bölümü tekrar çalmak için geri git veya ilerlemeyi sıfırla.');
         else {
           const stage=training.current;
           const range=stage.firstRow===stage.lastRow?t('Satır {row}',{row:stage.firstRow}):
@@ -665,6 +683,8 @@ import { startAppShell } from './app-shell.js';
       if(training) delete trainingContexts[training.key];
       configureTraining();draw();checkpoint();
     });
+    ui['practice-previous'].addEventListener('click',()=>selectStage(-1));
+    ui['practice-next'].addEventListener('click',()=>selectStage(1));
     ui.play.addEventListener('click',()=> { if(state.running||state.starting) pause(); else play(); });
     window.addEventListener('pianoman-output-settings-change',pause);
     window.addEventListener('pianoman-bluetooth-test',async event=> {

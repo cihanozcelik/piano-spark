@@ -28,6 +28,7 @@ export class PracticeSession {
     this.stages = [];
     this.stage = 0;
     this.streak = 0;
+    this.cleared = new Set();
     this.target = 10;
     this.done = false;
     this.phase = 'idle';
@@ -108,6 +109,11 @@ export class PracticeSession {
     const progress = saved[this.key] || {};
     this.stage = Number.isInteger(progress.stage)
       ? Math.max(0, Math.min(this.stages.length, progress.stage)) : 0;
+    // Before free navigation, every stage before the saved one was mastered.
+    this.cleared = new Set(Array.isArray(progress.cleared)
+      ? progress.cleared.filter(index => Number.isInteger(index) && index >= 0 && index < this.stages.length)
+      : Array.from({length: Math.min(this.stage, this.stages.length)}, (_, index) => index));
+    if (this.stage === this.stages.length && !this.complete) this.stage = this.nextOpenStage(-1);
     this.streak = this.stage < this.stages.length && Number.isInteger(progress.streak)
       ? Math.max(0, Math.min(target - 1, progress.streak)) : 0;
     this.done = this.stages.length > 0 && this.stage === this.stages.length;
@@ -117,16 +123,39 @@ export class PracticeSession {
 
   get current() { return this.stages[this.stage]; }
   get active() { return this.stages.length > 0; }
-  progress() { return {stage: this.stage, streak: this.streak}; }
+  get complete() { return this.stages.length > 0 && this.cleared.size === this.stages.length; }
+  progress() { return {stage: this.stage, streak: this.streak, cleared: [...this.cleared].sort((a, b) => a - b)}; }
+
+  // The first unmastered stage after `index`, wrapping to the start, or the
+  // end of the plan when every stage is mastered.
+  nextOpenStage(index) {
+    for (let step = 1; step <= this.stages.length; step++) {
+      const candidate = (index + step) % this.stages.length;
+      if (!this.cleared.has(candidate)) return candidate;
+    }
+    return this.stages.length;
+  }
+
+  // Move freely through the plan. Mastery is kept per stage, so skipping
+  // ahead never awards a stage and going back never removes one. A clean
+  // streak is consecutive, so it does not survive leaving its stage.
+  select(index) {
+    if (!Number.isInteger(index) || index < 0 || index >= this.stages.length || index === this.stage) return false;
+    this.stage = index;
+    this.streak = 0;
+    this.done = false;
+    this.interrupt();
+    return true;
+  }
 
   mastery() {
     if (!this.active) return null;
-    const revision = this.stage + ':' + this.streak;
+    const revision = this.stage + ':' + this.streak + ':' + this.cleared.size;
     if (this.masteryCache?.revision === revision) return this.masteryCache;
     const rows = this.rows.map(row => {
       const tracked = row.notes.length > 0;
       const standalone = this.stages.findIndex(stage => stage.firstRow === row.firstRow && stage.lastRow === row.lastRow);
-      const passes = !tracked ? 0 : standalone < this.stage ? this.target : standalone === this.stage ? this.streak : 0;
+      const passes = !tracked ? 0 : this.cleared.has(standalone) ? this.target : standalone === this.stage ? this.streak : 0;
       const active = tracked && !!this.current && row.firstRow >= this.current.firstRow && row.lastRow <= this.current.lastRow;
       return {id:row.id,row:row.firstRow,page:row.page,firstMeasure:row.firstMeasure,lastMeasure:row.lastMeasure,
         start:row.start,end:row.end,passes,target:this.target,percent:tracked ? Math.floor(passes / this.target * 100) : null,active,
@@ -136,7 +165,8 @@ export class PracticeSession {
     // combined stage, so mastering all rows alone cannot falsely finish it.
     this.masteryCache = {revision,rows,total:rows.filter(row => row.status !== 'empty').length,
       learned:rows.filter(row => row.status === 'learned').length,
-      percent:this.done ? 100 : Math.floor((this.stage * this.target + this.streak) / (this.stages.length * this.target) * 100),
+      percent:this.complete ? 100 : Math.floor((this.cleared.size * this.target +
+        (this.current && !this.cleared.has(this.stage) ? this.streak : 0)) / (this.stages.length * this.target) * 100),
       combined:!!this.current && this.current.firstRow !== this.current.lastRow,
       stagePercent:this.done ? 100 : Math.floor(this.streak / this.target * 100)};
     return this.masteryCache;
@@ -209,7 +239,8 @@ export class PracticeSession {
     const reason = this.reason;
     this.streak = clean ? this.streak + 1 : 0;
     if (this.streak >= this.target) {
-      this.stage++;
+      this.cleared.add(this.stage);
+      this.stage = this.nextOpenStage(this.stage);
       this.streak = 0;
     }
     this.done = this.stage === this.stages.length;

@@ -98,3 +98,72 @@ test('a row holding only carried-over tails has no exercise', () => {
   assert.deepEqual(practice.stages.map(stage => stage.firstRow), [1, 3]);
   assert.equal(practice.mastery().rows[1].status, 'empty');
 });
+
+const threeRows = [{start: 0, end: 2}, {start: 2, end: 4}, {start: 4, end: 6}];
+const threeRowNotes = [note(60, 0, 1), note(62, 2, 3), note(64, 4, 5)];
+const cleanPasses = (practice, count) => {
+  for (let pass = 0; pass < count; pass++) { practice.phase = 'playing'; practice.finish(); }
+};
+
+test('skipping ahead does not award the skipped row', () => {
+  const practice = session(threeRows, threeRowNotes);
+  cleanPasses(practice, 2);
+  assert.ok(practice.select(2));
+  assert.equal(practice.stage, 2);
+  assert.equal(practice.streak, 0);
+  const mastery = practice.mastery();
+  assert.deepEqual(mastery.rows.map(row => row.status), ['waiting', 'waiting', 'learning']);
+  assert.equal(mastery.learned, 0);
+  assert.equal(mastery.percent, 0);
+});
+
+test('mastering a later row returns to the first skipped row', () => {
+  const practice = session(threeRows, threeRowNotes);
+  practice.select(1);
+  cleanPasses(practice, 3);
+  assert.equal(practice.stage, 2);
+  cleanPasses(practice, 3);
+  assert.equal(practice.stage, 0);
+  assert.equal(practice.done, false);
+  assert.deepEqual(practice.progress().cleared, [1, 2]);
+  assert.equal(practice.mastery().percent, 66);
+  cleanPasses(practice, 3);
+  assert.equal(practice.done, true);
+  assert.equal(practice.mastery().percent, 100);
+});
+
+test('going back keeps earned mastery and replaying it finishes again', () => {
+  const practice = session(threeRows, threeRowNotes);
+  cleanPasses(practice, 9);
+  assert.equal(practice.done, true);
+  assert.ok(practice.select(1));
+  assert.equal(practice.done, false);
+  assert.equal(practice.current.firstRow, 2);
+  assert.equal(practice.mastery().learned, 3);
+  assert.equal(practice.mastery().percent, 100);
+  cleanPasses(practice, 3);
+  assert.equal(practice.done, true);
+});
+
+test('selection stays inside the plan', () => {
+  const practice = session(threeRows, threeRowNotes);
+  assert.equal(practice.select(-1), false);
+  assert.equal(practice.select(3), false);
+  assert.equal(practice.select(0), false);
+  assert.equal(practice.stage, 0);
+});
+
+test('progress saved before free navigation keeps every earlier stage', () => {
+  const first = session(threeRows, threeRowNotes);
+  const restore = saved => {
+    const practice = new PracticeSession();
+    practice.configure({segments: threeRows, signature: 'test', notes: threeRowNotes, strategy: 'rows',
+      target: 3, track: 'both', speed: 1, saved: {[first.key]: saved}});
+    return practice;
+  };
+  const legacy = restore({stage: 2, streak: 1});
+  assert.deepEqual(legacy.progress(), {stage: 2, streak: 1, cleared: [0, 1]});
+  assert.equal(restore({stage: 3, streak: 0}).done, true);
+  const current = restore({stage: 0, streak: 2, cleared: [2, 7, -1, 'x']});
+  assert.deepEqual(current.progress(), {stage: 0, streak: 2, cleared: [2]});
+});
