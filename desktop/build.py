@@ -1,6 +1,5 @@
 """Build a self-contained Apple Silicon app and a drag-to-Applications disk image."""
 import argparse
-import base64
 import json
 from pathlib import Path
 import plistlib
@@ -58,7 +57,7 @@ def write_ui(resources):
     # Flatten our known ES modules into one offline document. Tone's bundled
     # dependency and embedded song already live in piano.html, including license.
     scripts = []
-    for name in ['keyboard-layout.js', 'fingering-planner.js', 'hand-rig.js', 'piano-hands.js', 'hand-guide.js', 'workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
+    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
         code = (ROOT / name).read_text()
         code = re.sub(r'^import .*?;\s*$', '', code, flags=re.MULTILINE)
         code = re.sub(r'^export (?=(?:async )?(?:class |function ))', '', code, flags=re.MULTILINE)
@@ -73,10 +72,6 @@ def write_ui(resources):
     notation = json.dumps((ROOT/'assets/notation/verovio-toolkit-wasm.js').read_text()).replace('</', '<\\/')
     # Inline scripts execute immediately: prepare notation before starting the player.
     html = html.replace(module_tag, '<script>window.PianoNotationRuntime='+notation+';</script><script>\n' + compiled + '\n</script>')
-    hand_assets = {side:base64.b64encode((ROOT/f'assets/hands/{side}.glb').read_bytes()).decode('ascii') for side in ['left','right']}
-    hand_runtime = (ROOT/'assets/hands/runtime.js').read_text().replace('</script', '<\\/script')
-    html = html.replace('<script src="/assets/hands/runtime.js"></script>',
-        '<script>window.PianoHandAssets='+json.dumps(hand_assets)+';</script><script>'+hand_runtime+'</script>')
     for script in ['i18n.js','i18n-messages.js']:
         html = html.replace(f'<script src="/{script}"></script>', '<script>\n'+(ROOT/script).read_text().replace('</script','<\\/script')+'\n</script>')
     html = html.replace('<script src="/desktop.js"></script>',
@@ -87,12 +82,6 @@ def write_ui(resources):
     licenses.mkdir(parents=True,exist_ok=True)
     for name in ['COPYING','COPYING.LESSER','README.md','package.json','package-lock.json']:
         shutil.copy2(ROOT/'assets/notation'/name,licenses/name)
-    hand_licenses = resources/'Licenses/Hands'
-    hand_licenses.mkdir(parents=True,exist_ok=True)
-    for path in (ROOT/'assets/hands').iterdir():
-        if path.suffix in ['.md','.txt','.json']:
-            shutil.copy2(path,hand_licenses/path.name)
-    shutil.copy2(ROOT/'docs/fingering-method.md',hand_licenses/'fingering-method.md')
     pending = resources / 'index.pending'
     pending.write_text(html)
     pending.replace(resources / 'index.html')

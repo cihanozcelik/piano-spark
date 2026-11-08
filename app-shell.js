@@ -88,7 +88,6 @@ function startWorkspaceLayout(workspaceState) {
   const expand=document.getElementById('sheet-expand');
   const handles={sheet:document.getElementById('sheet-resizer'),keyboard:document.getElementById('keyboard-resizer')};
   const saved=workspaceState.data.layout;
-  let handsSized=saved.handsSized===true;
   const sizes={sheet:Number.isFinite(saved.sheet)?saved.sheet:Math.min(390,innerHeight*.35),
     keyboard:Number.isFinite(saved.keyboard)?saved.keyboard:innerHeight<=720?100:126};
   let drag=null,expanded=saved.expanded===true,rendered={...sizes};
@@ -118,14 +117,14 @@ function startWorkspaceLayout(workspaceState) {
     expand.textContent=t(expanded?'Küçült':'Büyüt');
     expand.setAttribute('aria-expanded',String(expanded));
   }
-  function save() { workspaceState.update('layout',{...sizes,expanded,handsSized}); workspaceState.flush(); }
+  function save() { workspaceState.update('layout',{...sizes,expanded}); workspaceState.flush(); }
   function change(name,value) {
     if(expanded) sizes.sheet=rendered.sheet;
     expanded=false;
     const {available,sheetMin,keyMin,rollMin}=limits();
     sizes[name]=name==='sheet'?clamp(value,sheetMin,available-rendered.keyboard-rollMin):
       clamp(value,keyMin,available-rendered.sheet-rollMin);
-    apply(); workspaceState.update('layout',{...sizes,expanded,handsSized});
+    apply(); workspaceState.update('layout',{...sizes,expanded});
   }
   function finish(event) {
     if(!drag || (event.pointerId!==undefined && event.pointerId!==drag.pointer)) return;
@@ -157,14 +156,6 @@ function startWorkspaceLayout(workspaceState) {
     });
     handle.addEventListener('dblclick',()=>{change(name,name==='sheet'?Math.min(390,innerHeight*.35):126);save();});
   }
-  function prepareHandsSpace(visible) {
-    if(!visible||handsSized) return;
-    handsSized=true;
-    sizes.keyboard=Math.max(sizes.keyboard,300,Number(keyboard.dataset.handHeight)||0);
-    apply();save();
-  }
-  window.addEventListener('pianoman-hands-visibility',event=>prepareHandsSpace(event.detail.visible));
-  prepareHandsSpace(document.getElementById('show-hands').checked);
   window.addEventListener('blur',finish);
   expand.addEventListener('click',()=> {
     expanded=!expanded;

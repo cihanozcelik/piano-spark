@@ -17,14 +17,6 @@ from bluetooth_bridge import BluetoothBridge, prepare_native
 from desktop.lesson_bridge import LessonBridge
 
 FILES = {
-    "/keyboard-layout.js": ("keyboard-layout.js", "text/javascript; charset=utf-8"),
-    "/fingering-planner.js": ("fingering-planner.js", "text/javascript; charset=utf-8"),
-    "/hand-rig.js": ("hand-rig.js", "text/javascript; charset=utf-8"),
-    "/piano-hands.js": ("piano-hands.js", "text/javascript; charset=utf-8"),
-    "/hand-guide.js": ("hand-guide.js", "text/javascript; charset=utf-8"),
-    "/assets/hands/runtime.js": ("assets/hands/runtime.js", "text/javascript; charset=utf-8"),
-    "/assets/hands/left.glb": ("assets/hands/left.glb", "model/gltf-binary"),
-    "/assets/hands/right.glb": ("assets/hands/right.glb", "model/gltf-binary"),
     "/i18n.js": ("i18n.js", "text/javascript; charset=utf-8"),
     "/i18n-messages.js": ("i18n-messages.js", "text/javascript; charset=utf-8"),
     "/bluetooth-diagnostics.js": ("bluetooth-connection/bluetooth-diagnostics.js", "text/javascript; charset=utf-8"),
