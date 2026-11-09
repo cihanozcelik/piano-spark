@@ -49,7 +49,7 @@ namespace PianoSpark
             if (message == null || !(message.TryGetValue("body", out var raw) && raw is Dictionary<string, object> body)) return;
             var id = message.Number("id");
             string value = null, error = null;
-            try { value = await Handle(body); }
+            try { value = await Dispatch(body); }
             catch (Exception failure) { error = failure is UserError ? failure.Message : Localization.Text(failure.Message); }
             if (web.CoreWebView2 == null) return;
             web.CoreWebView2.PostWebMessageAsJson("{\"reply\":" + id + ",\"value\":" + (value ?? "null") + ",\"error\":" + Json.Write(error) + "}");
@@ -58,7 +58,7 @@ namespace PianoSpark
         static string Reply(object value) => Json.Write(value);
         static readonly string Empty = "{}";
 
-        async Task<string> Handle(Dictionary<string, object> body)
+        async Task<string> Dispatch(Dictionary<string, object> body)
         {
             var command = body.Text("command");
             switch (command)
