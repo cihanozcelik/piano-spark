@@ -1,25 +1,22 @@
 {
-  "version": "0.9.0",
-  "build": 15,
+  "version": "0.9.1",
+  "build": 16,
   "repository": "cihanozcelik/piano-spark",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Piano Spark now runs on Intel Macs too: one download works on both Apple Silicon and Intel.",
-    "Lessons from videos, YouTube links, MIDI files and sheet-music PDFs can be created on Intel; removing vocals takes longer there because it runs on the processor.",
-    "Fixed lesson creation stopping with “No module named 'audioread'” when vocal separation was turned on."
+    "Piano Spark is now also available for Windows 10 and 11 (64-bit) as a beta. Download it from the website.",
+    "The Mac and Windows apps now share the same lesson engine; lessons on the Mac are created exactly as before."
   ],
   "feedURL": "https://cihanozcelik.github.io/piano-spark/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Piano Spark now runs on Intel Macs too: one download works on both Apple Silicon and Intel.",
-      "Lessons from videos, YouTube links, MIDI files and sheet-music PDFs can be created on Intel; removing vocals takes longer there because it runs on the processor.",
-      "Fixed lesson creation stopping with “No module named 'audioread'” when vocal separation was turned on."
+      "Piano Spark is now also available for Windows 10 and 11 (64-bit) as a beta. Download it from the website.",
+      "The Mac and Windows apps now share the same lesson engine; lessons on the Mac are created exactly as before."
     ],
     "tr": [
-      "Piano Spark artık Intel Mac'lerde de çalışıyor: aynı indirme hem Apple Silicon hem Intel'de çalışır.",
-      "Videolardan, YouTube bağlantılarından, MIDI dosyalarından ve nota PDF'lerinden Intel'de de ders oluşturulabilir; vokal ayırma orada işlemcide çalıştığı için daha uzun sürer.",
-      "Vokal ayırma açıkken ders oluşturmanın “No module named 'audioread'” hatasıyla durması düzeltildi."
+      "Piano Spark artık Windows 10 ve 11 (64-bit) için de beta olarak var. Web sitesinden indirebilirsin.",
+      "Mac ve Windows uygulamaları artık aynı ders motorunu kullanıyor; Mac'te dersler eskisi gibi oluşturulur."
     ]
   }
 }

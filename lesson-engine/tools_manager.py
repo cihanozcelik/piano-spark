@@ -1,5 +1,6 @@
 """Pinned, cancellable first-use tools. Only a lesson worker writes this cache."""
 import hashlib
+import http.client
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,7 @@ import ssl
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 import zipfile
 
@@ -105,6 +107,16 @@ class Installer:
                                     file=artifact['name'],stage=phase))
 
     def download(self, artifact):
+        """Resumes after brief server or network failures; the partial file is kept."""
+        for attempt in range(4):
+            try:
+                return self.fetch(artifact)
+            except (urllib.error.URLError, http.client.HTTPException, TimeoutError, ConnectionError) as error:
+                code = getattr(error, 'code', None)
+                if attempt == 3 or (code is not None and code != 429 and code < 500): raise
+                time.sleep((2, 6, 15)[attempt])
+
+    def fetch(self, artifact):
         partial = self.cache/'downloads'/(artifact['sha256']+'.part')
         offset = partial.stat().st_size if partial.exists() else 0
         if offset > artifact['size']:
@@ -129,6 +141,9 @@ class Installer:
                         if offset > artifact['size']:
                             raise RuntimeError('İndirilen dosyanın boyutu beklenenden farklı. Yeniden dene.')
                         self.progress('tools-download',offset,artifact)
+                if offset < artifact['size']:
+                    # The connection ended early; keep the partial file and resume it.
+                    raise ConnectionError('Download ended before the whole file arrived')
         self.progress('tools-verify',offset,artifact,True)
         if offset != artifact['size'] or sha256(partial) != artifact['sha256']:
             partial.unlink(missing_ok=True)
