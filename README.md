@@ -1,4 +1,4 @@
-# Rach3
+# rach3
 
 A desktop piano learning app built around practicing on a physical piano at your own pace.
 The small, self-contained application supports **Macs running macOS 14 or later, with Apple Silicon or
@@ -7,7 +7,7 @@ A **Windows 10 and 11 (64-bit) beta** is published with each release; see [Windo
 
 [Website](https://rach3.com/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
 
-Rach3 is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
+rach3 is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
 whole app is in **public beta**: practice works day to day, but features are still
 changing and lessons made from recordings or PDFs can contain wrong notes or rhythms.
 Please [report what you find](https://github.com/cihanozcelik/piano-spark/issues).
@@ -21,7 +21,7 @@ every model, its authors and its license.
 
 ## Installation and distribution
 
-**`dist/Rach3-Setup.dmg`** contains **Rach3.app** and an **Applications**
+**`dist/rach3-Setup.dmg`** contains **rach3.app** and an **Applications**
 shortcut. Drag the app onto that shortcut, then open the installed copy from
 Applications. There is no separate Installer application. Existing installations
 receive automatic updates in place, preserving saved lessons.
@@ -34,7 +34,7 @@ downloaded data. Once the tools are downloaded, local files can be processed off
 YouTube imports require an internet connection. The app does not install system
 Python, Homebrew, login items, or system services.
 
-**Rach3 → Uninstall Rach3…** asks for confirmation, stops the app's
+**rach3 → Uninstall rach3…** asks for confirmation, stops the app's
 running jobs, and removes the application, downloaded tools,
 `~/Library/Application Support/Rach3/`, app preferences, WebKit data, caches,
 and saved window state. Saved lessons are also removed. Original videos, exported
@@ -80,7 +80,7 @@ GitHub enforces the same rule for every push, with or without the hooks.
 The developer machine needs Python 3 and Xcode Command Line Tools.
 
 1. Run `python3 desktop/prepare_engine.py` to prepare the small Apple Silicon and Intel Python runtimes. This step requires uv.
-2. Run `./build-app.command` to bundle the universal native application and both runtimes, apply an ad-hoc signature, and create `dist/Rach3-Setup.dmg`.
+2. Run `./build-app.command` to bundle the universal native application and both runtimes, apply an ad-hoc signature, and create `dist/rach3-Setup.dmg`.
 
 `python3 desktop/build.py --app-only` builds only the application.
 `python3 desktop/build.py --installer-only` creates the DMG from an existing app bundle.
@@ -126,7 +126,7 @@ wording, and the build fails if a page string mentions the Mac without one.
 - **Bluetooth MIDI:** Windows Bluetooth LE APIs, with the same scanning, connection,
   pairing and output rules as the Mac helper (`windows/Rach3/BleTransport.cs`).
   It has not yet been tried with a real piano on a Windows PC.
-- **Installer and updates:** Velopack. `Rach3-win-Setup.exe` installs per user
+- **Installer and updates:** Velopack. `rach3-win-Setup.exe` installs per user
   without administrator rights. Each release also carries a patch from the previous
   Windows release (0.9.1 → 0.9.2: 1.1 MB instead of 26 MB), applied to the installed
   package; without it, the full package is downloaded. Updates download in the
@@ -634,7 +634,7 @@ in `brand/`, the website images in `site/assets/`, the app header wordmark in
 
 ## License and credits
 
-Rach3 is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+rach3 is licensed under the [GNU Affero General Public License v3.0](LICENSE).
 Models, libraries and fonts keep their own licenses; [CREDITS.md](CREDITS.md) lists
 each one with its authors. Lesson tools are downloaded from their original publishers
 on first use and are not redistributed in this repository.

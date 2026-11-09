@@ -13,7 +13,7 @@ DEVICE_FILE = HERE / ".runtime/last-device.json"
 
 
 def prepare_native():
-    binary = HERE / "build/Rach3 Bluetooth.app/Contents/MacOS/rach3-bluetooth"
+    binary = HERE / "build/rach3 Bluetooth.app/Contents/MacOS/rach3-bluetooth"
     sources = [HERE / name for name in ("main.m", "BLEMIDI.m", "BLEMIDI.h", "BLEMIDIOutput.m", "BLEMIDIOutput.h", "Info.plist", "build.sh")]
     if not binary.exists() or any(path.stat().st_mtime > binary.stat().st_mtime for path in sources):
         subprocess.run([str(HERE / "build.sh")], check=True, timeout=90)

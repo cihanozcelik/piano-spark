@@ -65,7 +65,7 @@ namespace Rach3
                 status = "Yeni sürüm arka planda indiriliyor…"; Changed();
                 await manager.DownloadUpdatesAsync(info);
                 pending = info;
-                status = "Güncelleme indirildi. Rach3 yeniden başlatılınca yüklenecek.";
+                status = "Güncelleme indirildi. rach3 yeniden başlatılınca yüklenecek.";
             }
             catch (Exception error)
             {
@@ -83,7 +83,7 @@ namespace Rach3
             string signature;
             using (var http = new HttpClient())
             {
-                http.DefaultRequestHeaders.UserAgent.ParseAdd("Rach3/" + Version);
+                http.DefaultRequestHeaders.UserAgent.ParseAdd("rach3/" + Version);
                 feed = await http.GetByteArrayAsync(folder + "releases.win.json");
                 signature = await http.GetStringAsync(folder + "releases.win.json.sig");
             }

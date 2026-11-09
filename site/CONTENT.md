@@ -1,14 +1,14 @@
-# Rach3 website content
+# rach3 website content
 
 This copy is grounded in the current application. Public marketing copy is English.
-The product name is **Rach3**. Real application screenshots carry the main
+The product name is **rach3**. Real application screenshots carry the main
 product story; generated keyboard artwork is supporting atmosphere, not a screenshot.
 
 ## Hero
 
 **Your piano. Your pace.**
 
-Follow the notes. Play the right keys. Rach3 waits until you’re ready to
+Follow the notes. Play the right keys. rach3 waits until you’re ready to
 move on — so you can focus on making music, one phrase at a time.
 
 Primary action: **Download for Mac** when a published binary is available.
@@ -24,7 +24,7 @@ to read the score, see the falling notes and identify the keyboard together.
 
 **Music that waits for you.**
 
-Rach3 follows the keys you actually play. When the notes aren’t right,
+rach3 follows the keys you actually play. When the notes aren’t right,
 the lesson pauses. Find the chord, hold it, and move on when you’re ready.
 
 1. **See what’s next.** Read the score or follow the notes down to the keyboard.
@@ -110,14 +110,14 @@ Bluetooth audio alone does not carry keys.
 
 **Your next practice starts here.**
 
-Download Rach3 for Mac.
+Download rach3 for Mac.
 
 Use the published release’s exact asset URL. The primary button must download the
 binary, not open the GitHub releases listing. Keep a separate **Release notes** link.
 If the release does not exist, show a disabled pending state instead of presenting
 an active Download button.
 
-Below the Mac details, when the release has `Rach3-win-Setup.exe`, show a
+Below the Mac details, when the release has `rach3-win-Setup.exe`, show a
 secondary **Download for Windows (beta)** link with “Windows 10 or 11 · 64-bit” and its
 size, and say plainly that Windows may warn about an unsigned beta (More info → Run
 anyway). Without that asset, show nothing about Windows.
@@ -125,7 +125,7 @@ anyway). Without that asset, show nothing about Windows.
 Small supporting information:
 
 - **No account required.**
-- **Small DMG download.** Drag Rach3 to Applications. There is no separate installer app. Lesson tools download at first use with visible size, progress and cancellation. They remain on the Mac across app updates.
+- **Small DMG download.** Drag rach3 to Applications. There is no separate installer app. Lesson tools download at first use with visible size, progress and cancellation. They remain on the Mac across app updates.
 - **Smaller updates afterward.** Unchanged model files are not downloaded again in normal delta updates.
 
 Do not promise that every update is 16 KB or 24 KB: those measurements describe
@@ -140,7 +140,7 @@ The whole app is a **public beta**, on Mac and Windows. Say so in the header (a 
 near the hero: free and open source, still in beta, expect rough edges, with a link to
 issues. Do not call any part of the app finished or stable.
 
-**Open to everyone. Built in the open.** Rach3 is free software under the GNU
+**Open to everyone. Built in the open.** rach3 is free software under the GNU
 AGPL v3. Link the source code, issues and `LICENSE`. The beta panel names what can go
 wrong: features still change, lessons from recordings or PDFs can have wrong notes or
 rhythms, Windows Bluetooth is not yet tested with many pianos, and updates arrive

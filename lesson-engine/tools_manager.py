@@ -129,7 +129,7 @@ class Installer:
             partial.unlink(); offset = 0
         self.progress('tools-download',offset,artifact,True)
         if offset < artifact['size']:
-            headers = {'User-Agent':'Rach3/0.4', 'Accept-Encoding':'identity'}
+            headers = {'User-Agent':'rach3/0.4', 'Accept-Encoding':'identity'}
             if offset: headers['Range'] = f'bytes={offset}-'
             if url.startswith('https://api.github.com/'): headers['Accept'] = 'application/octet-stream'
             request = urllib.request.Request(url,headers=headers)

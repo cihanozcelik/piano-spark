@@ -1,6 +1,6 @@
 # Credits
 
-Rach3 stands on open research and open-source software. The models below do the
+rach3 stands on open research and open-source software. The models below do the
 hard work of turning recordings and printed scores into lessons; this app connects
 them into a practice tool. Thank you to everyone who built and shared them.
 
@@ -9,7 +9,7 @@ with SHA-256 checksums. Each component keeps its own license.
 
 ## Models
 
-| What it does in Rach3 | Model | Team | License |
+| What it does in rach3 | Model | Team | License |
 | --- | --- | --- | --- |
 | Turns a piano recording into notes, timing, pedal and beats | [Rubato](https://github.com/nctamer/rubato-transcription) — *Rubato: Transcribing Piano Music with Timestamps* (NeurIPS 2026) | Nazif Can Tamer, Victoria Ebert, Guang Yang, Noah A. Smith | AGPL-3.0 |
 | Removes vocals from a song before transcription | Mel-Band RoFormer vocal model | Kimberley Jensen; architecture by Ju-Chiang Wang, Wei-Tsung Lu and Minz Won (*Mel-Band RoFormer for Music Source Separation*) | MIT |
@@ -52,7 +52,7 @@ homr asks that research using it also cite oemer and Polyphonic-TrOMR.
 The example lessons and their sources are listed in
 [`assets/example-lessons/README.md`](assets/example-lessons/README.md).
 
-## Rach3
+## rach3
 
-Rach3 itself is free software under the
+rach3 itself is free software under the
 [GNU Affero General Public License v3.0](LICENSE).

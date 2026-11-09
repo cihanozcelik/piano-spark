@@ -29,7 +29,7 @@ namespace Rach3
             {
                 if (!first && options.Capture == null)
                 {
-                    var window = FindWindow(null, "Rach3");
+                    var window = FindWindow(null, "rach3");
                     if (window != IntPtr.Zero) { ShowWindow(window, 9); SetForegroundWindow(window); }
                     return 0;
                 }

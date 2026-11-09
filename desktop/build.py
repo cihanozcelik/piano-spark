@@ -11,7 +11,7 @@ from sparkle import prepare as prepare_sparkle, SPARKLE
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / 'build/desktop'
 DIST = ROOT / 'dist'
-APP = DIST / 'Rach3.app'
+APP = DIST / 'rach3.app'
 RELEASE = json.loads((ROOT/'desktop/release.json').read_text())
 
 
@@ -49,9 +49,9 @@ def build_installer():
     run('cp','-cR',APP,stage/APP.name)
     (stage/'Applications').symlink_to('/Applications',target_is_directory=True)
     run('codesign','--verify','--deep','--strict',stage/APP.name)
-    image = DIST/'Rach3-Setup.dmg'
+    image = DIST/'rach3-Setup.dmg'
     if image.exists(): image.unlink()
-    run('hdiutil','create','-volname','Rach3','-srcfolder',stage,'-format','UDZO',image)
+    run('hdiutil','create','-volname','rach3','-srcfolder',stage,'-format','UDZO',image)
     shutil.rmtree(stage)
     print(f'Installer: {image}\nSize: {image.stat().st_size/1000000:.1f} MB')
 
@@ -183,7 +183,7 @@ def main():
     run('iconutil', '-c', 'icns', iconset, '-o', resources / 'Rach3.icns')
     run('codesign', '--force', '--sign', '-', '--timestamp=none', APP)
     run('codesign', '--verify', '--deep', '--strict', APP)
-    archive = DIST / 'Rach3-macOS.zip'
+    archive = DIST / 'rach3-macOS.zip'
     if archive.exists():
         archive.unlink()
     print(f'Application: {APP}')

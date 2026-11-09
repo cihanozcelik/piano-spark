@@ -1,4 +1,4 @@
-name: Publish Rach3 website
+name: Publish rach3 website
 on:
   push:
     branches: [main]

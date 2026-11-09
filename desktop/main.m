@@ -52,7 +52,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #endif
     self.runtimeURL = [support URLByAppendingPathComponent:@"Rach3/Bluetooth" isDirectory:YES];
     self.lessons = [[LessonService alloc] initWithEngine:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Engine"]
-        support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
+        support:[support URLByAppendingPathComponent:@"rach3" isDirectory:YES]
         tools:[support URLByAppendingPathComponent:@"Rach3/Tools/1" isDirectory:YES]];
     __weak PianoApp *weakSelf = self;
     self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
@@ -80,7 +80,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.window = [[NSWindow alloc] initWithContentRect:frame
         styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
         backing:NSBackingStoreBuffered defer:NO];
-    self.window.title = @"Rach3";
+    self.window.title = @"rach3";
     self.window.delegate = self;
     self.window.releasedWhenClosed = NO;
     self.window.minSize = NSMakeSize(820, 620);
@@ -109,15 +109,15 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)makeMenus {
     NSMenu *bar = [NSMenu new];
     NSMenuItem *appItem = [NSMenuItem new];
-    NSMenu *app = [[NSMenu alloc] initWithTitle:@"Rach3"];
-    [app addItemWithTitle:PianoText(@"Rach3 Hakkında") action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
+    NSMenu *app = [[NSMenu alloc] initWithTitle:@"rach3"];
+    [app addItemWithTitle:PianoText(@"rach3 Hakkında") action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
     NSMenuItem *updates = [app addItemWithTitle:PianoText(@"Güncellemeleri denetle…") action:@selector(check:) keyEquivalent:@""];
     updates.target = self.updates;
     [app addItem:NSMenuItem.separatorItem];
-    [app addItemWithTitle:PianoText(@"Rach3’ü Gizle") action:@selector(hide:) keyEquivalent:@"h"];
-    NSMenuItem *uninstall = [app addItemWithTitle:PianoText(@"Rach3’ü kaldır…") action:@selector(uninstall:) keyEquivalent:@""];
+    [app addItemWithTitle:PianoText(@"rach3’ü Gizle") action:@selector(hide:) keyEquivalent:@"h"];
+    NSMenuItem *uninstall = [app addItemWithTitle:PianoText(@"rach3’ü kaldır…") action:@selector(uninstall:) keyEquivalent:@""];
     uninstall.target = self;
-    [app addItemWithTitle:PianoText(@"Rach3’ten Çık") action:@selector(terminate:) keyEquivalent:@"q"];
+    [app addItemWithTitle:PianoText(@"rach3’ten Çık") action:@selector(terminate:) keyEquivalent:@"q"];
     appItem.submenu = app; [bar addItem:appItem];
     NSMenuItem *editItem = [NSMenuItem new];
     NSMenu *edit = [[NSMenu alloc] initWithTitle:PianoText(@"Düzenle")];
@@ -491,9 +491,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)uninstall:(id)sender {
     (void)sender;
     NSAlert *alert = [NSAlert new];
-    alert.messageText = PianoText(@"Rach3 kaldırılsın mı?");
-    alert.informativeText = PianoText(@"Uygulama, modeller, kayıtlı dersler ve Rach3’ün geçici verileri kalıcı olarak silinecek. Orijinal videolar ve dışarı aktardığın MIDI dosyaları korunacak.");
-    [alert addButtonWithTitle:PianoText(@"Vazgeç")]; [alert addButtonWithTitle:PianoText(@"Rach3’ü kaldır")];
+    alert.messageText = PianoText(@"rach3 kaldırılsın mı?");
+    alert.informativeText = PianoText(@"Uygulama, modeller, kayıtlı dersler ve rach3’ün geçici verileri kalıcı olarak silinecek. Orijinal videolar ve dışarı aktardığın MIDI dosyaları korunacak.");
+    [alert addButtonWithTitle:PianoText(@"Vazgeç")]; [alert addButtonWithTitle:PianoText(@"rach3’ü kaldır")];
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse response) {
         if (response==NSAlertSecondButtonReturn) { self.uninstalling = YES; [NSApp terminate:nil]; }
     }];
@@ -507,7 +507,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     return YES;
 }
 - (void)showLessonError:(NSError *)error {
-    NSAlert *alert = [NSAlert new]; alert.messageText = @"Rach3";
+    NSAlert *alert = [NSAlert new]; alert.messageText = @"rach3";
     [alert addButtonWithTitle:PianoText(@"Tamam")];
     alert.informativeText = PianoText(error.localizedDescription) ?: PianoText(@"İşlem tamamlanamadı.");
     [alert beginSheetModalForWindow:self.window completionHandler:nil];
@@ -538,7 +538,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 }
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
     (void)webView; (void)navigation;
-    NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"Rach3 açılamadı");
+    NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"rach3 açılamadı");
     [alert addButtonWithTitle:PianoText(@"Tamam")];
     alert.informativeText = error.localizedDescription; [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
@@ -602,7 +602,7 @@ int main(int argc, const char *argv[]) {
             }
             if (failures.count) {
                 [NSApplication sharedApplication];
-                NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"Bazı Rach3 dosyaları silinemedi");
+                NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"Bazı rach3 dosyaları silinemedi");
                 [alert addButtonWithTitle:PianoText(@"Tamam")];
                 alert.informativeText = [failures componentsJoinedByString:@"\n"]; [alert runModal];
                 return 1;

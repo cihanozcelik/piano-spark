@@ -28,7 +28,7 @@ RELEASE = json.loads((ROOT/'desktop/release.json').read_text(encoding='utf-8'))
 PROJECT = ROOT/'windows/Rach3/Rach3.csproj'
 DIST = ROOT/'dist/windows/Rach3'
 RELEASES = ROOT/'dist/windows/releases'
-PACKAGE_ID = 'Rach3'
+PACKAGE_ID = 'rach3'
 SETUP = f'{PACKAGE_ID}-win-Setup.exe'
 
 
@@ -120,12 +120,12 @@ def capture(directory, midi):
     print(f'Windows screenshots and bridge self-test passed: {directory}')
 
 
-def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='Rach3', notes=None, delta=False):
+def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='rach3', notes=None, delta=False):
     """With delta, output must already hold the previous full package and its feed;
     Velopack then also writes a patch from that version to this one."""
     if not delta and output.exists(): shutil.rmtree(output)
     args = ['vpk', 'pack', '--packId', package_id, '--packVersion', version, '--packDir', str(app),
-            '--mainExe', 'Rach3.exe', '--packTitle', title, '--packAuthors', 'Rach3',
+            '--mainExe', 'Rach3.exe', '--packTitle', title, '--packAuthors', 'rach3',
             '--icon', str(ROOT/'windows/Rach3/Rach3.ico'), '--delta', 'BestSpeed' if delta else 'None',
             '--noPortable', '--outputDir', str(output)]
     if notes: args += ['--releaseNotes', str(notes)]
@@ -236,10 +236,10 @@ def update_check():
     shutil.copytree(app, changed)
     (changed/'Resources/update-check.txt').write_text('0.0.2\n', encoding='utf-8')
     feed_dir = work/'feed'
-    vpk_pack(app, '0.0.1', feed_dir, package_id, 'Rach3 Update Test')
+    vpk_pack(app, '0.0.1', feed_dir, package_id, 'rach3 Update Test')
     setup = work/'setup-0.0.1.exe'
     shutil.copy2(feed_dir/f'{package_id}-win-Setup.exe', setup)
-    vpk_pack(changed, '0.0.2', feed_dir, package_id, 'Rach3 Update Test', delta=True)
+    vpk_pack(changed, '0.0.2', feed_dir, package_id, 'rach3 Update Test', delta=True)
     key = Ed25519PrivateKey.generate()
     public = lambda k: base64.b64encode(k.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
     feed = feed_dir/'releases.win.json'
