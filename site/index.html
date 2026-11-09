@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Meet Piano Spark for Mac. Follow the score, play your own piano, and learn at your pace. Create lessons from MIDI, sheet music, videos, and YouTube links.">
+  <meta name="description" content="Piano Spark is a free, open-source piano practice app in public beta. Follow the score, play your own piano, and learn at your pace. Create lessons from MIDI, sheet music, videos, and YouTube links.">
   <meta name="theme-color" content="#fafafa">
   <meta property="og:title" content="Piano Spark. Your piano. Your pace.">
-  <meta property="og:description" content="A more thoughtful way to practice piano. A native Mac app that waits for the right notes, then moves with you.">
+  <meta property="og:description" content="A more thoughtful way to practice piano. A free, open-source desktop app in public beta that waits for the right notes, then moves with you.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://cihanozcelik.github.io/piano-spark/assets/practice.png">
   <title>Piano Spark — Your piano. Your pace.</title>
@@ -16,19 +16,20 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <nav class="nav shell" aria-label="Main navigation">
-    <a class="wordmark" href="#main" aria-label="Piano Spark home"><svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="4" width="22" height="20" rx="5"/><path d="M10 5v18M18 5v18"/><path class="brand-fill" d="M8 5h4v10H8zm8 0h4v10h-4z"/></svg><span>Piano Spark</span></a>
-    <div class="nav-links"><a href="#practice">Practice</a><a href="#create">Create a lesson</a><a href="#requirements">Compatibility</a></div>
+    <a class="wordmark" href="#main" aria-label="Piano Spark home"><svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="4" width="22" height="20" rx="5"/><path d="M10 5v18M18 5v18"/><path class="brand-fill" d="M8 5h4v10H8zm8 0h4v10h-4z"/></svg><span>Piano Spark</span><span class="beta-badge">Beta</span></a>
+    <div class="nav-links"><a href="#practice">Practice</a><a href="#create">Create a lesson</a><a href="#requirements">Compatibility</a><a href="#open-source">Open source</a></div>
     <div class="nav-cta">__DOWNLOAD_CTA_COMPACT__</div>
   </nav>
 </header>
 <main id="main">
   <section class="hero section-shell" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <p class="eyebrow">PIANO SPARK FOR MAC</p>
+      <p class="eyebrow">PIANO SPARK · PUBLIC BETA</p>
       <h1 id="hero-title">Your piano.<br><span class="gradient-text">Your pace.</span></h1>
       <p class="hero-description">Follow the notes. Play the right keys.<br>Piano Spark waits until you’re ready to move on.</p>
       <div class="hero-actions">__DOWNLOAD_CTA__<a class="text-link" href="#practice">Take a closer look <span aria-hidden="true">↓</span></a></div>
       <p class="platform-line">__PLATFORM_LINE__</p>
+      <p class="beta-line">Free and open source. Still in beta, so expect rough edges — <a href="https://github.com/cihanozcelik/piano-spark/issues">tell us what you find</a>.</p>
     </div>
     <figure class="hero-product">
       <div class="product-halo" aria-hidden="true"></div>
@@ -91,6 +92,35 @@
     </div>
   </section>
 
+  <section class="open-section" id="open-source" aria-labelledby="open-title">
+    <div class="section-shell">
+      <div class="section-heading split-heading">
+        <div><p class="eyebrow">FREE AND OPEN SOURCE</p><h2 id="open-title">Open to everyone.<br><span class="soft-text">Built in the open.</span></h2></div>
+        <p class="section-description">Piano Spark is free software under the GNU AGPL v3. Read every line of the code, report a bug, suggest an idea, or build on it. No account, no subscription, no ads.</p>
+      </div>
+      <div class="open-links">
+        <a class="open-link" href="https://github.com/cihanozcelik/piano-spark"><strong>Source code</strong><span>Browse and build the app on GitHub</span><span class="open-arrow" aria-hidden="true">↗</span></a>
+        <a class="open-link" href="https://github.com/cihanozcelik/piano-spark/issues"><strong>Issues and ideas</strong><span>Report a problem or suggest a feature</span><span class="open-arrow" aria-hidden="true">↗</span></a>
+        <a class="open-link" href="https://github.com/cihanozcelik/piano-spark/blob/main/LICENSE"><strong>License</strong><span>GNU Affero General Public License v3.0</span><span class="open-arrow" aria-hidden="true">↗</span></a>
+      </div>
+      <div class="beta-panel">
+        <span class="beta-badge beta-badge-large">Beta</span>
+        <p><strong>Piano Spark is in public beta on Mac and Windows.</strong> Practice works every day, but features are still changing. Lessons made from recordings or PDFs can contain wrong notes or rhythms, and Bluetooth on Windows has not yet been tested with many pianos. Updates arrive automatically as it improves.</p>
+      </div>
+      <div class="credits" aria-labelledby="credits-title">
+        <h3 id="credits-title">Built on open research.</h3>
+        <p class="credits-intro">The hard part of turning music into a lesson is done by models that their teams chose to share. Thank you.</p>
+        <div class="credits-grid">
+          <article><span class="credit-role">Recording to notes</span><h4><a href="https://github.com/nctamer/rubato-transcription">Rubato</a></h4><p>Nazif Can Tamer, Victoria Ebert, Guang Yang and Noah A. Smith. <em>Rubato: Transcribing Piano Music with Timestamps</em>, NeurIPS 2026.</p></article>
+          <article><span class="credit-role">Removing vocals</span><h4>Mel-Band RoFormer</h4><p>Vocal model by Kimberley Jensen, on the architecture by Ju-Chiang Wang, Wei-Tsung Lu and Minz Won. Run with <a href="https://github.com/nomadkaraoke/python-audio-separator">python-audio-separator</a> by Nomad Karaoke.</p></article>
+          <article><span class="credit-role">Sheet music to notes</span><h4><a href="https://github.com/liebharc/homr">homr</a></h4><p>Christian Liebhardt, building on <a href="https://github.com/BreezeWhite/oemer">oemer</a> and <a href="https://github.com/NetEase/Polyphonic-TrOMR">Polyphonic-TrOMR</a>. Text recognition by <a href="https://github.com/RapidAI/RapidOCR">RapidOCR</a> with PaddleOCR models.</p></article>
+          <article><span class="credit-role">The score you read</span><h4><a href="https://github.com/rism-digital/verovio">Verovio</a> and <a href="https://github.com/cuthbertLab/music21">music21</a></h4><p>Engraving by the RISM Digital Center; score analysis by Michael Scott Asato Cuthbert and the music21 contributors. Music fonts Leipzig and <a href="https://github.com/steinbergmedia/bravura">Bravura</a>.</p></article>
+        </div>
+        <p class="credits-more"><a href="https://github.com/cihanozcelik/piano-spark/blob/main/CREDITS.md">All credits and licenses <span aria-hidden="true">↗</span></a></p>
+      </div>
+    </div>
+  </section>
+
   <section class="download-section" id="download" aria-labelledby="download-title">
     <div class="download-inner section-shell">
       <svg class="download-mark" viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="spark-gradient" x2="1" y2="1"><stop stop-color="#84b6ff"/><stop offset="1" stop-color="#eeb099"/></linearGradient></defs><rect x="1" y="1" width="78" height="78" rx="20" fill="#202225"/><path d="M22 21v37M40 21v37M58 21v37" stroke="url(#spark-gradient)" stroke-width="9" stroke-linecap="round"/><path d="M31 22v19M49 22v19" stroke="#202225" stroke-width="5"/></svg>
@@ -104,6 +134,6 @@
     </div>
   </section>
 </main>
-<footer class="site-footer section-shell"><a class="footer-brand" href="#main">Piano Spark</a><span>Built for a little more music in your day.</span><a href="https://github.com/cihanozcelik/piano-spark">View on GitHub <span aria-hidden="true">↗</span></a></footer>
+<footer class="site-footer section-shell"><a class="footer-brand" href="#main">Piano Spark</a><span>Built for a little more music in your day. Free and open source under the AGPL-3.0.</span><a class="footer-credits" href="https://github.com/cihanozcelik/piano-spark/blob/main/CREDITS.md">Credits</a><a href="https://github.com/cihanozcelik/piano-spark">View on GitHub <span aria-hidden="true">↗</span></a></footer>
 </body>
 </html>

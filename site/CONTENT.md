@@ -133,6 +133,28 @@ specific local changes. Updates that change models or repair an installation can
 be larger. The app may restart automatically for updates, including during practice;
 do not claim updates always wait until a lesson ends.
 
+## Beta and open source
+
+The whole app is a **public beta**, on Mac and Windows. Say so in the header (a small
+**Beta** badge), the hero eyebrow and the release label, and keep one plain sentence
+near the hero: free and open source, still in beta, expect rough edges, with a link to
+issues. Do not call any part of the app finished or stable.
+
+**Open to everyone. Built in the open.** Piano Spark is free software under the GNU
+AGPL v3. Link the source code, issues and `LICENSE`. The beta panel names what can go
+wrong: features still change, lessons from recordings or PDFs can have wrong notes or
+rhythms, Windows Bluetooth is not yet tested with many pianos, and updates arrive
+automatically.
+
+**Built on open research.** Credit the models and their teams by name, as people, not
+logos: Rubato (Nazif Can Tamer, Victoria Ebert, Guang Yang, Noah A. Smith; NeurIPS
+2026), the Mel-Band RoFormer vocal model (Kimberley Jensen; architecture by Ju-Chiang
+Wang, Wei-Tsung Lu and Minz Won; run with python-audio-separator by Nomad Karaoke),
+homr (Christian Liebhardt, building on oemer and Polyphonic-TrOMR; text by RapidOCR
+with PaddleOCR models), Verovio (RISM Digital Center) and music21 (Michael Scott Asato
+Cuthbert and contributors). Link `CREDITS.md` for the full list and licenses, and keep
+both in sync when a model changes.
+
 ## Current-source evidence
 
 - `practice-clock.js`: expected/pending notes, key holds, release allowance and incorrect-key blocking.

@@ -106,7 +106,7 @@ def download_context(release_path):
         **chips,
         '__DOWNLOAD_CTA__': f'<a class="button button-primary download-link" href="{escaped_url}">Download for Mac <span aria-hidden="true">↓</span></a>',
         '__DOWNLOAD_CTA_COMPACT__': f'<a class="button button-small download-link" href="{escaped_url}">Download</a>',
-        '__RELEASE_LABEL__': html.escape(tag),
+        '__RELEASE_LABEL__': html.escape(tag)+' · Public beta',
         '__DOWNLOAD_DETAILS__': f'macOS 14 or later · {chips["__CHIP_SUMMARY__"]} · {size:.1f} MB · DMG installer',
         '__RELEASE_NOTES_LINK__': f'<a class="release-link" href="{notes_url}">Release notes <span aria-hidden="true">↗</span></a>',
         '__WINDOWS_DOWNLOAD__': windows_download(release),

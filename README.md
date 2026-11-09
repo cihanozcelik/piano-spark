@@ -7,6 +7,18 @@ A **Windows 10 and 11 (64-bit) beta** is published with each release; see [Windo
 
 [Website](https://cihanozcelik.github.io/piano-spark/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
 
+Piano Spark is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
+whole app is in **public beta**: practice works day to day, but features are still
+changing and lessons made from recordings or PDFs can contain wrong notes or rhythms.
+Please [report what you find](https://github.com/cihanozcelik/piano-spark/issues).
+
+Lesson creation is built on open models and libraries, including
+[Rubato](https://github.com/nctamer/rubato-transcription),
+the Mel-Band RoFormer vocal model, [homr](https://github.com/liebharc/homr),
+[Verovio](https://github.com/rism-digital/verovio) and
+[music21](https://github.com/cuthbertLab/music21). See [CREDITS.md](CREDITS.md) for
+every model, its authors and its license.
+
 ## Installation and distribution
 
 **`dist/PianoSpark-Setup.dmg`** contains **Piano Spark.app** and an **Applications**
@@ -595,3 +607,10 @@ capture executable, exports the actual app renderer using an isolated WebKit sto
 and preferences, then removes the capture executable. Personal lessons, library
 data, and workspace preferences are not used or modified. Generated artwork
 provenance is recorded in `site/IMAGEGEN.md`.
+
+## License and credits
+
+Piano Spark is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+Models, libraries and fonts keep their own licenses; [CREDITS.md](CREDITS.md) lists
+each one with its authors. Lesson tools are downloaded from their original publishers
+on first use and are not redistributed in this repository.
