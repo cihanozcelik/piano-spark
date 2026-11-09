@@ -1,0 +1,15 @@
+#!/bin/sh
+# Local main may only move to what GitHub has (git pull). Commits, merges,
+# resets and rebases that would put anything else on main are refused.
+[ "$1" = "prepared" ] || exit 0
+zero=0000000000000000000000000000000000000000
+while read -r old new ref; do
+  [ "$ref" = "refs/heads/main" ] || continue
+  case "$new" in *[!0]*) ;; *) continue ;; esac   # deleting main is allowed
+  remote=$(git rev-parse -q --verify refs/remotes/origin/main 2>/dev/null)
+  if [ "$new" != "$remote" ]; then
+    echo "error: main only follows origin/main. Use 'git pull' on main; make changes on a branch and merge them with a pull request." >&2
+    exit 1
+  fi
+done
+exit 0
