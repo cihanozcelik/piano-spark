@@ -2,7 +2,7 @@
 
 The logo is used as drawn: this only lifts it off its paper background, splits
 the mark from the wordmark and places the mark on app icon tiles. Run it after
-changing brand/rach3-logo-source.png and commit the files it writes.
+changing the logo source and commit the files it writes.
 
     python3 brand/make.py        (needs numpy and Pillow)
 """
@@ -12,9 +12,13 @@ import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT/'brand/rach3-logo-source.png'
+# The supplied logo (1420 px wide), enlarged three times in Photoshop with
+# Preserve Details 2.0 so the logo stays sharp at large sizes.
+ORIGINAL = ROOT/'brand/rach3-logo-source.png'
+SOURCE = ROOT/'brand/rach3-logo-source-3x.png'
 PAPER = np.array([248, 245, 247], float)   # the source image's background
-H_ASCENDER = slice(855, 906)                # the h's ascender reaches into the mark's floor shadow
+S = 3                                       # SOURCE pixels per pixel of the original logo
+H_ASCENDER = slice(855*S, 906*S)            # the h's ascender reaches into the mark's floor shadow
 
 
 def to_alpha(rgb):
@@ -87,7 +91,9 @@ def tile(mark, size, inset, radius, mark_width, shadow):
     return Image.alpha_composite(canvas, layer).resize((size, size), Image.LANCZOS)
 
 
-def save(image, path):
+def save(image, path, limit=2400):
+    if image.width > limit:
+        image = width(image, limit)
     path = ROOT/path
     path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path, optimize=True)
@@ -96,13 +102,13 @@ def save(image, path):
 
 def main():
     rgb = np.asarray(Image.open(SOURCE).convert('RGB')).astype(float)
-    rgb[:, 1300:] = PAPER                       # a faint scan line along the source's right edge
-    top = rgb[:948].copy()
-    top[936:, H_ASCENDER] = PAPER
-    bottom = rgb[936:].copy()
-    ascender = bottom[:12, H_ASCENDER].copy()
-    bottom[:12] = PAPER
-    bottom[:12, H_ASCENDER] = ascender
+    rgb[:, 1300*S:] = PAPER                       # a faint scan line along the source's right edge
+    top = rgb[:948*S].copy()
+    top[936*S:, H_ASCENDER] = PAPER
+    bottom = rgb[936*S:].copy()
+    ascender = bottom[:12*S, H_ASCENDER].copy()
+    bottom[:12*S] = PAPER
+    bottom[:12*S, H_ASCENDER] = ascender
 
     logo, mark, wordmark = trim(to_alpha(rgb)), trim(to_alpha(top)), trim(to_alpha(bottom))
     save(logo, 'brand/rach3-logo-original.png')
