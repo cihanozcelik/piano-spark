@@ -5,7 +5,7 @@ The small, self-contained application supports **Macs running macOS 14 or later,
 Intel processors**. See [Intel Macs](#intel-macs) for how lesson creation differs there.
 A **Windows 10 and 11 (64-bit) beta** is published with each release; see [Windows (beta)](#windows-beta).
 
-[Website](https://cihanozcelik.github.io/piano-spark/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
+[Website](https://rach3.com/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
 
 Rach3 is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
 whole app is in **public beta**: practice works day to day, but features are still
@@ -600,7 +600,8 @@ change did not add automated regression tests.
 
 ## Public website
 
-The English GitHub Pages website is at <https://cihanozcelik.github.io/piano-spark/>.
+The English website is at <https://rach3.com/>, served by GitHub Pages with rach3.com as
+its custom domain (the old `cihanozcelik.github.io/piano-spark/` addresses redirect there).
 Its source lives in `site/`, and `.github/workflows/pages.yml` publishes it.
 `site/build.py` includes only the explicit public asset list; download buttons link
 to an actual published release asset, with the latest published release shown on

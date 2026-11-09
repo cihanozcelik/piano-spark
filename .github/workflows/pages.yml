@@ -1,4 +1,4 @@
-name: Publish Piano Spark website
+name: Publish Rach3 website
 on:
   push:
     branches: [main]

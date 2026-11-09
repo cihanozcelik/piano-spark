@@ -1,4 +1,4 @@
-"""Build the public Piano Spark website from published release metadata only."""
+"""Build the public Rach3 website from published release metadata only."""
 import argparse
 import html
 import hashlib
@@ -31,14 +31,14 @@ def compatibility(universal):
         return {
             '__PLATFORM_LINE__': 'Made for Mac. Played on your piano.',
             '__MAC_TITLE__': 'Apple Silicon.<br>macOS 14 or later.',
-            '__MAC_TEXT__': 'Open the DMG, drag Piano Spark to Applications, then open it from there. No separate Python installation or background service to manage.',
+            '__MAC_TEXT__': 'Open the DMG, drag Rach3 to Applications, then open it from there. No separate Python installation or background service to manage.',
             '__CHIP_SUPPORT__': '<ul class="chip-list" aria-label="Supported Macs"><li><strong>Apple Silicon</strong><span>M1 and later</span></li></ul>',
             '__CHIP_SUMMARY__': 'Apple Silicon',
         }
     return {
         '__PLATFORM_LINE__': 'For Apple Silicon and Intel Macs. Played on your piano.',
         '__MAC_TITLE__': 'Apple Silicon or Intel.<br>macOS 14 or later.',
-        '__MAC_TEXT__': 'One download for both kinds of Mac. Open the DMG, drag Piano Spark to Applications, then open it from there. No separate Python installation or background service to manage. On Intel, removing vocals from a video takes longer.',
+        '__MAC_TEXT__': 'One download for both kinds of Mac. Open the DMG, drag Rach3 to Applications, then open it from there. No separate Python installation or background service to manage. On Intel, removing vocals from a video takes longer.',
         '__CHIP_SUPPORT__': ('<ul class="chip-list" aria-label="Supported Macs"><li><strong>Apple Silicon</strong><span>M1 and later</span></li>'
                              '<li><strong>Intel</strong><span>macOS 14 or later</span></li></ul>'
                              f'<p class="chip-help">{html.escape(CHIP_HELP)}</p>'),
