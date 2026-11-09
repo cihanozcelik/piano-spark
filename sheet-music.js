@@ -1,7 +1,8 @@
 // Verovio engraves MusicXML; the player remains the only playback clock.
 export class SheetMusic {
-  constructor({onViewChange=()=>{},onSegmentsChange=()=>{}}={}) {
+  constructor({onViewChange=()=>{},onSegmentsChange=()=>{},onMeasureSelect=()=>{}}={}) {
     this.onViewChange=onViewChange;
+    this.onMeasureSelect=onMeasureSelect; this.selectable=false; this.hoverMeasure=-1;
     this.onSegmentsChange=onSegmentsChange;
     this.segments=[]; this.segmentSignature='';
     this.statusSource=''; this.progressSource='';
@@ -21,6 +22,13 @@ export class SheetMusic {
     this.previous.addEventListener('click',()=>this.showPage(this.page-1));
     this.next.addEventListener('click',()=>this.showPage(this.page+1));
     this.viewport.addEventListener('scroll',()=>{if(!this.restoring) this.onViewChange();},{passive:true});
+    // Listening: a click anywhere inside a measure's box (not only on its ink) selects it.
+    this.paper.addEventListener('click',event=> {
+      const index=this.measureAt(event);
+      if(index>=0) this.onMeasureSelect(index);
+    });
+    this.paper.addEventListener('pointermove',event=>this.setHover(this.measureAt(event)));
+    this.paper.addEventListener('pointerleave',()=>this.setHover(-1));
     window.addEventListener('pagehide',()=>this.cancelEngraving?.());
 
   }
@@ -197,12 +205,55 @@ export class SheetMusic {
     this.paper.innerHTML=this.pages.get(page); this.page=page;
     this.cursor=document.createElement('div'); this.cursor.className='sheet-playhead';
     this.cursor.setAttribute('aria-hidden','true'); this.paper.append(this.cursor);
+    this.measureMark=this.mark('sheet-measure-current'); this.hoverMark=this.mark('sheet-measure-hover');
+    this.hoverMeasure=-1;
     this.highlighted=new Set();
     this.viewport.scrollTop=0;
     this.pageLabel.textContent=page+' / '+this.pageCount;
     this.previous.disabled=page===1; this.next.disabled=page===this.pageCount;
     this.measureGeometry(); this.paintPosition();
     if(!this.restoring) this.onViewChange();
+  }
+
+  mark(className) {
+    const mark=document.createElement('div'); mark.className=className;
+    mark.setAttribute('aria-hidden','true'); mark.hidden=true; this.paper.append(mark);
+    return mark;
+  }
+
+  // Only the listening mode lets the score move playback; Practice keeps its own flow.
+  setSelectable(selectable) {
+    if(this.selectable===selectable) return;
+    this.selectable=selectable;
+    this.paper.classList.toggle('is-selectable',selectable);
+    const hint=selectable?window.PianoI18n.t('Bir ölçüye tıkla; parça o ölçünün başından çalsın.'):'';
+    if(hint) this.paper.title=hint; else this.paper.removeAttribute('title');
+    if(!selectable) this.setHover(-1);
+    this.paintPosition();
+  }
+
+  measureAt(event) {
+    if(!this.selectable || !this.geometry) return -1;
+    const paper=this.paper.getBoundingClientRect();
+    const x=event.clientX-paper.left, y=event.clientY-paper.top;
+    for(const [index,box] of this.geometry)
+      if(x>=box.left && x<box.right && y>=box.top && y<box.top+box.height) return index;
+    return -1;
+  }
+
+  setHover(index) {
+    if(index===this.hoverMeasure) return;
+    this.hoverMeasure=index;
+    this.placeMark(this.hoverMark,index!==this.currentMeasure||!this.measureMark||this.measureMark.hidden?index:-1);
+  }
+
+  placeMark(mark,index) {
+    if(!mark) return;
+    const box=this.geometry?.get(index);
+    mark.hidden=!box;
+    if(!box) return;
+    mark.style.transform='translate('+box.left+'px,'+box.top+'px)';
+    mark.style.width=(box.right-box.left)+'px'; mark.style.height=box.height+'px';
   }
 
   setMastery(mastery) {
@@ -255,8 +306,11 @@ export class SheetMusic {
       if(!element) continue;
       const rect=element.getBoundingClientRect();
       const staves=[...element.querySelectorAll('.staff')].map(staff=>staff.getBoundingClientRect());
+      // The staves bound the measure itself; pedal lines, slurs and hairpins may run past it.
       const top=(staves.length?Math.min(...staves.map(box=>box.top)):rect.top)-paper.top;
       const bottom=(staves.length?Math.max(...staves.map(box=>box.bottom)):rect.bottom)-paper.top;
+      const left=(staves.length?Math.min(...staves.map(box=>box.left)):rect.left)-paper.left;
+      const right=(staves.length?Math.max(...staves.map(box=>box.right)):rect.right)-paper.left;
       const measure=this.notation.measures[index], anchors=[];
       for(const entry of this.timeline) {
         if(entry.quarter<measure.quarter || entry.quarter>=measure.quarter+measure.length) continue;
@@ -264,9 +318,9 @@ export class SheetMusic {
           .map(node=>(node.querySelector('.notehead')||node).getBoundingClientRect());
         if(heads.length) anchors.push({time:entry.time,x:Math.min(...heads.map(box=>box.left+box.width/2))-paper.left});
       }
-      if(!anchors.length || anchors[0].time>measure.start) anchors.unshift({time:measure.start,x:rect.left-paper.left+8});
-      anchors.push({time:measure.end,x:rect.right-paper.left-2});
-      this.geometry.set(index,{top:top-7,height:bottom-top+14,anchors,element});
+      if(!anchors.length || anchors[0].time>measure.start) anchors.unshift({time:measure.start,x:left+8});
+      anchors.push({time:measure.end,x:right-2});
+      this.geometry.set(index,{top:top-7,height:bottom-top+14,left,right,anchors,element});
     }
     this.renderMastery();
   }
@@ -281,6 +335,9 @@ export class SheetMusic {
     this.highlighted=active;
     const geometry=this.geometry.get(this.currentMeasure);
     this.cursor.hidden=!geometry || this.seconds<0 || this.seconds>this.notation.measures.at(-1).end;
+    // While listening, the measure being played is tinted so a selection is visible at once.
+    this.placeMark(this.measureMark,this.selectable&&!this.cursor.hidden?this.currentMeasure:-1);
+    if(this.hoverMark && !this.hoverMark.hidden && this.hoverMeasure===this.currentMeasure && !this.measureMark.hidden) this.hoverMark.hidden=true;
     if(this.cursor.hidden) return;
     const anchors=geometry.anchors;
     let at=0;
