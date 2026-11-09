@@ -268,7 +268,8 @@ def update_check():
     try:
         accepted = ask(public(key), 'right-key')
     except RuntimeError:
-        for log in [*current.parent.rglob('*.log'), *Path(os.environ['TEMP']).glob('*elopack*.log')]:
+        for log in [work/'right-key.json.log', *current.parent.rglob('*.log'), *Path(os.environ['TEMP']).glob('*elopack*.log')]:
+            if not log.is_file(): continue
             print(f'--- {log}\n{log.read_text(encoding="utf-8", errors="replace")[-6000:]}', flush=True)
         raise
     if accepted.get('applying') != '0.0.2' or accepted.get('deltas') != 1 or accepted.get('patched') is not True:

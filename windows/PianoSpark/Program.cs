@@ -13,10 +13,13 @@ namespace PianoSpark
         {
             // Velopack's install, update and uninstall hooks run here and exit.
             // Uninstalling removes lessons, tools and settings, like the Mac app's uninstaller.
-            Velopack.VelopackApp.Build()
+            var velopack = Velopack.VelopackApp.Build()
                 .OnBeforeUninstallFastCallback(version => Files.Delete(Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Piano Spark")))
-                .Run();
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Piano Spark")));
+#if PIANO_CAPTURE
+            if (args.Length == 4 && args[0] == "--self-test-update") velopack = velopack.SetLogger(new UpdateSelfTest.FileLog(args[3] + ".log"));
+#endif
+            velopack.Run();
 #if PIANO_CAPTURE
             if (args.Length == 4 && args[0] == "--self-test-update") return UpdateSelfTest.Run(args[1], args[2], args[3]);
 #endif

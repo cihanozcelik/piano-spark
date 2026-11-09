@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Velopack;
+using Velopack.Logging;
 using Velopack.Sources;
 
 namespace PianoSpark
@@ -16,6 +17,14 @@ namespace PianoSpark
     /// </summary>
     static class UpdateSelfTest
     {
+        public sealed class FileLog : IVelopackLogger
+        {
+            readonly string path;
+            public FileLog(string path) { this.path = path; }
+            public void Log(VelopackLogLevel level, string message, Exception exception) =>
+                File.AppendAllText(path, "[" + level + "] " + message + (exception == null ? "" : " " + exception) + "\r\n");
+        }
+
         public static int Run(string folder, string key, string resultPath)
         {
             var result = new Dictionary<string, object>();
