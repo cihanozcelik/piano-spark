@@ -1,8 +1,9 @@
-"""Make every rach3 logo and icon file from the one supplied logo image.
+"""Make every rach3 logo and icon file from the supplied images.
 
-The logo is used as drawn: this only lifts it off its paper background, splits
-the mark from the wordmark and places the mark on app icon tiles. Run it after
-changing the logo source and commit the files it writes.
+The app icons, favicons and the website's hero come from the artwork of the
+pianist under the moon (brand/rach3-artwork.png, on its black stage). The
+written name, rach3, is lifted off the paper of the first logo drawing. Run it
+after changing either image and commit the files it writes.
 
     python3 brand/make.py        (needs numpy and Pillow)
 """
@@ -12,13 +13,15 @@ import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
-# The supplied logo (1420 px wide), enlarged three times in Photoshop with
-# Preserve Details 2.0 so the logo stays sharp at large sizes.
-ORIGINAL = ROOT/'brand/rach3-logo-source.png'
+# The first logo drawing (brand/rach3-logo-source.png, 1420 px wide), enlarged three
+# times in Photoshop with Preserve Details 2.0 so the wordmark stays sharp.
 SOURCE = ROOT/'brand/rach3-logo-source-3x.png'
 PAPER = np.array([248, 245, 247], float)   # the source image's background
 S = 3                                       # SOURCE pixels per pixel of the original logo
 H_ASCENDER = slice(855*S, 906*S)            # the h's ascender reaches into the mark's floor shadow
+ARTWORK = ROOT/'brand/rach3-artwork.png'    # 1254 px square, black background
+ART_CENTRE = (640, 600)                     # middle of the pianist and the moon in ARTWORK
+HERO_CROP = (170, 220, 1130, 990)           # the website hero: the whole scene with room for its glow
 
 
 def to_alpha(rgb):
@@ -52,23 +55,16 @@ def height(image, pixels):
     return image.resize((round(image.width * pixels / image.height), pixels), Image.LANCZOS)
 
 
-def lockup(mark, wordmark, scale):
-    """The mark above the wordmark, the mark drawn smaller than in the source so the
-    name carries the lockup. The mark keeps its slight lean to the right of the text."""
-    art = width(mark, round(mark.width * scale))
-    centre = wordmark.width / 2 + 0.0375 * art.width
-    left = min(0, round(centre - art.width / 2))
-    right = max(wordmark.width, round(centre + art.width / 2))
-    gap = round(0.10 * wordmark.height)
-    canvas = Image.new('RGBA', (right - left, art.height + gap + wordmark.height), (0, 0, 0, 0))
-    canvas.alpha_composite(art, (round(centre - art.width / 2) - left, 0))
-    canvas.alpha_composite(wordmark, (-left, art.height + gap))
-    return canvas
+def art_square(art, side):
+    """A square of the artwork around the pianist and the moon, still on its black stage."""
+    cx, cy = ART_CENTRE
+    return art.crop((cx - side // 2, cy - side // 2, cx + side // 2, cy + side // 2))
 
 
-def tile(mark, size, inset, radius, mark_width, shadow):
-    """The mark on the logo's paper inside a rounded square. inset is the empty margin
-    around the square on a 1024 canvas (the macOS icon grid uses 100)."""
+def tile(art, size, inset, radius, side, shadow):
+    """The artwork inside a rounded black square. inset is the empty margin around the
+    square on a 1024 canvas (the macOS icon grid uses 100); side is how much of the
+    artwork (in its own pixels) the square shows."""
     scale = 4
     big = size * scale
     inset, radius = inset * big / 1024, radius * big / 1024
@@ -77,18 +73,30 @@ def tile(mark, size, inset, radius, mark_width, shadow):
     canvas = Image.new('RGBA', (big, big), (0, 0, 0, 0))
     if shadow:
         drop = round(10 * big / 1024)
-        blur = shape.filter(ImageFilter.GaussianBlur(drop)).point(lambda v: int(v * 0.28))
+        blur = shape.filter(ImageFilter.GaussianBlur(drop)).point(lambda v: int(v * 0.35))
         canvas.paste((0, 0, 0, 255), (0, drop), blur)
-    gradient = Image.linear_gradient('L').resize((big, big))
-    paper = Image.composite(Image.new('RGBA', (big, big), (236, 236, 242, 255)),
-                            Image.new('RGBA', (big, big), (252, 250, 251, 255)), gradient)
-    canvas.paste(paper, (0, 0), shape)
-    art = width(mark, round(mark_width * big / 1024))
+    body = round(big - 2 * inset)
+    square = art_square(art, side).convert('RGBA').resize((body, body), Image.LANCZOS)
     layer = Image.new('RGBA', (big, big), (0, 0, 0, 0))
-    body = big - 2 * inset
-    layer.alpha_composite(art, ((big - art.width) // 2 + round(0.01 * body), (big - art.height) // 2 - round(0.01 * body)))
-    layer.putalpha(ImageChops.multiply(layer.getchannel('A'), shape))
-    return Image.alpha_composite(canvas, layer).resize((size, size), Image.LANCZOS)
+    layer.paste(square, (round(inset), round(inset)))
+    layer.putalpha(shape)
+    canvas = Image.alpha_composite(canvas, layer)
+    if shadow:
+        # a hairline of light around the black square so it does not vanish on a dark Dock
+        rim = Image.new('L', (big, big), 0)
+        ImageDraw.Draw(rim).rounded_rectangle([inset, inset, big-inset-1, big-inset-1], radius=radius,
+                                              outline=255, width=max(1, round(2 * big / 1024)))
+        canvas.alpha_composite(Image.merge('RGBA', [Image.new('L', (big, big), 255)] * 3 + [rim.point(lambda v: v * 30 // 255)]))
+    return canvas.resize((size, size), Image.LANCZOS)
+
+
+def stage(art):
+    """The artwork for the website's dark hero: the black stage becomes see-through, so the
+    pianist sits on the page's own black without a visible box."""
+    rgb = np.asarray(art.crop(HERO_CROP).convert('RGB')).astype(float) / 255
+    alpha = np.clip((rgb.max(axis=2) - 0.02) / 0.98, 0, 1)
+    color = np.clip(rgb / np.maximum(alpha, 1e-4)[..., None], 0, 1)
+    return Image.fromarray(np.dstack([color * 255, alpha * 255]).astype(np.uint8), 'RGBA')
 
 
 def save(image, path, limit=2400):
@@ -101,34 +109,30 @@ def save(image, path, limit=2400):
 
 
 def main():
+    # The wordmark still comes from the first logo drawing.
     rgb = np.asarray(Image.open(SOURCE).convert('RGB')).astype(float)
     rgb[:, 1300*S:] = PAPER                       # a faint scan line along the source's right edge
-    top = rgb[:948*S].copy()
-    top[936*S:, H_ASCENDER] = PAPER
     bottom = rgb[936*S:].copy()
     ascender = bottom[:12*S, H_ASCENDER].copy()
     bottom[:12*S] = PAPER
     bottom[:12*S, H_ASCENDER] = ascender
-
-    logo, mark, wordmark = trim(to_alpha(rgb)), trim(to_alpha(top)), trim(to_alpha(bottom))
-    save(logo, 'brand/rach3-logo-original.png')
-    combined = lockup(mark, wordmark, 0.62)
-    save(combined, 'brand/rach3-logo.png')
-    save(mark, 'brand/rach3-mark.png')
+    wordmark = trim(to_alpha(bottom))
     save(wordmark, 'brand/rach3-wordmark.png')
     save(on_dark(wordmark), 'brand/rach3-wordmark-on-dark.png')
 
-    mac = tile(mark, 1024, 100, 185, 700, True)       # macOS icon grid: 824 square, soft shadow
-    flat = tile(mark, 1024, 40, 200, 820, False)      # Windows and web: little margin, no shadow
+    # Everything else comes from the pianist under the moon.
+    art = Image.open(ARTWORK).convert('RGB')
+    mac = tile(art, 1024, 100, 185, 820, True)        # macOS icon grid: 824 square, soft shadow
+    flat = tile(art, 1024, 40, 200, 820, False)       # Windows and web: little margin, no shadow
     save(mac, 'brand/rach3-app-icon-macos.png')
     save(flat, 'brand/rach3-app-icon.png')
 
     # Website (shown at about half these sizes, so they stay sharp on Retina screens)
-    save(width(combined, 600), 'site/assets/rach3-logo.png')
-    save(height(wordmark, 56), 'site/assets/rach3-wordmark.png')
+    save(stage(art), 'site/assets/rach3-hero.png')
+    save(height(on_dark(wordmark), 56), 'site/assets/rach3-wordmark-on-dark.png')
     save(width(mac, 256), 'site/assets/rach3-app-icon.png')
-    save(tile(mark, 64, 0, 200, 900, False), 'site/assets/favicon.png')
-    save(tile(mark, 180, 0, 0, 860, False), 'site/assets/apple-touch-icon.png')
+    save(tile(art, 64, 0, 200, 700, False), 'site/assets/favicon.png')
+    save(tile(art, 180, 0, 0, 760, False), 'site/assets/apple-touch-icon.png')
 
     # The app's own header (dark)
     save(height(on_dark(wordmark), 40), 'assets/brand/rach3-wordmark-on-dark.png')
@@ -136,7 +140,7 @@ def main():
     # macOS: desktop/build.py turns this into Rach3.icns. Windows: the executable and installer icon.
     save(mac, 'desktop/AppIcon.png')
     sizes = [16, 24, 32, 48, 64, 128, 256]
-    ico = [tile(mark, s, 0 if s <= 32 else 40, 200, 900 if s <= 32 else 820, False) for s in sizes]
+    ico = [tile(art, s, 0 if s <= 32 else 40, 200, 700 if s <= 32 else 820, False) for s in sizes]
     ico[-1].save(ROOT/'windows/Rach3/Rach3.ico', sizes=[(s, s) for s in sizes], append_images=ico[:-1])
     print('windows/Rach3/Rach3.ico', sizes)
 

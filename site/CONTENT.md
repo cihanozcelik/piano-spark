@@ -1,6 +1,7 @@
 # rach3 website content
 
-This copy is grounded in the current application. Public marketing copy is English.
+This copy is grounded in the current application. The site is in English and Turkish;
+the Turkish text lives in `site/tr.json` (see the README).
 The product name is **rach3**. Real application screenshots carry the main
 product story; generated keyboard artwork is supporting atmosphere, not a screenshot.
 

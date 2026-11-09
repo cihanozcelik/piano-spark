@@ -9,15 +9,26 @@ import shutil
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-REPOSITORY = 'cihanozcelik/piano-spark'
+REPOSITORY = 'cihanozcelik/rach3'
 STATIC_FILES = (
     'style.css',
     'assets/practice.png',
     'assets/create-lesson.png',
+    'assets/tr/practice.png',
+    'assets/tr/create-lesson.png',
     'assets/keyboard-hero.jpg',
-    'assets/rach3-wordmark.png',
+    'assets/rach3-hero.png',
+    'assets/piano-at-home.jpg',
+    'assets/tr/piano-at-home.jpg',
+    'assets/youtube-cover.jpg',
+    'assets/learner-morning.jpg',
+    'assets/tr/learner-morning.jpg',
+    'assets/learner-night.jpg',
+    'assets/tr/learner-night.jpg',
+    'assets/learner-family.jpg',
+    'assets/tr/learner-family.jpg',
+    'assets/rach3-wordmark-on-dark.png',
     'assets/rach3-app-icon.png',
-    'assets/rach3-logo.png',
     'assets/favicon.png',
     'assets/apple-touch-icon.png',
 )
@@ -29,33 +40,19 @@ STATIC_FILES = (
 UNIVERSAL_SINCE = (0, 9, 0)
 CHIP_HELP = ('One download works on both. Not sure which Mac you have? Choose Apple menu '
              '→ About This Mac: “Chip” means Apple Silicon, “Processor” means Intel.')
-
-
-def compatibility(universal):
-    if not universal:
-        return {
-            '__PLATFORM_LINE__': 'Made for Mac. Played on your piano.',
-            '__MAC_TITLE__': 'Apple Silicon.<br>macOS 14 or later.',
-            '__MAC_TEXT__': 'Open the DMG, drag rach3 to Applications, then open it from there. No separate Python installation or background service to manage.',
-            '__CHIP_SUPPORT__': '<ul class="chip-list" aria-label="Supported Macs"><li><strong>Apple Silicon</strong><span>M1 and later</span></li></ul>',
-            '__CHIP_SUMMARY__': 'Apple Silicon',
-        }
-    return {
-        '__PLATFORM_LINE__': 'For Apple Silicon and Intel Macs. Played on your piano.',
-        '__MAC_TITLE__': 'Apple Silicon or Intel.<br>macOS 14 or later.',
-        '__MAC_TEXT__': 'One download for both kinds of Mac. Open the DMG, drag rach3 to Applications, then open it from there. No separate Python installation or background service to manage. On Intel, removing vocals from a video takes longer.',
-        '__CHIP_SUPPORT__': ('<ul class="chip-list" aria-label="Supported Macs"><li><strong>Apple Silicon</strong><span>M1 and later</span></li>'
-                             '<li><strong>Intel</strong><span>macOS 14 or later</span></li></ul>'
-                             f'<p class="chip-help">{html.escape(CHIP_HELP)}</p>'),
-        '__CHIP_SUMMARY__': 'Apple Silicon and Intel',
-    }
-
-
-# Releases before the rach3 rename used the Piano Spark file names.
-MAC_SETUP = ('rach3-Setup.dmg', 'PianoSpark-Setup.dmg')
-WINDOWS_SETUP = ('rach3-win-Setup.exe', 'PianoSpark-win-Setup.exe')
 WINDOWS_HELP = ('Windows may say it protected your PC, because the beta is not yet signed with a '
                 'publisher certificate. Choose More info → Run anyway.')
+MAC_SETUP = ('rach3-Setup.dmg',)
+WINDOWS_SETUP = ('rach3-win-Setup.exe',)
+
+APPLE_LOGO = ('<svg class="platform-logo" viewBox="0 0 814 1000" aria-hidden="true"><path d="M788.1 340.9c-5.8 4.5-108.2 '
+              '62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 '
+              '123.1s-85.5-39.5-164-39.5c-76.5 0-103.7 40.8-165.9 40.8s-105.6-57-155.5-127C46.7 790.7 0 663 0 541.8c0-194.4 '
+              '126.4-297.5 250.8-297.5 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5'
+              'c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 '
+              '135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/></svg>')
+WINDOWS_LOGO = ('<svg class="platform-logo" viewBox="0 0 88 88" aria-hidden="true"><path d="M0 12.4 35.7 7.5v34.5H0zM40 6.9 87.3 0'
+                'v41.6H40zM0 46.1h35.7v34.5L0 75.7zM40 46.6h47.3V88L40 81.3z"/></svg>')
 
 
 def release_asset(release, names):
@@ -73,52 +70,74 @@ def release_asset(release, names):
     return asset
 
 
-def windows_download(release):
-    asset = release_asset(release, WINDOWS_SETUP)
+def platform_card(logo, name, requirement, asset, button, kind, help_text):
+    """One platform in the download section: Mac and Windows side by side, alike."""
     if asset is None:
-        return ''
-    url = html.escape(asset['browser_download_url'], quote=True)
-    return (f'<div class="windows-download"><a class="text-link" href="{url}">Download for Windows (beta) '
-            f'<span aria-hidden="true">↓</span></a><p>Windows 10 or 11 · 64-bit · {asset["size"]/1e6:.1f} MB installer. '
-            f'{html.escape(WINDOWS_HELP)}</p></div>')
+        action = '<button class="button" type="button" disabled>Coming soon</button>'
+        size = ''
+    else:
+        url = html.escape(asset['browser_download_url'], quote=True)
+        action = f'<a class="button" href="{url}">{button} <span aria-hidden="true">↓</span></a>'
+        size = f'<p class="platform-size">{asset["size"]/1e6:.1f} MB · {kind}</p>'
+    return (f'<article class="platform-card">{logo}<h3>{name}</h3><p class="platform-requirement">{requirement}</p>'
+            f'{action}{size}<p class="platform-help">{html.escape(help_text)}</p></article>')
 
 
 def download_context(release_path):
-    if release_path is None:
-        return {
-            **compatibility(True),
-            '__DOWNLOAD_CTA__': '<button class="button button-primary download-link" type="button" disabled>Download coming soon</button>',
-            '__DOWNLOAD_CTA_COMPACT__': '<button class="button button-small download-link" type="button" disabled>Coming soon</button>',
-            '__RELEASE_LABEL__': 'First release coming soon',
-            '__DOWNLOAD_DETAILS__': 'The first public build is being prepared. No account will be required.',
-            '__RELEASE_NOTES_LINK__': '',
-            '__WINDOWS_DOWNLOAD__': '',
-        }
-
-    release = json.loads(release_path.read_text())
-    if release['draft'] or release['prerelease']:
+    release = json.loads(release_path.read_text()) if release_path else None
+    if release and (release['draft'] or release['prerelease']):
         raise RuntimeError('The website requires a published stable release')
-    tag = release['tag_name']
-    version = tag.removeprefix('v')
-    universal = tuple(int(part) for part in version.split('.')[:3]) >= UNIVERSAL_SINCE
-    asset = release_asset(release, MAC_SETUP)
-    if asset is None:
-        return download_context(None)
-
-    url = asset['browser_download_url']
-    escaped_url = html.escape(url, quote=True)
-    notes_url = html.escape(f'https://github.com/{REPOSITORY}/releases/tag/{tag}', quote=True)
-    size = asset['size'] / 1e6
-    chips = compatibility(universal)
+    tag = release['tag_name'] if release else None
+    version = tuple(int(part) for part in tag.removeprefix('v').split('.')[:3]) if tag else UNIVERSAL_SINCE
+    universal = version >= UNIVERSAL_SINCE
+    mac = release_asset(release, MAC_SETUP) if release else None
+    windows = release_asset(release, WINDOWS_SETUP) if release else None
+    chips = 'Apple Silicon and Intel' if universal else 'Apple Silicon'
+    mac_help = CHIP_HELP if universal else 'For Macs with Apple Silicon (M1 and later).'
+    cards = (platform_card(APPLE_LOGO, 'Mac', f'macOS 14 or later · {chips}', mac, 'Download for Mac', 'DMG installer', mac_help)
+             + platform_card(WINDOWS_LOGO, 'Windows', 'Windows 10 or 11 · 64-bit', windows, 'Download for Windows', 'Installer', WINDOWS_HELP))
+    if tag:
+        notes_url = html.escape(f'https://github.com/{REPOSITORY}/releases/tag/{tag}', quote=True)
+        label = (f'{html.escape(tag)} · Public beta · <a class="release-link" href="{notes_url}">Release notes '
+                 '<span aria-hidden="true">↗</span></a>')
+    else:
+        label = 'The first public build is being prepared. No account will be required.'
     return {
-        **chips,
-        '__DOWNLOAD_CTA__': f'<a class="button button-primary download-link" href="{escaped_url}">Download for Mac <span aria-hidden="true">↓</span></a>',
-        '__DOWNLOAD_CTA_COMPACT__': f'<a class="button button-small download-link" href="{escaped_url}">Download</a>',
-        '__RELEASE_LABEL__': html.escape(tag)+' · Public beta',
-        '__DOWNLOAD_DETAILS__': f'macOS 14 or later · {chips["__CHIP_SUMMARY__"]} · {size:.1f} MB · DMG installer',
-        '__RELEASE_NOTES_LINK__': f'<a class="release-link" href="{notes_url}">Release notes <span aria-hidden="true">↗</span></a>',
-        '__WINDOWS_DOWNLOAD__': windows_download(release),
+        '__PLATFORM_LINE__': ('For Mac and Windows.' if universal
+                              else 'For Apple Silicon Macs and Windows.'),
+        '__MAC_TITLE__': 'Mac or Windows.',
+        '__MAC_TEXT__': ('macOS 14 or later' + (' on Apple Silicon or Intel' if universal else ' on Apple Silicon')
+                         + ', or Windows 10 or 11 (64-bit).'
+                         + (' On Intel Macs, removing vocals from a video takes longer.' if universal else '')),
+        '__PLATFORM_DOWNLOADS__': cards,
+        '__RELEASE_LABEL__': label,
     }
+
+
+# The English page lives at the site root, the Turkish one in tr/. Each links to the
+# other; a small script in the page picks one for first-time visitors.
+LANGUAGES = {
+    'en': {'__LANG__': 'en', '__OTHER_LANG__': 'tr', '__OTHER_NAME__': 'Türkçe', '__OTHER_PAGE__': 'tr/'},
+    'tr': {'__LANG__': 'tr', '__OTHER_LANG__': 'en', '__OTHER_NAME__': 'English', '__OTHER_PAGE__': '../'},
+}
+# Screenshots of the app in each language
+LOCALIZED_ASSETS = ('assets/practice.png', 'assets/create-lesson.png', 'assets/piano-at-home.jpg',
+                    'assets/learner-morning.jpg', 'assets/learner-night.jpg', 'assets/learner-family.jpg')
+
+
+def translate(english, template):
+    """The Turkish page: every English text in site/tr.json swapped for its translation."""
+    table = json.loads((ROOT/'site/tr.json').read_text())
+    missing = [text for text in table['page'] if text not in template]
+    if missing:
+        raise RuntimeError('site/tr.json translates text that is no longer on the page: ' + missing[0][:80])
+    page = english
+    texts = {**table['page'], **table['release']}
+    for text in sorted(texts, key=len, reverse=True):
+        page = page.replace(text, texts[text])
+    for name in LOCALIZED_ASSETS:
+        page = page.replace(f'"{name}"', f'"{name.replace("assets/", "assets/tr/")}"')
+    return page
 
 
 def main():
@@ -127,12 +146,16 @@ def main():
     parser.add_argument('--appcast', type=Path, help='Already signed public update feed')
     args = parser.parse_args()
     replacements = download_context(args.release_info)
-    replacements.pop('__CHIP_SUMMARY__', None)
-    source = (ROOT/'site/index.html').read_text()
-    for placeholder, value in replacements.items():
-        source = source.replace(placeholder, value)
-    if re.search(r'__[A-Z_]+__', source):
-        raise RuntimeError('The website contains an unresolved template placeholder')
+    template = (ROOT/'site/index.html').read_text()
+    pages = {}
+    for language, names in LANGUAGES.items():
+        source = template
+        for placeholder, value in {**replacements, **names}.items():
+            source = source.replace(placeholder, value)
+        if re.search(r'__[A-Z_]+__', source):
+            raise RuntimeError('The website contains an unresolved template placeholder')
+        pages[language] = source
+    pages['tr'] = translate(pages['tr'], template)
 
     # Rebuild a dedicated output directory; stale credentials, diagnostics and
     # files from other build tasks can never enter the Pages upload artifact.
@@ -148,8 +171,14 @@ def main():
         target = output/versioned
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(asset, target)
-        source = source.replace(name, versioned.as_posix())
-    (output/'index.html').write_text(source)
+        for language in pages:
+            # The Turkish page sits one folder down and shares the same files.
+            up = '../' if language == 'tr' else ''
+            pages[language] = (pages[language].replace(f'"{name}"', f'"{up}{versioned.as_posix()}"')
+                               .replace(f'rach3.com/{name}"', f'rach3.com/{versioned.as_posix()}"'))
+    (output/'index.html').write_text(pages['en'])
+    (output/'tr').mkdir()
+    (output/'tr/index.html').write_text(pages['tr'])
     (output/'.nojekyll').write_text('')
     if args.appcast:
         shutil.copy2(args.appcast, output/'appcast.xml')
