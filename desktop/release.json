@@ -1,22 +1,28 @@
 {
-  "version": "0.9.3",
-  "build": 18,
-  "repository": "cihanozcelik/piano-spark",
+  "version": "0.10.0",
+  "build": 19,
+  "repository": "cihanozcelik/rach3",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "While listening, click a measure on the score to play from the start of that measure.",
-    "Piano Spark is now open source under the AGPL-3.0, and the app remains a public beta."
+    "A new name, a new icon and a new website: rach3.com.",
+    "The title bar and the app's top bar are now one bar, and the lesson title has more room.",
+    "Falling notes are plain bars by default. Turn on note names and small staves in the settings.",
+    "The score now sits on a dark background."
   ],
   "feedURL": "https://rach3.com/appcast.xml",
   "localizedNotes": {
     "en": [
-      "While listening, click a measure on the score to play from the start of that measure.",
-      "Piano Spark is now open source under the AGPL-3.0, and the app remains a public beta."
+      "A new name, a new icon and a new website: rach3.com.",
+      "The title bar and the app's top bar are now one bar, and the lesson title has more room.",
+      "Falling notes are plain bars by default. Turn on note names and small staves in the settings.",
+      "The score now sits on a dark background."
     ],
     "tr": [
-      "Dinlerken partisyondaki bir ölçüye tıkla; parça o ölçünün başından çalsın.",
-      "Piano Spark artık AGPL-3.0 lisansıyla açık kaynak; uygulama hâlâ herkese açık beta aşamasında."
+      "Yeni ad, yeni ikon ve yeni site: rach3.com.",
+      "Pencerenin başlık çubuğu ile uygulamanın üst çubuğu artık tek çubuk; ders başlığına daha çok yer kaldı.",
+      "Düşen notalar artık varsayılan olarak sade çubuklar. Nota adlarını ve küçük porteleri ayarlardan açabilirsin.",
+      "Nota artık koyu bir zeminin üstünde."
     ]
   }
 }
