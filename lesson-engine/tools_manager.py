@@ -1,5 +1,4 @@
 """Pinned, cancellable first-use tools. Only a lesson worker writes this cache."""
-import fcntl
 import hashlib
 import json
 import os
@@ -15,8 +14,11 @@ import urllib.request
 import zipfile
 
 ENGINE = Path(__file__).resolve().parent
+WINDOWS = os.name == 'nt'
 # Intel Macs need their own wheels; PyTorch stopped publishing them after 2.2.2.
-CATALOG_NAME = 'tools-x86_64.json' if platform.machine() == 'x86_64' else 'tools.json'
+if WINDOWS: CATALOG_NAME = 'tools-win_amd64.json'
+elif platform.machine() == 'x86_64': CATALOG_NAME = 'tools-x86_64.json'
+else: CATALOG_NAME = 'tools.json'
 CATALOG_BYTES = (ENGINE/CATALOG_NAME).read_bytes()
 CATALOG = json.loads(CATALOG_BYTES)
 
@@ -32,8 +34,38 @@ def groups_for(request):
     return groups
 
 
+def short(digest):
+    # Windows paths stay under MAX_PATH (260): torch alone has 126-character
+    # file names below its package folder. 24 hex digits are still unique.
+    return digest[:24] if WINDOWS else digest
+
+
 def artifact_path(cache, artifact):
-    return cache/'artifacts'/artifact['sha256']
+    return cache/('a' if WINDOWS else 'artifacts')/short(artifact['sha256'])
+
+
+def link_file(source, target):
+    """Link an immutable cached file. Windows symbolic links need developer
+    mode, so Windows uses a hard link (the cache and jobs share one volume)."""
+    if WINDOWS:
+        try: os.link(source, target)
+        except OSError: shutil.copy2(source, target)
+    else:
+        target.symlink_to(source)
+
+
+def try_lock(stream):
+    """Exclusive, non-blocking and released by the OS if the process dies."""
+    if WINDOWS:
+        import msvcrt
+        stream.seek(0)
+        try: msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError: return False
+        return True
+    import fcntl
+    try: fcntl.flock(stream, fcntl.LOCK_EX|fcntl.LOCK_NB)
+    except BlockingIOError: return False
+    return True
 
 
 def ready(cache, artifact):
@@ -137,9 +169,8 @@ def prepare(request, cache, emit):
     cache.mkdir(parents=True,exist_ok=True)
     # A killed worker releases this lock automatically. A second process cannot
     # overwrite a partial download or a package being installed by the first.
-    with (cache/'install.lock').open('a') as lock:
-        try: fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        except BlockingIOError:
+    with (cache/'install.lock').open('a+') as lock:
+        if not try_lock(lock):
             raise RuntimeError('Ders araçları başka bir pencerede hazırlanıyor. İşlem bitince yeniden dene.')
         groups = groups_for(request)
         ids = list(dict.fromkeys(key for group in groups for key in CATALOG['groups'][group]))
@@ -152,7 +183,7 @@ def prepare(request, cache, emit):
 
         # Profiles contain only small package copies and links into immutable,
         # verified artifacts. PDFs use their own Pillow version in a subprocess.
-        profile = cache/'profiles'/hashlib.sha256((CATALOG_BYTES+','.join(groups).encode())).hexdigest()
+        profile = cache/'profiles'/short(hashlib.sha256((CATALOG_BYTES+','.join(groups).encode())).hexdigest())
         if not (profile/'.ready').exists():
             stage = profile.with_name(profile.name+'.installing')
             if stage.exists(): shutil.rmtree(stage)
@@ -167,7 +198,7 @@ def prepare(request, cache, emit):
                 if artifact['kind'].startswith('model'):
                     target = stage/artifact['target']; target.parent.mkdir(parents=True,exist_ok=True)
                     target.unlink(missing_ok=True)
-                    target.symlink_to(artifact_path(cache,artifact)/'model')
+                    link_file(artifact_path(cache,artifact)/'model',target)
             if 'separation' in groups:
                 shutil.copytree(ENGINE/'model-config',stage/'models/separation',dirs_exist_ok=True)
             (stage/'.ready').write_text('1')
@@ -177,7 +208,9 @@ def prepare(request, cache, emit):
             keys=dict.fromkeys(key for group in selected_groups for key in CATALOG['groups'][group])
             return [str(artifact_path(cache,CATALOG['artifacts'][key])/'site') for key in keys
                     if CATALOG['artifacts'][key]['kind']=='wheel']
-        for path in [str(ENGINE/'vendor'),*paths([g for g in groups if g!='pdf'])]:
+        # Vendored sources last: on Windows audio-separator's own diffq-fixed
+        # wheel provides the diffq package instead of the macOS build.
+        for path in [*paths([g for g in groups if g!='pdf']),str(ENGINE/'vendor')]:
             site.addsitedir(path)
         if 'pdf' in groups:
             os.environ['PIANO_OMR_PATH'] = os.pathsep.join([str(profile),*paths(['pdf'])])

@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 
+WINDOWS = os.name == 'nt'
 EVENTS = sys.stdout
 sys.stdout = sys.stderr
 
@@ -27,10 +28,26 @@ def digest(path):
 
 
 def watch_parent(pid):
+    if WINDOWS:
+        # The Windows host also puts the worker in a kill-on-close job object,
+        # which ends ffmpeg and the PDF recognizer with it.
+        import ctypes
+        kernel = ctypes.windll.kernel32
+        handle = kernel.OpenProcess(0x00100000, False, pid)  # SYNCHRONIZE
+        if handle: kernel.WaitForSingleObject(handle, 0xFFFFFFFF)
+        os._exit(1)
     while True:
         time.sleep(1)
         if os.getppid() != pid:
             os.killpg(os.getpgrp(), signal.SIGKILL)
+
+
+def link_tool(source, target):
+    if WINDOWS:
+        from tools_manager import link_file
+        link_file(source, target)
+    else:
+        target.symlink_to(source)
 
 
 def transcribe(audio_path, models, work):
@@ -102,7 +119,7 @@ def main():
     parser.add_argument('--library', type=Path, required=True)
     parser.add_argument('--parent', type=int)
     args = parser.parse_args()
-    if os.getpgrp()!=os.getpid():
+    if not WINDOWS and os.getpgrp()!=os.getpid():
         os.setsid()
     if args.parent:
         threading.Thread(target=watch_parent,args=(args.parent,),daemon=True).start()
@@ -139,8 +156,9 @@ def main():
             torch.mps.set_per_process_memory_fraction(.20)
         ffmpeg = Path(imageio_ffmpeg.get_ffmpeg_exe())
         tools_dir = args.job/'bin'; tools_dir.mkdir(exist_ok=True)
-        (tools_dir/'ffmpeg').symlink_to(ffmpeg)
-        os.environ['PATH'] = str(tools_dir)+':/usr/bin:/bin'
+        link_tool(ffmpeg, tools_dir/('ffmpeg.exe' if WINDOWS else 'ffmpeg'))
+        system = [os.path.join(os.environ.get('SystemRoot', r'C:\Windows'), 'System32')] if WINDOWS else ['/usr/bin', '/bin']
+        os.environ['PATH'] = os.pathsep.join([str(tools_dir), *system])
         source = args.job/request.get('input','input.mp4')
         if request.get('url'):
             emit('download','Video indiriliyor…',.02)
@@ -167,7 +185,7 @@ def main():
             local_models=args.job/'models'; local_models.mkdir()
             for asset in (args.models/'separation').iterdir():
                 if asset.is_file() and not asset.name.endswith('.aria2'):
-                    (local_models/asset.name).symlink_to(asset.resolve())
+                    link_tool(asset.resolve(), local_models/asset.name)
             separator=Separator(model_file_dir=str(local_models),output_dir=str(args.job),
                                 output_format='WAV',use_soundfile=True,normalization_threshold=1.0,
                                 mdxc_params={'batch_size':1,'overlap':4})

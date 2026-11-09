@@ -2,8 +2,10 @@
 
 Run with the separation Python. This fetches package metadata, never models.
 The committed catalogs are the runtime contract; end users never resolve versions.
-Apple Silicon reads lesson-engine/tools.json and Intel reads tools-x86_64.json;
-the Intel environments come from desktop/prepare_intel_lock.py.
+Apple Silicon reads lesson-engine/tools.json, Intel Macs read tools-x86_64.json
+and Windows reads tools-win_amd64.json. The Intel environments come from
+desktop/prepare_intel_lock.py and the Windows ones from windows/prepare_lock.py.
+Pass target names (arm64, x86_64, win_amd64) to refresh only those catalogs.
 """
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
@@ -12,6 +14,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import urllib.request
 
 from packaging.requirements import Requirement
@@ -27,19 +30,29 @@ TARGETS = {
     'x86_64': dict(catalog='tools-x86_64.json', sites={
         'audio': ROOT/'build/lock-x86_64/audio/.venv/lib/python3.12/site-packages',
         'pdf': ROOT/'build/lock-x86_64/pdf/.venv/lib/python3.12/site-packages'}),
+    # Windows wheels are installed for their metadata only; they never run here.
+    'win_amd64': dict(catalog='tools-win_amd64.json', sites={
+        'audio': ROOT/'build/lock-win/audio/site',
+        'pdf': ROOT/'build/lock-win/pdf/site'}),
+}
+MARKERS = {
+    'arm64': dict(sys_platform='darwin', platform_system='Darwin', platform_machine='arm64', os_name='posix'),
+    'x86_64': dict(sys_platform='darwin', platform_system='Darwin', platform_machine='x86_64', os_name='posix'),
+    'win_amd64': dict(sys_platform='win32', platform_system='Windows', platform_machine='AMD64', os_name='nt'),
 }
 VENDORED = {'rubato-transcription', 'diffq'}
 
 
 def lock(arch):
     sites=TARGETS[arch]['sites']
-    env=dict(python_version='3.12', python_full_version='3.12.12', sys_platform='darwin',
-             platform_system='Darwin', platform_machine=arch, implementation_name='cpython',
-             implementation_version='3.12.12', os_name='posix', extra='')
-    platforms=list(mac_platforms((14, 0), arch))
+    env=dict(python_version='3.12', python_full_version='3.12.12', implementation_name='cpython',
+             implementation_version='3.12.12', extra='', **MARKERS[arch])
+    platforms=['win_amd64'] if arch=='win_amd64' else list(mac_platforms((14, 0), arch))
     tags=list(cpython_tags((3,12),platforms=platforms))+list(compatible_tags((3,12),'cp312',platforms))
     rank={tag:i for i,tag in enumerate(tags)}
-    envs={key:{canonicalize_name(d.metadata['Name']):d for d in distributions(path=[str(path)])}
+    # The vendored distributions are not in the Windows folders; read them here.
+    extra=[str(ENGINE/'vendor')] if arch=='win_amd64' else []
+    envs={key:{canonicalize_name(d.metadata['Name']):d for d in distributions(path=[str(path),*extra])}
           for key,path in sites.items()}
     selected={}
     def closure(name_env, roots):
@@ -68,6 +81,9 @@ def lock(arch):
     def package(item):
         key,(name,dist)=item
         if name in VENDORED:
+            # Rubato is pure Python and shared. Windows needs no vendored
+            # diffq: audio-separator depends on the diffq-fixed wheel there.
+            if arch=='win_amd64':return key,None
             vendor=ENGINE/'vendor'
             for file in dist.files or []:
                 if '..' in file.parts or file.suffix=='.pyc' or file.name in ('direct_url.json','RECORD','INSTALLER','REQUESTED','uv_build.json'):continue
@@ -88,7 +104,7 @@ def lock(arch):
             if wheel['packagetype']!='bdist_wheel':continue
             compatible=parse_wheel_filename(wheel['filename'])[3]&rank.keys()
             if compatible:choices.append((min(rank[t] for t in compatible),wheel))
-        if not choices:raise RuntimeError(f'No macOS 14 {arch} Python 3.12 wheel: {key}')
+        if not choices:raise RuntimeError(f'No {arch} Python 3.12 wheel: {key}')
         wheel=min(choices,key=lambda p:p[0])[1]
         return key,dict(kind='wheel',name=wheel['filename'],url=wheel['url'],
                         sha256=wheel['digests']['sha256'],size=wheel['size'])
@@ -105,8 +121,9 @@ def lock(arch):
 
 
 def main():
-    for arch in TARGETS:lock(arch)
-    for binary in (ENGINE/'vendor').rglob('*.so'):
+    selected=sys.argv[1:] or list(TARGETS)
+    for arch in selected:lock(arch)
+    for binary in (ENGINE/'vendor').rglob('*.so') if 'x86_64' in selected else ():
         subprocess.run(['xcrun','strip','-S',str(binary)],check=True)
         architectures=subprocess.run(['xcrun','lipo','-archs',str(binary)],check=True,capture_output=True,text=True).stdout.split()
         if sorted(architectures)!=['arm64','x86_64']:raise RuntimeError(f'{binary} is not universal: {architectures}')

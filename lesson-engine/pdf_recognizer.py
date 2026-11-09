@@ -16,7 +16,7 @@ def main():
     from homr.music_xml_generator import XmlGeneratorArguments
 
     source,manifest=map(Path,sys.argv[1:])
-    os.nice(5)
+    if hasattr(os,'nice'):os.nice(5)  # The Windows host lowers the priority.
     document=pdfium.PdfDocument(str(source))
     config=ProcessingConfig(False,False,False,False,-1,False,False,False)
     settings=XmlGeneratorArguments(False,None,None)
