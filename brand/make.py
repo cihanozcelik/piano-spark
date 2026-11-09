@@ -48,6 +48,20 @@ def height(image, pixels):
     return image.resize((round(image.width * pixels / image.height), pixels), Image.LANCZOS)
 
 
+def lockup(mark, wordmark, scale):
+    """The mark above the wordmark, the mark drawn smaller than in the source so the
+    name carries the lockup. The mark keeps its slight lean to the right of the text."""
+    art = width(mark, round(mark.width * scale))
+    centre = wordmark.width / 2 + 0.0375 * art.width
+    left = min(0, round(centre - art.width / 2))
+    right = max(wordmark.width, round(centre + art.width / 2))
+    gap = round(0.10 * wordmark.height)
+    canvas = Image.new('RGBA', (right - left, art.height + gap + wordmark.height), (0, 0, 0, 0))
+    canvas.alpha_composite(art, (round(centre - art.width / 2) - left, 0))
+    canvas.alpha_composite(wordmark, (-left, art.height + gap))
+    return canvas
+
+
 def tile(mark, size, inset, radius, mark_width, shadow):
     """The mark on the logo's paper inside a rounded square. inset is the empty margin
     around the square on a 1024 canvas (the macOS icon grid uses 100)."""
@@ -91,7 +105,9 @@ def main():
     bottom[:12, H_ASCENDER] = ascender
 
     logo, mark, wordmark = trim(to_alpha(rgb)), trim(to_alpha(top)), trim(to_alpha(bottom))
-    save(logo, 'brand/rach3-logo.png')
+    save(logo, 'brand/rach3-logo-original.png')
+    combined = lockup(mark, wordmark, 0.62)
+    save(combined, 'brand/rach3-logo.png')
     save(mark, 'brand/rach3-mark.png')
     save(wordmark, 'brand/rach3-wordmark.png')
     save(on_dark(wordmark), 'brand/rach3-wordmark-on-dark.png')
@@ -102,7 +118,7 @@ def main():
     save(flat, 'brand/rach3-app-icon.png')
 
     # Website (shown at about half these sizes, so they stay sharp on Retina screens)
-    save(width(logo, 560), 'site/assets/rach3-logo.png')
+    save(width(combined, 400), 'site/assets/rach3-logo.png')
     save(height(wordmark, 56), 'site/assets/rach3-wordmark.png')
     save(width(mac, 256), 'site/assets/rach3-app-icon.png')
     save(tile(mark, 64, 0, 200, 900, False), 'site/assets/favicon.png')
