@@ -56,6 +56,8 @@ namespace PianoSpark
             await Script("document.getElementById('tab-create').click();");
             await Task.Delay(1500);
             await Shot("create-lesson.png");
+            var mac = Json.Parse(await Script("(document.body.innerText.match(/[^\\n]*(\\bMac\\b|Mac’|macOS)[^\\n]*/) || [''])[0]")) as string;
+            if (!string.IsNullOrEmpty(mac)) throw new InvalidOperationException("Mac wording on Windows: " + mac);
             if (options.SelfTestMidi != null) await SelfTest(options.SelfTestMidi);
         }
 

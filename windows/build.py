@@ -41,9 +41,33 @@ def native_strings():
     return pairs
 
 
+def page_strings():
+    """The page's Turkish source strings and English translations."""
+    pairs = {}
+    for name in ('i18n.js', 'i18n-messages.js'):
+        text = (ROOT/name).read_text(encoding='utf-8')
+        pairs.update(re.findall(r'^\s*"((?:[^"\\]|\\.)*)":\s*"((?:[^"\\]|\\.)*)",?\s*$', text, re.M))
+    return pairs
+
+
+def platform_text():
+    from wording import TEXT, mentions_mac
+    missing = [source for source, english in page_strings().items()
+               if (mentions_mac(source) or mentions_mac(english)) and source not in TEXT]
+    if missing: raise RuntimeError('Add Windows wording for: ' + '; '.join(missing))
+    leftover = [value for pair in TEXT.values() for value in pair if mentions_mac(value)]
+    if leftover: raise RuntimeError(f'Windows wording still mentions the Mac: {leftover}')
+    return {source: list(pair) for source, pair in TEXT.items()}
+
+
 def write_resources(resources):
     if resources.exists(): shutil.rmtree(resources)
     mac_build().write_ui(resources)
+    page = resources/'index.html'
+    html = page.read_text(encoding='utf-8')
+    script = '<script>window.PianoPlatformText=' + json.dumps(platform_text(), ensure_ascii=False).replace('</', '<\\/') + ';</script>'
+    if html.count('<head>') != 1: raise RuntimeError('The page head changed; update windows/build.py')
+    page.write_text(html.replace('<head>', '<head>'+script, 1), encoding='utf-8')
     # The page loads its music font next to itself, as in the Mac app.
     shutil.copytree(ROOT/'assets/bravura', resources/'assets/bravura')
     (resources/'strings.json').write_text(json.dumps(native_strings(), ensure_ascii=False, indent=1), encoding='utf-8')

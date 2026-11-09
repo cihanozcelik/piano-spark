@@ -116,8 +116,11 @@
   let revision = 0;
   let patterns = { en: [], tr: [] };
   let reverse = {};
+  // Platform wording (the Windows app): source -> [Turkish, English]. Empty on the Mac.
+  const platformText = window.PianoPlatformText || {};
   function t(source, params = {}) {
-    const text = language === 'en' ? translations[source] ?? source : source;
+    const platform = Object.hasOwn(platformText, source) ? platformText[source] : null;
+    const text = platform ? platform[language === 'en' ? 1 : 0] : language === 'en' ? translations[source] ?? source : source;
     return String(text).replace(/\{(\w+)\}/g, (match, name) => Object.hasOwn(params, name) ? String(params[name]) : match);
   }
   function register(dictionary) {
@@ -141,8 +144,9 @@
   }
   function message(raw) {
     const text = String(raw ?? '');
+    if (Object.hasOwn(platformText, text)) return t(text);
     if (language === 'en' && Object.hasOwn(translations, text)) return t(text);
-    if (language === 'tr' && Object.hasOwn(reverse, text)) return reverse[text];
+    if (language === 'tr' && Object.hasOwn(reverse, text)) return t(reverse[text]);
     for (const pattern of patterns[language]) {
       const match = pattern.expression.exec(text);
       if (match) return t(pattern.source, Object.fromEntries(pattern.names.map((name, index) => [name,
