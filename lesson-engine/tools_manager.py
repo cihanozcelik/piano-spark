@@ -107,16 +107,22 @@ class Installer:
                                     file=artifact['name'],stage=phase))
 
     def download(self, artifact):
-        """Resumes after brief server or network failures; the partial file is kept."""
+        """Resumes after brief server or network failures; the partial file is kept.
+        Equivalent mirrors are tried when the main address fails; the SHA-256 decides."""
+        sources = [artifact['url'], *artifact.get('mirrors', [])]
         for attempt in range(4):
-            try:
-                return self.fetch(artifact)
-            except (urllib.error.URLError, http.client.HTTPException, TimeoutError, ConnectionError) as error:
-                code = getattr(error, 'code', None)
-                if attempt == 3 or (code is not None and code != 429 and code < 500): raise
-                time.sleep((2, 6, 15)[attempt])
+            transient = False
+            for url in sources:
+                try:
+                    return self.fetch(artifact, url)
+                except (urllib.error.URLError, http.client.HTTPException, TimeoutError, ConnectionError) as error:
+                    code = getattr(error, 'code', None)
+                    transient = transient or code is None or code == 429 or code >= 500
+                    failure = error
+            if attempt == 3 or not transient: raise failure
+            time.sleep((2, 6, 15)[attempt])
 
-    def fetch(self, artifact):
+    def fetch(self, artifact, url):
         partial = self.cache/'downloads'/(artifact['sha256']+'.part')
         offset = partial.stat().st_size if partial.exists() else 0
         if offset > artifact['size']:
@@ -125,7 +131,8 @@ class Installer:
         if offset < artifact['size']:
             headers = {'User-Agent':'PianoSpark/0.4', 'Accept-Encoding':'identity'}
             if offset: headers['Range'] = f'bytes={offset}-'
-            request = urllib.request.Request(artifact['url'],headers=headers)
+            if url.startswith('https://api.github.com/'): headers['Accept'] = 'application/octet-stream'
+            request = urllib.request.Request(url,headers=headers)
             with urllib.request.urlopen(request,context=self.ssl,timeout=30) as response:
                 if response.status == 206:
                     expected = f'bytes {offset}-{artifact["size"]-1}/{artifact["size"]}'

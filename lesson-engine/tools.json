@@ -382,7 +382,10 @@
       "sha256": "0a2f023e1ecf41f5f969f2ed4ef80c050ce29a4996c6655056cf36c6104677e8",
       "url": "https://github.com/liebharc/homr/releases/download/onnx_checkpoints/decoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.zip",
       "member": "decoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.onnx",
-      "target": "homr/transformer/decoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.onnx"
+      "target": "homr/transformer/decoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.onnx",
+      "mirrors": [
+        "https://api.github.com/repos/liebharc/homr/releases/assets/447329822"
+      ]
     },
     "pdf-encoder": {
       "kind": "model-zip",
@@ -391,7 +394,10 @@
       "sha256": "9d9bc44da68c1180c85173d739edb2d703d90c0dbbdfadc9ebf6636685a5489b",
       "url": "https://github.com/liebharc/homr/releases/download/onnx_checkpoints/encoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.zip",
       "member": "encoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.onnx",
-      "target": "homr/transformer/encoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.onnx"
+      "target": "homr/transformer/encoder_pytorch_model_396-f6feedb42ff90087d898b0941a55d040fa6b2903.onnx",
+      "mirrors": [
+        "https://api.github.com/repos/liebharc/homr/releases/assets/447329598"
+      ]
     },
     "pdf-segnet": {
       "kind": "model-zip",
@@ -400,7 +406,10 @@
       "sha256": "1d4277354a8397a6830ef1279232e6d989c2d254b7451525e53ff3d3754b1f70",
       "url": "https://github.com/liebharc/homr/releases/download/onnx_checkpoints/segnet_308-3296ccd40960f90ca6ab9c035cca945675d30a0f.zip",
       "member": "segnet_308-3296ccd40960f90ca6ab9c035cca945675d30a0f.onnx",
-      "target": "homr/segmentation/segnet_308-3296ccd40960f90ca6ab9c035cca945675d30a0f.onnx"
+      "target": "homr/segmentation/segnet_308-3296ccd40960f90ca6ab9c035cca945675d30a0f.onnx",
+      "mirrors": [
+        "https://api.github.com/repos/liebharc/homr/releases/assets/347844592"
+      ]
     },
     "pillow-12.3.0": {
       "kind": "wheel",
@@ -520,7 +529,10 @@
       "size": 816004751,
       "sha256": "131649ff95b80713bd327b63d37b2771e1175b3c1c9aa4242a783c67bf27b1fc",
       "url": "https://github.com/nctamer/rubato-transcription/releases/download/v1/rubato.ckpt",
-      "target": "models/rubato.ckpt"
+      "target": "models/rubato.ckpt",
+      "mirrors": [
+        "https://api.github.com/repos/nctamer/rubato-transcription/releases/assets/718614356"
+      ]
     },
     "samplerate-0.1.0": {
       "kind": "wheel",
@@ -549,7 +561,10 @@
       "size": 913106900,
       "sha256": "87201f4d31afb5bc79993230fc49446918425574db48c01c405e44f365c7559e",
       "url": "https://github.com/nomadkaraoke/python-audio-separator/releases/download/model-configs/vocals_mel_band_roformer.ckpt",
-      "target": "models/separation/vocals_mel_band_roformer.ckpt"
+      "target": "models/separation/vocals_mel_band_roformer.ckpt",
+      "mirrors": [
+        "https://api.github.com/repos/nomadkaraoke/python-audio-separator/releases/assets/212914203"
+      ]
     },
     "setuptools-84.2.1": {
       "kind": "wheel",
