@@ -5,15 +5,18 @@
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Windows updates now download only what changed since your version, and every part is checked against the signed release list before it is installed."
+    "Windows updates now download only what changed since your version, and every part is checked against the signed release list before it is installed.",
+    "No changes for Mac in this version."
   ],
   "feedURL": "https://cihanozcelik.github.io/piano-spark/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Windows updates now download only what changed since your version, and every part is checked against the signed release list before it is installed."
+      "Windows updates now download only what changed since your version, and every part is checked against the signed release list before it is installed.",
+      "No changes for Mac in this version."
     ],
     "tr": [
-      "Windows güncellemeleri artık yalnızca değişen kısmı indiriyor; her parça yüklenmeden önce imzalı sürüm listesine göre doğrulanıyor."
+      "Windows güncellemeleri artık yalnızca değişen kısmı indiriyor; her parça yüklenmeden önce imzalı sürüm listesine göre doğrulanıyor.",
+      "Bu sürümde Mac için değişiklik yok."
     ]
   }
 }
