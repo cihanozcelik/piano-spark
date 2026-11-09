@@ -28,6 +28,7 @@ FILES = {
     "/create-lesson.js": ("create-lesson.js", "text/javascript; charset=utf-8"),
     "/staff-notation.js": ("staff-notation.js", "text/javascript; charset=utf-8"),
     "/assets/bravura/Bravura.woff2": ("assets/bravura/Bravura.woff2", "font/woff2"),
+    "/assets/brand/rach3-wordmark-on-dark.png": ("assets/brand/rach3-wordmark-on-dark.png", "image/png"),
     "/desktop.js": ("desktop.js", "text/javascript; charset=utf-8"),
     "/development.js": ("desktop/development.js", "text/javascript; charset=utf-8"),
     "/": ("piano.html", "text/html; charset=utf-8"),
