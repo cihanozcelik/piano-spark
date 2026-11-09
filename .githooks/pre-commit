@@ -1,0 +1,8 @@
+#!/bin/sh
+# main is protected: work on a branch and merge through a pull request.
+branch=$(git symbolic-ref --short -q HEAD)
+if [ "$branch" = "main" ]; then
+  echo "error: commits on main are not allowed in this repository." >&2
+  echo "Create a branch first: git switch -c <name>" >&2
+  exit 1
+fi
