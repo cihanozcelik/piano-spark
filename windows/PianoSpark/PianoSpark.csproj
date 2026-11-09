@@ -23,8 +23,11 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Net.Http" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
     <!-- Windows Runtime Bluetooth LE APIs for .NET Framework -->
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.3233" />
+    <!-- Installer and updates; feeds are additionally verified with the release Ed25519 key. -->
+    <PackageReference Include="Velopack" Version="1.2.161" />
   </ItemGroup>
 </Project>

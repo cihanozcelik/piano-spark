@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -10,6 +11,12 @@ namespace PianoSpark
         [STAThread]
         static int Main(string[] args)
         {
+            // Velopack's install, update and uninstall hooks run here and exit.
+            // Uninstalling removes lessons, tools and settings, like the Mac app's uninstaller.
+            Velopack.VelopackApp.Build()
+                .OnBeforeUninstallFastCallback(version => Files.Delete(Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Piano Spark")))
+                .Run();
             var options = Options.Parse(args);
             // One window per user, like a Mac app. A second launch brings the first forward.
             using (var single = new Mutex(true, @"Local\PianoSpark.Desktop", out var first))

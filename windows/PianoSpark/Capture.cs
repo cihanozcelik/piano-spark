@@ -41,6 +41,7 @@ namespace PianoSpark
         async Task RunCapture()
         {
             Directory.CreateDirectory(options.Capture);
+            if (!Ed25519.SelfTest()) throw new InvalidOperationException("Ed25519 verification failed the RFC 8032 vectors");
             const string ready = "window.PianoI18n?.language === 'en' && !!document.querySelector('#sheet-paper svg') && !document.getElementById('sheet-paper').hidden";
             for (var attempt = 0; ; attempt++)
             {
