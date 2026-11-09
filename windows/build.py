@@ -44,6 +44,8 @@ def native_strings():
 def write_resources(resources):
     if resources.exists(): shutil.rmtree(resources)
     mac_build().write_ui(resources)
+    # The page loads its music font next to itself, as in the Mac app.
+    shutil.copytree(ROOT/'assets/bravura', resources/'assets/bravura')
     (resources/'strings.json').write_text(json.dumps(native_strings(), ensure_ascii=False, indent=1), encoding='utf-8')
     shutil.copy2(ROOT/'desktop/release.json', resources/'release.json')
 

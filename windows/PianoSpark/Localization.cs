@@ -21,6 +21,7 @@ namespace PianoSpark
             ["Bilgisayarın Bluetooth erişimi kontrol ediliyor…"] = "Checking Bluetooth access…",
             ["Bilgisayarın Bluetooth’u kapalı."] = "Bluetooth is turned off on this PC.",
             ["Bu bilgisayarda Bluetooth LE desteği bulunamadı."] = "This PC has no Bluetooth LE support.",
+            ["Bilgisayarın Bluetooth servisi hazır değil."] = "This PC’s Bluetooth service is not ready.",
             ["Windows bağlantının kapandığını doğrulamadı."] = "Windows has not confirmed the disconnection.",
             ["Bilgisayarın Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı."] = "Preparing Bluetooth. Your piano is not connected yet.",
             ["MIDI bağlantısı hazırlanıyor… Windows eşleştirme onayı sorarsa onayla."] = "Preparing MIDI… Confirm pairing if Windows asks.",

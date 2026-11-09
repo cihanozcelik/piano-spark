@@ -51,6 +51,8 @@ namespace PianoSpark
             await Script("document.getElementById('tab-practice').click(); const seek=document.getElementById('seek'); seek.value=25; seek.dispatchEvent(new Event('input',{bubbles:true}));");
             await Task.Delay(2000);
             await Shot("practice.png");
+            var banner = Json.Parse(await Script("(() => { const e = document.getElementById('error'); return e && !e.hidden ? e.textContent : ''; })()")) as string;
+            if (!string.IsNullOrEmpty(banner)) throw new InvalidOperationException("The page shows an error: " + banner);
             await Script("document.getElementById('tab-create').click();");
             await Task.Delay(1500);
             await Shot("create-lesson.png");
