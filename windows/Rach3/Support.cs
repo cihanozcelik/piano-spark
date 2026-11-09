@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Web.Script.Serialization;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>An error the page shows to the user; the message is localized.</summary>
     sealed class UserError : Exception
@@ -36,7 +36,7 @@ namespace PianoSpark
             value is IConvertible number ? Convert.ToInt64(number, CultureInfo.InvariantCulture) : 0;
     }
 
-    /// <summary>Per-user data, like ~/Library/Application Support/PianoMan on the Mac.</summary>
+    /// <summary>Per-user data, like ~/Library/Application Support/Rach3 on the Mac.</summary>
     sealed class Paths
     {
         public string App, Resources, Engine, Support, Tools, WebData, Settings, Logs;
@@ -44,7 +44,7 @@ namespace PianoSpark
         public static Paths Create(string supportOverride)
         {
             var app = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-            var support = supportOverride ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Piano Spark");
+            var support = supportOverride ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rach3");
             return new Paths
             {
                 App = app,

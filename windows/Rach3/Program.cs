@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace PianoSpark
+namespace Rach3
 {
     static class Program
     {
@@ -15,7 +15,7 @@ namespace PianoSpark
             // Uninstalling removes lessons, tools and settings, like the Mac app's uninstaller.
             var velopack = Velopack.VelopackApp.Build()
                 .OnBeforeUninstallFastCallback(version => Files.Delete(Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Piano Spark")));
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Rach3")));
 #if PIANO_CAPTURE
             if (args.Length == 4 && args[0] == "--self-test-update") velopack = velopack.SetLogger(new UpdateSelfTest.FileLog(args[3] + ".log"));
 #endif
@@ -25,7 +25,7 @@ namespace PianoSpark
 #endif
             var options = Options.Parse(args);
             // One window per user, like a Mac app. A second launch brings the first forward.
-            using (var single = new Mutex(true, @"Local\PianoSpark.Desktop", out var first))
+            using (var single = new Mutex(true, @"Local\Rach3.Desktop", out var first))
             {
                 if (!first && options.Capture == null)
                 {

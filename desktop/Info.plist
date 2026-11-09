@@ -5,11 +5,11 @@
 	<key>CFBundleDisplayName</key>
 	<string>Rach3</string>
 	<key>CFBundleExecutable</key>
-	<string>PianoMan</string>
+	<string>Rach3</string>
 	<key>CFBundleIconFile</key>
-	<string>PianoMan</string>
+	<string>Rach3</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.pianoman.desktop</string>
+	<string>com.rach3.app</string>
 	<key>CFBundleName</key>
 	<string>Rach3</string>
 	<key>CFBundlePackageType</key>

@@ -48,12 +48,12 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     NSURL *support = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory
         inDomains:NSUserDomainMask].firstObject;
 #ifdef PIANO_CAPTURE
-    support = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"PianoSparkCapture"]];
+    support = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"Rach3Capture"]];
 #endif
-    self.runtimeURL = [support URLByAppendingPathComponent:@"PianoMan/Bluetooth" isDirectory:YES];
+    self.runtimeURL = [support URLByAppendingPathComponent:@"Rach3/Bluetooth" isDirectory:YES];
     self.lessons = [[LessonService alloc] initWithEngine:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Engine"]
-        support:[support URLByAppendingPathComponent:@"PianoMan" isDirectory:YES]
-        tools:[support URLByAppendingPathComponent:@"PianoMan/Tools/1" isDirectory:YES]];
+        support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
+        tools:[support URLByAppendingPathComponent:@"Rach3/Tools/1" isDirectory:YES]];
     __weak PianoApp *weakSelf = self;
     self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
     self.lessons.onIdle = ^{ dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf finishTermination]; }); };
@@ -88,8 +88,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.window.backgroundColor = [NSColor colorWithSRGBRed:.075 green:.08 blue:.09 alpha:1];
     self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
     self.window.contentView = self.webView;
-    if (![self.window setFrameUsingName:@"PianoManMainWindow"]) [self.window center];
-    [self.window setFrameAutosaveName:@"PianoManMainWindow"];
+    if (![self.window setFrameUsingName:@"Rach3MainWindow"]) [self.window center];
+    [self.window setFrameAutosaveName:@"Rach3MainWindow"];
     self.updates = [UpdateController new];
     self.updates.onChange = ^(NSDictionary *event) { [weakSelf publish:event]; };
     [self makeMenus];
@@ -470,7 +470,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     if (self.uninstalling) [self.updates stop];
     self.quitting = YES;
     self.savingWorkspace = YES;
-    [self.window saveFrameUsingName:@"PianoManMainWindow"];
+    [self.window saveFrameUsingName:@"Rach3MainWindow"];
     [self.webView callAsyncJavaScript:@"window.dispatchEvent(new Event('pianoman-save-state'));"
         arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld
         completionHandler:^(id result, NSError *error) {
@@ -503,7 +503,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     helper.arguments = @[@"--uninstall",@(getpid()).stringValue];
     NSError *error;
     if (![helper launchAndReturnError:&error]) { self.uninstalling = NO; [self showLessonError:error]; return NO; }
-    [NSUserDefaults.standardUserDefaults removePersistentDomainForName:@"com.pianoman.desktop"];
+    [NSUserDefaults.standardUserDefaults removePersistentDomainForName:@"com.rach3.app"];
     return YES;
 }
 - (void)showLessonError:(NSError *)error {
@@ -588,11 +588,11 @@ int main(int argc, const char *argv[]) {
             pid_t parent = (pid_t)atoi(argv[2]);
             while (parent>1 && kill(parent,0)==0) usleep(100000);
             NSURL *app = NSBundle.mainBundle.bundleURL;
-            if (![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.pianoman.desktop"] || ![app.pathExtension isEqual:@"app"]) return 1;
+            if (![NSBundle.mainBundle.bundleIdentifier isEqual:@"com.rach3.app"] || ![app.pathExtension isEqual:@"app"]) return 1;
             NSFileManager *files = NSFileManager.defaultManager;
             NSURL *library = [files URLsForDirectory:NSLibraryDirectory inDomains:NSUserDomainMask].firstObject;
             NSMutableArray *paths = [NSMutableArray arrayWithObject:app];
-            for (NSString *path in @[@"Application Support/PianoMan",@"Caches/com.pianoman.desktop",@"WebKit/com.pianoman.desktop",@"Saved Application State/com.pianoman.desktop.savedState",@"Preferences/com.pianoman.desktop.plist"])
+            for (NSString *path in @[@"Application Support/Rach3",@"Caches/com.rach3.app",@"WebKit/com.rach3.app",@"Saved Application State/com.rach3.app.savedState",@"Preferences/com.rach3.app.plist"])
                 [paths addObject:[library URLByAppendingPathComponent:path]];
             NSMutableArray *failures = [NSMutableArray new];
             for (NSURL *path in paths) {

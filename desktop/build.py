@@ -11,7 +11,7 @@ from sparkle import prepare as prepare_sparkle, SPARKLE
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / 'build/desktop'
 DIST = ROOT / 'dist'
-APP = DIST / 'Piano Spark.app'
+APP = DIST / 'Rach3.app'
 RELEASE = json.loads((ROOT/'desktop/release.json').read_text())
 
 
@@ -49,9 +49,9 @@ def build_installer():
     run('cp','-cR',APP,stage/APP.name)
     (stage/'Applications').symlink_to('/Applications',target_is_directory=True)
     run('codesign','--verify','--deep','--strict',stage/APP.name)
-    image = DIST/'PianoSpark-Setup.dmg'
+    image = DIST/'Rach3-Setup.dmg'
     if image.exists(): image.unlink()
-    run('hdiutil','create','-volname','Piano Spark','-srcfolder',stage,'-format','UDZO',image)
+    run('hdiutil','create','-volname','Rach3','-srcfolder',stage,'-format','UDZO',image)
     shutil.rmtree(stage)
     print(f'Installer: {image}\nSize: {image.stat().st_size/1000000:.1f} MB')
 
@@ -112,7 +112,7 @@ def compile_native(destination, objects_dir, capture=False):
             obj = objects_dir / f'{name}-{arch}.o'
             run('xcrun', 'clang', '-arch', arch, *flags, *extra, '-c', ROOT / source, '-o', obj)
             objects.append(obj)
-        binary = objects_dir / f'PianoMan-{arch}'
+        binary = objects_dir / f'Rach3-{arch}'
         run('xcrun', 'clang', '-arch', arch, '-mmacosx-version-min=14.0', *objects,
             '-framework', 'AppKit', '-framework', 'WebKit', '-framework', 'Foundation',
             '-framework', 'CoreBluetooth', '-framework', 'UniformTypeIdentifiers',
@@ -139,11 +139,11 @@ def main():
             run('cp','-cR',APP,capture_app)
             info_path=capture_app/'Contents/Info.plist'
             info=plistlib.loads(info_path.read_bytes())
-            info['CFBundleIdentifier']='com.pianoman.capture'
+            info['CFBundleIdentifier']='com.rach3.capture'
             info_path.write_bytes(plistlib.dumps(info))
-            compile_native(capture_app/'Contents/MacOS/PianoMan',capture_root/'objects',capture=True)
+            compile_native(capture_app/'Contents/MacOS/Rach3',capture_root/'objects',capture=True)
             run('codesign','--force','--sign','-','--timestamp=none',capture_app)
-            run(capture_app/'Contents/MacOS/PianoMan',destination)
+            run(capture_app/'Contents/MacOS/Rach3',destination)
         finally:
             shutil.rmtree(capture_root)
         return
@@ -172,14 +172,14 @@ def main():
     frameworks.mkdir()
     shutil.copytree(SPARKLE/'Sparkle.framework',frameworks/'Sparkle.framework',symlinks=True)
 
-    compile_native(executable / 'PianoMan', BUILD)
-    iconset = BUILD / 'PianoMan.iconset'
+    compile_native(executable / 'Rach3', BUILD)
+    iconset = BUILD / 'Rach3.iconset'
     iconset.mkdir(exist_ok=True)
     run('xcrun', 'swift', ROOT / 'desktop/Icon.swift', iconset)
-    run('iconutil', '-c', 'icns', iconset, '-o', resources / 'PianoMan.icns')
+    run('iconutil', '-c', 'icns', iconset, '-o', resources / 'Rach3.icns')
     run('codesign', '--force', '--sign', '-', '--timestamp=none', APP)
     run('codesign', '--verify', '--deep', '--strict', APP)
-    archive = DIST / 'PianoMan-macOS.zip'
+    archive = DIST / 'Rach3-macOS.zip'
     if archive.exists():
         archive.unlink()
     print(f'Application: {APP}')

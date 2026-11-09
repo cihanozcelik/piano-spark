@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// Piano connection state for the page: a port of the Bluetooth parts of desktop/main.m

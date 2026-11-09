@@ -80,7 +80,7 @@ def check_lock(engine, tools):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--work', type=Path, default=Path(os.environ.get('LOCALAPPDATA', tempfile.gettempdir()))/'Piano Spark Ğüş test')
+    parser.add_argument('--work', type=Path, default=Path(os.environ.get('LOCALAPPDATA', tempfile.gettempdir()))/'Rach3 Ğüş test')
     parser.add_argument('--tools', type=Path, help='Reuse a tool cache (default: fresh, as on a new PC)')
     args = parser.parse_args()
     if os.name != 'nt': raise RuntimeError('Run this on Windows')

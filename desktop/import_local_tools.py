@@ -15,7 +15,7 @@ import shutil
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-CACHE = Path.home()/'Library/Application Support/PianoMan/Tools/1'
+CACHE = Path.home()/'Library/Application Support/Rach3/Tools/1'
 SITES = [ROOT/'transcription/separation/.venv/lib/python3.12/site-packages',
          ROOT/'build/omr/.venv/lib/python3.12/site-packages',
          ROOT/'transcription/rubato/.venv/lib/python3.12/site-packages']

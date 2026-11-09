@@ -46,15 +46,18 @@ def compatibility(universal):
     }
 
 
-WINDOWS_SETUP = 'PianoSpark-win-Setup.exe'
+# Releases before the Rach3 rename used the Piano Spark file names.
+MAC_SETUP = ('Rach3-Setup.dmg', 'PianoSpark-Setup.dmg')
+WINDOWS_SETUP = ('Rach3-win-Setup.exe', 'PianoSpark-win-Setup.exe')
 WINDOWS_HELP = ('Windows may say it protected your PC, because the beta is not yet signed with a '
                 'publisher certificate. Choose More info → Run anyway.')
 
 
-def release_asset(release, name):
-    """A published binary asset of this release, refusing links that point anywhere else."""
-    asset = next((asset for asset in release['assets']
-                  if asset['name'] == name and asset['state'] == 'uploaded' and asset['size'] > 0), None)
+def release_asset(release, names):
+    """A published binary asset of this release (the first of names it has),
+    refusing links that point anywhere else."""
+    uploaded = {asset['name']: asset for asset in release['assets'] if asset['state'] == 'uploaded' and asset['size'] > 0}
+    asset = next((uploaded[name] for name in names if name in uploaded), None)
     if asset is None:
         return None
     parsed = urlsplit(asset['browser_download_url'])
@@ -93,7 +96,7 @@ def download_context(release_path):
     tag = release['tag_name']
     version = tag.removeprefix('v')
     universal = tuple(int(part) for part in version.split('.')[:3]) >= UNIVERSAL_SINCE
-    asset = release_asset(release, 'PianoSpark-Setup.dmg')
+    asset = release_asset(release, MAC_SETUP)
     if asset is None:
         return download_context(None)
 

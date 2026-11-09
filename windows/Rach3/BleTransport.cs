@@ -12,7 +12,7 @@ using Windows.Devices.Enumeration;
 using Windows.Devices.Radios;
 using Windows.Security.Cryptography;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// The Windows BLE-MIDI connection: the counterpart of the Mac's Bluetooth helper

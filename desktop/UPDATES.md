@@ -1,4 +1,4 @@
-# Piano Spark otomatik güncellemeleri
+# Rach3 otomatik güncellemeleri
 
 Sürümün tek kaynağı `desktop/release.json`: görünen sürüm, artan build sayısı,
 repo, private/public seçimi, Ed25519 açık anahtarı ve sürüm notları.
@@ -41,11 +41,11 @@ kontrol eder.
 
 ## Yayın ve paketleme
 
-İnsanların indirdiği dosya **PianoSpark-Setup.dmg**: doğrudan Piano Spark.app
+İnsanların indirdiği dosya **Rach3-Setup.dmg**: doğrudan Rach3.app
 ve `/Applications` kısayolunu içerir. Kullanıcı uygulamayı kısayola sürükler ve
 kopyasını Applications içinden açar. Ayrı kurucu uygulaması ve onun için ikinci
-Gatekeeper onayı yoktur. Piano Spark için ilk açılış onayı hâlâ gerekebilir.
-Önceden `~/Applications` konumuna kurulmuş uygulamalar orada güncellenir. **PianoSpark-<version>.zip** yalnız otomatik güncelleme
+Gatekeeper onayı yoktur. Rach3 için ilk açılış onayı hâlâ gerekebilir.
+Önceden `~/Applications` konumuna kurulmuş uygulamalar orada güncellenir. **Rach3-<version>.zip** yalnız otomatik güncelleme
 paketidir. XZ sıkıştırma yapılmaz. ZIP `ditto` ile hazırlanır; DMG UDZO kullanır.
 Ders araçları/model ağırlıkları bu paketlerde yoktur; ihtiyaç anında özgün
 kaynaklarından indirilir ve Application Support altında tutulur.

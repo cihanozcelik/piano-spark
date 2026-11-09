@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Velopack;
 using Velopack.Sources;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// Windows updates through Velopack and the project's GitHub releases. Like Sparkle on
@@ -83,7 +83,7 @@ namespace PianoSpark
             string signature;
             using (var http = new HttpClient())
             {
-                http.DefaultRequestHeaders.UserAgent.ParseAdd("PianoSpark/" + Version);
+                http.DefaultRequestHeaders.UserAgent.ParseAdd("Rach3/" + Version);
                 feed = await http.GetByteArrayAsync(folder + "releases.win.json");
                 signature = await http.GetStringAsync(folder + "releases.win.json.sig");
             }

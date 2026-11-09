@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>CFBundleExecutable</key><string>pianoman-bluetooth</string>
-<key>CFBundleIdentifier</key><string>com.pianoman.bluetooth-connection</string>
+<key>CFBundleExecutable</key><string>rach3-bluetooth</string>
+<key>CFBundleIdentifier</key><string>com.rach3.bluetooth</string>
 <key>CFBundleName</key><string>Rach3 Bluetooth</string>
 <key>CFBundleDisplayName</key><string>Rach3 Bluetooth</string>
 <key>CFBundlePackageType</key><string>APPL</string>

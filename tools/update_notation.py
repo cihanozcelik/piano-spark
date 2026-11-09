@@ -39,7 +39,7 @@ def main():
     outputs.append((page,html))
     paths=[ROOT/'transcription/rubato/pervane/separated-lesson.json']
     if not options.output_directory:
-        for name in ['PianoMan','PianoManDevelopment']:
+        for name in ['Rach3','Rach3Development']:
             paths.extend((Path.home()/'Library/Application Support'/name/'Lessons').glob('*.json'))
     for path in paths:
         lesson=json.loads(path.read_text())

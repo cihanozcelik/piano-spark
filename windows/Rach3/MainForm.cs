@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
-namespace PianoSpark
+namespace Rach3
 {
     sealed class Options
     {
@@ -33,7 +33,7 @@ namespace PianoSpark
     /// </summary>
     sealed partial class MainForm : Form
     {
-        public const string Host = "piano-spark.example";
+        public const string Host = "rach3.example";
         public const string PageUrl = "https://" + Host + "/index.html";
 
         readonly Options options;
@@ -52,7 +52,7 @@ namespace PianoSpark
         {
             this.options = options;
             var capture = options.Capture != null;
-            paths = Paths.Create(capture ? Path.Combine(Path.GetTempPath(), "PianoSparkCapture") : null);
+            paths = Paths.Create(capture ? Path.Combine(Path.GetTempPath(), "Rach3Capture") : null);
             if (capture) Files.Delete(paths.Support);
             Directory.CreateDirectory(paths.Support);
             settings = new Settings(paths.Settings);

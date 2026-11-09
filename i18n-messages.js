@@ -340,7 +340,7 @@ window.PianoI18n.register({
   "Piyano MIDI gönderimi başarısız: {error}": "Sending MIDI to the piano failed: {error}",
   "Önce mevcut bağlantının kapanmasını bekle": "Wait for the current connection to close first",
   "Kayıtlı piyano temizlenemedi: {error}": "The saved piano could not be cleared: {error}",
-  "PianoMan’in kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin.": "Rach3’s saved piano was cleared. You can search again.",
+  "Rach3’ün kayıtlı piyano kimliği temizlendi; yeniden arayabilirsin.": "Rach3’s saved piano was cleared. You can search again.",
   "Geçersiz MIDI istek boyutu": "Invalid MIDI request size",
   "Geçersiz MIDI çıkış komutu": "Invalid MIDI output command",
   "Geçersiz istek boyutu": "Invalid request size",
