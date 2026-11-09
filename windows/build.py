@@ -2,17 +2,22 @@
 and the Windows lesson engine. Runs on Windows (GitHub's windows-latest runner).
 
     python windows/build.py              -> dist/windows/Piano Spark
+    python windows/build.py --package    -> also the Velopack installer and update package
+                                            in dist/windows/releases, installed and checked
     python windows/build.py --capture D  -> a development build that saves screenshots
                                             to D and creates a test lesson, then exits
 """
 import argparse
 import importlib.util
 import json
+import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT/'windows'), str(ROOT/'desktop')]
@@ -21,6 +26,9 @@ from engine import prepare_runtime, stage_engine  # noqa: E402
 RELEASE = json.loads((ROOT/'desktop/release.json').read_text(encoding='utf-8'))
 PROJECT = ROOT/'windows/PianoSpark/PianoSpark.csproj'
 DIST = ROOT/'dist/windows/Piano Spark'
+RELEASES = ROOT/'dist/windows/releases'
+PACKAGE_ID = 'PianoSpark'
+SETUP = f'{PACKAGE_ID}-win-Setup.exe'
 
 
 def mac_build():
@@ -110,12 +118,63 @@ def capture(directory, midi):
     print(f'Windows screenshots and bridge self-test passed: {directory}')
 
 
+def package():
+    """Velopack installer and full update package. Deltas are off: every Windows update
+    is a full package listed in the Ed25519-signed releases.win.json."""
+    app = build(DIST)
+    if RELEASES.exists(): shutil.rmtree(RELEASES)
+    notes = ROOT/'build/windows/release-notes.md'
+    notes.write_text('\n'.join(RELEASE['notes'])+'\n', encoding='utf-8')
+    subprocess.run(['vpk', 'pack', '--packId', PACKAGE_ID, '--packVersion', RELEASE['version'], '--packDir', str(app),
+                    '--mainExe', 'PianoSpark.exe', '--packTitle', 'Piano Spark', '--packAuthors', 'Piano Spark',
+                    '--icon', str(ROOT/'windows/PianoSpark/PianoSpark.ico'), '--releaseNotes', str(notes),
+                    '--delta', 'None', '--noPortable', '--outputDir', str(RELEASES)], check=True)
+    feed = json.loads((RELEASES/'releases.win.json').read_text(encoding='utf-8'))
+    full = [asset for asset in feed['Assets'] if asset['Version'] == RELEASE['version']]
+    if len(full) != 1 or not (RELEASES/full[0]['FileName']).is_file() or not (RELEASES/SETUP).is_file():
+        raise RuntimeError(f'Unexpected Velopack output: {sorted(p.name for p in RELEASES.iterdir())}')
+    for path in sorted(RELEASES.iterdir()): print(f'{path.name}: {path.stat().st_size/1e6:.1f} MB')
+
+
+def running():
+    tasks = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq PianoSpark.exe', '/FO', 'CSV', '/NH'],
+                           capture_output=True, text=True).stdout
+    return 'PianoSpark.exe' in tasks
+
+
+def install_check():
+    """Install with the real Setup.exe, open the installed app and create a lesson
+    with its installed engine, as a new Windows user would."""
+    subprocess.run([str(RELEASES/SETUP), '--silent'], check=True, timeout=900)
+    root = Path(os.environ['LOCALAPPDATA'])/PACKAGE_ID
+    app = root/'current'/'PianoSpark.exe'
+    engine = root/'current'/'Engine'
+    if not app.is_file() or not (engine/'python/python.exe').is_file():
+        raise RuntimeError(f'Setup did not install the app: {sorted(p.name for p in root.iterdir())}')
+    time.sleep(5)
+    if not running(): subprocess.Popen([str(app)])
+    time.sleep(30)
+    webview = Path(os.environ['LOCALAPPDATA'])/'Piano Spark'/'WebView'
+    if not running() or not webview.is_dir():
+        raise RuntimeError('The installed app did not stay open with its web view')
+    subprocess.run(['taskkill', '/IM', 'PianoSpark.exe', '/F'], capture_output=True)
+    from verify_engine import lesson
+    with tempfile.TemporaryDirectory(prefix='piano-installed-') as folder:
+        work = Path(folder)
+        count = lesson(engine, work/'Tools', work/'Library', 'installed-midi',
+                       ROOT/'assets/example-lessons/bach-prelude/score.mid', 'midi')['noteCount']
+    if count != 549: raise RuntimeError(f'The installed engine made a different MIDI lesson: {count} notes')
+    print(f'Installed app opens and its engine creates lessons ({app})')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--capture', type=Path, help='Save screenshots here and run the bridge self-test')
     parser.add_argument('--midi', type=Path, default=ROOT/'assets/example-lessons/bach-prelude/score.mid')
+    parser.add_argument('--package', action='store_true', help='Create, install and check the Velopack installer')
     args = parser.parse_args()
     if args.capture: capture(args.capture.resolve(), args.midi.resolve())
+    elif args.package: package(); install_check()
     else: build(DIST)
 
 

@@ -48,3 +48,26 @@ jobs:
           name: windows-screens
           path: ${{ runner.temp }}/windows-screens
           if-no-files-found: ignore
+
+  installer:
+    name: Windows installer and installed app
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the Velopack packager
+        run: dotnet tool install -g vpk --version 1.2.161
+      - name: Package, install with Setup.exe and create a lesson with the installed app
+        env:
+          PYTHONUTF8: '1'
+        run: python windows/build.py --package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: piano-spark-windows
+          path: dist/windows/releases
+          if-no-files-found: error
+          retention-days: 7
