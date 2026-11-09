@@ -28,6 +28,8 @@ STATIC_FILES = (
     'assets/learner-family.jpg',
     'assets/tr/learner-family.jpg',
     'assets/rach3-wordmark-on-dark.png',
+    'assets/social-card.jpg',
+    'assets/tr/social-card.jpg',
     'assets/rach3-app-icon.png',
     'assets/favicon.png',
     'assets/apple-touch-icon.png',
