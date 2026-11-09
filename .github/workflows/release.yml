@@ -132,8 +132,49 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  windows:
+    # A real Windows machine. The lesson engine, the app window, the installer and the
+    # installed app are all checked before anything is published.
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      PYTHONUTF8: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.10.4'
+          enable-cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Create lessons from MIDI, PDF and audio on Windows
+        run: python windows/verify_engine.py
+      - name: Open the Windows app, capture its screens and create a lesson through the page
+        run: python windows/build.py --capture "$env:RUNNER_TEMP\windows-screens"
+      - name: Install the Velopack packager
+        run: dotnet tool install -g vpk --version 1.2.161
+      - name: Package, install with Setup.exe and create a lesson with the installed app
+        run: python windows/build.py --package
+      - name: Keep the Windows release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: piano-spark-windows
+          path: dist/windows/releases
+          if-no-files-found: error
+          retention-days: 14
+      - name: Keep the Windows screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-screens
+          path: ${{ runner.temp }}/windows-screens
+          if-no-files-found: ignore
+          retention-days: 14
+
   publish:
-    needs: [build, intel]
+    needs: [build, intel, windows]
     if: ${{ !inputs.dry_run }}
     runs-on: macos-15
     timeout-minutes: 20
@@ -149,6 +190,10 @@ jobs:
         with:
           name: piano-spark-release
           path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: piano-spark-windows
+          path: dist/windows/releases
       - name: Prepare Sparkle signing tools
         run: python3 desktop/sparkle.py
       - name: Publish installer, update and signed feed

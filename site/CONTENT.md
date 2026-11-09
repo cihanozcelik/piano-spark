@@ -117,6 +117,11 @@ binary, not open the GitHub releases listing. Keep a separate **Release notes** 
 If the release does not exist, show a disabled pending state instead of presenting
 an active Download button.
 
+Below the Mac details, when the release has `PianoSpark-win-Setup.exe`, show a
+secondary **Download for Windows (beta)** link with “Windows 10 or 11 · 64-bit” and its
+size, and say plainly that Windows may warn about an unsigned beta (More info → Run
+anyway). Without that asset, show nothing about Windows.
+
 Small supporting information:
 
 - **No account required.**

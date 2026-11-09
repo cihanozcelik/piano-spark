@@ -3,6 +3,7 @@
 A desktop piano learning app built around practicing on a physical piano at your own pace.
 The small, self-contained application supports **Macs running macOS 14 or later, with Apple Silicon or
 Intel processors**. See [Intel Macs](#intel-macs) for how lesson creation differs there.
+A **Windows 10 and 11 (64-bit) beta** is published with each release; see [Windows (beta)](#windows-beta).
 
 [Website](https://cihanozcelik.github.io/piano-spark/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
 
@@ -85,6 +86,37 @@ example Apple Silicon reads 608 notes and Intel 608–609, and both match its
 reference MIDI about equally well.
 Vocal separation runs on the processor rather than the graphics processor on Intel,
 so it is considerably slower there.
+
+## Windows (beta)
+
+`windows/` builds the same page and lesson engine into a Windows app: a small
+.NET Framework 4.8 window (built into Windows 10 and 11) that shows the page in the
+system WebView2 and answers the same bridge messages as the Mac app. The page itself
+is unchanged; `windows/wording.py` replaces every Mac-specific sentence with Windows
+wording, and the build fails if a page string mentions the Mac without one.
+
+- **Lesson engine:** the same Python worker with a portable Windows Python. Lesson
+  tools come from `lesson-engine/tools-win_amd64.json`, generated on a Mac with
+  `python3 windows/prepare_lock.py` and `python3 desktop/lock_tools.py win_amd64`.
+  Windows lessons match the Mac: the Bach MIDI makes 549 notes, the PDF 608 and the
+  audio test the same 20 notes.
+- **Bluetooth MIDI:** Windows Bluetooth LE APIs, with the same scanning, connection,
+  pairing and output rules as the Mac helper (`windows/PianoSpark/BleTransport.cs`).
+  It has not yet been tried with a real piano on a Windows PC.
+- **Installer and updates:** Velopack. `PianoSpark-win-Setup.exe` installs per user
+  without administrator rights. Updates are full packages, downloaded in the
+  background and installed on quit, and only accepted when `releases.win.json`
+  carries a valid Ed25519 signature from the same release key as the Mac app.
+  The installer is not yet signed with a publisher certificate, so SmartScreen warns
+  on first launch (More info → Run anyway).
+- **Checks:** `.github/workflows/windows.yml` and the `windows` job of the release
+  workflow create lessons on a real Windows machine, open the app and take
+  screenshots, create a lesson through the page bridge, then install with
+  `Setup.exe` and create a lesson with the installed app. Nothing is published unless
+  these pass.
+
+Build on Windows with Python 3.12, uv and the .NET SDK: `python windows/build.py`
+(add `--package` for the installer, with `dotnet tool install -g vpk --version 1.2.161`).
 
 ## Language selection
 

@@ -46,6 +46,35 @@ def compatibility(universal):
     }
 
 
+WINDOWS_SETUP = 'PianoSpark-win-Setup.exe'
+WINDOWS_HELP = ('Windows may say it protected your PC, because the beta is not yet signed with a '
+                'publisher certificate. Choose More info → Run anyway.')
+
+
+def release_asset(release, name):
+    """A published binary asset of this release, refusing links that point anywhere else."""
+    asset = next((asset for asset in release['assets']
+                  if asset['name'] == name and asset['state'] == 'uploaded' and asset['size'] > 0), None)
+    if asset is None:
+        return None
+    parsed = urlsplit(asset['browser_download_url'])
+    expected_path = f'/{REPOSITORY}/releases/download/{release["tag_name"]}/{asset["name"]}'
+    if (parsed.scheme != 'https' or parsed.netloc != 'github.com'
+            or unquote(parsed.path) != expected_path or parsed.query or parsed.fragment):
+        raise RuntimeError('Download must point directly to this repository’s published binary asset')
+    return asset
+
+
+def windows_download(release):
+    asset = release_asset(release, WINDOWS_SETUP)
+    if asset is None:
+        return ''
+    url = html.escape(asset['browser_download_url'], quote=True)
+    return (f'<div class="windows-download"><a class="text-link" href="{url}">Download for Windows (beta) '
+            f'<span aria-hidden="true">↓</span></a><p>Windows 10 or 11 · 64-bit · {asset["size"]/1e6:.1f} MB installer. '
+            f'{html.escape(WINDOWS_HELP)}</p></div>')
+
+
 def download_context(release_path):
     if release_path is None:
         return {
@@ -55,6 +84,7 @@ def download_context(release_path):
             '__RELEASE_LABEL__': 'First release coming soon',
             '__DOWNLOAD_DETAILS__': 'The first public build is being prepared. No account will be required.',
             '__RELEASE_NOTES_LINK__': '',
+            '__WINDOWS_DOWNLOAD__': '',
         }
 
     release = json.loads(release_path.read_text())
@@ -63,18 +93,11 @@ def download_context(release_path):
     tag = release['tag_name']
     version = tag.removeprefix('v')
     universal = tuple(int(part) for part in version.split('.')[:3]) >= UNIVERSAL_SINCE
-    names = ('PianoSpark-Setup.dmg',)
-    asset = next((asset for name in names for asset in release['assets']
-                  if asset['name'] == name and asset['state'] == 'uploaded' and asset['size'] > 0), None)
+    asset = release_asset(release, 'PianoSpark-Setup.dmg')
     if asset is None:
         return download_context(None)
 
     url = asset['browser_download_url']
-    parsed = urlsplit(url)
-    expected_path = f'/{REPOSITORY}/releases/download/{tag}/{asset["name"]}'
-    if (parsed.scheme != 'https' or parsed.netloc != 'github.com'
-            or unquote(parsed.path) != expected_path or parsed.query or parsed.fragment):
-        raise RuntimeError('Download must point directly to this repository’s published binary asset')
     escaped_url = html.escape(url, quote=True)
     notes_url = html.escape(f'https://github.com/{REPOSITORY}/releases/tag/{tag}', quote=True)
     size = asset['size'] / 1e6
@@ -86,6 +109,7 @@ def download_context(release_path):
         '__RELEASE_LABEL__': html.escape(tag),
         '__DOWNLOAD_DETAILS__': f'macOS 14 or later · {chips["__CHIP_SUMMARY__"]} · {size:.1f} MB · DMG installer',
         '__RELEASE_NOTES_LINK__': f'<a class="release-link" href="{notes_url}">Release notes <span aria-hidden="true">↗</span></a>',
+        '__WINDOWS_DOWNLOAD__': windows_download(release),
     }
 
 

@@ -23,6 +23,8 @@ ARCHIVE = DIST/f'PianoSpark-{CONFIG["version"]}.zip'
 BASE = ROOT/'build/update-baseline'
 BASE_APP = BASE/'Piano Spark.app'
 NS = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
+WINDOWS = DIST/'windows/releases'
+WINDOWS_FEED = WINDOWS/'releases.win.json'
 ET.register_namespace('sparkle', NS)
 
 
@@ -126,6 +128,27 @@ def make_feed(asset_url, metadata, delta_assets, previous_items):
     return feed
 
 
+def windows_files():
+    """The Velopack installer and full package, with the feed signed by the same Ed25519
+    release key; the Windows app refuses updates whose feed signature does not verify."""
+    import hashlib
+    feed=json.loads(WINDOWS_FEED.read_text(encoding='utf-8-sig'))
+    assets=feed['Assets']
+    if len(assets) != 1 or assets[0]['Version'] != CONFIG['version'] or assets[0]['Type'] != 'Full':
+        raise RuntimeError(f'Windows feed must list exactly this full release: {assets}')
+    package=WINDOWS/assets[0]['FileName']
+    if package.stat().st_size != assets[0]['Size'] or hashlib.sha256(package.read_bytes()).hexdigest().lower() != assets[0]['SHA256'].lower():
+        raise RuntimeError('Windows package does not match its feed')
+    setup=WINDOWS/'PianoSpark-win-Setup.exe'
+    if not setup.is_file(): raise RuntimeError('Build the Windows installer before publishing')
+    signature=sign(WINDOWS_FEED)
+    verify_archive(WINDOWS_FEED,signature)
+    sig=WINDOWS/'releases.win.json.sig'
+    sig.write_text(signature+'\n')
+    extra=[WINDOWS/name for name in ('assets.win.json','RELEASES') if (WINDOWS/name).is_file()]
+    return [setup,package,WINDOWS_FEED,sig,*extra]
+
+
 def publish():
     metadata=json.loads((DIST/'update-signature.json').read_text())
     if metadata['version'] != CONFIG['version'] or metadata['build'] != CONFIG['build'] or metadata['size'] != ARCHIVE.stat().st_size:
@@ -172,9 +195,10 @@ def publish():
     if not installer.is_file() or installer.stat().st_size >= 2*1024**3:
         raise RuntimeError('Build the small DMG installer before publishing')
     command('hdiutil','verify',installer)
+    windows=windows_files()
     command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'Piano Spark {CONFIG["version"]}',
             '--notes-file',DIST/'release-notes.txt',ARCHIVE,installer,ROOT/'desktop/release.json',DIST/'update-signature.json',
-            *(DIST/patch['file'] for patch in patches))
+            *(DIST/patch['file'] for patch in patches),*windows)
     # The by-tag endpoint excludes drafts; the authenticated list includes them.
     release=next(item for item in api(f'repos/{REPO}/releases') if item['tag_name']==TAG)
     asset=next(a for a in release['assets'] if a['name']==ARCHIVE.name)
