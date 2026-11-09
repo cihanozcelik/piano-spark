@@ -153,27 +153,28 @@ def previous_release():
     args = ['vpk', 'download', 'github', '--repoUrl', f'https://github.com/{RELEASE["repository"]}', '--outputDir', str(RELEASES)]
     if os.environ.get('GH_TOKEN'): args += ['--token', os.environ['GH_TOKEN']]
     subprocess.run(args, check=True)
-    fulls = []
-    if (RELEASES/'releases.win.json').is_file():
-        fulls = [asset for asset in json.loads((RELEASES/'releases.win.json').read_text(encoding='utf-8-sig'))['Assets']
-                 if asset['Type'] == 'Full' and (RELEASES/asset['FileName']).is_file()]
-    if not fulls or max(version_key(asset['Version']) for asset in fulls) >= version_key(RELEASE['version']):
+    # vpk download fetches only the latest full package; its feed comes signed from the release.
+    names = sorted(RELEASES.glob(f'{PACKAGE_ID}-*-full.nupkg'))
+    versions = [name.name[len(PACKAGE_ID)+1:-len('-full.nupkg')] for name in names]
+    if len(names) != 1 or version_key(versions[0]) >= version_key(RELEASE['version']):
         # Nothing published yet, or a dry run of the version that is already published.
-        print('No older Windows release to patch from; this release has the full package only.')
+        print(f'No older Windows release to patch from ({[n.name for n in names]}); this release has the full package only.')
         shutil.rmtree(RELEASES)
         return False
-    base = max(fulls, key=lambda asset: version_key(asset['Version']))
+    package, previous = names[0], versions[0]
     with tempfile.TemporaryDirectory(prefix='piano-previous-') as folder:
-        subprocess.run(['gh', 'release', 'download', f'v{base["Version"]}', '--repo', RELEASE['repository'],
+        subprocess.run(['gh', 'release', 'download', f'v{previous}', '--repo', RELEASE['repository'],
                         '--pattern', 'releases.win.json', '--pattern', 'releases.win.json.sig', '--dir', folder], check=True)
         feed = Path(folder, 'releases.win.json').read_bytes()
         signature = base64.b64decode(Path(folder, 'releases.win.json.sig').read_text().strip())
     Ed25519PublicKey.from_public_bytes(base64.b64decode(RELEASE['publicKey'])).verify(signature, feed)
     signed = json.loads(feed.decode('utf-8-sig'))['Assets']
-    digest = hashlib.sha256((RELEASES/base['FileName']).read_bytes()).hexdigest()
-    if not any(asset['FileName'] == base['FileName'] and asset['SHA256'].lower() == digest for asset in signed):
+    digest = hashlib.sha256(package.read_bytes()).hexdigest()
+    if not any(asset['FileName'] == package.name and asset['SHA256'].lower() == digest for asset in signed):
         raise RuntimeError('The previous Windows package does not match its signed feed')
-    print(f'Patching from the signed {base["Version"]} package')
+    # Velopack builds the patch from the releases listed in the output folder's feed.
+    (RELEASES/'releases.win.json').write_bytes(feed)
+    print(f'Patching from the signed {previous} package')
     return True
 
 
@@ -264,7 +265,12 @@ def update_check():
     refused = ask(public(Ed25519PrivateKey.generate()), 'wrong-key')
     if refused.get('current') != '0.0.1' or refused.get('available') != '0.0.2' or 'rejected' not in refused:
         raise RuntimeError('An update signed with another key was not refused')
-    accepted = ask(public(key), 'right-key')
+    try:
+        accepted = ask(public(key), 'right-key')
+    except RuntimeError:
+        for log in [*current.parent.rglob('*.log'), *Path(os.environ['TEMP']).glob('*elopack*.log')]:
+            print(f'--- {log}\n{log.read_text(encoding="utf-8", errors="replace")[-6000:]}', flush=True)
+        raise
     if accepted.get('applying') != '0.0.2' or accepted.get('deltas') != 1 or accepted.get('patched') is not True:
         raise RuntimeError('A correctly signed patch was not downloaded and verified')
     deadline = time.monotonic() + 300
