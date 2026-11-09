@@ -129,16 +129,24 @@ def make_feed(asset_url, metadata, delta_assets, previous_items):
 
 
 def windows_files():
-    """The Velopack installer and full package, with the feed signed by the same Ed25519
-    release key; the Windows app refuses updates whose feed signature does not verify."""
+    """The Velopack installer, full package and optional patch from the previous release,
+    with the feed signed by the same Ed25519 release key; the Windows app refuses update
+    files that are not listed in a feed with a valid signature."""
     import hashlib
     feed=json.loads(WINDOWS_FEED.read_text(encoding='utf-8-sig'))
-    assets=feed['Assets']
-    if len(assets) != 1 or assets[0]['Version'] != CONFIG['version'] or assets[0]['Type'] != 'Full':
-        raise RuntimeError(f'Windows feed must list exactly this full release: {assets}')
-    package=WINDOWS/assets[0]['FileName']
-    if package.stat().st_size != assets[0]['Size'] or hashlib.sha256(package.read_bytes()).hexdigest().lower() != assets[0]['SHA256'].lower():
-        raise RuntimeError('Windows package does not match its feed')
+    version=tuple(int(part) for part in CONFIG['version'].split('.'))
+    current=[asset for asset in feed['Assets'] if asset['Version']==CONFIG['version']]
+    kinds=sorted(asset['Type'] for asset in current)
+    if kinds not in (['Full'],['Delta','Full']):
+        raise RuntimeError(f'Windows feed must list this full release and at most one patch: {kinds}')
+    if any(tuple(int(part) for part in asset['Version'].split('.')) > version for asset in feed['Assets']):
+        raise RuntimeError('Windows feed lists a newer version than this release')
+    packages=[]
+    for asset in current:
+        package=WINDOWS/asset['FileName']
+        if package.stat().st_size != asset['Size'] or hashlib.sha256(package.read_bytes()).hexdigest().lower() != asset['SHA256'].lower():
+            raise RuntimeError(f'Windows package {package.name} does not match its feed')
+        packages.append(package)
     setup=WINDOWS/'PianoSpark-win-Setup.exe'
     if not setup.is_file(): raise RuntimeError('Build the Windows installer before publishing')
     signature=sign(WINDOWS_FEED)
@@ -146,7 +154,7 @@ def windows_files():
     sig=WINDOWS/'releases.win.json.sig'
     sig.write_text(signature+'\n')
     extra=[WINDOWS/name for name in ('assets.win.json','RELEASES') if (WINDOWS/name).is_file()]
-    return [setup,package,WINDOWS_FEED,sig,*extra]
+    return [setup,*packages,WINDOWS_FEED,sig,*extra]
 
 
 def publish():

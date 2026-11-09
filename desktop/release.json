@@ -1,22 +1,19 @@
 {
-  "version": "0.9.1",
-  "build": 16,
+  "version": "0.9.2",
+  "build": 17,
   "repository": "cihanozcelik/piano-spark",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Piano Spark is now also available for Windows 10 and 11 (64-bit) as a beta. Download it from the website.",
-    "The Mac and Windows apps now share the same lesson engine; lessons on the Mac are created exactly as before."
+    "Windows updates now download only what changed since your version, and every part is checked against the signed release list before it is installed."
   ],
   "feedURL": "https://cihanozcelik.github.io/piano-spark/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Piano Spark is now also available for Windows 10 and 11 (64-bit) as a beta. Download it from the website.",
-      "The Mac and Windows apps now share the same lesson engine; lessons on the Mac are created exactly as before."
+      "Windows updates now download only what changed since your version, and every part is checked against the signed release list before it is installed."
     ],
     "tr": [
-      "Piano Spark artık Windows 10 ve 11 (64-bit) için de beta olarak var. Web sitesinden indirebilirsin.",
-      "Mac ve Windows uygulamaları artık aynı ders motorunu kullanıyor; Mac'te dersler eskisi gibi oluşturulur."
+      "Windows güncellemeleri artık yalnızca değişen kısmı indiriyor; her parça yüklenmeden önce imzalı sürüm listesine göre doğrulanıyor."
     ]
   }
 }

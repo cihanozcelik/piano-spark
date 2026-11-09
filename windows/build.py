@@ -4,7 +4,7 @@ and the Windows lesson engine. Runs on Windows (GitHub's windows-latest runner).
     python windows/build.py              -> dist/windows/Piano Spark
     python windows/build.py --package    -> also the Velopack installer and update package
                                             in dist/windows/releases, installed and checked,
-                                            plus a real signed update between test versions
+                                            plus a real signed patch update between test versions
     python windows/build.py --capture D  -> a development build that saves screenshots
                                             to D and creates a test lesson, then exits
 """
@@ -119,28 +119,71 @@ def capture(directory, midi):
     print(f'Windows screenshots and bridge self-test passed: {directory}')
 
 
-def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='Piano Spark', notes=None):
-    if output.exists(): shutil.rmtree(output)
+def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='Piano Spark', notes=None, delta=False):
+    """With delta, output must already hold the previous full package and its feed;
+    Velopack then also writes a patch from that version to this one."""
+    if not delta and output.exists(): shutil.rmtree(output)
     args = ['vpk', 'pack', '--packId', package_id, '--packVersion', version, '--packDir', str(app),
             '--mainExe', 'PianoSpark.exe', '--packTitle', title, '--packAuthors', 'Piano Spark',
-            '--icon', str(ROOT/'windows/PianoSpark/PianoSpark.ico'), '--delta', 'None', '--noPortable',
-            '--outputDir', str(output)]
+            '--icon', str(ROOT/'windows/PianoSpark/PianoSpark.ico'), '--delta', 'BestSpeed' if delta else 'None',
+            '--noPortable', '--outputDir', str(output)]
     if notes: args += ['--releaseNotes', str(notes)]
     subprocess.run(args, check=True)
     feed = json.loads((output/'releases.win.json').read_text(encoding='utf-8-sig'))
-    full = [asset for asset in feed['Assets'] if asset['Version'] == version and asset['Type'] == 'Full']
-    if len(full) != 1 or not (output/full[0]['FileName']).is_file() or not (output/f'{package_id}-win-Setup.exe').is_file():
+    made = {asset['Type']: asset for asset in feed['Assets'] if asset['Version'] == version}
+    expected = {'Full', 'Delta'} if delta else {'Full'}
+    if (set(made) != expected or not all((output/asset['FileName']).is_file() for asset in made.values())
+            or not (output/f'{package_id}-win-Setup.exe').is_file()):
         raise RuntimeError(f'Unexpected Velopack output: {sorted(p.name for p in output.iterdir())}')
     return output
 
 
+def version_key(text):
+    return tuple(int(part) for part in text.split('.'))
+
+
+def previous_release():
+    """The latest published Windows package, which this release's patch starts from. Its
+    feed signature is checked with the release key before anything is built on it."""
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    import base64
+    import hashlib
+    if RELEASES.exists(): shutil.rmtree(RELEASES)
+    RELEASES.mkdir(parents=True)
+    args = ['vpk', 'download', 'github', '--repoUrl', f'https://github.com/{RELEASE["repository"]}', '--outputDir', str(RELEASES)]
+    if os.environ.get('GH_TOKEN'): args += ['--token', os.environ['GH_TOKEN']]
+    subprocess.run(args, check=True)
+    fulls = []
+    if (RELEASES/'releases.win.json').is_file():
+        fulls = [asset for asset in json.loads((RELEASES/'releases.win.json').read_text(encoding='utf-8-sig'))['Assets']
+                 if asset['Type'] == 'Full' and (RELEASES/asset['FileName']).is_file()]
+    if not fulls or max(version_key(asset['Version']) for asset in fulls) >= version_key(RELEASE['version']):
+        # Nothing published yet, or a dry run of the version that is already published.
+        print('No older Windows release to patch from; this release has the full package only.')
+        shutil.rmtree(RELEASES)
+        return False
+    base = max(fulls, key=lambda asset: version_key(asset['Version']))
+    with tempfile.TemporaryDirectory(prefix='piano-previous-') as folder:
+        subprocess.run(['gh', 'release', 'download', f'v{base["Version"]}', '--repo', RELEASE['repository'],
+                        '--pattern', 'releases.win.json', '--pattern', 'releases.win.json.sig', '--dir', folder], check=True)
+        feed = Path(folder, 'releases.win.json').read_bytes()
+        signature = base64.b64decode(Path(folder, 'releases.win.json.sig').read_text().strip())
+    Ed25519PublicKey.from_public_bytes(base64.b64decode(RELEASE['publicKey'])).verify(signature, feed)
+    signed = json.loads(feed.decode('utf-8-sig'))['Assets']
+    digest = hashlib.sha256((RELEASES/base['FileName']).read_bytes()).hexdigest()
+    if not any(asset['FileName'] == base['FileName'] and asset['SHA256'].lower() == digest for asset in signed):
+        raise RuntimeError('The previous Windows package does not match its signed feed')
+    print(f'Patching from the signed {base["Version"]} package')
+    return True
+
+
 def package():
-    """Velopack installer and full update package. Deltas are off: every Windows update
-    is a full package listed in the Ed25519-signed releases.win.json."""
+    """Velopack installer, full package and, when an older Windows release exists, a patch
+    from it. Clients accept them only through the Ed25519-signed releases.win.json."""
     app = build(DIST)
     notes = ROOT/'build/windows/release-notes.md'
     notes.write_text('\n'.join(RELEASE['notes'])+'\n', encoding='utf-8')
-    vpk_pack(app, RELEASE['version'], RELEASES, notes=notes)
+    vpk_pack(app, RELEASE['version'], RELEASES, notes=notes, delta=previous_release())
     for path in sorted(RELEASES.iterdir()): print(f'{path.name}: {path.stat().st_size/1e6:.1f} MB')
 
 
@@ -176,31 +219,43 @@ def install_check():
 
 
 def update_check():
-    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 is
-    offered with a feed signed by a temporary test key. A wrong key must be refused;
-    the right key must download, apply and leave 0.0.2 running from the same install."""
+    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 (with a
+    changed file) is offered as a patch, with a feed signed by a temporary test key. A wrong
+    key must be refused. The right key must update through the patch alone: the full 0.0.2
+    package is withheld, so a broken patch cannot pass by falling back to it."""
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
     import base64
     package_id = 'PianoSparkUpdateTest'
     work = ROOT/'build/windows/update-test'
+    if work.exists(): shutil.rmtree(work)
     app = build(work/'app', capture=True)
-    old = vpk_pack(app, '0.0.1', work/'old', package_id, 'Piano Spark Update Test')
-    new = vpk_pack(app, '0.0.2', work/'new', package_id, 'Piano Spark Update Test')
+    changed = work/'app-changed'
+    shutil.copytree(app, changed)
+    (changed/'Resources/update-check.txt').write_text('0.0.2\n', encoding='utf-8')
+    feed_dir = work/'feed'
+    vpk_pack(app, '0.0.1', feed_dir, package_id, 'Piano Spark Update Test')
+    setup = work/'setup-0.0.1.exe'
+    shutil.copy2(feed_dir/f'{package_id}-win-Setup.exe', setup)
+    vpk_pack(changed, '0.0.2', feed_dir, package_id, 'Piano Spark Update Test', delta=True)
     key = Ed25519PrivateKey.generate()
     public = lambda k: base64.b64encode(k.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
-    feed = new/'releases.win.json'
-    (new/'releases.win.json.sig').write_text(base64.b64encode(key.sign(feed.read_bytes())).decode())
+    feed = feed_dir/'releases.win.json'
+    (feed_dir/'releases.win.json.sig').write_text(base64.b64encode(key.sign(feed.read_bytes())).decode())
+    full = next(asset['FileName'] for asset in json.loads(feed.read_text(encoding='utf-8-sig'))['Assets']
+                if asset['Version'] == '0.0.2' and asset['Type'] == 'Full')
+    shutil.move(feed_dir/full, work/full)
 
-    subprocess.run([str(old/f'{package_id}-win-Setup.exe'), '--silent'], check=True, timeout=900)
+    subprocess.run([str(setup), '--silent'], check=True, timeout=900)
     time.sleep(5)
     subprocess.run(['taskkill', '/IM', 'PianoSpark.exe', '/F'], capture_output=True)
-    installed = Path(os.environ['LOCALAPPDATA'])/package_id/'current'/'PianoSpark.exe'
+    current = Path(os.environ['LOCALAPPDATA'])/package_id/'current'
+    installed = current/'PianoSpark.exe'
 
     def ask(public_key, name):
         result = work/f'{name}.json'
         result.unlink(missing_ok=True)
-        subprocess.run([str(installed), '--self-test-update', str(new), public_key, str(result)], check=True, timeout=600)
+        subprocess.run([str(installed), '--self-test-update', str(feed_dir), public_key, str(result)], check=True, timeout=600)
         report = json.loads(result.read_text(encoding='utf-8-sig'))
         print(f'{name}: {report}', flush=True)
         if report.get('error'): raise RuntimeError(f'Update check failed: {report["error"]}')
@@ -209,8 +264,9 @@ def update_check():
     refused = ask(public(Ed25519PrivateKey.generate()), 'wrong-key')
     if refused.get('current') != '0.0.1' or refused.get('available') != '0.0.2' or 'rejected' not in refused:
         raise RuntimeError('An update signed with another key was not refused')
-    if ask(public(key), 'right-key').get('applying') != '0.0.2':
-        raise RuntimeError('A correctly signed update was not downloaded')
+    accepted = ask(public(key), 'right-key')
+    if accepted.get('applying') != '0.0.2' or accepted.get('deltas') != 1 or accepted.get('patched') is not True:
+        raise RuntimeError('A correctly signed patch was not downloaded and verified')
     deadline = time.monotonic() + 300
     time.sleep(5)
     while running('Update.exe') and time.monotonic() < deadline: time.sleep(2)
@@ -218,7 +274,9 @@ def update_check():
     after = ask(public(key), 'after-update')
     if after.get('current') != '0.0.2' or after.get('available') is not None:
         raise RuntimeError('The installed app is not the updated version')
-    print('Signed update installed: 0.0.1 -> 0.0.2; a wrong signature is refused')
+    if (current/'Resources/update-check.txt').read_text(encoding='utf-8').strip() != '0.0.2':
+        raise RuntimeError('The patched app does not contain the changed file')
+    print('Signed patch installed: 0.0.1 -> 0.0.2 without the full package; a wrong signature is refused')
 
 
 def main():

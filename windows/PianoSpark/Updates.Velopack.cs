@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Velopack;
@@ -14,7 +16,9 @@ namespace PianoSpark
     /// Windows updates through Velopack and the project's GitHub releases. Like Sparkle on
     /// the Mac, an update is trusted only when its feed carries a valid Ed25519 signature
     /// from the release key in release.json; Velopack then checks the package's SHA-256
-    /// against that signed feed. Updates download in the background and install on quit.
+    /// against that signed feed. Every file, the full package and each patch, must be listed
+    /// in the signed feed, and the package rebuilt from patches must match the signed full
+    /// package before it is installed. Updates download in the background and install on quit.
     /// </summary>
     sealed partial class Updates
     {
@@ -54,11 +58,12 @@ namespace PianoSpark
                 var info = await manager.CheckForUpdatesAsync();
                 if (info == null) { status = "En güncel sürüm yüklü."; return; }
                 var target = info.TargetFullRelease;
-                await VerifySigned(target);
+                var signed = await SignedFeed(target);
+                RequireSigned(signed, info);
                 availableVersion = target.Version.ToString();
                 availableNotes = target.NotesMarkdown ?? "";
                 status = "Yeni sürüm arka planda indiriliyor…"; Changed();
-                await manager.DownloadUpdatesAsync(info);
+                await Download(manager, info, signed);
                 pending = info;
                 status = "Güncelleme indirildi. Piano Spark yeniden başlatılınca yüklenecek.";
             }
@@ -71,7 +76,7 @@ namespace PianoSpark
         }
 
         /// <summary>The update's release must carry releases.win.json signed with the release key.</summary>
-        async Task VerifySigned(VelopackAsset target)
+        async Task<List<Dictionary<string, object>>> SignedFeed(VelopackAsset target)
         {
             var folder = "https://github.com/" + repository + "/releases/download/v" + target.Version + "/";
             byte[] feed;
@@ -82,19 +87,69 @@ namespace PianoSpark
                 feed = await http.GetByteArrayAsync(folder + "releases.win.json");
                 signature = await http.GetStringAsync(folder + "releases.win.json.sig");
             }
-            CheckSignature(publicKey, feed, signature, target);
+            return SignedAssets(publicKey, feed, signature);
         }
 
-        /// <summary>Throws unless the feed is signed by the key and lists exactly this package.</summary>
-        public static void CheckSignature(byte[] key, byte[] feed, string signature, VelopackAsset target)
+        /// <summary>The packages listed in a feed, only when the feed carries a valid signature from the key.</summary>
+        public static List<Dictionary<string, object>> SignedAssets(byte[] key, byte[] feed, string signature)
         {
             if (!Ed25519.Verify(key, feed, Convert.FromBase64String(signature.Trim())))
                 throw new InvalidOperationException("The update feed signature is invalid");
-            var assets = Collections.AsList(Json.Object(Encoding.UTF8.GetString(feed).TrimStart('\uFEFF'))?["Assets"]);
-            var signed = assets.Cast<object>().OfType<Dictionary<string, object>>().Any(asset =>
-                asset.Text("FileName") == target.FileName &&
-                string.Equals(asset.Text("SHA256"), target.SHA256, StringComparison.OrdinalIgnoreCase));
-            if (!signed) throw new InvalidOperationException("The update package is not in the signed feed");
+            return Collections.AsList(Json.Object(Encoding.UTF8.GetString(feed).TrimStart('\uFEFF'))?["Assets"])
+                .Cast<object>().OfType<Dictionary<string, object>>().ToList();
+        }
+
+        static bool Lists(List<Dictionary<string, object>> signed, string fileName, string sha256, long size) =>
+            signed.Any(asset => asset.Text("FileName") == fileName && asset.Number("Size") == size &&
+                string.Equals(asset.Text("SHA256"), sha256, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>Every file Velopack will download, the full package and each patch, must be in the signed feed.</summary>
+        public static void RequireSigned(List<Dictionary<string, object>> signed, UpdateInfo info)
+        {
+            foreach (var asset in new[] { info.TargetFullRelease }.Concat(info.DeltasToTarget))
+                if (string.IsNullOrEmpty(asset.SHA256) || !Lists(signed, asset.FileName, asset.SHA256, asset.Size))
+                    throw new InvalidOperationException("The update file " + asset.FileName + " is not in the signed feed");
+        }
+
+        /// <summary>
+        /// Downloads the update, as patches when Velopack offers them. If the rebuilt package does
+        /// not match the signed full package, it is deleted and the full package downloaded instead.
+        /// Returns true when the patches were used.
+        /// </summary>
+        public static async Task<bool> Download(UpdateManager manager, UpdateInfo info, List<Dictionary<string, object>> signed)
+        {
+            await manager.DownloadUpdatesAsync(info);
+            try { RequireDownloaded(signed, info.TargetFullRelease); return info.DeltasToTarget.Length > 0; }
+            catch (InvalidOperationException) when (info.DeltasToTarget.Length > 0)
+            {
+                Trace.WriteLine("The package rebuilt from patches did not match; downloading the full package");
+                await manager.DownloadUpdatesAsync(new UpdateInfo(info.TargetFullRelease, info.IsDowngrade));
+                RequireDownloaded(signed, info.TargetFullRelease);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// The package Velopack will install, whether downloaded whole or rebuilt from patches,
+        /// must be byte for byte the full package in the signed feed. A mismatch is deleted.
+        /// </summary>
+        public static void RequireDownloaded(List<Dictionary<string, object>> signed, VelopackAsset target)
+        {
+            var root = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar));
+            var package = Path.Combine(root, "packages", target.FileName);
+            string digest;
+            long size;
+            using (var sha = SHA256.Create())
+            using (var stream = File.OpenRead(package))
+            {
+                size = stream.Length;
+                digest = BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+            }
+            if (!Lists(signed, target.FileName, digest, size))
+            {
+                Files.Delete(package);
+                throw new InvalidOperationException("The downloaded update does not match the signed feed");
+            }
         }
 
         partial void Install()

@@ -65,6 +65,7 @@ jobs:
           python -m pip install cryptography==46.0.3
       - name: Package, install with Setup.exe, create a lesson and install a signed update
         env:
+          GH_TOKEN: ${{ github.token }}
           PYTHONUTF8: '1'
         run: python windows/build.py --package
       - uses: actions/upload-artifact@v4

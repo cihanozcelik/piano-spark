@@ -10,7 +10,9 @@ namespace PianoSpark
     /// <summary>
     /// Development-only check of a real installed update, never in releases:
     /// --self-test-update FOLDER KEY RESULT checks FOLDER for a newer package, accepts it only
-    /// with a feed signature from KEY (base64 Ed25519), then downloads and applies it on exit.
+    /// with a feed signature from KEY (base64 Ed25519) listing every file, downloads it (as
+    /// patches when available), checks the rebuilt package against the signed feed and
+    /// applies it on exit.
     /// </summary>
     static class UpdateSelfTest
     {
@@ -27,15 +29,19 @@ namespace PianoSpark
                 if (info != null)
                 {
                     var target = info.TargetFullRelease;
+                    result["deltas"] = info.DeltasToTarget.Length;
+                    result["base"] = info.BaseRelease?.Version.ToString();
+                    List<Dictionary<string, object>> signed = null;
                     try
                     {
-                        Updates.CheckSignature(Convert.FromBase64String(key), File.ReadAllBytes(Path.Combine(folder, "releases.win.json")),
-                            File.ReadAllText(Path.Combine(folder, "releases.win.json.sig")), target);
+                        signed = Updates.SignedAssets(Convert.FromBase64String(key), File.ReadAllBytes(Path.Combine(folder, "releases.win.json")),
+                            File.ReadAllText(Path.Combine(folder, "releases.win.json.sig")));
+                        Updates.RequireSigned(signed, info);
                     }
                     catch (InvalidOperationException error) { result["rejected"] = error.Message; }
                     if (!result.ContainsKey("rejected"))
                     {
-                        manager.DownloadUpdatesAsync(info).GetAwaiter().GetResult();
+                        result["patched"] = Updates.Download(manager, info, signed).GetAwaiter().GetResult();
                         result["applying"] = target.Version.ToString();
                         File.WriteAllText(resultPath, Json.Write(result));
                         manager.WaitExitThenApplyUpdates(target, true, false);

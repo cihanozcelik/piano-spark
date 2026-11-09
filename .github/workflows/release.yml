@@ -138,6 +138,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 90
     env:
+      GH_TOKEN: ${{ github.token }}
       PYTHONUTF8: '1'
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
