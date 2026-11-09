@@ -3,7 +3,7 @@ using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// Ed25519 signature verification (RFC 8032 section 5.1.7), for the same release

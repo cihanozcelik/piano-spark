@@ -1,4 +1,4 @@
-"""Verify a built universal Piano Spark on an Intel Mac (or under Rosetta 2).
+"""Verify a built universal Rach3 on an Intel Mac (or under Rosetta 2).
 
 Release CI runs this on GitHub's Intel runner before anything is published:
 the app must be universal and correctly signed, signed updates and deltas must
@@ -34,7 +34,7 @@ def architectures(path):
 def check_bundle(app):
     run('codesign', '--verify', '--deep', '--strict', app)
     engine = app/'Contents/Resources/Engine'
-    for binary in [app/'Contents/MacOS/PianoMan',
+    for binary in [app/'Contents/MacOS/Rach3',
                    app/'Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle',
                    app/'Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate',
                    engine/'vendor/diffq/bitpack.cpython-312-darwin.so']:
@@ -47,15 +47,15 @@ def check_bundle(app):
     print('Universal bundle, signatures and engine layout verified', flush=True)
 
 
-def check_updates(dist, baseline=ROOT/'build/update-baseline/Piano Spark.app'):
+def check_updates(dist, baseline=ROOT/'build/update-baseline/Rach3.app'):
     from release import verify_archive, SPARKLE, prepare
     metadata = json.loads((dist/'update-signature.json').read_text())
-    archive = dist/f'PianoSpark-{metadata["version"]}.zip'
+    archive = dist/f'Rach3-{metadata["version"]}.zip'
     verify_archive(archive, metadata['signature'])
     with tempfile.TemporaryDirectory(prefix='piano-intel-update-') as directory:
         folder = Path(directory)
         run('ditto', '-x', '-k', archive, folder)
-        updated = folder/'Piano Spark.app'
+        updated = folder/'Rach3.app'
         run('codesign', '--verify', '--deep', '--strict', updated)
         for patch in metadata.get('deltas', []):
             path = dist/patch['file']
@@ -63,7 +63,7 @@ def check_updates(dist, baseline=ROOT/'build/update-baseline/Piano Spark.app'):
             if not baseline.exists():
                 raise RuntimeError('Fetch the update baseline before verifying deltas')
             prepare()
-            patched = folder/'patched'/patch['file']/'Piano Spark.app'
+            patched = folder/'patched'/patch['file']/'Rach3.app'
             patched.parent.mkdir(parents=True)
             run(SPARKLE/'bin/BinaryDelta', 'apply', baseline, patched, path)
             run('codesign', '--verify', '--deep', '--strict', patched)
@@ -144,9 +144,9 @@ def check_engine(app, tools=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--app', type=Path, default=ROOT/'dist/Piano Spark.app')
+    parser.add_argument('--app', type=Path, default=ROOT/'dist/Rach3.app')
     parser.add_argument('--dist', type=Path, default=ROOT/'dist', help='Folder with the signed update and its metadata')
-    parser.add_argument('--baseline', type=Path, default=ROOT/'build/update-baseline/Piano Spark.app',
+    parser.add_argument('--baseline', type=Path, default=ROOT/'build/update-baseline/Rach3.app',
                         help='Signed previous app that the update deltas start from')
     parser.add_argument('--skip-updates', action='store_true')
     parser.add_argument('--skip-engine', action='store_true')

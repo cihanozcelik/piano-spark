@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// Port of desktop/LessonService.m. One lesson job at a time: the page uploads the

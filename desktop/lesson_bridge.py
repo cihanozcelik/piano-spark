@@ -42,8 +42,8 @@ class LessonBridge:
         self.closed = False
         self.phase = 'idle'
         self.replies = queue.Queue()
-        self.support = Path.home()/'Library/Application Support/PianoManDevelopment'
-        self.tools = Path.home()/'Library/Application Support/PianoMan/Tools/1'
+        self.support = Path.home()/'Library/Application Support/Rach3Development'
+        self.tools = Path.home()/'Library/Application Support/Rach3/Tools/1'
 
     def _read(self,process,replies):
         try:

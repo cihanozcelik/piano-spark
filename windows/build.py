@@ -1,7 +1,7 @@
 """Build the Windows app folder: the C# shell, the same offline page as the Mac app,
 and the Windows lesson engine. Runs on Windows (GitHub's windows-latest runner).
 
-    python windows/build.py              -> dist/windows/Piano Spark
+    python windows/build.py              -> dist/windows/Rach3
     python windows/build.py --package    -> also the Velopack installer and update package
                                             in dist/windows/releases, installed and checked,
                                             plus a real signed patch update between test versions
@@ -25,10 +25,10 @@ sys.path[:0] = [str(ROOT/'windows'), str(ROOT/'desktop')]
 from engine import prepare_runtime, stage_engine  # noqa: E402
 
 RELEASE = json.loads((ROOT/'desktop/release.json').read_text(encoding='utf-8'))
-PROJECT = ROOT/'windows/PianoSpark/PianoSpark.csproj'
-DIST = ROOT/'dist/windows/Piano Spark'
+PROJECT = ROOT/'windows/Rach3/Rach3.csproj'
+DIST = ROOT/'dist/windows/Rach3'
 RELEASES = ROOT/'dist/windows/releases'
-PACKAGE_ID = 'PianoSpark'
+PACKAGE_ID = 'Rach3'
 SETUP = f'{PACKAGE_ID}-win-Setup.exe'
 
 
@@ -104,9 +104,9 @@ def build(destination, capture=False):
 
 
 def capture(directory, midi):
-    app = build(ROOT/'build/windows/capture/Piano Spark', capture=True)
+    app = build(ROOT/'build/windows/capture/Rach3', capture=True)
     directory.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run([str(app/'PianoSpark.exe'), '--capture', str(directory), '--self-test-midi', str(midi)],
+    result = subprocess.run([str(app/'Rach3.exe'), '--capture', str(directory), '--self-test-midi', str(midi)],
                             timeout=1200)
     for name in ('capture-error.txt', 'page-errors.txt', 'self-test.json'):
         path = directory/name
@@ -119,13 +119,13 @@ def capture(directory, midi):
     print(f'Windows screenshots and bridge self-test passed: {directory}')
 
 
-def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='Piano Spark', notes=None, delta=False):
+def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='Rach3', notes=None, delta=False):
     """With delta, output must already hold the previous full package and its feed;
     Velopack then also writes a patch from that version to this one."""
     if not delta and output.exists(): shutil.rmtree(output)
     args = ['vpk', 'pack', '--packId', package_id, '--packVersion', version, '--packDir', str(app),
-            '--mainExe', 'PianoSpark.exe', '--packTitle', title, '--packAuthors', 'Piano Spark',
-            '--icon', str(ROOT/'windows/PianoSpark/PianoSpark.ico'), '--delta', 'BestSpeed' if delta else 'None',
+            '--mainExe', 'Rach3.exe', '--packTitle', title, '--packAuthors', 'Rach3',
+            '--icon', str(ROOT/'windows/Rach3/Rach3.ico'), '--delta', 'BestSpeed' if delta else 'None',
             '--noPortable', '--outputDir', str(output)]
     if notes: args += ['--releaseNotes', str(notes)]
     subprocess.run(args, check=True)
@@ -188,7 +188,7 @@ def package():
     for path in sorted(RELEASES.iterdir()): print(f'{path.name}: {path.stat().st_size/1e6:.1f} MB')
 
 
-def running(image='PianoSpark.exe'):
+def running(image='Rach3.exe'):
     tasks = subprocess.run(['tasklist', '/FI', f'IMAGENAME eq {image}', '/FO', 'CSV', '/NH'],
                            capture_output=True, text=True).stdout
     return image.lower() in tasks.lower()
@@ -199,17 +199,17 @@ def install_check():
     with its installed engine, as a new Windows user would."""
     subprocess.run([str(RELEASES/SETUP), '--silent'], check=True, timeout=900)
     root = Path(os.environ['LOCALAPPDATA'])/PACKAGE_ID
-    app = root/'current'/'PianoSpark.exe'
+    app = root/'current'/'Rach3.exe'
     engine = root/'current'/'Engine'
     if not app.is_file() or not (engine/'python/python.exe').is_file():
         raise RuntimeError(f'Setup did not install the app: {sorted(p.name for p in root.iterdir())}')
     time.sleep(5)
     if not running(): subprocess.Popen([str(app)])
     time.sleep(30)
-    webview = Path(os.environ['LOCALAPPDATA'])/'Piano Spark'/'WebView'
+    webview = Path(os.environ['LOCALAPPDATA'])/'Rach3'/'WebView'
     if not running() or not webview.is_dir():
         raise RuntimeError('The installed app did not stay open with its web view')
-    subprocess.run(['taskkill', '/IM', 'PianoSpark.exe', '/F'], capture_output=True)
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
     from verify_engine import lesson
     with tempfile.TemporaryDirectory(prefix='piano-installed-') as folder:
         work = Path(folder)
@@ -227,7 +227,7 @@ def update_check():
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
     import base64
-    package_id = 'PianoSparkUpdateTest'
+    package_id = 'Rach3UpdateTest'
     work = ROOT/'build/windows/update-test'
     if work.exists(): shutil.rmtree(work)
     app = build(work/'app', capture=True)
@@ -235,10 +235,10 @@ def update_check():
     shutil.copytree(app, changed)
     (changed/'Resources/update-check.txt').write_text('0.0.2\n', encoding='utf-8')
     feed_dir = work/'feed'
-    vpk_pack(app, '0.0.1', feed_dir, package_id, 'Piano Spark Update Test')
+    vpk_pack(app, '0.0.1', feed_dir, package_id, 'Rach3 Update Test')
     setup = work/'setup-0.0.1.exe'
     shutil.copy2(feed_dir/f'{package_id}-win-Setup.exe', setup)
-    vpk_pack(changed, '0.0.2', feed_dir, package_id, 'Piano Spark Update Test', delta=True)
+    vpk_pack(changed, '0.0.2', feed_dir, package_id, 'Rach3 Update Test', delta=True)
     key = Ed25519PrivateKey.generate()
     public = lambda k: base64.b64encode(k.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
     feed = feed_dir/'releases.win.json'
@@ -249,9 +249,9 @@ def update_check():
 
     subprocess.run([str(setup), '--silent'], check=True, timeout=900)
     time.sleep(5)
-    subprocess.run(['taskkill', '/IM', 'PianoSpark.exe', '/F'], capture_output=True)
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
     current = Path(os.environ['LOCALAPPDATA'])/package_id/'current'
-    installed = current/'PianoSpark.exe'
+    installed = current/'Rach3.exe'
 
     def ask(public_key, name):
         result = work/f'{name}.json'

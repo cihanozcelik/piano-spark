@@ -43,9 +43,9 @@ kullanılır ve sayısı açıklamada belirtilir. Pedal ikilidir; fiziksel bası
 
 CPU dört thread ile sınırlıdır. Vokal ayırma MPS varsa kullanır; MPS süreç bütçesi
 önerilen GPU belleğinin %20'sidir. Rubato CPU kullanır. Küçük Python çalışma ortamı ve işçi kaynakları app Resources/Engine içindedir.
-Diğer araçlar kullanıcıya ait `Application Support/PianoMan/Tools/1` altında saklanır.
+Diğer araçlar kullanıcıya ait `Application Support/Rach3/Tools/1` altında saklanır.
 Tarayıcı geliştirme servisi de aynı araç deposunu kullanır; geliştirme dersleri ve
-işleri `PianoManDevelopment` altında ayrı kalır. `LessonService` araç konumunu
+işleri `Rach3Development` altında ayrı kalır. `LessonService` araç konumunu
 başlatılırken alır; katalog durumu ve worker aynı konumu kullanır.
 Python bytecode yazımı kapalıdır. Dersin geçici medya dosyaları Jobs dizinine aittir.
 

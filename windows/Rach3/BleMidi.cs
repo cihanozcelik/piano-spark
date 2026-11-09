@@ -8,7 +8,7 @@ using System.Threading;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Security.Cryptography;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>BLE-MIDI 1.0 packet decoder; a line-by-line port of bluetooth-connection/BLEMIDI.m.</summary>
     sealed class BleMidiDecoder

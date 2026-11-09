@@ -1,4 +1,4 @@
-# PianoMan Bluetooth connection
+# Rach3 Bluetooth connection
 
 Standart Bluetooth MIDI cihazları için macOS 13+ üzerinde çalışan yerel BLE MIDI giriş/çıkışı.
 Objective-C ve CoreBluetooth kullanır. CoreMIDI sürücüsü oluşturmaz;
@@ -113,7 +113,7 @@ Bluetooth'u kapalı, uzak veya meşgul olduğunu tek başına kanıtlamaz; aray�
 sınırı açıkça söyler. Genel zaman aşımı bilinen Mac/izin hatasını örtemez.
 Yeni deneme önceki tanıyı temizler; kapanış bitmeden yeniden deneme açılmaz.
 
-“Kayıtlı piyanoyu yeniden ara” yalnız PianoMan'in sakladığı UUID seçimini silip
+“Kayıtlı piyanoyu yeniden ara” yalnız Rach3’ün sakladığı UUID seçimini silip
 adı/servisiyle yeniden arar. macOS eşleştirmelerini, diğer uygulamaları veya
 piyanonun ayarlarını değiştirmez. Bu işlem yalnız kullanıcı düğmeye basarsa yapılır.
 

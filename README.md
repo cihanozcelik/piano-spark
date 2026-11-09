@@ -1,4 +1,4 @@
-# Piano Spark
+# Rach3
 
 A desktop piano learning app built around practicing on a physical piano at your own pace.
 The small, self-contained application supports **Macs running macOS 14 or later, with Apple Silicon or
@@ -7,7 +7,7 @@ A **Windows 10 and 11 (64-bit) beta** is published with each release; see [Windo
 
 [Website](https://cihanozcelik.github.io/piano-spark/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
 
-Piano Spark is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
+Rach3 is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
 whole app is in **public beta**: practice works day to day, but features are still
 changing and lessons made from recordings or PDFs can contain wrong notes or rhythms.
 Please [report what you find](https://github.com/cihanozcelik/piano-spark/issues).
@@ -21,7 +21,7 @@ every model, its authors and its license.
 
 ## Installation and distribution
 
-**`dist/PianoSpark-Setup.dmg`** contains **Piano Spark.app** and an **Applications**
+**`dist/Rach3-Setup.dmg`** contains **Rach3.app** and an **Applications**
 shortcut. Drag the app onto that shortcut, then open the installed copy from
 Applications. There is no separate Installer application. Existing installations
 receive automatic updates in place, preserving saved lessons.
@@ -34,9 +34,9 @@ downloaded data. Once the tools are downloaded, local files can be processed off
 YouTube imports require an internet connection. The app does not install system
 Python, Homebrew, login items, or system services.
 
-**Piano Spark → Uninstall Piano Spark…** asks for confirmation, stops the app's
+**Rach3 → Uninstall Rach3…** asks for confirmation, stops the app's
 running jobs, and removes the application, downloaded tools,
-`~/Library/Application Support/PianoMan/`, app preferences, WebKit data, caches,
+`~/Library/Application Support/Rach3/`, app preferences, WebKit data, caches,
 and saved window state. Saved lessons are also removed. Original videos, exported
 MIDI files, and downloaded DMG files remain untouched. Deleting only the app in
 Finder does not delete saved lessons. The development repository and its separate
@@ -80,7 +80,7 @@ GitHub enforces the same rule for every push, with or without the hooks.
 The developer machine needs Python 3 and Xcode Command Line Tools.
 
 1. Run `python3 desktop/prepare_engine.py` to prepare the small Apple Silicon and Intel Python runtimes. This step requires uv.
-2. Run `./build-app.command` to bundle the universal native application and both runtimes, apply an ad-hoc signature, and create `dist/PianoSpark-Setup.dmg`.
+2. Run `./build-app.command` to bundle the universal native application and both runtimes, apply an ad-hoc signature, and create `dist/Rach3-Setup.dmg`.
 
 `python3 desktop/build.py --app-only` builds only the application.
 `python3 desktop/build.py --installer-only` creates the DMG from an existing app bundle.
@@ -124,9 +124,9 @@ wording, and the build fails if a page string mentions the Mac without one.
   Windows lessons match the Mac: the Bach MIDI makes 549 notes, the PDF 608 and the
   audio test the same 20 notes.
 - **Bluetooth MIDI:** Windows Bluetooth LE APIs, with the same scanning, connection,
-  pairing and output rules as the Mac helper (`windows/PianoSpark/BleTransport.cs`).
+  pairing and output rules as the Mac helper (`windows/Rach3/BleTransport.cs`).
   It has not yet been tried with a real piano on a Windows PC.
-- **Installer and updates:** Velopack. `PianoSpark-win-Setup.exe` installs per user
+- **Installer and updates:** Velopack. `Rach3-win-Setup.exe` installs per user
   without administrator rights. Each release also carries a patch from the previous
   Windows release (0.9.1 → 0.9.2: 1.1 MB instead of 26 MB), applied to the installed
   package; without it, the full package is downloaded. Updates download in the
@@ -324,7 +324,7 @@ The native application owns the Bluetooth helper process. A private `--bluetooth
 entry point in the same executable runs the CoreBluetooth implementation; no
 separate installation, compiler, or Python tool is needed. JSON events reach the
 page's input interface through the app. Native runtime files live under
-`~/Library/Application Support/PianoMan/Bluetooth/`. Device names, UUIDs, output
+`~/Library/Application Support/Rach3/Bluetooth/`. Device names, UUIDs, output
 channels, the default device, and automatic connection preferences belong to the
 `bluetooth` section of the shared `WorkspaceState` owner. The note stream is not
 recorded to disk.
@@ -393,7 +393,7 @@ interface. `/api/lessons/command` is only the local HTTP transport: the same
 The model implementation remains in `lesson-engine/worker.py`. Development engine
 links live under `build/browser/Engine/`; existing local Python, package, and model
 files are not copied again. Development lessons live in
-`~/Library/Application Support/PianoManDevelopment/`, separate from the installed
+`~/Library/Application Support/Rach3Development/`, separate from the installed
 app's lessons.
 
 When LessonService or LessonHost changes, the small helper is rebuilt while idle;
@@ -626,7 +626,7 @@ provenance is recorded in `site/IMAGEGEN.md`.
 
 ## License and credits
 
-Piano Spark is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+Rach3 is licensed under the [GNU Affero General Public License v3.0](LICENSE).
 Models, libraries and fonts keep their own licenses; [CREDITS.md](CREDITS.md) lists
 each one with its authors. Lesson tools are downloaded from their original publishers
 on first use and are not redistributed in this repository.

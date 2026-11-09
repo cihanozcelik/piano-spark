@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// The Mac app's Turkish→English native strings (extracted from desktop/Localization.m
@@ -44,11 +44,11 @@ namespace PianoSpark
         {
             get
             {
-                var saved = settings?.Get("PianoSparkLanguage");
+                var saved = settings?.Get("Rach3Language");
                 if (saved == "en" || saved == "tr") return saved;
                 return CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "tr" ? "tr" : "en";
             }
-            set => settings.Set("PianoSparkLanguage", value);
+            set => settings.Set("Rach3Language", value);
         }
 
         public static string Text(string text)

@@ -108,7 +108,7 @@
   "%150": "150%",
   "%200": "200%"
 };
-  const storageKey = 'piano-spark-language';
+  const storageKey = 'rach3-language';
   const native = window.webkit?.messageHandlers?.pianoman;
   const valid = value => value === 'tr' || value === 'en';
   let language = (navigator.languages?.[0] || navigator.language || 'en').toLowerCase().startsWith('tr') ? 'tr' : 'en';

@@ -7,10 +7,10 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <PlatformTarget>x64</PlatformTarget>
-    <AssemblyName>PianoSpark</AssemblyName>
-    <RootNamespace>PianoSpark</RootNamespace>
+    <AssemblyName>Rach3</AssemblyName>
+    <RootNamespace>Rach3</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon Condition="Exists('PianoSpark.ico')">PianoSpark.ico</ApplicationIcon>
+    <ApplicationIcon Condition="Exists('Rach3.ico')">Rach3.ico</ApplicationIcon>
     <Version Condition="'$(PianoVersion)' != ''">$(PianoVersion)</Version>
     <Product>Rach3</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

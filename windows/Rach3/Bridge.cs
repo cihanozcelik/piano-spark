@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Web.WebView2.Core;
 
-namespace PianoSpark
+namespace Rach3
 {
     sealed partial class MainForm
     {

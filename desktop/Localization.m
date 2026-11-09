@@ -1,13 +1,13 @@
 #import "Localization.h"
 
 NSString *PianoLanguage(void) {
-    NSString *saved = [NSUserDefaults.standardUserDefaults stringForKey:@"PianoSparkLanguage"];
+    NSString *saved = [NSUserDefaults.standardUserDefaults stringForKey:@"Rach3Language"];
     if ([saved isEqual:@"en"] || [saved isEqual:@"tr"]) return saved;
     return [NSLocale.preferredLanguages.firstObject.lowercaseString hasPrefix:@"tr"] ? @"tr" : @"en";
 }
 
 void PianoSetLanguage(NSString *language) {
-    [NSUserDefaults.standardUserDefaults setObject:language forKey:@"PianoSparkLanguage"];
+    [NSUserDefaults.standardUserDefaults setObject:language forKey:@"Rach3Language"];
 }
 
 NSString *PianoText(NSString *text) {

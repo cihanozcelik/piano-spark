@@ -6,7 +6,7 @@ using Velopack;
 using Velopack.Logging;
 using Velopack.Sources;
 
-namespace PianoSpark
+namespace Rach3
 {
     /// <summary>
     /// Development-only check of a real installed update, never in releases:
