@@ -166,6 +166,7 @@ def main():
 
     write_ui(resources)
     shutil.copytree(ROOT / 'assets/bravura', resources / 'assets/bravura')
+    shutil.copytree(ROOT / 'assets/brand', resources / 'assets/brand')
     bundle_engine(resources)
     shutil.copy2(ROOT/'desktop/release.json',resources/'release.json')
     frameworks = APP/'Contents/Frameworks'
@@ -175,7 +176,10 @@ def main():
     compile_native(executable / 'Rach3', BUILD)
     iconset = BUILD / 'Rach3.iconset'
     iconset.mkdir(exist_ok=True)
-    run('xcrun', 'swift', ROOT / 'desktop/Icon.swift', iconset)
+    for size in (16, 32, 128, 256, 512):   # desktop/AppIcon.png comes from brand/make.py
+        for scale in (1, 2):
+            name = f'icon_{size}x{size}' + ('@2x' if scale == 2 else '') + '.png'
+            run('sips', '-z', size*scale, size*scale, ROOT/'desktop/AppIcon.png', '--out', iconset/name)
     run('iconutil', '-c', 'icns', iconset, '-o', resources / 'Rach3.icns')
     run('codesign', '--force', '--sign', '-', '--timestamp=none', APP)
     run('codesign', '--verify', '--deep', '--strict', APP)

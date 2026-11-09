@@ -79,6 +79,7 @@ def write_resources(resources):
     page.write_text(html.replace('<head>', '<head>'+script, 1), encoding='utf-8')
     # The page loads its music font next to itself, as in the Mac app.
     shutil.copytree(ROOT/'assets/bravura', resources/'assets/bravura')
+    shutil.copytree(ROOT/'assets/brand', resources/'assets/brand')
     (resources/'strings.json').write_text(json.dumps(native_strings(), ensure_ascii=False, indent=1), encoding='utf-8')
     shutil.copy2(ROOT/'desktop/release.json', resources/'release.json')
 

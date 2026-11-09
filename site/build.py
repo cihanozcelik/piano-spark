@@ -15,6 +15,11 @@ STATIC_FILES = (
     'assets/practice.png',
     'assets/create-lesson.png',
     'assets/keyboard-hero.jpg',
+    'assets/rach3-wordmark.png',
+    'assets/rach3-app-icon.png',
+    'assets/rach3-logo.png',
+    'assets/favicon.png',
+    'assets/apple-touch-icon.png',
 )
 
 

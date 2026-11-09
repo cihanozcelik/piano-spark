@@ -625,6 +625,13 @@ and preferences, then removes the capture executable. Personal lessons, library
 data, and workspace preferences are not used or modified. Generated artwork
 provenance is recorded in `site/IMAGEGEN.md`.
 
+The logo, app icons and favicons all come from one image,
+`brand/rach3-logo-source.png`. After changing it, run `python3 brand/make.py`
+(needs numpy and Pillow) and commit what it writes: the transparent logo pieces
+in `brand/`, the website images in `site/assets/`, the app header wordmark in
+`assets/brand/`, `desktop/AppIcon.png` (the macOS icon) and
+`windows/Rach3/Rach3.ico`.
+
 ## License and credits
 
 Rach3 is licensed under the [GNU Affero General Public License v3.0](LICENSE).
