@@ -154,8 +154,10 @@ jobs:
       - name: Open the Windows app, capture its screens and create a lesson through the page
         run: python windows/build.py --capture "$env:RUNNER_TEMP\windows-screens"
       - name: Install the Velopack packager
-        run: dotnet tool install -g vpk --version 1.2.161
-      - name: Package, install with Setup.exe and create a lesson with the installed app
+        run: |
+          dotnet tool install -g vpk --version 1.2.161
+          python -m pip install cryptography==46.0.3
+      - name: Package, install with Setup.exe, create a lesson and install a signed update
         run: python windows/build.py --package
       - name: Keep the Windows release files
         uses: actions/upload-artifact@v4

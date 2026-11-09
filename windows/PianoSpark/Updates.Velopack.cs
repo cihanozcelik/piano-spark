@@ -80,11 +80,17 @@ namespace PianoSpark
             {
                 http.DefaultRequestHeaders.UserAgent.ParseAdd("PianoSpark/" + Version);
                 feed = await http.GetByteArrayAsync(folder + "releases.win.json");
-                signature = (await http.GetStringAsync(folder + "releases.win.json.sig")).Trim();
+                signature = await http.GetStringAsync(folder + "releases.win.json.sig");
             }
-            if (!Ed25519.Verify(publicKey, feed, Convert.FromBase64String(signature)))
+            CheckSignature(publicKey, feed, signature, target);
+        }
+
+        /// <summary>Throws unless the feed is signed by the key and lists exactly this package.</summary>
+        public static void CheckSignature(byte[] key, byte[] feed, string signature, VelopackAsset target)
+        {
+            if (!Ed25519.Verify(key, feed, Convert.FromBase64String(signature.Trim())))
                 throw new InvalidOperationException("The update feed signature is invalid");
-            var assets = Collections.AsList(Json.Object(Encoding.UTF8.GetString(feed))?["Assets"]);
+            var assets = Collections.AsList(Json.Object(Encoding.UTF8.GetString(feed).TrimStart('\uFEFF'))?["Assets"]);
             var signed = assets.Cast<object>().OfType<Dictionary<string, object>>().Any(asset =>
                 asset.Text("FileName") == target.FileName &&
                 string.Equals(asset.Text("SHA256"), target.SHA256, StringComparison.OrdinalIgnoreCase));

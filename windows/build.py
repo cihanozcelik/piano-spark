@@ -3,7 +3,8 @@ and the Windows lesson engine. Runs on Windows (GitHub's windows-latest runner).
 
     python windows/build.py              -> dist/windows/Piano Spark
     python windows/build.py --package    -> also the Velopack installer and update package
-                                            in dist/windows/releases, installed and checked
+                                            in dist/windows/releases, installed and checked,
+                                            plus a real signed update between test versions
     python windows/build.py --capture D  -> a development build that saves screenshots
                                             to D and creates a test lesson, then exits
 """
@@ -118,28 +119,35 @@ def capture(directory, midi):
     print(f'Windows screenshots and bridge self-test passed: {directory}')
 
 
+def vpk_pack(app, version, output, package_id=PACKAGE_ID, title='Piano Spark', notes=None):
+    if output.exists(): shutil.rmtree(output)
+    args = ['vpk', 'pack', '--packId', package_id, '--packVersion', version, '--packDir', str(app),
+            '--mainExe', 'PianoSpark.exe', '--packTitle', title, '--packAuthors', 'Piano Spark',
+            '--icon', str(ROOT/'windows/PianoSpark/PianoSpark.ico'), '--delta', 'None', '--noPortable',
+            '--outputDir', str(output)]
+    if notes: args += ['--releaseNotes', str(notes)]
+    subprocess.run(args, check=True)
+    feed = json.loads((output/'releases.win.json').read_text(encoding='utf-8-sig'))
+    full = [asset for asset in feed['Assets'] if asset['Version'] == version and asset['Type'] == 'Full']
+    if len(full) != 1 or not (output/full[0]['FileName']).is_file() or not (output/f'{package_id}-win-Setup.exe').is_file():
+        raise RuntimeError(f'Unexpected Velopack output: {sorted(p.name for p in output.iterdir())}')
+    return output
+
+
 def package():
     """Velopack installer and full update package. Deltas are off: every Windows update
     is a full package listed in the Ed25519-signed releases.win.json."""
     app = build(DIST)
-    if RELEASES.exists(): shutil.rmtree(RELEASES)
     notes = ROOT/'build/windows/release-notes.md'
     notes.write_text('\n'.join(RELEASE['notes'])+'\n', encoding='utf-8')
-    subprocess.run(['vpk', 'pack', '--packId', PACKAGE_ID, '--packVersion', RELEASE['version'], '--packDir', str(app),
-                    '--mainExe', 'PianoSpark.exe', '--packTitle', 'Piano Spark', '--packAuthors', 'Piano Spark',
-                    '--icon', str(ROOT/'windows/PianoSpark/PianoSpark.ico'), '--releaseNotes', str(notes),
-                    '--delta', 'None', '--noPortable', '--outputDir', str(RELEASES)], check=True)
-    feed = json.loads((RELEASES/'releases.win.json').read_text(encoding='utf-8'))
-    full = [asset for asset in feed['Assets'] if asset['Version'] == RELEASE['version']]
-    if len(full) != 1 or not (RELEASES/full[0]['FileName']).is_file() or not (RELEASES/SETUP).is_file():
-        raise RuntimeError(f'Unexpected Velopack output: {sorted(p.name for p in RELEASES.iterdir())}')
+    vpk_pack(app, RELEASE['version'], RELEASES, notes=notes)
     for path in sorted(RELEASES.iterdir()): print(f'{path.name}: {path.stat().st_size/1e6:.1f} MB')
 
 
-def running():
-    tasks = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq PianoSpark.exe', '/FO', 'CSV', '/NH'],
+def running(image='PianoSpark.exe'):
+    tasks = subprocess.run(['tasklist', '/FI', f'IMAGENAME eq {image}', '/FO', 'CSV', '/NH'],
                            capture_output=True, text=True).stdout
-    return 'PianoSpark.exe' in tasks
+    return image.lower() in tasks.lower()
 
 
 def install_check():
@@ -167,6 +175,52 @@ def install_check():
     print(f'Installed app opens and its engine creates lessons ({app})')
 
 
+def update_check():
+    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 is
+    offered with a feed signed by a temporary test key. A wrong key must be refused;
+    the right key must download, apply and leave 0.0.2 running from the same install."""
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
+    import base64
+    package_id = 'PianoSparkUpdateTest'
+    work = ROOT/'build/windows/update-test'
+    app = build(work/'app', capture=True)
+    old = vpk_pack(app, '0.0.1', work/'old', package_id, 'Piano Spark Update Test')
+    new = vpk_pack(app, '0.0.2', work/'new', package_id, 'Piano Spark Update Test')
+    key = Ed25519PrivateKey.generate()
+    public = lambda k: base64.b64encode(k.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
+    feed = new/'releases.win.json'
+    (new/'releases.win.json.sig').write_text(base64.b64encode(key.sign(feed.read_bytes())).decode())
+
+    subprocess.run([str(old/f'{package_id}-win-Setup.exe'), '--silent'], check=True, timeout=900)
+    time.sleep(5)
+    subprocess.run(['taskkill', '/IM', 'PianoSpark.exe', '/F'], capture_output=True)
+    installed = Path(os.environ['LOCALAPPDATA'])/package_id/'current'/'PianoSpark.exe'
+
+    def ask(public_key, name):
+        result = work/f'{name}.json'
+        result.unlink(missing_ok=True)
+        subprocess.run([str(installed), '--self-test-update', str(new), public_key, str(result)], check=True, timeout=600)
+        report = json.loads(result.read_text(encoding='utf-8-sig'))
+        print(f'{name}: {report}', flush=True)
+        if report.get('error'): raise RuntimeError(f'Update check failed: {report["error"]}')
+        return report
+
+    refused = ask(public(Ed25519PrivateKey.generate()), 'wrong-key')
+    if refused.get('current') != '0.0.1' or refused.get('available') != '0.0.2' or 'rejected' not in refused:
+        raise RuntimeError('An update signed with another key was not refused')
+    if ask(public(key), 'right-key').get('applying') != '0.0.2':
+        raise RuntimeError('A correctly signed update was not downloaded')
+    deadline = time.monotonic() + 300
+    time.sleep(5)
+    while running('Update.exe') and time.monotonic() < deadline: time.sleep(2)
+    time.sleep(3)
+    after = ask(public(key), 'after-update')
+    if after.get('current') != '0.0.2' or after.get('available') is not None:
+        raise RuntimeError('The installed app is not the updated version')
+    print('Signed update installed: 0.0.1 -> 0.0.2; a wrong signature is refused')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--capture', type=Path, help='Save screenshots here and run the bridge self-test')
@@ -174,7 +228,7 @@ def main():
     parser.add_argument('--package', action='store_true', help='Create, install and check the Velopack installer')
     args = parser.parse_args()
     if args.capture: capture(args.capture.resolve(), args.midi.resolve())
-    elif args.package: package(); install_check()
+    elif args.package: package(); install_check(); update_check()
     else: build(DIST)
 
 

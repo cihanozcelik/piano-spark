@@ -17,6 +17,9 @@ namespace PianoSpark
                 .OnBeforeUninstallFastCallback(version => Files.Delete(Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Piano Spark")))
                 .Run();
+#if PIANO_CAPTURE
+            if (args.Length == 4 && args[0] == "--self-test-update") return UpdateSelfTest.Run(args[1], args[2], args[3]);
+#endif
             var options = Options.Parse(args);
             // One window per user, like a Mac app. A second launch brings the first forward.
             using (var single = new Mutex(true, @"Local\PianoSpark.Desktop", out var first))
