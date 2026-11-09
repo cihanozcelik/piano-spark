@@ -625,7 +625,12 @@ To refresh product screenshots, run
 capture executable, exports the actual app renderer using an isolated WebKit store
 and preferences, then removes the capture executable. Personal lessons, library
 data, and workspace preferences are not used or modified. Generated artwork
-provenance is recorded in `site/IMAGEGEN.md`.
+provenance is recorded in `site/IMAGEGEN.md`. `python3 site/compose.py` puts the
+practice screenshot onto the laptops in the photos.
+
+The picture shown when the site is shared is the top of the page itself:
+`python3 site/social.py` screenshots the built site at 1200×630 in each language
+into `site/assets/social-card.jpg` and `site/assets/tr/social-card.jpg`.
 
 The app icons, favicons and the website's hero artwork come from one image, the
 pianist under the moon on a black stage: `brand/rach3-artwork.png`. The written
