@@ -183,7 +183,7 @@ namespace PianoSpark
             if (upload != null && uploadedSize != expectedSize) throw new UserError("Video aktarımı tamamlanmadı.");
             upload?.Dispose(); upload = null;
             var python = Path.Combine(paths.Engine, "python", "python.exe");
-            if (!File.Exists(python)) { Cancel(); throw new UserError("Ders motoru bu bilgisayarda bulunamadı. Piano Spark’ı yeniden yükle."); }
+            if (!File.Exists(python)) { Cancel(); throw new UserError("Ders motoru bu bilgisayarda bulunamadı. Rach3’ü yeniden yükle."); }
             var temp = Path.Combine(jobDirectory, "tmp");
             Directory.CreateDirectory(temp);
             var start = new ProcessStartInfo(python, Files.Arguments(new[]

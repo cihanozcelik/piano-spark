@@ -63,7 +63,7 @@
 }
 - (BOOL)updater:(SPUUpdater *)updater willInstallUpdateOnQuit:(SUAppcastItem *)item immediateInstallationBlock:(void (^)(void))handler {
     (void)updater; (void)item;
-    self.status = @"Yeni sürüm yükleniyor; çalışma konumu kaydedilip Piano Spark yeniden açılacak…";
+    self.status = @"Yeni sürüm yükleniyor; çalışma konumu kaydedilip Rach3 yeniden açılacak…";
     self.installing = YES; [self changed];
     dispatch_async(dispatch_get_main_queue(), ^{ if (!self.stopped) handler(); });
     return YES;

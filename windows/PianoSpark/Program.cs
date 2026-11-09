@@ -29,7 +29,7 @@ namespace PianoSpark
             {
                 if (!first && options.Capture == null)
                 {
-                    var window = FindWindow(null, "Piano Spark");
+                    var window = FindWindow(null, "Rach3");
                     if (window != IntPtr.Zero) { ShowWindow(window, 9); SetForegroundWindow(window); }
                     return 0;
                 }

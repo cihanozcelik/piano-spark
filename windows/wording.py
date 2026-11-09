@@ -41,11 +41,11 @@ TEXT = {
     'Mac’te Sistem Ayarları → Gizlilik ve Güvenlik → Bluetooth bölümünü aç.':
         ('Windows’ta Ayarlar → Gizlilik ve güvenlik → Radyolar bölümünü aç.',
          'Open Settings → Privacy & security → Radios in Windows.'),
-    'Piano Spark Bluetooth için erişimi aç. macOS izin penceresinde farklı bir başlatıcı adı gösterdiyse o uygulamanın iznini kontrol et.':
+    'Rach3 Bluetooth için erişimi aç. macOS izin penceresinde farklı bir başlatıcı adı gösterdiyse o uygulamanın iznini kontrol et.':
         ('Masaüstü uygulamalarının radyolara erişmesine izin ver.',
          'Allow desktop apps to access your radios.'),
-    'macOS uygulamayı yeniden açmanı isterse Piano Spark’i yeniden aç.':
-        ('İzni değiştirdikten sonra Piano Spark’ı yeniden aç.', 'Reopen Piano Spark after changing the permission.'),
+    'macOS uygulamayı yeniden açmanı isterse Rach3’ü yeniden aç.':
+        ('İzni değiştirdikten sonra Rach3’ü yeniden aç.', 'Reopen Rach3 after changing the permission.'),
     'Mac Bluetooth erişimini kısıtlıyor':
         ('Windows Bluetooth erişimini kısıtlıyor', 'Windows restricts Bluetooth access'),
     'macOS bu erişimi kısıtlanmış olarak bildirdi. Yalnız Bluetooth düğmesini açmak bunu çözmez.':
@@ -94,9 +94,9 @@ TEXT = {
     'MIDI kanalının ilk okuması başarısız oldu. macOS bir izin/eşleştirme hatası belirtmediyse sebebini kesin olarak söyleyemiyoruz.':
         ('MIDI kanalının ilk okuması başarısız oldu. Windows bir izin/eşleştirme hatası belirtmediyse sebebini kesin olarak söyleyemiyoruz.',
          'The initial MIDI-channel read failed. Without a permission or pairing error from Windows, the cause cannot be confirmed.'),
-    'Piano Spark kapatma istedi; macOS kapanışı onaylamadı. Bağlantı kesin kapandı diyemiyoruz.':
-        ('Piano Spark kapatma istedi; Windows kapanışı onaylamadı. Bağlantı kesin kapandı diyemiyoruz.',
-         'Piano Spark requested disconnection, but Windows did not confirm it. The connection may still be open.'),
+    'Rach3 kapatma istedi; macOS kapanışı onaylamadı. Bağlantı kesin kapandı diyemiyoruz.':
+        ('Rach3 kapatma istedi; Windows kapanışı onaylamadı. Bağlantı kesin kapandı diyemiyoruz.',
+         'Rach3 requested disconnection, but Windows did not confirm it. The connection may still be open.'),
     'Sorun Mac’teki uygulama bağlantı servisinde. Bu hata piyanonun Bluetooth ayarını göstermez.':
         ('Sorun bilgisayardaki uygulama bağlantı servisinde. Bu hata piyanonun Bluetooth ayarını göstermez.',
          'The issue is in the app’s connection service on this PC. This error does not indicate the piano’s Bluetooth setting.'),
