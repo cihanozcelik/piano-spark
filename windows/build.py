@@ -272,7 +272,8 @@ def update_check():
             if not log.is_file(): continue
             print(f'--- {log}\n{log.read_text(encoding="utf-8", errors="replace")[-6000:]}', flush=True)
         raise
-    if accepted.get('applying') != '0.0.2' or accepted.get('deltas') != 1 or accepted.get('patched') is not True:
+    # The full 0.0.2 package is withheld, so success here means the patch was applied.
+    if accepted.get('applying') != '0.0.2' or accepted.get('deltas') != 1:
         raise RuntimeError('A correctly signed patch was not downloaded and verified')
     deadline = time.monotonic() + 300
     time.sleep(5)

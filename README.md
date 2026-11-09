@@ -104,16 +104,21 @@ wording, and the build fails if a page string mentions the Mac without one.
   pairing and output rules as the Mac helper (`windows/PianoSpark/BleTransport.cs`).
   It has not yet been tried with a real piano on a Windows PC.
 - **Installer and updates:** Velopack. `PianoSpark-win-Setup.exe` installs per user
-  without administrator rights. Updates are full packages, downloaded in the
-  background and installed on quit, and only accepted when `releases.win.json`
-  carries a valid Ed25519 signature from the same release key as the Mac app.
+  without administrator rights. Each release also carries a patch from the previous
+  Windows release (0.9.1 → 0.9.2: 1.1 MB instead of 26 MB), applied to the installed
+  package; without it, the full package is downloaded. Updates download in the
+  background and install on quit. Every file must be listed in `releases.win.json`,
+  whose Ed25519 signature from the same release key as the Mac app is checked first;
+  Velopack then verifies each download against those signed SHA-256 values.
   The installer is not yet signed with a publisher certificate, so SmartScreen warns
   on first launch (More info → Run anyway).
 - **Checks:** `.github/workflows/windows.yml` and the `windows` job of the release
   workflow create lessons on a real Windows machine, open the app and take
   screenshots, create a lesson through the page bridge, then install with
-  `Setup.exe` and create a lesson with the installed app. Nothing is published unless
-  these pass.
+  `Setup.exe` and create a lesson with the installed app. They also update an
+  installed test version through a signed patch alone (the full package is withheld)
+  and check that a feed signed with another key is refused. Nothing is published
+  unless these pass.
 
 Build on Windows with Python 3.12, uv and the .NET SDK: `python windows/build.py`
 (add `--package` for the installer, with `dotnet tool install -g vpk --version 1.2.161`).
