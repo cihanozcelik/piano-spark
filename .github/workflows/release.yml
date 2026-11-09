@@ -1,4 +1,4 @@
-name: Publish Rach3 update
+name: Publish rach3 update
 on:
   push:
     tags: ['v*']
@@ -58,7 +58,7 @@ jobs:
           from release import prepare, sign, verify_archive
           prepare()
           probe=Path(os.environ['RUNNER_TEMP'])/'piano-signing-input'
-          probe.write_text('Rach3 release signing verification')
+          probe.write_text('rach3 release signing verification')
           try:
               verify_archive(probe, sign(probe))
           finally:
@@ -79,9 +79,9 @@ jobs:
         with:
           name: piano-spark-release
           path: |
-            dist/Rach3-*.zip
-            dist/Rach3-*.delta
-            dist/Rach3-Setup.dmg
+            dist/rach3-*.zip
+            dist/rach3-*.delta
+            dist/rach3-Setup.dmg
             dist/update-signature.json
             dist/release-notes.txt
           if-no-files-found: error
@@ -102,14 +102,14 @@ jobs:
           name: piano-spark-release
           path: dist
       - name: Unpack the signed update exactly as Sparkle receives it
-        run: ditto -x -k dist/Rach3-*.zip dist
+        run: ditto -x -k dist/rach3-*.zip dist
       - name: Check the DMG installs the same signed app on Intel
         run: |
-          hdiutil verify dist/Rach3-Setup.dmg
+          hdiutil verify dist/rach3-Setup.dmg
           mount="$RUNNER_TEMP/piano-dmg"
-          hdiutil attach -nobrowse -readonly -mountpoint "$mount" dist/Rach3-Setup.dmg
-          codesign --verify --deep --strict "$mount/Rach3.app"
-          diff -rq "$mount/Rach3.app" "dist/Rach3.app"
+          hdiutil attach -nobrowse -readonly -mountpoint "$mount" dist/rach3-Setup.dmg
+          codesign --verify --deep --strict "$mount/rach3.app"
+          diff -rq "$mount/rach3.app" "dist/rach3.app"
           test "$(readlink "$mount/Applications")" = /Applications
           hdiutil detach "$mount"
       - name: Fetch the signed baseline that update deltas start from

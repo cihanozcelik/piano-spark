@@ -12,7 +12,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('Rach3.ico')">Rach3.ico</ApplicationIcon>
     <Version Condition="'$(PianoVersion)' != ''">$(PianoVersion)</Version>
-    <Product>Rach3</Product>
+    <Product>rach3</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>

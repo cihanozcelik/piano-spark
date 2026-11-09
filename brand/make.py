@@ -1,4 +1,4 @@
-"""Make every Rach3 logo and icon file from the one supplied logo image.
+"""Make every rach3 logo and icon file from the one supplied logo image.
 
 The logo is used as drawn: this only lifts it off its paper background, splits
 the mark from the wordmark and places the mark on app icon tiles. Run it after
@@ -118,7 +118,7 @@ def main():
     save(flat, 'brand/rach3-app-icon.png')
 
     # Website (shown at about half these sizes, so they stay sharp on Retina screens)
-    save(width(combined, 400), 'site/assets/rach3-logo.png')
+    save(width(combined, 600), 'site/assets/rach3-logo.png')
     save(height(wordmark, 56), 'site/assets/rach3-wordmark.png')
     save(width(mac, 256), 'site/assets/rach3-app-icon.png')
     save(tile(mark, 64, 0, 200, 900, False), 'site/assets/favicon.png')

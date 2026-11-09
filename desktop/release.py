@@ -17,11 +17,11 @@ from sparkle import prepare, SPARKLE, ROOT
 CONFIG = json.loads((ROOT/'desktop/release.json').read_text())
 REPO = CONFIG['repository']
 DIST = ROOT/'dist'
-APP = DIST/'Rach3.app'
+APP = DIST/'rach3.app'
 TAG = 'v'+CONFIG['version']
-ARCHIVE = DIST/f'Rach3-{CONFIG["version"]}.zip'
+ARCHIVE = DIST/f'rach3-{CONFIG["version"]}.zip'
 BASE = ROOT/'build/update-baseline'
-BASE_APP = BASE/'Rach3.app'
+BASE_APP = BASE/'rach3.app'
 NS = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
 WINDOWS = DIST/'windows/releases'
 WINDOWS_FEED = WINDOWS/'releases.win.json'
@@ -59,18 +59,18 @@ def prepare_delta(previous_app):
     with (previous_app/'Contents/Info.plist').open('rb') as stream: old = plistlib.load(stream)
     with (APP/'Contents/Info.plist').open('rb') as stream: new = plistlib.load(stream)
     if old['CFBundleIdentifier'] != new['CFBundleIdentifier'] or old.get('SUPublicEDKey') != CONFIG['publicKey']:
-        raise RuntimeError('Delta base must be a Rach3 release with the same update signing key')
+        raise RuntimeError('Delta base must be a rach3 release with the same update signing key')
     old_build = old['CFBundleVersion']
     if int(old_build) >= CONFIG['build']:
         raise RuntimeError('Delta base must have an older build number')
     command('codesign','--verify','--deep','--strict',previous_app)
-    patch = DIST/f'Rach3-{old_build}-{CONFIG["build"]}.delta'
+    patch = DIST/f'rach3-{old_build}-{CONFIG["build"]}.delta'
     patch.unlink(missing_ok=True)
     command(SPARKLE/'bin/BinaryDelta','create','--version','4',previous_app,APP,patch)
     # Validate the actual deliverable: Sparkle checks its target tree hash while
     # applying, and codesign verifies the resulting bundle and nested executables.
     with tempfile.TemporaryDirectory(prefix='rach3-patched-',dir=ROOT/'build') as directory:
-        patched = Path(directory)/'Rach3.app'
+        patched = Path(directory)/'rach3.app'
         command(SPARKLE/'bin/BinaryDelta','apply',previous_app,patched,patch)
         command('codesign','--verify','--deep','--strict',patched)
     signature = sign(patch)
@@ -83,7 +83,7 @@ def prepare_archive(previous_app=None):
     prepare()
     with (APP/'Contents/Info.plist').open('rb') as stream: info=plistlib.load(stream)
     if (info['CFBundleVersion'], info['CFBundleShortVersionString'], info['SUPublicEDKey']) != (str(CONFIG['build']), CONFIG['version'], CONFIG['publicKey']):
-        raise RuntimeError('Build Rach3 from the current release.json before packaging')
+        raise RuntimeError('Build rach3 from the current release.json before packaging')
     command('codesign','--verify','--deep','--strict',APP)
     deltas = [prepare_delta(previous_app)] if previous_app else []
     pending = ARCHIVE.with_suffix('.pending.zip')
@@ -106,9 +106,9 @@ def prepare_archive(previous_app=None):
 def make_feed(asset_url, metadata, delta_assets, previous_items):
     root=ET.Element('rss',{'version':'2.0'})
     channel=ET.SubElement(root,'channel')
-    ET.SubElement(channel,'title').text='Rach3'
+    ET.SubElement(channel,'title').text='rach3'
     item=ET.SubElement(channel,'item')
-    for name,value in [('title','Rach3 '+CONFIG['version']),('pubDate',format_datetime(datetime.now(timezone.utc))),
+    for name,value in [('title','rach3 '+CONFIG['version']),('pubDate',format_datetime(datetime.now(timezone.utc))),
                        ('description','\n'.join(CONFIG['notes'])),(f'{{{NS}}}version',str(CONFIG['build'])),
                        (f'{{{NS}}}shortVersionString',CONFIG['version']),(f'{{{NS}}}minimumSystemVersion','14.0.0')]:
         ET.SubElement(item,name).text=value
@@ -147,7 +147,7 @@ def windows_files():
         if package.stat().st_size != asset['Size'] or hashlib.sha256(package.read_bytes()).hexdigest().lower() != asset['SHA256'].lower():
             raise RuntimeError(f'Windows package {package.name} does not match its feed')
         packages.append(package)
-    setup=WINDOWS/'Rach3-win-Setup.exe'
+    setup=WINDOWS/'rach3-win-Setup.exe'
     if not setup.is_file(): raise RuntimeError('Build the Windows installer before publishing')
     signature=sign(WINDOWS_FEED)
     verify_archive(WINDOWS_FEED,signature)
@@ -199,12 +199,12 @@ def publish():
         if path.stat().st_size != patch['size'] or patch['size'] >= metadata['size']:
             raise RuntimeError('Delta size must match its signed metadata and be smaller than the full archive')
         verify_archive(path,patch['signature'])
-    installer = DIST/'Rach3-Setup.dmg'
+    installer = DIST/'rach3-Setup.dmg'
     if not installer.is_file() or installer.stat().st_size >= 2*1024**3:
         raise RuntimeError('Build the small DMG installer before publishing')
     command('hdiutil','verify',installer)
     windows=windows_files()
-    command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'Rach3 {CONFIG["version"]}',
+    command('gh','release','create',TAG,'--repo',REPO,'--verify-tag','--draft','--title',f'rach3 {CONFIG["version"]}',
             '--notes-file',DIST/'release-notes.txt',ARCHIVE,installer,ROOT/'desktop/release.json',DIST/'update-signature.json',
             *(DIST/patch['file'] for patch in patches),*windows)
     # The by-tag endpoint excludes drafts; the authenticated list includes them.
@@ -234,7 +234,7 @@ def baseline():
     """Fetch only a small signed app baseline. Never fetch the legacy 2 GB engine."""
     prepare()
     release=api(f'repos/{REPO}/releases/latest')
-    asset=next((a for a in release['assets'] if a['name'].startswith('Rach3-') and a['name'].endswith('.zip')),None)
+    asset=next((a for a in release['assets'] if a['name'].startswith('rach3-') and a['name'].endswith('.zip')),None)
     if not asset or asset['size'] > 150*1024**2:
         print('No small app baseline; this transition uses the small full update.',flush=True)
         return
@@ -246,7 +246,7 @@ def baseline():
         metadata=json.loads((folder/'update-signature.json').read_text())
         verify_archive(archive,metadata['signature'])
         command('ditto','-x','-k',archive,folder)
-        app=folder/'Rach3.app'
+        app=folder/'rach3.app'
         command('codesign','--verify','--deep','--strict',app)
         with (app/'Contents/Info.plist').open('rb') as stream: old=plistlib.load(stream)
         if old['CFBundleVersion'] != str(metadata['build']) or int(old['CFBundleVersion']) >= CONFIG['build']:

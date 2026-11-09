@@ -3,8 +3,8 @@
 <plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>rach3-bluetooth</string>
 <key>CFBundleIdentifier</key><string>com.rach3.bluetooth</string>
-<key>CFBundleName</key><string>Rach3 Bluetooth</string>
-<key>CFBundleDisplayName</key><string>Rach3 Bluetooth</string>
+<key>CFBundleName</key><string>rach3 Bluetooth</string>
+<key>CFBundleDisplayName</key><string>rach3 Bluetooth</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleVersion</key><string>1</string>
 <key>CFBundleShortVersionString</key><string>1.0</string>

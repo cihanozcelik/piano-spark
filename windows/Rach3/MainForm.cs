@@ -59,7 +59,7 @@ namespace Rach3
             Localization.Load(paths.Resources, settings);
             if (capture) Localization.Language = "en";
 
-            Text = "Rach3";
+            Text = "rach3";
             BackColor = Color.FromArgb(19, 20, 23);
             web.DefaultBackgroundColor = BackColor;
             var scale = DeviceDpi / 96f;
@@ -117,9 +117,9 @@ namespace Rach3
             catch (WebView2RuntimeNotFoundException)
             {
                 MessageBox.Show(this, Localization.Language == "tr"
-                    ? "Rach3 için Microsoft Edge WebView2 gerekiyor. Windows Update ile veya https://go.microsoft.com/fwlink/p/?LinkId=2124703 adresinden yükleyebilirsin."
-                    : "Rach3 needs Microsoft Edge WebView2. Install it with Windows Update or from https://go.microsoft.com/fwlink/p/?LinkId=2124703.",
-                    "Rach3", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ? "rach3 için Microsoft Edge WebView2 gerekiyor. Windows Update ile veya https://go.microsoft.com/fwlink/p/?LinkId=2124703 adresinden yükleyebilirsin."
+                    : "rach3 needs Microsoft Edge WebView2. Install it with Windows Update or from https://go.microsoft.com/fwlink/p/?LinkId=2124703.",
+                    "rach3", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 closeAllowed = true; Close(); return;
             }
             var core = web.CoreWebView2;
@@ -157,7 +157,7 @@ namespace Rach3
         }
 
         void ShowError(string message) =>
-            MessageBox.Show(this, Localization.Text(message) ?? Localization.Text("İşlem tamamlanamadı."), "Rach3",
+            MessageBox.Show(this, Localization.Text(message) ?? Localization.Text("İşlem tamamlanamadı."), "rach3",
                 MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
         void OnDownload(object sender, CoreWebView2DownloadStartingEventArgs args)

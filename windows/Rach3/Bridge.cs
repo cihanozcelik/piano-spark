@@ -77,14 +77,14 @@ namespace Rach3
                     return Reply(new Dictionary<string, object> { ["language"] = language });
                 case "subscribe":
                     pageReady = true;
-                    Trace.WriteLine("Rach3 page ready");
+                    Trace.WriteLine("rach3 page ready");
                     StartCapture();
                     return Reply(Snapshot());
                 case "unsubscribe":
                     pageReady = false; return Empty;
                 case "page-error":
                     var text = body.Text("message") ?? "";
-                    Trace.WriteLine("Rach3 JavaScript: " + text);
+                    Trace.WriteLine("rach3 JavaScript: " + text);
                     lock (pageErrors) pageErrors.Add(text);
                     return Empty;
                 case "fullscreen":
