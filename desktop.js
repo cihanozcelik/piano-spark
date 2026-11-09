@@ -55,7 +55,7 @@
     panel.dataset.installed=String(update.newVersion&&!available);
     label.textContent=available?t('Güncelleme'):update.newVersion?t('Yeni sürüm yüklendi'):`v${update.version}`;
     document.getElementById('update-heading').textContent=available?t('{version} sürümü hazır',{version:update.availableVersion}):
-      update.newVersion?t('{version} yüklendi',{version:update.version}):`Piano Spark ${update.version}`;
+      update.newVersion?t('{version} yüklendi',{version:update.version}):`Rach3 ${update.version}`;
     document.getElementById('update-status').textContent=message(update.message);
     const notes=available?update.availableNotes.split('\n').filter(Boolean):update.notes;
     document.getElementById('update-notes').replaceChildren(...notes.map(note=>{

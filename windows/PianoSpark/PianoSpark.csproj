@@ -12,7 +12,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('PianoSpark.ico')">PianoSpark.ico</ApplicationIcon>
     <Version Condition="'$(PianoVersion)' != ''">$(PianoVersion)</Version>
-    <Product>Piano Spark</Product>
+    <Product>Rach3</Product>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <DebugType>none</DebugType>

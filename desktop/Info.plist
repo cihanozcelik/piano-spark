@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Piano Spark</string>
+	<string>Rach3</string>
 	<key>CFBundleExecutable</key>
 	<string>PianoMan</string>
 	<key>CFBundleIconFile</key>
@@ -11,7 +11,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.pianoman.desktop</string>
 	<key>CFBundleName</key>
-	<string>Piano Spark</string>
+	<string>Rach3</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>LSMinimumSystemVersion</key>

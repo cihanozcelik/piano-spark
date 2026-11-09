@@ -77,14 +77,14 @@ namespace PianoSpark
                     return Reply(new Dictionary<string, object> { ["language"] = language });
                 case "subscribe":
                     pageReady = true;
-                    Trace.WriteLine("Piano Spark page ready");
+                    Trace.WriteLine("Rach3 page ready");
                     StartCapture();
                     return Reply(Snapshot());
                 case "unsubscribe":
                     pageReady = false; return Empty;
                 case "page-error":
                     var text = body.Text("message") ?? "";
-                    Trace.WriteLine("Piano Spark JavaScript: " + text);
+                    Trace.WriteLine("Rach3 JavaScript: " + text);
                     lock (pageErrors) pageErrors.Add(text);
                     return Empty;
                 case "fullscreen":

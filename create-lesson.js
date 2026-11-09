@@ -440,5 +440,5 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     window.addEventListener('pagehide',()=>{stopped=true;});
     window.addEventListener('pageshow',event=>{if(event.persisted){stopped=false;pollState();}});
     pollState();
-  } else announce('Ders oluşturmak için Piano Spark masaüstü uygulamasını aç.');
+  } else announce('Ders oluşturmak için Rach3 masaüstü uygulamasını aç.');
 }

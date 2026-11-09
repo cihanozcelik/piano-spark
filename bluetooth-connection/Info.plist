@@ -3,8 +3,8 @@
 <plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>pianoman-bluetooth</string>
 <key>CFBundleIdentifier</key><string>com.pianoman.bluetooth-connection</string>
-<key>CFBundleName</key><string>Piano Spark Bluetooth</string>
-<key>CFBundleDisplayName</key><string>Piano Spark Bluetooth</string>
+<key>CFBundleName</key><string>Rach3 Bluetooth</string>
+<key>CFBundleDisplayName</key><string>Rach3 Bluetooth</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleVersion</key><string>1</string>
 <key>CFBundleShortVersionString</key><string>1.0</string>

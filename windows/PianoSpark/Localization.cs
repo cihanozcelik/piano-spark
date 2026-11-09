@@ -25,9 +25,9 @@ namespace PianoSpark
             ["Windows bağlantının kapandığını doğrulamadı."] = "Windows has not confirmed the disconnection.",
             ["Bilgisayarın Bluetooth servisi hazırlanıyor; henüz piyanoya bağlantı kurulmadı."] = "Preparing Bluetooth. Your piano is not connected yet.",
             ["MIDI bağlantısı hazırlanıyor… Windows eşleştirme onayı sorarsa onayla."] = "Preparing MIDI… Confirm pairing if Windows asks.",
-            ["Ders motoru bu bilgisayarda bulunamadı. Piano Spark’ı yeniden yükle."] = "The lesson engine is missing. Reinstall Piano Spark.",
-            ["Güncelleme indirildi. Piano Spark yeniden başlatılınca yüklenecek."] = "The update has been downloaded. It will be installed when Piano Spark restarts.",
-            ["Güncelleme yükleniyor; Piano Spark yeniden açılacak…"] = "Installing the update. Piano Spark will reopen…",
+            ["Ders motoru bu bilgisayarda bulunamadı. Rach3’ü yeniden yükle."] = "The lesson engine is missing. Reinstall Rach3.",
+            ["Güncelleme indirildi. Rach3 yeniden başlatılınca yüklenecek."] = "The update has been downloaded. It will be installed when Rach3 restarts.",
+            ["Güncelleme yükleniyor; Rach3 yeniden açılacak…"] = "Installing the update. Rach3 will reopen…",
         };
 
         public static void Load(string resources, Settings store)

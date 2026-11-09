@@ -91,7 +91,7 @@
   "Parçanın adı": "Name of the piece",
   "Ders oluşturma ilerlemesi": "Lesson creation progress",
   "Dil": "Language",
-  "Piano Spark ile kendi hızında piyano çalış.": "Practice piano at your own pace with Piano Spark.",
+  "Rach3 ile kendi hızında piyano çalış.": "Practice piano at your own pace with Rach3.",
   "Güncelleme": "Update",
   "Yeni sürüm yüklendi": "New version installed",
   "{version} sürümü hazır": "Version {version} is ready",

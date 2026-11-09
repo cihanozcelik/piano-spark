@@ -65,7 +65,7 @@ namespace PianoSpark
                 status = "Yeni sürüm arka planda indiriliyor…"; Changed();
                 await manager.DownloadUpdatesAsync(info);
                 pending = info;
-                status = "Güncelleme indirildi. Piano Spark yeniden başlatılınca yüklenecek.";
+                status = "Güncelleme indirildi. Rach3 yeniden başlatılınca yüklenecek.";
             }
             catch (Exception error)
             {
