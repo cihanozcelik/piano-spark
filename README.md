@@ -66,6 +66,17 @@ See [the update system guide](desktop/UPDATES.md) for publishing, signing, and i
 
 ## Building from source
 
+`main` only changes through pull requests merged on GitHub; locally it is only updated
+with `git pull`. Work on a branch. After cloning, enable the repository's git hooks.
+They refuse commits on `main` and pushes to it. They also refuse anything else that
+would move local `main` away from `origin/main`, such as a merge or a reset:
+
+```sh
+git config core.hooksPath .githooks
+```
+
+GitHub enforces the same rule for every push, with or without the hooks.
+
 The developer machine needs Python 3 and Xcode Command Line Tools.
 
 1. Run `python3 desktop/prepare_engine.py` to prepare the small Apple Silicon and Intel Python runtimes. This step requires uv.

@@ -1,0 +1,9 @@
+#!/bin/sh
+# main only changes through pull requests merged on GitHub.
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "refs/heads/main" ]; then
+    echo "error: pushing to main is not allowed. Push a branch and open a pull request." >&2
+    exit 1
+  fi
+done
+exit 0
