@@ -42,7 +42,7 @@ import { startAppShell } from './app-shell.js';
     const pianoOutput=new PianoOutput(message=>{pause();showError(message);});
     pianoOutput.onStatus=()=>updatePlayButton();
     const staff = new StaffNotation();
-    const sheet=new SheetMusic({onViewChange:()=>checkpoint(),onSegmentsChange:info=> {
+    const sheet=new SheetMusic({onViewChange:()=>checkpoint(),onMeasureSelect:index=>listenFrom(index),onSegmentsChange:info=> {
       scoreRows=info;
       if(changingLesson) return;
       if(guided()) {pause();configureTraining();}
@@ -342,6 +342,7 @@ import { startAppShell } from './app-shell.js';
       return state.running ? state.anchorPosition+Math.max(0,nowSeconds()-state.anchor)*state.speed : state.position;
     }
     function updatePlayButton() {
+      sheet.setSelectable(!practicing());
       ui.play.disabled=!canStart();
       ui.play.textContent=state.starting?t("Vazgeç"):state.running?t("Duraklat"):(practicing()?t("Başlat"):t("Dinle"));
       ui.play.setAttribute('aria-label',ui.play.textContent);
@@ -434,6 +435,15 @@ import { startAppShell } from './app-shell.js';
       practice.seek(state.position,nowSeconds(),selectedInput()); draw();
       sheet.follow(state.position,true,true); checkpoint();
       if(running) play();
+    }
+
+    // Listening only: start from the beginning of a measure chosen on the score.
+    // seek() stops every sounding note first, so the old position never overlaps.
+    function listenFrom(index) {
+      const measure=sheet.notation?.measures[index];
+      if(practicing()||!measure||changingLesson) return;
+      seek(measure.start);
+      if(!state.running&&!state.starting) play();
     }
 
     function rebuildKeys() {

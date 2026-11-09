@@ -270,6 +270,11 @@ velocity affects volume and timbral brightness, while sustain keeps sound ringin
 after key release without triggering release damping. Natural string decay
 continues; voices that become inaudible are stopped even while sustain is held.
 Seeking, pausing, and changing parts use the same note and pedal timeline.
+In Listen mode, clicking a measure on the score plays from the start of that measure,
+whether playback is running or paused (a measure that opens with a rest keeps its rest).
+The playing measure is tinted on the score. Speed and part selection are unchanged, and
+Practice ignores score clicks. A measure's clickable area and the playhead follow its
+staves, so pedal lines or slurs that run past a barline do not widen it.
 
 Lesson MIDI downloads include original key-release times, velocities, and CC64
 messages on each hand's channel. Imported MIDI files also display sustain from the

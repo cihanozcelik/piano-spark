@@ -84,6 +84,7 @@ window.PianoI18n.register({
   "Duraklat": "Pause",
   "Başlat": "Start",
   "Dinle": "Listen",
+  "Bir ölçüye tıkla; parça o ölçünün başından çalsın.": "Click a measure to play from its start.",
   "CLP’den dinlemek için piyanoyu bağla.": "Connect your piano to listen through the CLP.",
   "MIDI gönderimi hazır değil; yeniden bağlan.": "MIDI output is not ready. Reconnect your piano.",
   "Ses CLP’den gelir; ses düzeyini piyanodan ayarla.": "Sound plays through the CLP. Adjust the volume on your piano.",

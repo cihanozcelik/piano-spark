@@ -166,6 +166,10 @@
     .sheet-row-mastery-rail[data-status=learned] { background:#459869; }
     .sheet-playhead { position:absolute; left:0; top:0; width:2px; background:#ce4537; box-shadow:0 0 0 1px #ce453719; pointer-events:none; z-index:1; }
     .sheet-playhead::before { content:""; position:absolute; top:-5px; left:-3px; width:8px; height:5px; background:#ce4537; clip-path:polygon(0 0,100% 0,50% 100%); }
+    .sheet-measure-current, .sheet-measure-hover { position:absolute; left:0; top:0; pointer-events:none; border-radius:3px; }
+    .sheet-measure-current { background:#3d6fd012; box-shadow:inset 0 0 0 1px #3d6fd02e; }
+    .sheet-measure-hover { background:#3d6fd00c; box-shadow:inset 0 0 0 1px #3d6fd040; }
+    .sheet-paper.is-selectable { cursor:pointer; }
     .sheet-paper .sheet-note-active { color:#c43f30; fill:#c43f30; stroke:#c43f30; }
     .sheet-paper .sheet-note-active .notehead { filter:drop-shadow(0 0 3px #c43f3040); }
     .sheet-paper svg { display:block; width:100%; height:auto; color:#000; }
