@@ -1,4 +1,4 @@
-# Piano Spark hero artwork
+# Rach3 hero artwork
 
 Generated with the built-in Imagegen tool. The original is `assets/keyboard-hero-source.png`; `assets/keyboard-hero.jpg` is the web delivery copy. Actual application screenshots are separate assets and are not generated.
 
