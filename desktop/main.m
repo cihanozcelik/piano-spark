@@ -29,6 +29,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 @property (nonatomic, strong) UpdateController *updates;
 #ifdef PIANO_CAPTURE
 @property (nonatomic, copy) NSString *captureDirectory;
+@property (nonatomic, copy) NSString *captureLanguage;
 @property (nonatomic) BOOL captureStarted;
 #endif
 @end
@@ -38,7 +39,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     (void)notification;
 #ifdef PIANO_CAPTURE
-    PianoSetLanguage(@"en");
+    PianoSetLanguage(self.captureLanguage);
 #endif
     self.state = [@{@"phase":@"disconnected", @"connected":@NO, @"message":PianoText(@"Piyano bağlı değil"),
         @"device":@"", @"uuid":NSNull.null, @"devices":@[], @"input_capable":@NO, @"note_count":@0, @"last_note":NSNull.null, @"pedal":NSNull.null, @"active":@NO} mutableCopy];
@@ -52,7 +53,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #endif
     self.runtimeURL = [support URLByAppendingPathComponent:@"Rach3/Bluetooth" isDirectory:YES];
     self.lessons = [[LessonService alloc] initWithEngine:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Engine"]
-        support:[support URLByAppendingPathComponent:@"rach3" isDirectory:YES]
+        support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
         tools:[support URLByAppendingPathComponent:@"Rach3/Tools/1" isDirectory:YES]];
     __weak PianoApp *weakSelf = self;
     self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
@@ -65,11 +66,17 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     configuration.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
 #endif
     [configuration.userContentController addScriptMessageHandlerWithReply:self
-        contentWorld:WKContentWorld.pageWorld name:@"pianoman"];
+        contentWorld:WKContentWorld.pageWorld name:@"rach3"];
     WKUserScript *errors = [[WKUserScript alloc] initWithSource:
-        @"window.addEventListener('error', e => window.webkit.messageHandlers.pianoman.postMessage({command:'page-error',message:e.message}));"
+        @"window.addEventListener('error', e => window.webkit.messageHandlers.rach3.postMessage({command:'page-error',message:e.message}));"
         injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
     [configuration.userContentController addUserScript:errors];
+#ifndef PIANO_CAPTURE
+    // The page's header is the title bar: it leaves room for the window buttons.
+    [configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:
+        @"document.documentElement.dataset.windowControls='mac';"
+        injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
+#endif
     self.webView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self;
@@ -81,6 +88,13 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
         backing:NSBackingStoreBuffered defer:NO];
     self.window.title = @"rach3";
+#ifndef PIANO_CAPTURE
+    // One bar at the top, like other Mac apps: the page runs up under a see-through title
+    // bar and the window buttons sit inside the page's own header.
+    self.window.styleMask |= NSWindowStyleMaskFullSizeContentView;
+    self.window.titlebarAppearsTransparent = YES;
+    self.window.titleVisibility = NSWindowTitleHidden;
+#endif
     self.window.delegate = self;
     self.window.releasedWhenClosed = NO;
     self.window.minSize = NSMakeSize(820, 620);
@@ -98,6 +112,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #endif
     [self.webView loadFileURL:self.pageURL allowingReadAccessToURL:NSBundle.mainBundle.resourceURL];
     [self.window makeKeyAndOrderFront:nil];
+    [self placeWindowButtons];
     [NSApp activateIgnoringOtherApps:YES];
     if (self.pendingVideo) {
         NSError *error;
@@ -149,8 +164,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     }];
 }
 - (void)captureWhenReady:(NSUInteger)attempt {
-    [self.webView callAsyncJavaScript:@"return window.PianoI18n?.language === 'en' && !!document.querySelector('#sheet-paper svg') && !document.getElementById('sheet-paper').hidden;"
-        arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id ready,NSError *error) {
+    [self.webView callAsyncJavaScript:@"return window.PianoI18n?.language === language && !!document.querySelector('#sheet-paper svg') && !document.getElementById('sheet-paper').hidden;"
+        arguments:@{@"language":self.captureLanguage} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id ready,NSError *error) {
         if (error || ![ready boolValue]) {
             if (attempt == 5) {
                 [self.webView evaluateJavaScript:@"document.getElementById('sheet-loading-text').textContent" completionHandler:^(id value,NSError *diagnosticError) {
@@ -161,7 +176,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC),dispatch_get_main_queue(),^{ [self captureWhenReady:attempt+1]; });
             return;
         }
-        [self.webView callAsyncJavaScript:@"document.getElementById('tab-practice').click(); const seek=document.getElementById('seek'); seek.value=25; seek.dispatchEvent(new Event('input',{bubbles:true}));"
+        // Plain falling bars on the website: no staff badges, no note names.
+        [self.webView callAsyncJavaScript:@"document.getElementById('tab-practice').click(); const staff=document.getElementById('staff'); staff.checked=false; staff.dispatchEvent(new Event('change',{bubbles:true})); const names=document.getElementById('notation'); names.value='none'; names.dispatchEvent(new Event('change',{bubbles:true})); const seek=document.getElementById('seek'); seek.value=25; seek.dispatchEvent(new Event('input',{bubbles:true}));"
             arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id result,NSError *seekError) {
             (void)result;
             if (seekError) { NSLog(@"Capture positioning failed: %@",seekError); exit(1); }
@@ -191,11 +207,11 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     if (!self.pageReady || self.quitting) return;
     NSMutableDictionary *localized = [PianoLocalizedStatus(event) mutableCopy];
     if (event[@"status"]) localized[@"status"] = PianoLocalizedStatus(event[@"status"]);
-    [self.webView callAsyncJavaScript:@"window.dispatchEvent(new CustomEvent('pianoman-native-event', {detail: event}));"
+    [self.webView callAsyncJavaScript:@"window.dispatchEvent(new CustomEvent('rach3-native-event', {detail: event}));"
         arguments:@{@"event":localized} inFrame:nil inContentWorld:WKContentWorld.pageWorld
         completionHandler:^(id result, NSError *error) {
             (void)result;
-            if (error) NSLog(@"PianoMan arayüz aktarımı: %@", error.localizedDescription);
+            if (error) NSLog(@"rach3 arayüz aktarımı: %@", error.localizedDescription);
         }];
 }
 
@@ -385,7 +401,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         [self publish:[self.lessons snapshot]];
     } else if ([command isEqual:@"subscribe"]) {
         self.pageReady = YES;
-        NSLog(@"PianoMan arayüzü hazır");
+        NSLog(@"rach3 arayüzü hazır");
         replyHandler([self snapshot], nil);
 #ifdef PIANO_CAPTURE
         if (!self.captureStarted) { self.captureStarted = YES; [self captureWhenReady:0]; }
@@ -424,12 +440,23 @@ int PianoBluetoothMain(int argc, const char *argv[]);
             NSError *error; NSDictionary *result = PianoBluetoothCommand(runtime, request, &error);
             dispatch_async(dispatch_get_main_queue(), ^{ replyHandler(result,PianoText(error.localizedDescription ?: result[@"error"])); });
         });
+    } else if ([command isEqual:@"drag-window"]) {
+        // a press on an empty part of the header moves the window, as a title bar does
+        NSEvent *event = NSApp.currentEvent;
+        if (event.type == NSEventTypeLeftMouseDown || event.type == NSEventTypeLeftMouseDragged)
+            [self.window performWindowDragWithEvent:event];
+        replyHandler(@{}, nil);
+    } else if ([command isEqual:@"title-double-click"]) {
+        NSString *action = [NSUserDefaults.standardUserDefaults stringForKey:@"AppleActionOnDoubleClick"];
+        if ([action isEqual:@"Minimize"]) [self.window performMiniaturize:nil];
+        else if (![action isEqual:@"None"]) [self.window performZoom:nil];
+        replyHandler(@{}, nil);
     } else if ([command isEqual:@"fullscreen"]) {
         [self.window toggleFullScreen:nil]; replyHandler(@{}, nil);
     } else if ([command isEqual:@"unsubscribe"]) {
         self.pageReady = NO; replyHandler(@{}, nil);
     } else if ([command isEqual:@"page-error"]) {
-        NSLog(@"PianoMan JavaScript: %@", message.body[@"message"]); replyHandler(@{}, nil);
+        NSLog(@"rach3 JavaScript: %@", message.body[@"message"]); replyHandler(@{}, nil);
     } else if ([command isEqual:@"lesson-state"]) {
         replyHandler([self.lessons snapshot], nil);
     } else if ([command isEqual:@"lesson-tools"]) {
@@ -456,11 +483,37 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     } else replyHandler(nil, @"Unknown command");
 }
 
+// The page's header is 48 points tall (piano.html .app-bar); centre the window buttons in it.
+- (void)placeWindowButtons {
+#ifndef PIANO_CAPTURE
+    const CGFloat PianoHeaderHeight = 48;
+    NSButton *close = [self.window standardWindowButton:NSWindowCloseButton];
+    NSView *container = close.superview.superview;
+    if (!container || (self.window.styleMask & NSWindowStyleMaskFullScreen)) return;
+    NSRect bar = container.frame;
+    bar.size.height = PianoHeaderHeight;
+    bar.origin.y = NSHeight(self.window.frame) - PianoHeaderHeight;
+    container.frame = bar;
+    close.superview.frame = container.bounds;
+    CGFloat x = 18;
+    for (NSNumber *kind in @[@(NSWindowCloseButton), @(NSWindowMiniaturizeButton), @(NSWindowZoomButton)]) {
+        NSButton *button = [self.window standardWindowButton:kind.unsignedIntegerValue];
+        NSRect frame = button.frame;
+        // centred on the header's content, which ends at its 1-point bottom border
+        frame.origin = NSMakePoint(x, 1 + (PianoHeaderHeight - 1 - NSHeight(frame)) / 2);
+        button.frame = frame;
+        x += NSWidth(frame) + 8;
+    }
+#endif
+}
+- (void)windowDidResize:(NSNotification *)notification {
+    (void)notification; [self placeWindowButtons];
+}
 - (void)windowDidEnterFullScreen:(NSNotification *)notification {
     (void)notification; [self publish:@{@"event":@"fullscreen", @"active":@YES}];
 }
 - (void)windowDidExitFullScreen:(NSNotification *)notification {
-    (void)notification; [self publish:@{@"event":@"fullscreen", @"active":@NO}];
+    (void)notification; [self placeWindowButtons]; [self publish:@{@"event":@"fullscreen", @"active":@NO}];
 }
 - (BOOL)windowShouldClose:(NSWindow *)sender {
     (void)sender; [NSApp terminate:nil]; return NO;
@@ -471,7 +524,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.quitting = YES;
     self.savingWorkspace = YES;
     [self.window saveFrameUsingName:@"Rach3MainWindow"];
-    [self.webView callAsyncJavaScript:@"window.dispatchEvent(new Event('pianoman-save-state'));"
+    [self.webView callAsyncJavaScript:@"window.dispatchEvent(new Event('rach3-save-state'));"
         arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld
         completionHandler:^(id result, NSError *error) {
             (void)result; (void)error;
@@ -626,6 +679,7 @@ int main(int argc, const char *argv[]) {
         __attribute__((objc_precise_lifetime)) PianoApp *delegate = [PianoApp new];
 #ifdef PIANO_CAPTURE
         delegate.captureDirectory = [NSString stringWithUTF8String:argv[1]];
+        delegate.captureLanguage = argc > 2 ? [NSString stringWithUTF8String:argv[2]] : @"en";
 #endif
         app.delegate = delegate;
         signal(SIGTERM,SIG_IGN);

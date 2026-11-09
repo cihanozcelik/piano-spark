@@ -6,7 +6,7 @@ export class SheetMusic {
     this.onSegmentsChange=onSegmentsChange;
     this.segments=[]; this.segmentSignature='';
     this.statusSource=''; this.progressSource='';
-    window.addEventListener('pianoman-language-change',()=>this.renderLanguage());
+    window.addEventListener('rach3-language-change',()=>this.renderLanguage());
     this.viewport=document.getElementById('sheet-viewport');
     this.paper=document.getElementById('sheet-paper');
     this.status=document.getElementById('sheet-status');

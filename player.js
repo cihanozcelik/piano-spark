@@ -51,13 +51,13 @@ import { startAppShell } from './app-shell.js';
     workspaceState.capture=()=>checkpoint();
     practice.speed=state.speed;
     // Native/Bluetooth adapters feed this interface; they never own lesson time.
-    window.pianomanInput = Object.freeze({
+    window.rach3Input = Object.freeze({
       receive: (event, source='bluetooth') => input.receive(event, source),
       connect: (source='bluetooth', label='Bluetooth piyano') => input.connect(source, label),
       disconnect: (source='bluetooth') => input.disconnect(source),
       reset: (source='bluetooth') => input.reset(source),
     });
-    window.dispatchEvent(new Event('pianoman-input-ready'));
+    window.dispatchEvent(new Event('rach3-input-ready'));
     let audio, master, wave, compressor, timer, raf, width, height;
     let activePractice=true;
     let keys=[], keyMap=new Map(), voices=new Set();
@@ -708,7 +708,7 @@ import { startAppShell } from './app-shell.js';
       ui['legend-right'].textContent=t(state.source==='builtin'?'Sağ el':'Do4 ve üstü');
       ui['file-description'].textContent=metadataDescription.split(' · ').map(message).join(' · ');
     }
-    window.addEventListener('pianoman-language-change',()=> {
+    window.addEventListener('rach3-language-change',()=> {
       renderLessonLabels();updatePlayButton();showError(errorSource);rebuildKeys();draw();
     });
     function loadSong(lesson=rubatoSong) {
@@ -745,7 +745,7 @@ import { startAppShell } from './app-shell.js';
       return Math.max(end,duration);
     }
     function importFile(file) {
-      if(file) window.dispatchEvent(new CustomEvent('pianoman-import-document',{detail:{file}}));
+      if(file) window.dispatchEvent(new CustomEvent('rach3-import-document',{detail:{file}}));
     }
 
     input.addEventListener('beforechange',event=> {
@@ -795,13 +795,13 @@ import { startAppShell } from './app-shell.js';
     });
     ui['profile-clear-reach'].addEventListener('click',()=>applyProfile(()=>{activeProfile().reach=null;}));
     ui['profile-measure'].addEventListener('click',()=>measuring?stopMeasure():startMeasure());
-    window.addEventListener('pianoman-language-change',()=>renderProfiles());
+    window.addEventListener('rach3-language-change',()=>renderProfiles());
     renderProfiles();
     ui['practice-previous'].addEventListener('click',()=>selectStage(-1));
     ui['practice-next'].addEventListener('click',()=>selectStage(1));
     ui.play.addEventListener('click',()=> { if(state.running||state.starting) pause(); else play(); });
-    window.addEventListener('pianoman-output-settings-change',pause);
-    window.addEventListener('pianoman-bluetooth-test',async event=> {
+    window.addEventListener('rach3-output-settings-change',pause);
+    window.addEventListener('rach3-bluetooth-test',async event=> {
       pause();
       try {
         const started=pianoOutput.start([{notes:[{time:0,end:.35,soundEnd:.35,midi:60,velocity:.45}],pedals:[]}],0,1,.35);
@@ -861,7 +861,7 @@ import { startAppShell } from './app-shell.js';
     }
     staff.prepare().then(draw).catch(()=>showError('Nota sembolleri yüklenemedi. Uygulamayı yeniden aç.'));
     new ResizeObserver(resize).observe(ui.roll);
-    startBluetooth(window.pianomanInput,workspaceState);
+    startBluetooth(window.rach3Input,workspaceState);
     startAppShell({
       workspaceState,
       onLesson:loadSong,

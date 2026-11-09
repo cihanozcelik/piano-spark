@@ -1,10 +1,10 @@
 // One persistence owner; feature owners supply their state, never DOM snapshots.
 export class WorkspaceState {
   constructor() {
-    this.key='pianoman.workspace.v1';
+    this.key='rach3.workspace.v1';
     this.data={version:1,controls:{},layout:{},lessons:{},tab:'practice',create:{}};
     this.dirty=false;
-    window.addEventListener('pianoman-language-change',()=> {
+    window.addEventListener('rach3-language-change',()=> {
       const error=document.getElementById('error');
       if(error.dataset.persistenceMessage&&!error.hidden) error.textContent=window.PianoI18n.message(error.dataset.persistenceMessage);
     });
@@ -16,15 +16,11 @@ export class WorkspaceState {
     try {
       const saved=JSON.parse(localStorage.getItem(this.key));
       if(saved?.version===1) this.data={...this.data,...saved};
-      else {
-        const sizes=JSON.parse(localStorage.getItem('pianoman.workspace-sizes.v1'));
-        if(sizes) this.data.layout={...sizes,expanded:false};
-      }
     } catch { this.onError('Kayıtlı çalışma durumu okunamadı.'); }
     this.capture=()=>{};
     const flush=()=>{this.capture();this.flush();};
     window.addEventListener('pagehide',flush);
-    window.addEventListener('pianoman-save-state',flush);
+    window.addEventListener('rach3-save-state',flush);
     document.addEventListener('visibilitychange',()=>{if(document.hidden) flush();});
   }
 

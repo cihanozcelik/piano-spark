@@ -69,7 +69,7 @@ static NSString *const PianoToolCatalog = @"tools.json";
     if (self.onEvent) self.onEvent([self snapshot]);
 }
 - (BOOL)fail:(NSString *)message error:(NSError **)error {
-    if (error) *error = [NSError errorWithDomain:@"PianoMan.Lessons" code:1 userInfo:@{NSLocalizedDescriptionKey:PianoText(message)}];
+    if (error) *error = [NSError errorWithDomain:@"Rach3.Lessons" code:1 userInfo:@{NSLocalizedDescriptionKey:PianoText(message)}];
     return NO;
 }
 - (NSURL *)libraryURL { return [self.supportURL URLByAppendingPathComponent:@"Lessons"]; }

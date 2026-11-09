@@ -27,7 +27,7 @@ export function startAppShell({ onTabWillChange, onTabChange, onLesson, onLesson
     app.dataset.activeTab = next;
     workspaceState.update('tab',next);
     onTabChange(next);
-    window.dispatchEvent(new CustomEvent('pianoman-tab-change', { detail: { tab: next } }));
+    window.dispatchEvent(new CustomEvent('rach3-tab-change', { detail: { tab: next } }));
   }
 
   for (const [index, tab] of tabs.entries()) {
@@ -161,7 +161,7 @@ function startWorkspaceLayout(workspaceState) {
     expanded=!expanded;
     apply();save();
   });
-  window.addEventListener('pianoman-language-change',apply);
+  window.addEventListener('rach3-language-change',apply);
   const layoutObserver=new ResizeObserver(apply);
   layoutObserver.observe(workspace);
   layoutObserver.observe(timeline);

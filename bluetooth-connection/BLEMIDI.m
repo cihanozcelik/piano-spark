@@ -6,7 +6,7 @@
 
 - (BOOL)invalid:(NSString *)message at:(NSUInteger)position error:(NSError **)error {
     _sysex = NO;
-    if (error) *error = [NSError errorWithDomain:@"PianoMan.BLEMIDI" code:1
+    if (error) *error = [NSError errorWithDomain:@"Rach3.BLEMIDI" code:1
         userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"%@ (byte %lu)", message, (unsigned long)position]}];
     return NO;
 }

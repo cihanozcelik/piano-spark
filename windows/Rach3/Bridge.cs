@@ -9,7 +9,7 @@ namespace Rach3
     sealed partial class MainForm
     {
         /// <summary>
-        /// window.webkit.messageHandlers.pianoman on WebView2: postMessage returns a promise
+        /// window.webkit.messageHandlers.rach3 on WebView2: postMessage returns a promise
         /// that resolves with the reply or rejects with an Error, like WKScriptMessageHandlerWithReply.
         /// </summary>
         const string BridgeScript = @"(() => {
@@ -24,10 +24,10 @@ namespace Rach3
       pending.delete(data.reply);
       if (data.error != null) call.reject(new Error(data.error)); else call.resolve(data.value);
     } else if (data && data.event) {
-      window.dispatchEvent(new CustomEvent('pianoman-native-event', { detail: data.event }));
+      window.dispatchEvent(new CustomEvent('rach3-native-event', { detail: data.event }));
     }
   });
-  const pianoman = Object.freeze({
+  const rach3 = Object.freeze({
     postMessage(body) {
       return new Promise((resolve, reject) => {
         const id = next++;
@@ -36,9 +36,9 @@ namespace Rach3
       });
     }
   });
-  Object.defineProperty(window, 'webkit', { value: Object.freeze({ messageHandlers: Object.freeze({ pianoman }) }) });
+  Object.defineProperty(window, 'webkit', { value: Object.freeze({ messageHandlers: Object.freeze({ rach3 }) }) });
   Object.defineProperty(window, 'PianoPlatform', { value: 'windows' });
-  window.addEventListener('error', e => pianoman.postMessage({ command: 'page-error', message: e.message }));
+  window.addEventListener('error', e => rach3.postMessage({ command: 'page-error', message: e.message }));
 })();";
 
         async void OnMessage(object sender, CoreWebView2WebMessageReceivedEventArgs args)

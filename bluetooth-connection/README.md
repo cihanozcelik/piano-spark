@@ -139,7 +139,7 @@ SysEx içeriği tutulmaz; active sensing ve timing clock çıktıyı doldurmaz.
 `ready`, MIDI bildirimlerine abone olunduğunu bildirir. Gerçek fiziksel giriş
 ancak `note_on` / `note_off` olayları geldiğinde doğrulanmış olur.
 `../server.py`, `bluetooth_bridge.py` üzerinden bu süreci başlatır ve kapatır.
-`bluetooth.js`, canlı olayları mevcut `window.pianomanInput` arayüzüne aktarır.
+`bluetooth.js`, canlı olayları mevcut `window.rach3Input` arayüzüne aktarır.
 Sayfadaki Bağlan / Bağlantıyı kes düğmeleri için ayrıca CLI açmak gerekmez.
 Native CLI kendi TCP portunu açmaz; yerel HTTP/SSE servisi Python'a aittir.
 

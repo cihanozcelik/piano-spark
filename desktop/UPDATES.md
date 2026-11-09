@@ -2,7 +2,7 @@
 
 Sürümün tek kaynağı `desktop/release.json`: görünen sürüm, artan build sayısı,
 repo, private/public seçimi, Ed25519 açık anahtarı ve sürüm notları.
-Repo: `cihanozcelik/piano-spark` (public). Kaynak kodu, Releases ve GitHub Pages
+Repo: `cihanozcelik/rach3` (public). Kaynak kodu, Releases ve GitHub Pages
 aynı repodadır. Alıcı bilgisayarda GitHub hesabı veya erişim token’ı gerekmez.
 
 ## Kullanıcı akışı
@@ -22,7 +22,7 @@ Menü kapatıldığında okunmuş sayılır; sürüm notları menüden tekrar g�
 
 `UpdateController` Sparkle 2.10.1’in tek sahibidir. Resmî framework SHA-256 ile
 sabitlenir, yalnız `build/sparkle` içinde indirilir. Framework, yardımcı süreçleri ve
-lisansı uygulamayla birlikte taşınır. Appcast, `https://cihanozcelik.github.io/piano-spark/appcast.xml`
+lisansı uygulamayla birlikte taşınır. Appcast, `https://rach3.com/appcast.xml`
 adresinden okunur. İmzalı aslı `updates` dalında tutulur; Pages workflow’u
 yalnız tanıtım HTML/CSS dosyalarını ve bu feed’i yayımlar. Paketler public
 GitHub Release asset’leridir; indirme için hesap veya Authorization başlığı yoktur. Sürüm notları imzalı feed içine gömülür ve arayüzde metin olarak çizilir.
@@ -31,7 +31,7 @@ Hem paket hem feed Ed25519 ile imzalanır. Uygulama imzasız feed’i ve açılm
 imzası doğrulanmayan paketi reddeder. Apple notarization/Developer ID kullanılmaz;
 macOS uygulama paketi ad-hoc imzalıdır. Bu, Gatekeeper’ın ilk kurulum onayının kaldırıldığı anlamına gelmez.
 
-Özel imza anahtarı bu Mac’in Anahtar Zinciri’nde `com.pianoman.desktop` Sparkle
+Özel imza anahtarı bu Mac’in Anahtar Zinciri’nde `com.rach3.app` Sparkle
 hesabındadır. `release.json` yalnız açık anahtarı içerir. Anahtarı kaybetmek mevcut
 kurulumların yeni güncellemeleri doğrulamasını engeller; değiştirmek yerine güvenli
 yedek saklanmalıdır. GitHub CI aynı özel anahtarı `SPARKLE_PRIVATE_KEY` repo secret

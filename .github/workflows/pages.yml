@@ -9,7 +9,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: piano-spark-pages
+  group: rach3-pages
   cancel-in-progress: false
 jobs:
   deploy:

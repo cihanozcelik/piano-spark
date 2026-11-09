@@ -6,7 +6,7 @@ export class StaffNotation {
   }
 
   async prepare() {
-    await document.fonts.load('20px PianoManMusic');
+    await document.fonts.load('20px Rach3Music');
     for (let midi = 21; midi <= 108; midi++) this.cards.set(midi, this.makeCard(midi));
   }
 
@@ -47,7 +47,7 @@ export class StaffNotation {
       pen.moveTo(x - 2, row); pen.lineTo(x + 8, row);
     }
     pen.stroke();
-    pen.fillStyle = '#f3f5f8'; pen.font = '20px PianoManMusic';
+    pen.fillStyle = '#f3f5f8'; pen.font = '20px Rach3Music';
     // Clefs anchor on F3 / G4 respectively.
     pen.fillText(bass ? '\uE062' : '\uE050', 2, staffBottom - (bass ? 3 : 1) * gap);
     if ([1, 3, 6, 8, 10].includes(pitchClass)) pen.fillText('\uE262', 20, y);

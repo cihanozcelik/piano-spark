@@ -109,7 +109,7 @@
   "%200": "200%"
 };
   const storageKey = 'rach3-language';
-  const native = window.webkit?.messageHandlers?.pianoman;
+  const native = window.webkit?.messageHandlers?.rach3;
   const valid = value => value === 'tr' || value === 'en';
   let language = (navigator.languages?.[0] || navigator.language || 'en').toLowerCase().startsWith('tr') ? 'tr' : 'en';
   try { const saved = localStorage.getItem(storageKey); if (valid(saved)) language = saved; } catch (_) { /* Native preferences still work when browser storage is unavailable. */ }
@@ -168,7 +168,7 @@
     language = value;
     try { localStorage.setItem(storageKey, value); } catch (_) { /* Browser persistence is optional in native storage contexts. */ }
     renderStatic();
-    window.dispatchEvent(new CustomEvent('pianoman-language-change', { detail: { language } }));
+    window.dispatchEvent(new CustomEvent('rach3-language-change', { detail: { language } }));
   }
   async function setLanguage(value) {
     if (!valid(value)) return;
@@ -183,7 +183,7 @@
   document.getElementById('app-language')?.addEventListener('change', event => {
     setLanguage(event.target.value).catch(error => { const node = document.getElementById('error'); node.textContent = message(error.message); node.hidden = false; });
   });
-  window.addEventListener('pianoman-native-event', event => {
+  window.addEventListener('rach3-native-event', event => {
     if ((event.detail.event === 'language' || event.detail.event === 'snapshot') && valid(event.detail.language) && event.detail.language !== language) apply(event.detail.language);
   });
   if (native) {

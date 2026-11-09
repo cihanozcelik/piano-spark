@@ -10,7 +10,7 @@ export function startBluetooth(input, workspace) {
   const explanation=el('explanation'),help=el('help'),technical=el('technical'),technicalText=el('technical-text');
   const devices=el('devices'),settings=el('settings'),name=el('name'),channel=el('channel');
   const preferred=el('default'),automatic=el('auto'),forget=el('forget'),test=el('test');
-  const native=window.webkit?.messageHandlers?.pianoman;
+  const native=window.webkit?.messageHandlers?.rach3;
   const uuidPattern=/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
   const saved=workspace.data.bluetooth;
   const preferences={version:1,devices:{},defaultUUID:null,migrated:false,...(saved?.version===1?saved:{})};
@@ -25,7 +25,7 @@ export function startBluetooth(input, workspace) {
   const recommendedChannel=deviceName=>/\bFP[- ]?(30X|60X|90X)\b/i.test(deviceName)?4:1;
   function save() {workspace.update('bluetooth',preferences);workspace.flush();}
   function emitStatus() {
-    window.dispatchEvent(new CustomEvent('pianoman-bluetooth-status',{detail:{...state,
+    window.dispatchEvent(new CustomEvent('rach3-bluetooth-status',{detail:{...state,
       connected:live&&state.connected,output_channel:profile(state.uuid)?.channel||1}}));
   }
   for(let value=1;value<=16;value++) {const option=document.createElement('option');option.value=value;option.textContent=value;channel.append(option);}
@@ -172,7 +172,7 @@ export function startBluetooth(input, workspace) {
   }
 
   function receive(event) {
-    if(event.event==='output_error') {window.dispatchEvent(new CustomEvent('pianoman-output-error',{detail:event}));return;}
+    if(event.event==='output_error') {window.dispatchEvent(new CustomEvent('rach3-output-error',{detail:event}));return;}
     if(!['snapshot','status','note_on','note_off','pedal','control_change','midi_message'].includes(event.event)) return;
     live=true;
     if(event.event==='snapshot') {
@@ -195,7 +195,7 @@ export function startBluetooth(input, workspace) {
     if(native) native.postMessage({command:'subscribe'}).then(receive).catch(error=>offline(error.message));
     else {stream=new EventSource('/api/bluetooth/events');stream.onmessage=event=>receive(JSON.parse(event.data));stream.onerror=()=>offline();}
   }
-  if(native) window.addEventListener('pianoman-native-event',event=>receive(event.detail));
+  if(native) window.addEventListener('rach3-native-event',event=>receive(event.detail));
 
   async function command(action,values={}) {
     if(native) {
@@ -204,7 +204,7 @@ export function startBluetooth(input, workspace) {
       return result;
     }
     const response=await fetch(`/api/bluetooth/${action}`,{
-      method:'POST',headers:{'Content-Type':'application/json','X-PianoMan':'1'},body:JSON.stringify(values),
+      method:'POST',headers:{'Content-Type':'application/json','X-Rach3':'1'},body:JSON.stringify(values),
     });
     const result=await response.json();
     if(!response.ok||result.error) throw new Error(result.error||'İşlem tamamlanamadı');
@@ -232,7 +232,7 @@ export function startBluetooth(input, workspace) {
   }
   name.addEventListener('change',()=>{const value=name.value.trim();if(value) updateProfile({name:value});else {renderedSettings='';render();}});
   channel.addEventListener('change',()=> {
-    if(state.connected&&state.uuid===selected) window.dispatchEvent(new Event('pianoman-output-settings-change'));
+    if(state.connected&&state.uuid===selected) window.dispatchEvent(new Event('rach3-output-settings-change'));
     updateProfile({channel:Number(channel.value)});
   });
   automatic.addEventListener('change',()=>{if(!automatic.checked) cancelRetry();updateProfile({auto:automatic.checked});});
@@ -245,7 +245,7 @@ export function startBluetooth(input, workspace) {
   });
   test.addEventListener('click',()=> {
     testPending=true;render();
-    window.dispatchEvent(new CustomEvent('pianoman-bluetooth-test',{detail:{complete:error=> {
+    window.dispatchEvent(new CustomEvent('rach3-bluetooth-test',{detail:{complete:error=> {
       testPending=false;if(error) localDiagnostic={code:'command_failed',detail:error.message};render();
     }}}));
   });
@@ -256,6 +256,6 @@ export function startBluetooth(input, workspace) {
     offline();
   });
   window.addEventListener('pageshow',event=>{if(event.persisted) {disposed=false;openStream();}});
-  window.addEventListener('pianoman-language-change',render);
+  window.addEventListener('rach3-language-change',render);
   openStream();render();
 }

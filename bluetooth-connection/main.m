@@ -96,7 +96,7 @@ NSDictionary *PianoBluetoothCommand(NSString *runtime, NSDictionary *request, NS
     }
     close(fd);
     if (!sent || count < 0 || !reply.length) {
-        if (error) *error = [NSError errorWithDomain:@"PianoMan.MIDIOutput" code:1
+        if (error) *error = [NSError errorWithDomain:@"Rach3.MIDIOutput" code:1
             userInfo:@{NSLocalizedDescriptionKey:@"Piyano çalma komutuna yanıt alınamadı."}];
         return nil;
     }
