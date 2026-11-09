@@ -75,16 +75,16 @@ namespace Rach3
                 ["title"] = "Şarkı ğüşıöç", ["tempo"] = 60, ["separate"] = false,
             });
             await Script(@"(async () => {
-  const native = window.webkit.messageHandlers.pianoman;
+  const native = window.webkit.messageHandlers.rach3;
   try {
     const finished = new Promise(resolve => {
       const listener = event => {
         const detail = event.detail;
         if (detail.event === 'lesson-progress' && ['complete', 'error', 'cancelled'].includes(detail.phase)) {
-          window.removeEventListener('pianoman-native-event', listener); resolve(detail);
+          window.removeEventListener('rach3-native-event', listener); resolve(detail);
         }
       };
-      window.addEventListener('pianoman-native-event', listener);
+      window.addEventListener('rach3-native-event', listener);
     });
     const job = await native.postMessage(" + request + @");
     for (const data of " + Json.Write(chunks) + @") await native.postMessage({ command: 'lesson-chunk', id: job.id, data });

@@ -5,12 +5,12 @@ The small, self-contained application supports **Macs running macOS 14 or later,
 Intel processors**. See [Intel Macs](#intel-macs) for how lesson creation differs there.
 A **Windows 10 and 11 (64-bit) beta** is published with each release; see [Windows (beta)](#windows-beta).
 
-[Website](https://rach3.com/) · [Download the latest release](https://github.com/cihanozcelik/piano-spark/releases/latest)
+[Website](https://rach3.com/) · [Download the latest release](https://github.com/cihanozcelik/rach3/releases/latest)
 
 rach3 is **free and open source** under the [GNU AGPL v3.0](LICENSE), and the
 whole app is in **public beta**: practice works day to day, but features are still
 changing and lessons made from recordings or PDFs can contain wrong notes or rhythms.
-Please [report what you find](https://github.com/cihanozcelik/piano-spark/issues).
+Please [report what you find](https://github.com/cihanozcelik/rach3/issues).
 
 Lesson creation is built on open models and libraries, including
 [Rubato](https://github.com/nctamer/rubato-transcription),
@@ -44,7 +44,7 @@ development data are outside the uninstaller's scope.
 
 Use the **Full screen** button, the window's green button, or **Ctrl+⌘+F** to enter
 full screen. The piano and falling notes use the full window width, including in
-full screen. `Pianoman.command` also opens the compiled application.
+full screen. `Rach3.command` also opens the compiled application.
 
 The package is locally signed with an ad-hoc signature; it is not Developer ID
 signed or notarized. macOS may require security approval when opening a downloaded
@@ -408,7 +408,7 @@ In this workflow, Python's `BluetoothBridge` owns the Bluetooth process. Native 
 events arrive through the `/api/bluetooth/events` SSE stream; status is available at
 `/api/bluetooth/status`. Commands use POST requests to `/api/bluetooth/scan`,
 `/api/bluetooth/connect` with a selected UUID, and `/api/bluetooth/disconnect`.
-Commands must come from the same local origin with JSON and the `X-PianoMan: 1`
+Commands must come from the same local origin with JSON and the `X-Rach3: 1`
 header. The server listens only on loopback, rejects other Host/Origin values, and
 does not enable CORS.
 
@@ -581,18 +581,18 @@ time. `practice-session.js` owns row plans, attempt grading, and completed progr
 input, transport, rendering, and persistence. There is no on-screen
 keyboard input source.
 
-`bluetooth-connection/bluetooth.js` feeds `window.pianomanInput`. The interface emits
-`pianoman-input-ready` when ready. This is not a simulated connection; adapters must
+`bluetooth-connection/bluetooth.js` feeds `window.rach3Input`. The interface emits
+`rach3-input-ready` when ready. This is not a simulated connection; adapters must
 report actual connection state:
 
 ```js
 // Once the native transport is actually ready:
-window.pianomanInput.connect('bluetooth', 'Yamaha CLP-835');
+window.rach3Input.connect('bluetooth', 'Yamaha CLP-835');
 // After decoding a native JSON event:
-window.pianomanInput.receive({event: 'note_on', note: 60, velocity: 82, channel: 1});
-window.pianomanInput.receive({event: 'note_off', note: 60, velocity: 0, channel: 1});
+window.rach3Input.receive({event: 'note_on', note: 60, velocity: 82, channel: 1});
+window.rach3Input.receive({event: 'note_off', note: 60, velocity: 0, channel: 1});
 // When the stream is interrupted or the connection ends:
-window.pianomanInput.disconnect('bluetooth');
+window.rach3Input.disconnect('bluetooth');
 ```
 
 `receive` also accepts `ready`, `disconnected`, `stopped`, `error`, and
@@ -612,25 +612,35 @@ change did not add automated regression tests.
 ## Public website
 
 The English website is at <https://rach3.com/>, served by GitHub Pages with rach3.com as
-its custom domain (the old `cihanozcelik.github.io/piano-spark/` addresses redirect there).
+its custom domain.
 Its source lives in `site/`, and `.github/workflows/pages.yml` publishes it.
 `site/build.py` includes only the explicit public asset list; download buttons link
 to an actual published release asset, with the latest published release shown on
 the site.
 
 To refresh product screenshots, run
-`python3 desktop/build.py --capture-assets site/assets`. This builds a development-only
+`python3 desktop/build.py --capture-assets site/assets` and
+`python3 desktop/build.py --capture-assets site/assets/tr --capture-language tr`
+(the Turkish website shows the app in Turkish). This builds a development-only
 capture executable, exports the actual app renderer using an isolated WebKit store
 and preferences, then removes the capture executable. Personal lessons, library
 data, and workspace preferences are not used or modified. Generated artwork
 provenance is recorded in `site/IMAGEGEN.md`.
 
-The logo, app icons and favicons all come from one image,
-`brand/rach3-logo-source.png`. After changing it, run `python3 brand/make.py`
-(needs numpy and Pillow) and commit what it writes: the transparent logo pieces
-in `brand/`, the website images in `site/assets/`, the app header wordmark in
+The app icons, favicons and the website's hero artwork come from one image, the
+pianist under the moon on a black stage: `brand/rach3-artwork.png`. The written
+name in the headers is lifted from the first logo drawing,
+`brand/rach3-logo-source.png`. After changing either, run `python3 brand/make.py`
+(needs numpy and Pillow) and commit what it writes: the icons and wordmarks in
+`brand/`, the website images in `site/assets/`, the app header wordmark in
 `assets/brand/`, `desktop/AppIcon.png` (the macOS icon) and
 `windows/Rach3/Rach3.ico`.
+
+The website is in English (the site root) and Turkish (`tr/`). `site/index.html`
+is written in English; `site/tr.json` holds the Turkish for each text, and
+`site/build.py` fails if the page changes a text that has a translation, so the
+two stay in step. First-time visitors in Turkey or with a Turkish browser get
+the Turkish page; the language link in the header and footer overrides that.
 
 ## License and credits
 

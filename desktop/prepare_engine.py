@@ -44,7 +44,7 @@ def main():
         raise RuntimeError('Use a macOS build machine')
     environment = os.environ.copy()
     environment['UV_NO_CACHE'] = '1'
-    target = Path(environment.get('PIANOMAN_PYTHON_DIR') or ROOT/'build/lesson-python')
+    target = Path(environment.get('RACH3_PYTHON_DIR') or ROOT/'build/lesson-python')
     for arch in ARCHITECTURES:
         request = f'cpython-{PYTHON}-macos-{arch}-none'
         install = dict(environment)

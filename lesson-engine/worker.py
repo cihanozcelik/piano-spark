@@ -202,7 +202,7 @@ def main():
         description+=' · Şiddet ve pedal model tahminidir'
         lesson=dict(id=job_id,title=request.get('title') or source.stem,
                     description=description,noteCount=len(notes),duration=duration,
-                    midiFilename='pianoman-'+job_id+'.mid',
+                    midiFilename='rach3-'+job_id+'.mid',
                     tracks=[dict(id=hand,name='Sol el' if hand==0 else 'Sağ el',
                                  notes=[note for note in notes if note['hand']==hand],pedals=pedals)
                             for hand in (0,1)],

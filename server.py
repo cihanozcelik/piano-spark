@@ -1,4 +1,4 @@
-"""Local PianoMan HTTP service and native Bluetooth process owner."""
+"""Local rach3 HTTP service and native Bluetooth process owner."""
 import argparse
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -58,7 +58,7 @@ class PianoHandler(BaseHTTPRequestHandler):
         if host not in hosts or (origin is not None and origin != f"http://{host}"):
             self.send_error(HTTPStatus.FORBIDDEN)
             return False
-        if mutation and (self.headers.get("X-PianoMan") != "1" or
+        if mutation and (self.headers.get("X-Rach3") != "1" or
                          self.headers.get_content_type() != "application/json"):
             self.send_error(HTTPStatus.FORBIDDEN)
             return False
@@ -92,7 +92,7 @@ class PianoHandler(BaseHTTPRequestHandler):
         elif path == "/api/bluetooth/status":
             self.send_json(self.server.bluetooth.snapshot(), include_body=include_body)
         elif path == "/api/status":
-            self.send_json({"service": "pianoman", "status": "ok"}, include_body=include_body)
+            self.send_json({"service": "rach3", "status": "ok"}, include_body=include_body)
         elif path == "/api/development" and self.server.development:
             revision = [(name, (ROOT/name).stat().st_mtime_ns) for name in sorted({entry[0] for entry in FILES.values()})]
             self.send_json({"revision": revision}, include_body=include_body)
@@ -189,7 +189,7 @@ def stop(_signum, _frame):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="PianoMan yerel web servisi")
+    parser = argparse.ArgumentParser(description="rach3 yerel web servisi")
     parser.add_argument("--port", type=int, default=8783)
     parser.add_argument("--open", action="store_true", help="Sayfayı tarayıcıda aç")
     parser.add_argument("--dev", action="store_true", help="Kaynak değişince tarayıcıyı yenile")
@@ -207,12 +207,12 @@ def main():
             server.lessons = LessonBridge()
             server.development = args.dev
             address = f"http://127.0.0.1:{server.server_port}"
-            print(f"PianoMan: {address}\nDurdurmak için Ctrl+C.", flush=True)
+            print(f"rach3: {address}\nDurdurmak için Ctrl+C.", flush=True)
             if args.open:
                 webbrowser.open(address)
             server.serve_forever(poll_interval=0.2)
         except KeyboardInterrupt:
-            print("\nPianoMan servisi durduruluyor…", flush=True)
+            print("\nrach3 servisi durduruluyor…", flush=True)
         finally:
             if hasattr(server, "bluetooth"):
                 server.bluetooth.close()

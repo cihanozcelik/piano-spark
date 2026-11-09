@@ -38,7 +38,7 @@ int main(int argc, const char *argv[]) {
                         else if ([command isEqual:@"lesson-chunk"]) result = @([service append:request[@"data"] identifier:request[@"id"] error:&error]);
                         else if ([command isEqual:@"lesson-start"]) result = @([service start:request[@"id"] error:&error]);
                         else if ([command isEqual:@"lesson-cancel"]) { [service cancel]; result = @{}; }
-                        else error = [NSError errorWithDomain:@"PianoMan" code:1 userInfo:@{NSLocalizedDescriptionKey:@"Bilinmeyen ders komutu"}];
+                        else error = [NSError errorWithDomain:@"Rach3" code:1 userInfo:@{NSLocalizedDescriptionKey:@"Bilinmeyen ders komutu"}];
                         NSDictionary *reply = error ? @{@"error":error.localizedDescription} : @{@"result":result ?: NSNull.null};
                         NSData *encoded = [NSJSONSerialization dataWithJSONObject:reply options:0 error:NULL];
                         fwrite(encoded.bytes,1,encoded.length,stdout); fputc('\n',stdout); fflush(stdout);

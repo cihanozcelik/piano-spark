@@ -79,7 +79,7 @@ def write_ui(resources):
         html = html.replace(f'<script src="/{script}"></script>', '<script>\n'+(ROOT/script).read_text().replace('</script','<\\/script')+'\n</script>')
     html = html.replace('<script src="/desktop.js"></script>',
         '<script>\n' + (ROOT / 'desktop.js').read_text() + '\n</script>')
-    html = html.replace('<!-- pianoman-notation-runtime -->', '')
+    html = html.replace('<!-- rach3-notation-runtime -->', '')
     resources.mkdir(parents=True, exist_ok=True)
     licenses = resources/'Licenses/Verovio'
     licenses.mkdir(parents=True,exist_ok=True)
@@ -126,6 +126,7 @@ def main():
     parser.add_argument('--app-only',action='store_true')
     parser.add_argument('--installer-only',action='store_true')
     parser.add_argument('--capture-assets',type=Path,help='Export actual app screenshots with an isolated development-only capture build')
+    parser.add_argument('--capture-language',choices=('en','tr'),default='en',help='Language of the exported screenshots')
     args=parser.parse_args()
     BUILD.mkdir(parents=True, exist_ok=True)
     DIST.mkdir(exist_ok=True)
@@ -143,7 +144,7 @@ def main():
             info_path.write_bytes(plistlib.dumps(info))
             compile_native(capture_app/'Contents/MacOS/Rach3',capture_root/'objects',capture=True)
             run('codesign','--force','--sign','-','--timestamp=none',capture_app)
-            run(capture_app/'Contents/MacOS/Rach3',destination)
+            run(capture_app/'Contents/MacOS/Rach3',destination,args.capture_language)
         finally:
             shutil.rmtree(capture_root)
         return

@@ -3,7 +3,7 @@ export class PianoOutput {
   constructor(onError) {
     this.onError=onError;this.channel=0;this.connected=false;this.capable=false;this.session=null;
     this.queue=Promise.resolve();this.heartbeat=null;this.pinging=false;
-    window.addEventListener('pianoman-bluetooth-status',({detail})=> {
+    window.addEventListener('rach3-bluetooth-status',({detail})=> {
       this.connected=detail.connected;
       this.channel=(detail.output_channel||1)-1;
       // Existing Objective-C senders box a C comparison as NSNumber(0/1).
@@ -12,17 +12,17 @@ export class PianoOutput {
       if(this.session&&!this.connected) this.fail('Piyano bağlantısı kesildi; çalma durduruldu.');
       this.onStatus?.();
     });
-    window.addEventListener('pianoman-output-error',({detail})=> {
+    window.addEventListener('rach3-output-error',({detail})=> {
       if(this.session) this.fail(detail.message);
     });
   }
 
   command(request) {
     const perform=async()=> {
-      const native=window.webkit?.messageHandlers?.pianoman;
+      const native=window.webkit?.messageHandlers?.rach3;
       if(native) return native.postMessage(request);
       const response=await fetch('/api/bluetooth/output',{
-        method:'POST',headers:{'Content-Type':'application/json','X-PianoMan':'1'},
+        method:'POST',headers:{'Content-Type':'application/json','X-Rach3':'1'},
         body:JSON.stringify(request),keepalive:request.command!=='output-start',
       });
       const result=await response.json();

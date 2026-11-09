@@ -1,10 +1,10 @@
 const t=(source,params)=>window.PianoI18n.t(source,params);
 const translated=source=>window.PianoI18n.message(source);
 export async function lessonCommand(command,fields={}) {
-  const native=window.webkit?.messageHandlers?.pianoman;
+  const native=window.webkit?.messageHandlers?.rach3;
     if (native) return native.postMessage({ command, ...fields });
     const response = await fetch('/api/lessons/command', {
-      method:'POST', headers:{'Content-Type':'application/json','X-PianoMan':'1'},
+      method:'POST', headers:{'Content-Type':'application/json','X-Rach3':'1'},
       body:JSON.stringify({command,...fields}),
     });
     const result = await response.json();
@@ -30,7 +30,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   let videoURL = '';
   let videoReady = false;
   let youtubeURL = '';
-  const native = window.webkit?.messageHandlers?.pianoman;
+  const native = window.webkit?.messageHandlers?.rach3;
   const available = Boolean(native) || location.protocol === 'http:';
   const draft=workspaceState.data.create;
   let statusSource='';
@@ -274,7 +274,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     ui['lesson-title'].value=file.name.replace(/\.[^.]+$/,'');showSource('document');onShowCreate();saveDraft();
   }
   ui['lesson-document'].addEventListener('change',()=>{chooseDocument(ui['lesson-document'].files[0]);ui['lesson-document'].value='';});
-  window.addEventListener('pianoman-import-document',event=>chooseDocument(event.detail.file));
+  window.addEventListener('rach3-import-document',event=>chooseDocument(event.detail.file));
   ui['choose-video'].addEventListener('click', () => ui['lesson-video'].click());
   ui['lesson-video'].addEventListener('change', () => {
     const file = ui['lesson-video'].files[0];
@@ -356,10 +356,10 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     ui['youtube-url'].focus();
   });
 
-  window.addEventListener('pianoman-tab-change', event => {
+  window.addEventListener('rach3-tab-change', event => {
     if (event.detail.tab !== 'create') video.pause();
   });
-  window.addEventListener('pianoman-language-change',()=> {
+  window.addEventListener('rach3-language-change',()=> {
     renderTools(); renderTransfer();
     ui['create-status'].textContent=translated(statusSource);
     if(youtubeURL) ui['youtube-title'].textContent=t('YouTube videosu');
@@ -412,7 +412,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     try { await lessonCommand('lesson-cancel'); } catch(error) { announce(error.message,'error'); }
     finally { ui['cancel-lesson'].disabled=false; }
   });
-  window.addEventListener('pianoman-native-event',event=> {
+  window.addEventListener('rach3-native-event',event=> {
     if(event.detail.event==='lesson-progress') jobState(event.detail).catch(error=>announce(error.message,'error'));
   });
   ui['lesson-title'].value=draft.title||'';

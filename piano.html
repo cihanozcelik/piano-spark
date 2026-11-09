@@ -7,7 +7,7 @@
   <meta name="description" data-i18n-content="rach3 ile kendi hızında piyano çalış." content="rach3 ile kendi hızında piyano çalış.">
   <title>rach3</title>
   <style>
-    @font-face { font-family:PianoManMusic; src:url('assets/bravura/Bravura.woff2') format('woff2'); font-display:block; }
+    @font-face { font-family:Rach3Music; src:url('assets/bravura/Bravura.woff2') format('woff2'); font-display:block; }
     :root { color-scheme:dark; --bg:#171719; --panel:#222225; --raised:#2c2c30; --line:#ffffff12; --ink:#f1f1f3; --muted:#96969f; --accent:#86b8ff; --hand-left:#75a7ff; --hand-right:#efab91; --target:#c5d8ff; }
     * { box-sizing:border-box; }
     html,body { margin:0; height:100%; overflow:hidden; }
@@ -29,10 +29,11 @@
     [hidden] { display:none!important; }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     .app { width:100%; height:100dvh; display:flex; flex-direction:column; }
-    .app-bar { position:relative; z-index:20; flex:0 0 48px; display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:12px; padding:0 12px; background:#202023; border-bottom:1px solid var(--line); }
+    .app-bar { position:relative; z-index:20; flex:0 0 48px; display:grid; grid-template-columns:minmax(0,max-content) auto minmax(max-content,1fr); align-items:center; align-content:center; gap:12px; padding:0 14px 0 18px; background:#202023; border-bottom:1px solid var(--line); }
     .header-context { grid-column:1; grid-row:1; min-width:0; display:flex; align-items:center; gap:12px; }
     .brand { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:600; letter-spacing:-.25px; }
     .brand img { display:block; height:16px; width:auto; }
+    html[data-window-controls=mac]:not([data-fullscreen=true]) .app-bar { padding-left:94px; }
     .tabs { display:flex; gap:3px; padding:3px; background:#11111366; border:1px solid #ffffff07; border-radius:9px; }
     .tab { border:0; background:transparent; min-height:29px; padding:5px 19px; font-size:12px; color:#a7a7af; border-radius:6px; }
     .tab[aria-selected=true] { color:#f7f7f9; background:#414146; box-shadow:0 1px 3px #0004,inset 0 1px #ffffff0d; }
@@ -99,7 +100,7 @@
     #file-badge { display:block; margin-bottom:4px; font-size:10px; letter-spacing:.4px; }
     #file-description { display:block; }
     .workspace { display:flex; flex:1; flex-direction:column; min-height:0; }
-    .toolbar { grid-column:2; grid-row:1; justify-self:center; flex-shrink:0; display:flex; align-items:center; gap:9px; padding:0; }
+    .toolbar { grid-column:2; grid-row:1; justify-self:start; flex-shrink:0; display:flex; align-items:center; gap:9px; padding:0; }
     .transport { display:flex; align-items:center; gap:5px; }
     .play { min-width:78px; }
     .control { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); }
@@ -147,7 +148,7 @@
     .sheet-tools button { min-height:25px; padding:2px 8px; font-size:11px; }
     .sheet-learning { position:absolute; top:10px; left:12px; z-index:8; width:max-content; max-width:calc(100% - 240px); padding:7px 10px; border:1px solid #7dc9a44d; border-radius:9px; background:#202a25f2; color:#b7efd0; font-size:11px; line-height:1.5; pointer-events:none; }
     .sheet-learning progress { display:block; width:100%; height:4px; margin-top:4px; accent-color:#5de0ac; }
-    .sheet-viewport { position:relative; height:var(--sheet-height,35vh); overflow:auto; overscroll-behavior:contain; padding:22px 28px 28px; background:#aaa69e; background-image:linear-gradient(115deg,#ffffff18,transparent 60%); scrollbar-color:#76736d #a6a299; }
+    .sheet-viewport { position:relative; height:var(--sheet-height,35vh); overflow:auto; overscroll-behavior:contain; padding:22px 28px 28px; background:#161618; scrollbar-color:#3a3a3e #161618; }
     .sheet-loading { position:sticky; top:0; min-height:140px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; color:#39352f; text-align:center; }
     #sheet-loading-text { font-size:13px; font-weight:500; }
     #sheet-progress { width:min(280px,80%); height:7px; accent-color:#586c8a; }
@@ -413,9 +414,9 @@
           <details class="popover view-menu" id="view-menu" data-popover>
             <summary title="Görünüm ayarları" data-i18n-title="Görünüm ayarları"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h6m4 0h6M4 17h10m4 0h2"/><circle cx="12" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg><span data-i18n="Görünüm">Görünüm</span></summary>
             <div class="popover-content view-options"><span id="sheet-status" role="status" data-i18n-initial="Partisyon hazırlanıyor…">Partisyon hazırlanıyor…</span><span id="velocity-readout" class="score-expression" data-i18n-initial="Şiddet (1–127): —">Şiddet (1–127): —</span>
-              <label class="control toggle-control" title="Akan nota çubuklarında küçük dizekleri göster." data-i18n-title="Akan nota çubuklarında küçük dizekleri göster."><input type="checkbox" id="staff" checked><span data-i18n="Çubuklarda porte">Çubuklarda porte</span></label>
+              <label class="control toggle-control" title="Akan nota çubuklarında küçük dizekleri göster." data-i18n-title="Akan nota çubuklarında küçük dizekleri göster."><input type="checkbox" id="staff"><span data-i18n="Çubuklarda porte">Çubuklarda porte</span></label>
               <label class="control"><span data-i18n="Yakınlık">Yakınlık</span> <select id="zoom"><option value="1" data-i18n="%100">%100</option><option value="1.5" data-i18n="%150">%150</option><option value="2" data-i18n="%200">%200</option></select></label>
-              <label class="control"><span data-i18n="Nota adları">Nota adları</span> <select id="notation"><option value="solfege">Do · Re · Mi</option><option value="letters">C · D · E</option><option value="none" data-i18n="Gizle">Gizle</option></select></label>
+              <label class="control"><span data-i18n="Nota adları">Nota adları</span> <select id="notation"><option value="solfege">Do · Re · Mi</option><option value="letters">C · D · E</option><option value="none" selected data-i18n="Gizle">Gizle</option></select></label>
               <label class="control"><span data-i18n="Klavye">Klavye</span> <select id="range"><option value="fit" data-i18n="Notalara sığdır">Notalara sığdır</option><option value="full" data-i18n="88 tuş">88 tuş</option></select></label>
               <label class="control toggle-control"><input type="checkbox" id="loop"><span data-i18n="Tekrarla">Tekrarla</span></label>
               <label class="control"><span data-i18n="Dinleme sesi">Dinleme sesi</span> <select id="audio-output"><option value="app" data-i18n="Uygulama sentezleyicisi">Uygulama sentezleyicisi</option><option value="piano" data-i18n="Bağlı piyano · Bluetooth MIDI">Bağlı piyano · Bluetooth MIDI</option></select></label>
@@ -595,7 +596,7 @@ THE SOFTWARE.
 <script src="/i18n.js"></script>
 <script src="/i18n-messages.js"></script>
 <script type="module" src="/player.js"></script>
-  <!-- pianoman-notation-runtime -->
+  <!-- rach3-notation-runtime -->
 <script src="/desktop.js"></script>
 </body>
 </html>

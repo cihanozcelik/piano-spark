@@ -28,7 +28,7 @@ namespace Rach3
 
     /// <summary>
     /// The Windows counterpart of desktop/main.m: one window around the same offline page.
-    /// The page talks to window.webkit.messageHandlers.pianoman exactly as on the Mac;
+    /// The page talks to window.webkit.messageHandlers.rach3 exactly as on the Mac;
     /// Bridge.js implements that object on top of WebView2's message channel.
     /// </summary>
     sealed partial class MainForm : Form
@@ -225,7 +225,7 @@ namespace Rach3
             try
             {
                 if (web.CoreWebView2 != null)
-                    await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('pianoman-save-state'));");
+                    await web.CoreWebView2.ExecuteScriptAsync("window.dispatchEvent(new Event('rach3-save-state'));");
             }
             catch (Exception) { }
             savedWorkspace = true;
