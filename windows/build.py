@@ -154,7 +154,7 @@ def capture(directory, midi):
         path = directory/name
         if path.exists() and path.read_text(encoding='utf-8').strip():
             print(f'{name}:\n{path.read_text(encoding="utf-8")}')
-    missing = [name for name in ('practice.png', 'create-lesson.png', 'with-ai.png', 'lesson-created.png')
+    missing = [name for name in ('practice.png', 'create-lesson.png', 'with-ai.png', 'customize-panel.png', 'customize-branch.png', 'lesson-created.png')
                if not (directory/name).is_file() or (directory/name).stat().st_size < 10000]
     if result.returncode or missing:
         raise RuntimeError(f'Windows capture failed (exit {result.returncode}, missing {missing})')

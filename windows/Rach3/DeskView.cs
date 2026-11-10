@@ -12,65 +12,20 @@ using Microsoft.Web.WebView2.WinForms;
 namespace Rach3
 {
     /// <summary>
-    /// The window side of the "With AI" tab: files of the candidates ChatGPT showed, served
-    /// to the page at /_desk/, and the YouTube player laid over a card (desktop/main.m playVideo).
+    /// The window side of the "With AI" tab: the YouTube player laid over a card
+    /// (desktop/main.m playVideo). The candidates' files are served with the page, at /_desk/.
     /// </summary>
     sealed partial class MainForm
     {
-        // Candidates' files come from a host of their own, answered only by rach3: the page's
-        // host is a folder mapping, which these requests must not go through.
-        const string DeskFiles = "https://desk." + Host + "/";
         // YouTube wants a web origin to embed from, which the app page's own host is not.
         // This one page is answered by rach3 itself and never reaches the network.
         const string VideoPage = "https://rach3.com/rach3-app-video";
 
+        CoreWebView2Environment videoEnvironment;
         Panel videoClip;
         WebView2 videoView;
         string videoIdentifier;
         bool videoFullscreen;
-
-        async Task InitializeDesk(CoreWebView2 core)
-        {
-            if (!chat.Available) return;
-            // Runs before the page's <html> exists; marks it as soon as it does, before any page script.
-            await core.AddScriptToExecuteOnDocumentCreatedAsync("(() => {" +
-                "if (window.location.href !== '" + PageUrl + "') return;" +
-                "const mark = () => { if (!document.documentElement) return false; document.documentElement.dataset.lessonChat = '1'; return true; };" +
-                "if (!mark()) new MutationObserver((changes, observer) => { if (mark()) observer.disconnect(); }).observe(document, { childList: true });" +
-                "})();");
-            core.AddWebResourceRequestedFilter(DeskFiles + "_desk/*", CoreWebView2WebResourceContext.All);
-            core.WebResourceRequested += OnDeskFile;
-        }
-
-#if PIANO_CAPTURE
-        readonly List<string> deskRequests = new List<string>();
-#endif
-
-        async void OnDeskFile(object sender, CoreWebView2WebResourceRequestedEventArgs args)
-        {
-#if PIANO_CAPTURE
-            lock (deskRequests) deskRequests.Add(args.Request.Uri);
-#endif
-            if (!Uri.TryCreate(args.Request.Uri, UriKind.Absolute, out var url) || !args.Request.Uri.StartsWith(DeskFiles, StringComparison.Ordinal)) return;
-            var deferral = args.GetDeferral();
-            try
-            {
-                Tuple<byte[], string> file = null;
-                try { file = await chat.ServedFile(Uri.UnescapeDataString(url.AbsolutePath.TrimStart('/'))); }
-                catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is ArgumentException) { }
-                var environment = web.CoreWebView2?.Environment;
-                if (environment == null) return;
-                // The page reads these across hosts, so every answer, a missing file too, allows it.
-                const string page = "\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: https://" + Host;
-                args.Response = file == null
-                    ? environment.CreateWebResourceResponse(new MemoryStream(new byte[0]), 404, "Not Found", "Content-Type: text/plain" + page)
-                    : environment.CreateWebResourceResponse(new MemoryStream(file.Item1), 200, "OK", "Content-Type: " + file.Item2 + page);
-            }
-#if PIANO_CAPTURE
-            catch (Exception error) { lock (deskRequests) deskRequests.Add(error.ToString()); throw; }
-#endif
-            finally { deferral.Complete(); }
-        }
 
         static bool IsVideoId(string identifier) =>
             identifier != null && identifier.Length == 11 &&
@@ -90,10 +45,13 @@ namespace Rach3
                 Controls.Add(videoClip);
                 videoClip.BringToFront();
                 var view = videoView;
-                var environment = web.CoreWebView2.Environment;
-                var options = environment.CreateCoreWebView2ControllerOptions();
-                options.IsInPrivateModeEnabled = true;
-                await view.EnsureCoreWebView2Async(environment, options);
+                // The player is the one view that reaches the internet, so it has a browser of its own.
+                if (videoEnvironment == null)
+                    videoEnvironment = await CoreWebView2Environment.CreateAsync(null, paths.WebData + "-Video",
+                        new CoreWebView2EnvironmentOptions("--autoplay-policy=no-user-gesture-required"));
+                var choices = videoEnvironment.CreateCoreWebView2ControllerOptions();
+                choices.IsInPrivateModeEnabled = true;
+                await view.EnsureCoreWebView2Async(videoEnvironment, choices);
                 if (view != videoView) return;
                 var core = view.CoreWebView2;
                 core.Settings.AreDevToolsEnabled = false;
@@ -171,6 +129,7 @@ namespace Rach3
             videoView.Bounds = new Rectangle(inner.X - outer.X, inner.Y - outer.Y, inner.Width, inner.Height);
             videoClip.Visible = true;
             videoClip.BringToFront();
+            panel?.BringToFront();
         }
 
         void CloseVideo()
@@ -188,54 +147,6 @@ namespace Rach3
         {
             try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })?.Dispose(); }
             catch (Exception error) when (error is System.ComponentModel.Win32Exception || error is InvalidOperationException) { }
-        }
-
-        async Task<string> DeskCommand(string command, Dictionary<string, object> body)
-        {
-            switch (command)
-            {
-                case "desk-state":
-                    return Reply(chat.DeskState());
-                case "desk-stop":
-                    chat.DeskStop(); return Empty;
-                case "desk-video-place":
-                    PlaceVideo(body); return Empty;
-                case "desk-video-close":
-                    CloseVideo(); return Empty;
-                case "desk-send":
-                    var text = body.Text("text") ?? "";
-                    if (text.Trim().Length == 0) throw new UserError("empty");
-                    var sent = await chat.DeskSend(text);
-                    if (sent != null) throw new UserError(sent);
-                    return Empty;
-                case "desk-make":
-                    var made = chat.DeskMake(body.Text("card"));
-                    if (made != null) throw new UserError(made);
-                    return Empty;
-                case "desk-clear":
-                    var cleared = chat.DeskClear();
-                    if (cleared != null) throw new UserError(cleared);
-                    return Empty;
-                case "desk-play":
-                    var card = chat.DeskCard(body.Text("card"));
-                    var link = card?.Text("link");
-                    if (link == null) throw new UserError("missing");
-                    if (card.TryGetValue("embeddable", out var embeddable) && embeddable is bool playable && !playable)
-                    {
-                        // Its owner does not let it play inside other apps; it opens on YouTube.
-                        if (Uri.TryCreate(link, UriKind.Absolute, out var watch) && watch.Scheme == Uri.UriSchemeHttps && watch.Host == "www.youtube.com")
-                            OpenInBrowser(watch.AbsoluteUri);
-                        return Reply(new Dictionary<string, object> { ["external"] = true });
-                    }
-                    await PlayVideo(link);
-                    return Empty;
-                case "desk-sign-in":
-                    var signedIn = await chat.SignIn();
-                    if (signedIn != null && signedIn != "cancelled") throw new UserError(signedIn);
-                    return Empty;
-                default:
-                    return null;
-            }
         }
     }
 }

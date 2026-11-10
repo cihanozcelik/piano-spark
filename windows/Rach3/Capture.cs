@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.WinForms;
 
 namespace Rach3
 {
@@ -64,63 +65,152 @@ namespace Rach3
             if (options.SelfTestMidi != null) await SelfTest(options.SelfTestMidi);
         }
 
-        /// <summary>Runs page JavaScript that sets window.__pianoCheck, and waits for its JSON result.</summary>
-        async Task<Dictionary<string, object>> PageCheck(string body)
+        /// <summary>Runs JavaScript in the page (or the panel) that sets window.__pianoCheck, and waits for its JSON result.</summary>
+        async Task<Dictionary<string, object>> PageCheck(string body, WebView2 view = null)
         {
-            await Script("window.__pianoCheck = null; (async () => { try { window.__pianoCheck = await (async () => {" + body +
+            var core = (view ?? web).CoreWebView2;
+            await core.ExecuteScriptAsync("window.__pianoCheck = null; (async () => { try { window.__pianoCheck = await (async () => {" + body +
                 "})(); } catch (error) { window.__pianoCheck = { error: String(error && error.message || error) }; } })();");
-            for (var attempt = 0; attempt < 120; attempt++)
+            for (var attempt = 0; attempt < 240; attempt++)
             {
-                if (Json.Parse(await Script("JSON.stringify(window.__pianoCheck)")) is string text && text != "null") return Json.Object(text);
+                if (Json.Parse(await core.ExecuteScriptAsync("JSON.stringify(window.__pianoCheck)")) is string text && text != "null")
+                    return Json.Object(text) ?? new Dictionary<string, object> { ["value"] = Json.Parse(text) };
                 await Task.Delay(500);
             }
-            throw new TimeoutException("A page check did not finish: " + body);
+            throw new TimeoutException("A check did not finish: " + body);
         }
 
+        async Task<T> Until<T>(Func<Task<T>> read, Func<T, bool> done, int seconds, string what)
+        {
+            var end = DateTime.UtcNow.AddSeconds(seconds);
+            while (true)
+            {
+                var value = await read();
+                if (done(value)) return value;
+                if (DateTime.UtcNow > end) throw new TimeoutException(what + ": " + Json.Write(value));
+                await Task.Delay(1000);
+            }
+        }
+
+        static Dictionary<string, object> Place(string area, string path) => new Dictionary<string, object> { ["area"] = area, ["path"] = path };
+
         /// <summary>
-        /// The "With AI" tab on a real Windows machine: the tab is offered, the bundled Codex
-        /// starts and opens a lesson conversation with rach3's tools, and a PDF candidate's
-        /// pages reach the page through /_desk/. No ChatGPT account is used.
+        /// The ChatGPT features on a real Windows machine, as on the Mac: the "With AI" tab, the
+        /// box around Codex, candidates' files next to the page, the hidden preview, and a whole
+        /// change made through the Customize panel with the bundled Codex in its box, talking to
+        /// a stand-in for OpenAI. No ChatGPT account is used.
         /// </summary>
         async Task ChatGptSelfTest()
         {
             var report = new Dictionary<string, object>();
+            try { await ChatGptChecks(report); }
+            finally { File.WriteAllText(Path.Combine(options.Capture, "chatgpt-self-test.json"), Json.Write(report)); }
+        }
+
+        async Task ChatGptChecks(Dictionary<string, object> report)
+        {
+            if (panel == null) throw new InvalidOperationException("The Customize panel did not start");
             await Script("document.getElementById('source-ai')?.click();");
             await Task.Delay(1000);
-            report["page"] = await PageCheck("return { chat: document.documentElement.dataset.lessonChat || '', tab: !document.getElementById('source-ai').hidden, " +
+            var page = await PageCheck("return { chat: document.documentElement.dataset.lessonChat || '', tab: !document.getElementById('source-ai').hidden, " +
                 "state: document.getElementById('ai-source')?.dataset.state || '', text: document.getElementById('ai-source')?.innerText || '' };");
+            report["page"] = page;
             await Shot("with-ai.png");
-            report["codex"] = await chat.SelfTest();
-            var cards = await chat.SelfTestCards(options.SelfTestPdf);
+
+            var box = await Task.Run(() => customize.SelfTestBox());
+            report["box"] = box;
+
+            var cards = await customize.SelfTestCards(options.SelfTestPdf);
             report["cards"] = cards;
             var card = cards.TryGetValue("pdfCard", out var made) ? made as Dictionary<string, object> : null;
+            Dictionary<string, object> served = null;
             if (card != null)
-                report["served"] = await PageCheck("const id = " + Json.Write(card.Text("id")) + "; const out = {};" +
+            {
+                served = await PageCheck("const id = " + Json.Write(card.Text("id")) + "; const out = {};" +
                     "for (const name of ['page-1.png', 'large-1.png', 'nothing.png', '..%2F..%2Fdesk.json']) {" +
-                    "  const response = await fetch(window.PianoDeskFiles + '_desk/' + id + '/' + name);" +
+                    "  const response = await fetch('/_desk/' + id + '/' + name);" +
                     "  out[name] = response.status + ' ' + (response.headers.get('content-type') || '') + ' ' + (await response.arrayBuffer()).byteLength; }" +
-                    "out.unknownCard = (await fetch(window.PianoDeskFiles + '_desk/000000000000/page-1.png')).status; return out;");
-            lock (deskRequests) report["deskRequests"] = deskRequests.ToList();
-            if (card != null)
-                report["image"] = await PageCheck("const image = new Image(); image.src = window.PianoDeskFiles + '_desk/' + " + Json.Write(card.Text("id")) + " + '/page-1.png';" +
-                    "return await new Promise(resolve => { image.onload = () => resolve({ width: image.naturalWidth }); image.onerror = () => resolve({ error: 'load' }); });");
-            var text = Json.Write(report);
-            File.WriteAllText(Path.Combine(options.Capture, "chatgpt-self-test.json"), text);
-            var page = (Dictionary<string, object>)report["page"];
-            var codex = (Dictionary<string, object>)report["codex"];
-            var served = report.TryGetValue("served", out var files) ? files as Dictionary<string, object> : null;
+                    "out.unknownCard = (await fetch('/_desk/000000000000/page-1.png')).status;" +
+                    "out.internet = await fetch('https://example.com/', { mode: 'no-cors' }).then(response => 'reached ' + response.status, () => 'blocked');" +
+                    "const image = new Image(); image.src = '/_desk/' + id + '/page-1.png';" +
+                    "out.width = await new Promise(resolve => { image.onload = () => resolve(image.naturalWidth); image.onerror = () => resolve(0); });" +
+                    "return out;");
+                report["served"] = served;
+            }
+
+            // The hidden preview opens a copy of the page, runs a script there and takes a picture.
+            await customize.Native(new Dictionary<string, object> { ["op"] = "remove", ["area"] = "data", ["path"] = "workspace" });
+            await customize.Native(new Dictionary<string, object> { ["op"] = "open-workspace" });
+            await customize.Native(new Dictionary<string, object> { ["op"] = "copy", ["from"] = Place("source", ""), ["to"] = Place("data", "workspace") });
+            var preview = await RunPreview("return document.title + ' ' + window.PianoPlatform + ' ' + !!window.webkit.messageHandlers.rach3;");
+            await customize.Native(new Dictionary<string, object> { ["op"] = "remove", ["area"] = "data", ["path"] = "workspace" });
+            report["preview"] = new Dictionary<string, object>
+            {
+                ["scriptResult"] = preview.Text("scriptResult"), ["errors"] = preview.TryGetValue("errors", out var previewErrors) ? previewErrors : null,
+                ["imageBytes"] = (preview.Text("image") ?? "").Length * 3 / 4, ["timedOut"] = preview.Flag("timedOut", false), ["snapshotError"] = preview.Text("snapshotError"),
+            };
+
+            // A whole change: ChatGPT (the stand-in) writes a file and breaks a protected one with
+            // the shell in the box; rach3 checks the copy, restores what is protected and saves
+            // it as a new version on a new branch, which goes on screen with the page's settings.
+            var original = pageUrl;
+            using (var standIn = new CustomizeService.StandIn("echo hello> customize-test.txt", "echo broken> AGENTS.md"))
+            {
+                Environment.SetEnvironmentVariable("RACH3_CODEX_UPSTREAM", standIn.Url);
+                customize.SelfTestSignIn();
+                await PageCheck("localStorage.setItem('rach3-seed-check', 'carried'); return {};");
+                await PageCheck("window.rach3Customize.toggle(); return {};", panel);
+                await Task.Delay(1000);
+                report["send"] = await PageCheck("return await window.rach3Core.postMessage({ action: 'send', text: 'Add a test file' });", panel);
+                var state = await Until(() => PageCheck("const s = await window.rach3Core.postMessage({ action: 'state' });" +
+                        "return { turn: !!s.turn, active: s.active, branch: s.branch, designs: s.designs };", panel),
+                    value => value.Flag("turn", true) == false && Collections.AsList(value.TryGetValue("designs", out var list) ? list : null).Count > 0, 240, "The change did not finish");
+                report["state"] = state;
+                await Until(() => Task.FromResult(pageReady && pageUrl != original), ready => ready, 60, "The new version did not go on screen");
+                await Task.Delay(2500);
+                using (var file = File.Create(Path.Combine(options.Capture, "customize-panel.png")))
+                    await panel.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, file);
+                await Shot("customize-branch.png");
+                report["branchPage"] = await PageCheck("return { href: location.href, test: (await fetch('/customize-test.txt')).status, " +
+                    "agents: (await (await fetch('/AGENTS.md')).text()).slice(0, 30), seed: localStorage.getItem('rach3-seed-check') };");
+                report["standIn"] = new Dictionary<string, object>
+                {
+                    ["authorizations"] = standIn.Authorizations.Distinct().Cast<object>().ToList(), ["outputs"] = standIn.Outputs.Cast<object>().ToList(),
+                };
+                await PageCheck("return await window.rach3Core.postMessage({ action: 'use-branch', branch: 'main' });", panel);
+                await Until(() => Task.FromResult(pageReady && pageUrl == original), ready => ready, 60, "The original did not come back");
+                report["backToOriginal"] = await PageCheck("return { href: location.href, test: (await fetch('/customize-test.txt')).status };");
+            }
+
+            bool Pass(object value) => value is Dictionary<string, object> checks && checks.Count > 0 && checks.Values.All(entry => (entry as string) == "pass");
             bool Image(string name) => served?.Text(name) is string line && line.StartsWith("200 image/png ", StringComparison.Ordinal) &&
                 long.Parse(line.Substring(line.LastIndexOf(' ') + 1)) > 10000;
-            var ok = page.Text("chat") == "1" && page.Flag("tab", false) && page.Text("state") == "signed-out" &&
-                codex.Flag("available", false) && codex.Text("started") == "ok" && codex.Flag("catalog", false) &&
-                codex.Text("thread") is string thread && !thread.StartsWith("{", StringComparison.Ordinal) && codex.Flag("listLessons", false) &&
-                codex.TryGetValue("box", out var box) && box is Dictionary<string, object> boxed && boxed.Count == 8 && boxed.Values.All(value => (value as string) == "pass") &&
-                cards.Flag("refusesHttp", false) && cards.Flag("youtubeId", false) && card != null && card.Number("pageCount") >= 1 &&
-                card.Number("width") > 500 && card.Number("height") > 100 && Image("page-1.png") && Image("large-1.png") &&
-                served.Text("nothing.png")?.StartsWith("404", StringComparison.Ordinal) == true &&
-                served.Text("..%2F..%2Fdesk.json")?.StartsWith("404", StringComparison.Ordinal) == true && served.Number("unknownCard") == 404 &&
-                report.TryGetValue("image", out var image) && (image as Dictionary<string, object>).Number("width") > 500;
-            if (!ok) throw new InvalidOperationException("ChatGPT self-test failed: " + text);
+            var design = Collections.AsList(((Dictionary<string, object>)report["state"]).TryGetValue("designs", out var designs) ? designs : null)
+                .OfType<Dictionary<string, object>>().LastOrDefault();
+            var branchPage = (Dictionary<string, object>)report["branchPage"];
+            var back = (Dictionary<string, object>)report["backToOriginal"];
+            var standInReport = (Dictionary<string, object>)report["standIn"];
+            var problems = new List<string>();
+            void Check(bool ok, string what) { if (!ok) problems.Add(what); }
+            Check(page.Text("chat") == "1" && page.Flag("tab", false) && page.Text("state") == "signed-out", "With AI tab");
+            Check(Pass(box) && box.Count == 8, "box");
+            Check(cards.Flag("refusesHttp", false) && cards.Flag("youtubeId", false), "cards");
+            Check(card != null && card.Number("pageCount") >= 1 && Image("page-1.png") && Image("large-1.png") &&
+                  served.Text("nothing.png")?.StartsWith("404", StringComparison.Ordinal) == true &&
+                  served.Text("..%2F..%2Fdesk.json")?.StartsWith("404", StringComparison.Ordinal) == true &&
+                  served.Number("unknownCard") == 404 && served.Number("width") > 500, "desk files");
+            Check(served?.Text("internet") == "blocked", "page reaches no internet");
+            Check(preview.Text("scriptResult")?.StartsWith("rach3 windows true", StringComparison.Ordinal) == true &&
+                  Collections.AsList(previewErrors).Count == 0 && (preview.Text("image") ?? "").Length > 13000, "hidden preview");
+            Check(design != null && Collections.AsList(design["files"]).Contains("customize-test.txt") &&
+                  Collections.AsList(design["restored"]).Contains("AGENTS.md") && Collections.AsList(design["errors"]).Count == 0, "saved version");
+            Check(branchPage.Text("href") != null && !branchPage.Text("href").StartsWith("https://" + Host + "/", StringComparison.Ordinal) &&
+                  branchPage.Number("test") == 200 && branchPage.Text("agents")?.StartsWith("# rach3", StringComparison.Ordinal) == true &&
+                  branchPage.Text("seed") == "carried", "branch page");
+            Check(back.Text("href") == "https://" + Host + "/piano.html" && back.Number("test") == 404, "back to the original");
+            Check(Collections.AsList(standInReport["authorizations"]).Cast<object>().All(value => (value as string) == "Bearer rach3-self-test") &&
+                  Collections.AsList(standInReport["authorizations"]).Count == 1, "only rach3's relay holds the sign-in");
+            if (problems.Count > 0) throw new InvalidOperationException("ChatGPT self-test failed (" + string.Join(", ", problems) + "): " + Json.Write(report));
         }
 
         /// <summary>Create a lesson from a MIDI file through the page bridge, exactly as the UI does.</summary>

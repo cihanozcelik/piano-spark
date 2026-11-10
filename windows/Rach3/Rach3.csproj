@@ -24,6 +24,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="Microsoft.VisualBasic" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" />
     <!-- Windows Runtime Bluetooth LE APIs for .NET Framework -->
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.3233" />
