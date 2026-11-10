@@ -11,9 +11,6 @@ namespace Rach3
         [STAThread]
         static int Main(string[] args)
         {
-#if PIANO_CAPTURE
-            if (args.Length == 2 && args[0] == "--box-path-probe") return CodexBox.PathProbe(args[1]);
-#endif
             // Velopack's install, update and uninstall hooks run here and exit.
             // Uninstalling removes lessons, tools and settings, like the Mac app's uninstaller.
             var velopack = Velopack.VelopackApp.Build()

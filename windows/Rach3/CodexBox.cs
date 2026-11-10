@@ -45,22 +45,11 @@ namespace Rach3
     /// </summary>
     static class CodexBox
     {
-        /// <summary>The box's own identity, the same on every Windows machine.</summary>
-        internal static bool CustomIdentity;   // development diagnosis only
-
-        public static SecurityIdentifier Identity()
-        {
-            if (CustomIdentity) return new SecurityIdentifier("S-1-5-21-2604174936-1806624826-2876335745-1987");
-            if (!DeriveCapabilitySidsFromName("rach3Codex", out var groups, out var groupCount, out var capabilities, out var capabilityCount))
-                throw new Win32Exception(Marshal.GetLastWin32Error(), "The Codex box could not be named");
-            try { return new SecurityIdentifier(Marshal.ReadIntPtr(capabilities)); }
-            finally
-            {
-                for (var i = 0; i < groupCount; i++) LocalFree(Marshal.ReadIntPtr(groups, i * IntPtr.Size));
-                for (var i = 0; i < capabilityCount; i++) LocalFree(Marshal.ReadIntPtr(capabilities, i * IntPtr.Size));
-                LocalFree(groups); LocalFree(capabilities);
-            }
-        }
+        /// <summary>
+        /// The box's own identity, the same on every machine. It belongs to no account; it only
+        /// names the box in folder permissions. (Windows takes no capability identity here.)
+        /// </summary>
+        public static SecurityIdentifier Identity() => new SecurityIdentifier("S-1-5-21-2604174936-1806624826-2876335745-1987");
 
         /// <summary>Lets the box read (and run) one folder, or read and change it.</summary>
         public static void Grant(SecurityIdentifier identity, string folder, bool write)
@@ -185,31 +174,6 @@ namespace Rach3
             finally { Marshal.FreeHGlobal(buffer); }
         }
 
-#if PIANO_CAPTURE
-        /// <summary>Development only: how a path resolves from inside the box, the way Codex resolves its home.</summary>
-        public static int PathProbe(string path)
-        {
-            var handle = CreateFile(path, 0, 7, IntPtr.Zero, 3, 0x02000000, IntPtr.Zero);   // any access, share all, open existing, backup semantics
-            if (handle.IsInvalid) { Console.WriteLine("open error " + Marshal.GetLastWin32Error()); return 2; }
-            using (handle)
-            {
-                foreach (var flag in new uint[] { 0, 2 })   // VOLUME_NAME_DOS, VOLUME_NAME_NT
-                {
-                    var buffer = new StringBuilder(1024);
-                    var length = GetFinalPathNameByHandle(handle, buffer, (uint)buffer.Capacity, flag);
-                    Console.WriteLine((flag == 0 ? "dos " : "nt ") + (length == 0 ? "error " + Marshal.GetLastWin32Error() : buffer.ToString()));
-                }
-            }
-            return 0;
-        }
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern SafeFileHandle CreateFile(string name, uint access, uint share, IntPtr security, uint disposition, uint flags, IntPtr template);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "GetFinalPathNameByHandleW")]
-        static extern uint GetFinalPathNameByHandle(SafeFileHandle file, StringBuilder path, uint length, uint flags);
-#endif
-
         #region Windows
 
         [StructLayout(LayoutKind.Sequential)]
@@ -234,12 +198,6 @@ namespace Rach3
 
         [StructLayout(LayoutKind.Sequential)]
         struct PROCESS_INFORMATION { public IntPtr hProcess, hThread; public int dwProcessId, dwThreadId; }
-
-        [DllImport("kernelbase.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern bool DeriveCapabilitySidsFromName(string name, out IntPtr groupSids, out int groupCount, out IntPtr capabilitySids, out int capabilityCount);
-
-        [DllImport("kernel32.dll")]
-        static extern IntPtr LocalFree(IntPtr memory);
 
         [DllImport("kernel32.dll")]
         static extern IntPtr GetCurrentProcess();

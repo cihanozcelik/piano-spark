@@ -1096,19 +1096,6 @@ namespace Rach3
             }
             string Closed(Tuple<int, string> run) => run.Item1 != 0 && !run.Item2.Contains(secret) ? "pass" : run.Item1 + " " + run.Item2;
             var report = new Dictionary<string, object>();
-            var tries = new Dictionary<string, object>();
-            foreach (var custom in new[] { false, true })
-            {
-                CodexBox.CustomIdentity = custom;
-                try
-                {
-                    OpenBox(home);
-                    tries[custom ? "customSid" : "capabilitySid"] = Run("echo started").Item2;
-                }
-                catch (Exception error) { tries[custom ? "customSid" : "capabilitySid"] = error.Message; }
-            }
-            CodexBox.CustomIdentity = false;
-            report["tries"] = tries;
             try
             {
                 OpenBox(home);
@@ -1123,20 +1110,6 @@ namespace Rach3
                 report["readCodex"] = program.Item1 == 0 && program.Item2.Contains("codex.exe") ? "pass" : program.Item1 + " " + program.Item2;
                 var internet = Run("curl.exe -s -o NUL -w %{http_code} https://example.com");
                 report["internet"] = internet.Item2.Trim() == "200" ? "pass" : internet.Item1 + " " + internet.Item2;
-                var notes = new Dictionary<string, object>();
-                foreach (var folder in new[] { codexRoot, Path.Combine(codexRoot, "bin"), home, Workspace })
-                {
-                    var start = new ProcessStartInfo("icacls.exe", "\"" + folder + "\"") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true };
-                    using (var icacls = Process.Start(start)) { notes["acl " + folder] = icacls.StandardOutput.ReadToEnd().Trim(); icacls.WaitForExit(); }
-                }
-                notes["typeCodexFile"] = Run("type \"" + Path.Combine(codexRoot, "codex-package.json") + "\" | more +0 > NUL && echo read").Item2;
-                notes["listHome"] = Run("dir /b \"" + home + "\"").Item2;
-                notes["listScratch"] = Run("dir /b \"" + Workspace + "\"").Item2;
-                CodexBox.Grant(CodexBox.Identity(), paths.App, write: false);
-                var probe = Path.Combine(paths.App, "Rach3.exe");
-                foreach (var folder in new[] { home, Workspace, codexRoot })
-                    notes["resolve " + folder] = Run("\"" + probe + "\" --box-path-probe \"" + folder + "\"").Item2;
-                report["notes"] = notes;
             }
             catch (Exception error) { report["error"] = error.ToString(); }
             finally
