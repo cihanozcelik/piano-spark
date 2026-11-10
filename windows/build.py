@@ -76,16 +76,12 @@ def platform_text():
 
 
 def write_resources(resources):
+    """The page as the Mac app serves it: the Source folder, which the person may change
+    with ChatGPT, and the Customize panel. Windows adds its own wording at load time."""
     if resources.exists(): shutil.rmtree(resources)
-    mac_build().write_ui(resources)
-    page = resources/'index.html'
-    html = page.read_text(encoding='utf-8')
-    script = '<script>window.PianoPlatformText=' + json.dumps(platform_text(), ensure_ascii=False).replace('</', '<\\/') + ';</script>'
-    if html.count('<head>') != 1: raise RuntimeError('The page head changed; update windows/build.py')
-    page.write_text(html.replace('<head>', '<head>'+script, 1), encoding='utf-8')
-    # The page loads its music font next to itself, as in the Mac app.
-    shutil.copytree(ROOT/'assets/bravura', resources/'assets/bravura')
-    shutil.copytree(ROOT/'assets/brand', resources/'assets/brand')
+    resources.mkdir(parents=True)
+    mac_build().write_source(resources)
+    (resources/'platform-text.json').write_text(json.dumps(platform_text(), ensure_ascii=False), encoding='utf-8')
     (resources/'strings.json').write_text(json.dumps(native_strings(), ensure_ascii=False, indent=1), encoding='utf-8')
     shutil.copy2(ROOT/'desktop/release.json', resources/'release.json')
 
