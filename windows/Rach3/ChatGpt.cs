@@ -1089,9 +1089,13 @@ namespace Rach3
                 {
                     process.Input.Dispose();
                     var error = Task.Run(() => process.Error.ReadToEnd());
-                    var output = process.Output.ReadToEnd();
-                    if (!process.WaitForExit(60000)) { group.Terminate(); return Tuple.Create(-1, "timed out"); }
-                    return Tuple.Create(process.ExitCode, (output + error.Result).Trim());
+                    var output = Task.Run(() => process.Output.ReadToEnd());
+                    // The group ends everything the command started, which closes the pipes.
+                    var finished = process.WaitForExit(60000);
+                    if (!finished) group.Terminate();
+                    Task.WaitAll(new Task[] { output, error }, 10000);
+                    var text = ((output.IsCompleted ? output.Result : "") + (error.IsCompleted ? error.Result : "")).Trim();
+                    return Tuple.Create(finished ? process.ExitCode : -1, (finished ? "" : "timed out: ") + text);
                 }
             }
             string Closed(Tuple<int, string> run) => run.Item1 != 0 && !run.Item2.Contains(secret) ? "pass" : run.Item1 + " " + run.Item2;
