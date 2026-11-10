@@ -55,6 +55,7 @@ namespace Rach3
 
         // Codex app-server
         BoxedProcess codex;
+        CodexRelay relay;
         ProcessGroup codexGroup;
         Stream codexInput;
         string codexToken;
@@ -482,13 +483,15 @@ namespace Rach3
             Directory.CreateDirectory(Workspace);
             WriteCodexConfiguration(home);
             var catalog = await Task.Run(() => WriteModelCatalog(home));
+            relay?.Dispose();
+            relay = new CodexRelay(Resource, () => codexToken);   // Codex reaches OpenAI only through rach3, which adds the sign-in
             const string provider = "model_providers.chatgpt_plan";
             var arguments = new List<string>
             {
                 "app-server", "--listen", "stdio://",
                 "-c", "model_provider=\"chatgpt_plan\"",
                 "-c", provider + ".name=\"ChatGPT plan\"",
-                "-c", provider + ".base_url=" + TomlString(Resource),
+                "-c", provider + ".base_url=" + TomlString(relay.BaseUrl),
                 "-c", provider + ".env_key=\"ACCESS_TOKEN\"",
                 "-c", provider + ".wire_api=\"responses\"",
                 "-c", provider + ".requires_openai_auth=false",
@@ -499,7 +502,7 @@ namespace Rach3
             var log = new StreamWriter(Path.Combine(paths.Logs, "codex.log"), false, new UTF8Encoding(false)) { AutoFlush = true };
             var group = new ProcessGroup(belowNormal: false);
             BoxedProcess process;
-            try { process = StartBoxed(home, arguments, Workspace, group, token); }
+            try { process = StartBoxed(home, arguments, Workspace, group, "rach3-relay"); }
             catch (Exception error) when (error is System.ComponentModel.Win32Exception || error is InvalidOperationException ||
                                           error is IOException || error is UnauthorizedAccessException)
             {
@@ -551,6 +554,7 @@ namespace Rach3
             var group = codexGroup;
             codex = null; codexGroup = null; codexReady = false; codexInput = null; codexStarting = null;
             group?.Terminate(); group?.Dispose();
+            relay?.Dispose(); relay = null;
             FailPending(failTurn);
         }
 
@@ -568,6 +572,7 @@ namespace Rach3
             process.Dispose();
             if (process != codex) return;
             codexGroup?.Dispose();
+            relay?.Dispose(); relay = null;
             codex = null; codexGroup = null; codexReady = false; codexInput = null;
             FailPending();
         }
@@ -1069,7 +1074,7 @@ namespace Rach3
         /// <summary>
         /// What the box lets through, tried by a command prompt in the same box as Codex:
         /// the person's files, rach3's own data and the Desktop stay closed; Codex's
-        /// program, its scratch folder and the internet stay open. Each entry is "pass" or why not.
+        /// program and its scratch folder stay open, and the web only through rach3's relay. Each entry is "pass" or why not.
         /// </summary>
         Dictionary<string, object> SelfTestBox()
         {
@@ -1112,39 +1117,19 @@ namespace Rach3
                 report["writeScratch"] = made.Item1 == 0 && File.Exists(scratch) ? "pass" : made.Item1 + " " + made.Item2;
                 var program = Run("dir /b \"" + Path.Combine(codexRoot, "bin") + "\"");
                 report["readCodex"] = program.Item1 == 0 && program.Item2.Contains("codex.exe") ? "pass" : program.Item1 + " " + program.Item2;
-                // Codex itself reaches a web server over HTTPS: example.com answers its request with 405.
-                const string probe = "model_providers.probe.";
-                var internet = Run("set ACCESS_TOKEN=probe&& \"" + CodexBinary + "\" exec --skip-git-repo-check -c model_provider=probe -c " +
-                    probe + "name=probe -c " + probe + "base_url=https://example.com/v1 -c " + probe + "env_key=ACCESS_TOKEN -c " +
-                    probe + "wire_api=responses -c " + probe + "requires_openai_auth=false -c " + probe + "supports_websockets=false -c " +
-                    probe + "request_max_retries=0 -c " + probe + "stream_max_retries=0 hi");
-                report["internet"] = internet.Item2.Contains("405") ? "pass" : internet.Item1 + " " + internet.Item2.Substring(Math.Max(0, internet.Item2.Length - 600));
-                // Diagnosis (temporary): where the connection stops, and which group opens it.
-                var variants = new Dictionary<string, System.Security.Principal.SecurityIdentifier[]>
+                // Codex reaches the web only through rach3's relay: here the relay carries its
+                // request to example.com, which answers with 405. On its own it gets no HTTPS.
+                using (var test = new CodexRelay("https://example.com/v1", () => "probe"))
                 {
-                    ["box"] = new System.Security.Principal.SecurityIdentifier[0],
-                    ["+authenticated"] = new[] { new System.Security.Principal.SecurityIdentifier("S-1-5-11") },
-                    ["+authenticated+interactive"] = new[] { new System.Security.Principal.SecurityIdentifier("S-1-5-11"), new System.Security.Principal.SecurityIdentifier("S-1-5-4") },
-                    ["+user (no box)"] = new[] { System.Security.Principal.WindowsIdentity.GetCurrent().User },
-                };
-                var network = new Dictionary<string, object>();
-                foreach (var variant in variants)
-                {
-                    CodexBox.Extra = variant.Value.ToList();
-                    var steps = new Dictionary<string, object>();
-                    steps["dns"] = Run("nslookup example.com 2>&1 | findstr /i address").Item2;
-                    steps["http"] = Run("curl.exe -s -o NUL -w %{http_code} http://example.com").Item2;
-                    steps["httpsNoVerify"] = Run("curl.exe -sk -o NUL -w %{http_code} https://example.com 2>&1").Item2;
-                    steps["https"] = Run("curl.exe -sS -o NUL -w %{http_code} https://example.com 2>&1").Item2;
-                    var codexRun = Run("set ACCESS_TOKEN=probe&& \"" + CodexBinary + "\" exec --skip-git-repo-check -c model_provider=probe -c " +
-                        probe + "name=probe -c " + probe + "base_url=https://example.com/v1 -c " + probe + "env_key=ACCESS_TOKEN -c " +
+                    const string probe = "model_providers.probe.";
+                    var relayed = Run("set ACCESS_TOKEN=probe&& \"" + CodexBinary + "\" exec --skip-git-repo-check -c model_provider=probe -c " +
+                        probe + "name=probe -c " + probe + "base_url=" + test.BaseUrl + " -c " + probe + "env_key=ACCESS_TOKEN -c " +
                         probe + "wire_api=responses -c " + probe + "requires_openai_auth=false -c " + probe + "supports_websockets=false -c " +
                         probe + "request_max_retries=0 -c " + probe + "stream_max_retries=0 hi");
-                    steps["codex"] = codexRun.Item2.Contains("405") ? "405 reached" : codexRun.Item2.Substring(Math.Max(0, codexRun.Item2.Length - 200));
-                    network[variant.Key] = steps;
+                    report["relay"] = relayed.Item2.Contains("405") ? "pass" : relayed.Item1 + " " + relayed.Item2.Substring(Math.Max(0, relayed.Item2.Length - 600));
                 }
-                CodexBox.Extra = new List<System.Security.Principal.SecurityIdentifier>();
-                report["network"] = network;
+                var direct = Run("curl.exe -s -o NUL -w %{http_code} https://example.com");
+                report["noDirectHttps"] = direct.Item2.Trim() != "200" ? "pass" : "reached example.com directly";
             }
             catch (Exception error) { report["error"] = error.ToString(); }
             finally

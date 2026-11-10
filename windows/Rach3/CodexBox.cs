@@ -51,9 +51,6 @@ namespace Rach3
         /// </summary>
         public static SecurityIdentifier Identity() => new SecurityIdentifier("S-1-5-21-2604174936-1806624826-2876335745-1987");
 
-        /// <summary>Development diagnosis only: more groups a file may be open to.</summary>
-        internal static List<SecurityIdentifier> Extra = new List<SecurityIdentifier>();
-
         /// <summary>Lets the box read (and run) one folder, or read and change it.</summary>
         public static void Grant(SecurityIdentifier identity, string folder, bool write)
         {
@@ -91,7 +88,6 @@ namespace Rach3
                 };
                 var logon = LogonSid(token);   // the window station and desktop of this session
                 if (logon != null) allowed.Add(logon);
-                allowed.AddRange(Extra);
                 var restricting = allowed.Select(sid => new SID_AND_ATTRIBUTES { Sid = Pin(Binary(sid)) }).ToArray();
                 if (!CreateRestrictedToken(token, 0x1, 0, IntPtr.Zero, 0, IntPtr.Zero, (uint)restricting.Length, restricting, out restricted))   // DISABLE_MAX_PRIVILEGE
                     throw Failed("CreateRestrictedToken");
