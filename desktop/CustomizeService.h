@@ -22,9 +22,23 @@
 - (void)pageError:(NSDictionary *)error;
 - (instancetype)initWithSource:(NSURL *)source codex:(NSURL *)codex support:(NSURL *)support version:(NSString *)version;
 + (NSString *)scheme;
-+ (NSURL *)pageURL;
+// The page's address. Each branch has its own host, so its stored settings
+// (localStorage) are its own and can never reach main's.
+- (NSURL *)pageURL;
+// A branch opened for the first time starts with the settings of the page it was opened
+// from, copied once.
+- (BOOL)needsSeed:(NSString *)host;
+- (void)markSeeded:(NSString *)host;
 - (void)handle:(NSDictionary *)request reply:(void (^)(id result, NSString *error))reply;
 - (NSDictionary *)state;
+- (void)publishState;
 - (void)restoreOriginal;
+// Lessons as the page sees them: the person's own, plus those ChatGPT made for the
+// version on screen (or, for the hidden preview, the version being changed).
+- (NSArray *)lessonsForPage:(BOOL)preview;
+- (NSDictionary *)lessonForPage:(NSString *)identifier preview:(BOOL)preview;
+// nil when deleted. personal is YES for the person's own lesson, which the caller deletes;
+// it is refused ("original-only") unless the original rach3 is on screen.
+- (NSString *)deleteLessonForPage:(NSString *)identifier personal:(BOOL *)personal;
 - (void)stop;
 @end

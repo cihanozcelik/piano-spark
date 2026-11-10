@@ -95,9 +95,10 @@ static NSString *const PianoToolCatalog = @"tools.json";
 - (BOOL)deleteLesson:(NSString *)identifier error:(NSError **)error {
     if (![[NSUUID alloc] initWithUUIDString:identifier]) return [self fail:@"Geçersiz ders kimliği" error:error];
     NSURL *lesson = [[self libraryURL] URLByAppendingPathComponent:[identifier stringByAppendingPathExtension:@"json"]];
-    if (![NSFileManager.defaultManager removeItemAtURL:lesson error:error]) return NO;
+    // Deleted lessons go to the Trash, so a mistaken delete can be undone.
+    if (![NSFileManager.defaultManager trashItemAtURL:lesson resultingItemURL:NULL error:error]) return NO;
     NSURL *assets = [[self libraryURL] URLByAppendingPathComponent:[identifier stringByAppendingPathExtension:@"assets"]];
-    if ([NSFileManager.defaultManager fileExistsAtPath:assets.path] && ![NSFileManager.defaultManager removeItemAtURL:assets error:error]) return NO;
+    if ([NSFileManager.defaultManager fileExistsAtPath:assets.path] && ![NSFileManager.defaultManager trashItemAtURL:assets resultingItemURL:NULL error:error]) return NO;
     if ([self.state[@"id"] isEqual:identifier])
         [self publish:@{@"event":@"lesson-progress",@"phase":@"idle",@"message":@"",@"progress":@0}];
     return YES;

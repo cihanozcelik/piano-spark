@@ -1,16 +1,17 @@
 # rach3 interface: a guide for changing it
 
 This folder is the interface of rach3, a free piano practice app for Mac and Windows.
-The person using the app asked you for a change. They are not a programmer. Make the
-change they asked for and nothing else, then check it with `rach3.preview`.
+The person using the app is not a programmer. When they ask for a change, make that
+change and nothing else, then check it with `rach3.preview`. When they ask a question
+or want to talk an idea through, just answer; change nothing until they ask.
 
 ## How your work is kept
 
 - This folder is a scratch copy of the design on the person's screen. The original
   app is never changed.
-- When you finish, rach3 compares this folder with the design you started from. If
-  files differ, it saves them as a new design, shows it on screen and keeps the
-  earlier one, so the person can switch back at any time.
+- When you finish, rach3 compares this folder with the version you started from. If
+  files differ, it saves them as a new version on the person's branch and shows it on
+  screen. Every earlier version is kept, so the person can go back at any time.
 - A change that breaks the page is still saved, so preview before you finish.
 - You cannot reach the internet, install packages, use git, or read files outside
   this folder. You do not need any of that.
@@ -23,7 +24,7 @@ change they asked for and nothing else, then check it with `rach3.preview`.
 | `rach3.page_errors` | Read errors seen on the person's screen in the design they are using. Use it when they say something is broken. |
 | `rach3.list_lessons` | List the person's lessons. |
 | `rach3.read_lesson` | Read a lesson's notes, optionally a time range. |
-| `rach3.save_lesson` | Create a lesson, or change one by id. The old version is backed up. |
+| `rach3.save_lesson` | Create a lesson, or change one by id. Lessons you save belong to this version of rach3; changing one of the person's lessons saves a copy that takes its place here. |
 
 ## How the page works
 

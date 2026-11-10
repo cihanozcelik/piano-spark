@@ -139,6 +139,8 @@ window.PianoI18n.register({
   "Bu tarayıcı Web Audio sesini desteklemiyor. Güncel Safari, Chrome veya Firefox ile aç.": "This browser does not support Web Audio. Use a current version of Safari, Chrome, or Firefox.",
   "Ses başlatılamadı. Oynat düğmesine tekrar bas.": "Audio could not start. Press Play again.",
   "Son ders açılamadı: {error}": "The last lesson could not be opened: {error}",
+  "Bu ders burada yok.": "This lesson isn’t here.",
+  "Kendi derslerini orijinal rach3’ten silebilirsin.": "You can delete your own lessons from the original rach3.",
   "Nota sembolleri yüklenemedi. Uygulamayı yeniden aç.": "Music symbols could not be loaded. Reopen the app.",
   "Piyano": "Piano",
   "Piyano bağlı": "Piano connected",

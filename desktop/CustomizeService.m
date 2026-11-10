@@ -57,6 +57,40 @@ static NSString *TomlString(NSString *value) {
         stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]];
 }
 static NSNumber *Milliseconds(void) { return @((long long)(NSDate.date.timeIntervalSince1970 * 1000)); }
+// "main" is rach3 as it came, read straight from the app bundle. It is not stored
+// anywhere the service writes, so no change, by ChatGPT or anyone, can land on it.
+static NSString *const Main = @"main";
+// Files no version may change. They are always served from the app bundle and are
+// not stored with versions, whatever ChatGPT does to its scratch copy.
+static NSArray<NSString *> *ProtectedPaths(void) { return @[@"AGENTS.md", @"assets/notation/", @"assets/bravura/"]; }
+static BOOL IsProtected(NSString *path) {
+    for (NSString *protected in ProtectedPaths())
+        if ([protected hasSuffix:@"/"] ? [path hasPrefix:protected] : [path isEqual:protected]) return YES;
+    return NO;
+}
+// The bundled sound library inside piano.html is protected the same way.
+static NSRange ScriptBlock(NSString *html, NSString *identifier) {
+    NSRange open = [html rangeOfString:[NSString stringWithFormat:@"<script id=\"%@\"", identifier]];
+    if (open.location == NSNotFound) return open;
+    NSRange close = [html rangeOfString:@"</script>" options:0 range:NSMakeRange(NSMaxRange(open), html.length - NSMaxRange(open))];
+    return close.location == NSNotFound ? close : NSMakeRange(open.location, NSMaxRange(close) - open.location);
+}
+// Follow-up requests rach3 makes on its own start with this, so the chat can tell them apart.
+static NSString *const CheckMarker = @"[rach3 check]";
+// How many times rach3 asks ChatGPT to fix errors it found before giving up.
+static const NSInteger CheckLimit = 2;
+static NSString *NewIdentifier(NSString *prefix) {
+    NSDateFormatter *format = [NSDateFormatter new];
+    format.dateFormat = @"yyyyMMdd-HHmmss"; format.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    return [NSString stringWithFormat:@"%@%@-%04x", prefix, [format stringFromDate:NSDate.date], arc4random_uniform(0x10000)];
+}
+// A branch is named after the first change made on it until the person renames it.
+static NSString *BranchName(NSString *prompt) {
+    NSArray *words = [[prompt stringByReplacingOccurrencesOfString:@"_" withString:@" "]
+        componentsSeparatedByCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    NSString *name = [[words filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"length > 0"]] componentsJoinedByString:@" "];
+    return name.length > 60 ? [[name substringToIndex:59] stringByAppendingString:@"…"] : name;
+}
 
 @interface CustomizeService ()
 @property (nonatomic, strong) NSURL *source;          // original design, inside the app bundle
@@ -97,7 +131,16 @@ static NSNumber *Milliseconds(void) { return @((long long)(NSDate.date.timeInter
 @implementation CustomizeService
 
 + (NSString *)scheme { return @"rach3-app"; }
-+ (NSURL *)pageURL { return [NSURL URLWithString:@"rach3-app://app/piano.html"]; }
+- (NSString *)pageHost { return self.onOriginal ? @"app" : [self.designs[@"branch"] lowercaseString]; }
+- (NSURL *)pageURL { return [NSURL URLWithString:[NSString stringWithFormat:@"rach3-app://%@/piano.html", self.pageHost]]; }
+- (BOOL)needsSeed:(NSString *)host {
+    return ![host isEqual:@"app"] && ![self.preferences[@"seeded"] containsObject:host];
+}
+- (void)markSeeded:(NSString *)host {
+    if (![self needsSeed:host]) return;
+    NSMutableArray *seeded = [self.preferences[@"seeded"] mutableCopy] ?: [NSMutableArray new];
+    [seeded addObject:host]; self.preferences[@"seeded"] = seeded; [self save:self.preferences as:@"preferences.json"];
+}
 
 - (instancetype)initWithSource:(NSURL *)source codex:(NSURL *)codex support:(NSURL *)support version:(NSString *)version {
     if ((self = [super init])) {
@@ -108,16 +151,26 @@ static NSNumber *Milliseconds(void) { return @((long long)(NSDate.date.timeInter
             withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:NULL];
         self.designs = [self load:@"designs.json"] ?: [@{@"active":@"original", @"designs":@[]} mutableCopy];
         self.designs[@"designs"] = [self.designs[@"designs"] mutableCopy] ?: [NSMutableArray new];
+        if (!self.designs[@"branches"]) [self migrateToBranches];
+        if (![self.designs[@"protected"] boolValue]) {
+            for (NSDictionary *design in self.designs[@"designs"])
+                [self stripProtectedFrom:[[self.root URLByAppendingPathComponent:@"designs" isDirectory:YES] URLByAppendingPathComponent:design[@"id"]]];
+            self.designs[@"protected"] = @YES; [self save:self.designs as:@"designs.json"];
+        }
         self.usage = [self load:@"usage.json"] ?: [NSMutableDictionary new];
         for (NSString *key in @[@"days", @"threads"]) self.usage[key] = [self.usage[key] mutableCopy] ?: [NSMutableDictionary new];
         self.session = [self load:@"session.json"] ?: [NSMutableDictionary new];
         self.preferences = [self load:@"preferences.json"] ?: [NSMutableDictionary new];
+        if (![self.designs[@"lessons"] isKindOfClass:NSDictionary.class]) { [self lessonRecords]; [self migrateLessons]; }
         self.listener = -1;
         self.callbacks = [NSMutableDictionary new]; self.codexWaiters = [NSMutableArray new];
         self.refreshWaiters = [NSMutableArray new]; self.loadedThreads = [NSMutableSet new];
-        self.thread = self.preferences[@"thread"];
         // A design that was removed outside the app falls back to the original.
-        if (![self designRoot:self.designs[@"active"]]) { self.designs[@"active"] = @"original"; [self save:self.designs as:@"designs.json"]; }
+        if (![self designRoot:self.designs[@"active"]] || (![self.designs[@"branch"] isEqual:Main] && ![self branch:self.designs[@"branch"]])) {
+            self.designs[@"active"] = @"original"; self.designs[@"branch"] = Main; [self save:self.designs as:@"designs.json"];
+        }
+        self.thread = [self.designs[@"branch"] isEqual:Main] ? self.designs[@"mainThread"] : [self branch:self.designs[@"branch"]][@"thread"];
+        if (self.thread == (id)NSNull.null) self.thread = nil;
         [NSFileManager.defaultManager removeItemAtURL:[self.root URLByAppendingPathComponent:@"workspace"] error:NULL];
     }
     return self;
@@ -147,6 +200,112 @@ static NSNumber *Milliseconds(void) { return @((long long)(NSDate.date.timeInter
     return nil;
 }
 - (NSURL *)activeRoot { return [self designRoot:self.designs[@"active"]] ?: self.source; }
+
+#pragma mark Branches
+
+- (NSMutableDictionary *)branch:(NSString *)identifier {
+    if (![identifier isKindOfClass:NSString.class]) return nil;
+    for (NSMutableDictionary *branch in self.designs[@"branches"]) if ([branch[@"id"] isEqual:identifier]) return branch;
+    return nil;
+}
+- (NSMutableDictionary *)activeBranch { return [self branch:self.designs[@"branch"]]; }
+// What a branch shows: its newest change, or where it started when it has none yet.
+- (NSString *)tipOf:(NSDictionary *)branch {
+    return [branch[@"head"] isKindOfClass:NSString.class] ? branch[@"head"] : branch[@"base"] ?: @"original";
+}
+
+// Earlier versions kept every change as a loose design with a parent. Each line of
+// changes made one after another becomes a branch; a change made from an older
+// design starts a new branch there.
+- (void)migrateToBranches {
+    NSMutableArray *branches = [NSMutableArray new];
+    NSMutableDictionary *owner = [NSMutableDictionary new];
+    NSArray *ordered = [self.designs[@"designs"] sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+        return [a[@"created"] compare:b[@"created"]];
+    }];
+    NSMutableArray *designs = [NSMutableArray new];
+    for (NSDictionary *item in ordered) {
+        NSMutableDictionary *design = [item mutableCopy];
+        NSString *parent = [design[@"parent"] isKindOfClass:NSString.class] ? design[@"parent"] : @"original";
+        NSMutableDictionary *branch = [self branchIn:branches identifier:owner[parent]];
+        if (!branch || ![branch[@"head"] isEqual:parent]) {
+            branch = [@{@"id":NewIdentifier(@"b"), @"name":BranchName(design[@"title"] ?: @""), @"base":owner[parent] || [parent isEqual:@"original"] ? parent : @"original",
+                        @"head":NSNull.null, @"thread":NSNull.null, @"created":design[@"created"] ?: Milliseconds()} mutableCopy];
+            branch[@"id"] = [branch[@"id"] stringByAppendingFormat:@"-%lu", (unsigned long)branches.count];
+            [branches addObject:branch];
+        }
+        branch[@"head"] = design[@"id"]; branch[@"thread"] = design[@"thread"] ?: NSNull.null;
+        design[@"branch"] = branch[@"id"]; owner[design[@"id"]] = branch[@"id"];
+        [designs addObject:design];
+    }
+    self.designs[@"designs"] = designs; self.designs[@"branches"] = branches;
+    NSString *active = self.designs[@"active"];
+    self.designs[@"branch"] = owner[active] ?: Main;
+    if (!owner[active]) self.designs[@"active"] = @"original";
+    self.designs[@"version"] = @2;
+    [self save:self.designs as:@"designs.json"];
+}
+- (NSMutableDictionary *)branchIn:(NSArray *)branches identifier:(NSString *)identifier {
+    for (NSMutableDictionary *branch in branches) if ([branch[@"id"] isEqual:identifier]) return branch;
+    return nil;
+}
+
+- (void)showBranch:(NSString *)identifier design:(NSString *)design {
+    NSDictionary *branch = [self branch:identifier];
+    self.designs[@"branch"] = branch ? identifier : Main;
+    self.designs[@"active"] = branch ? (design ?: [self tipOf:branch]) : @"original";
+    id thread = branch ? branch[@"thread"] : self.designs[@"mainThread"];
+    self.thread = [thread isKindOfClass:NSString.class] ? thread : nil;
+    [self save:self.designs as:@"designs.json"];
+    [self publishState]; if (self.onReload) self.onReload();
+}
+
+// A new branch starts from what is on screen, with a fresh chat.
+- (NSString *)newBranchFrom:(NSString *)base name:(NSString *)name thread:(NSString *)thread {
+    NSMutableDictionary *branch = [@{@"id":NewIdentifier(@"b"), @"name":name ?: @"", @"base":base ?: @"original", @"head":NSNull.null,
+        @"thread":thread ?: NSNull.null, @"created":Milliseconds()} mutableCopy];
+    [self.designs[@"branches"] addObject:branch];
+    return branch[@"id"];
+}
+
+- (void)deleteBranch:(NSString *)identifier {
+    NSMutableDictionary *branch = [self branch:identifier];
+    if (!branch) return;
+    NSMutableArray *list = self.designs[@"designs"];
+    NSArray *owned = [list filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"branch == %@", identifier]];
+    NSSet *removed = [NSSet setWithArray:[owned valueForKey:@"id"]];
+    // Branches that started from a removed change keep their own files; with no
+    // changes of their own yet, they start from where the removed branch did.
+    for (NSMutableDictionary *other in self.designs[@"branches"])
+        if ([removed containsObject:other[@"base"]]) other[@"base"] = branch[@"base"] ?: @"original";
+    // Versions made from a removed one now come from its nearest surviving ancestor,
+    // and keep the lessons they saw through the removed versions.
+    for (NSMutableDictionary *design in list) {
+        NSString *parent = design[@"parent"];
+        if (![removed containsObject:parent]) continue;
+        NSSet *lost = [[self ancestorsOf:parent] objectsPassingTest:^BOOL(NSString *item, BOOL *stop) { (void)stop; return [removed containsObject:item]; }];
+        for (NSMutableDictionary *record in self.lessonRecords.allValues) {
+            for (NSString *anchor in [record[@"anchors"] copy]) if ([lost containsObject:anchor]) { [record[@"anchors"] addObject:design[@"id"]]; break; }
+        }
+        while ([removed containsObject:parent]) {
+            NSString *next = @"original";
+            for (NSDictionary *item in owned) if ([item[@"id"] isEqual:parent]) next = item[@"parent"] ?: @"original";
+            parent = next;
+        }
+        design[@"parent"] = parent;
+    }
+    for (NSDictionary *design in owned)
+        [NSFileManager.defaultManager removeItemAtURL:[[self.root URLByAppendingPathComponent:@"designs"] URLByAppendingPathComponent:design[@"id"]] error:NULL];
+    [list removeObjectsInArray:owned];
+    [self dropLessonsWithoutVersions];
+    [self.designs[@"branches"] removeObject:branch];
+    if ([self.designs[@"branch"] isEqual:identifier]) [self showBranch:Main design:nil];
+    else {
+        [self save:self.designs as:@"designs.json"]; [self publishState];
+        // The design on screen may have started from a removed change.
+        if ([removed containsObject:self.designs[@"active"]]) [self showBranch:self.designs[@"branch"] design:nil];
+    }
+}
 - (BOOL)busy { return self.turn != nil; }
 
 #pragma mark Page files
@@ -164,14 +323,14 @@ static NSString *MimeType(NSString *extension) {
     NSURL *url = task.request.URL;
     NSString *path = url.path.length > 1 ? [url.path substringFromIndex:1] : @"piano.html";
     BOOL preview = [url.scheme isEqual:@"rach3-preview"];
-    NSURL *root = (preview ? self.workspace : self.activeRoot).URLByStandardizingPath;
+    NSURL *root = (IsProtected(path) ? self.source : preview ? self.workspace : self.activeRoot).URLByStandardizingPath;
     if ([path isEqual:@"piano.html"] && task.request.mainDocumentURL && [task.request.URL isEqual:task.request.mainDocumentURL]) {
         if (preview) [self.previewErrors removeAllObjects];
         else if (self.pageErrors.count) { [self.pageErrors removeAllObjects]; [self publishState]; }
     }
     NSURL *file = [root URLByAppendingPathComponent:path].URLByStandardizingPath;
     NSData *data = nil;
-    BOOL inside = [url.host isEqual:@"app"] && [file.path hasPrefix:[root.path stringByAppendingString:@"/"]];
+    BOOL inside = [url.host isEqual:preview ? @"app" : self.pageHost] && [file.path hasPrefix:[root.path stringByAppendingString:@"/"]];
     for (NSString *part in path.pathComponents) if ([part hasPrefix:@"."]) inside = NO;
     if (inside) data = [NSData dataWithContentsOfURL:file];
     NSHTTPURLResponse *response = [[NSHTTPURLResponse alloc] initWithURL:url statusCode:data ? 200 : 404 HTTPVersion:@"HTTP/1.1"
@@ -200,6 +359,9 @@ static NSString *MimeType(NSString *extension) {
         @"account":self.account ?: NSNull.null, @"signingIn":@(self.signingIn), @"signInError":self.signInError ?: NSNull.null,
         @"welcomed":@([self.preferences[@"welcomed"] boolValue]), @"open":@([self.preferences[@"open"] boolValue]),
         @"active":self.designs[@"active"], @"designs":self.designs[@"designs"], @"thread":self.thread ?: NSNull.null,
+        @"branch":self.designs[@"branch"] ?: Main, @"branches":self.designs[@"branches"] ?: @[], @"lessons":self.lessonRecords,
+        // A change made while an older version is on screen starts a new branch from it.
+        @"forking":@(self.activeBranch && ![self.designs[@"active"] isEqual:[self tipOf:self.activeBranch]]),
         @"today":self.usage[@"days"][self.today] ?: @{}, @"threadUsage":self.usage[@"threads"],
         @"available":@([NSFileManager.defaultManager isExecutableFileAtPath:self.codexBinary.path]),
         @"pageErrors":self.pageErrors} mutableCopy];
@@ -230,11 +392,16 @@ static NSString *MimeType(NSString *extension) {
         if (self.turn) { reply(nil, @"busy"); return; }
         [self send:[text substringToIndex:MIN(text.length, (NSUInteger)8000)] reply:reply];
     } else if ([action isEqual:@"stop"]) {
-        if (self.turn[@"turn"]) [self call:@"turn/interrupt" params:@{@"threadId":self.turn[@"thread"], @"turnId":self.turn[@"turn"]} done:nil];
+        id running = [self.turn[@"check"] isKindOfClass:NSString.class] ? self.turn[@"check"] : self.turn[@"turn"];
+        if (self.turn) self.turn[@"stopping"] = @YES;
+        if ([running isKindOfClass:NSString.class]) [self call:@"turn/interrupt" params:@{@"threadId":self.turn[@"thread"], @"turnId":running} done:nil];
         reply(@{}, nil);
     } else if ([action isEqual:@"new-thread"]) {
         if (self.turn) { reply(nil, @"busy"); return; }
-        self.thread = nil; [self.preferences removeObjectForKey:@"thread"]; [self save:self.preferences as:@"preferences.json"];
+        self.thread = nil;
+        NSMutableDictionary *branch = self.activeBranch;
+        if (branch) branch[@"thread"] = NSNull.null; else [self.designs removeObjectForKey:@"mainThread"];
+        [self save:self.designs as:@"designs.json"];
         reply(@{}, nil); [self publishState];
     } else if ([action isEqual:@"threads"]) {
         [self withCodex:^(NSString *error) {
@@ -250,48 +417,50 @@ static NSString *MimeType(NSString *extension) {
             if (error) { reply(nil, error); return; }
             [self call:@"thread/read" params:@{@"threadId":identifier, @"includeTurns":@YES} done:^(id result, NSDictionary *failure) {
                 if (failure) { reply(nil, @"codex"); return; }
-                self.thread = identifier; self.preferences[@"thread"] = identifier; [self save:self.preferences as:@"preferences.json"];
                 reply(result, nil);
             }];
         }];
+    } else if ([action isEqual:@"use-branch"]) {
+        NSString *identifier = request[@"branch"];
+        if (![identifier isEqual:Main] && ![self branch:identifier]) { reply(nil, @"invalid"); return; }
+        if (self.turn) { reply(nil, @"busy"); return; }
+        reply(@{}, nil); [self showBranch:identifier design:nil];
     } else if ([action isEqual:@"use-design"]) {
+        // An earlier version of a branch, shown on its branch.
         NSString *identifier = request[@"design"];
-        if (![identifier isKindOfClass:NSString.class] || ![self designRoot:identifier]) { reply(nil, @"invalid"); return; }
+        NSDictionary *owner = nil;
+        for (NSDictionary *design in self.designs[@"designs"]) if ([design[@"id"] isEqual:identifier]) owner = [self branch:design[@"branch"]];
+        if (!owner || ![self designRoot:identifier]) { reply(nil, @"invalid"); return; }
         if (self.turn) { reply(nil, @"busy"); return; }
-        self.designs[@"active"] = identifier; [self save:self.designs as:@"designs.json"];
-        reply(@{}, nil); [self publishState]; if (self.onReload) self.onReload();
-    } else if ([action isEqual:@"delete-design"]) {
-        NSString *identifier = request[@"design"];
-        if (![identifier isKindOfClass:NSString.class] || [identifier isEqual:@"original"] || ![self designRoot:identifier]) { reply(nil, @"invalid"); return; }
+        reply(@{}, nil); [self showBranch:owner[@"id"] design:identifier];
+    } else if ([action isEqual:@"new-branch"]) {
         if (self.turn) { reply(nil, @"busy"); return; }
-        [self deleteDesign:identifier]; reply(@{}, nil);
-    } else if ([action isEqual:@"rename-design"]) {
-        NSString *identifier = request[@"design"], *title = request[@"title"];
-        if (![title isKindOfClass:NSString.class] || ![title stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet].length) { reply(nil, @"invalid"); return; }
-        for (NSMutableDictionary *design in self.designs[@"designs"]) if ([design[@"id"] isEqual:identifier]) design[@"title"] = [title substringToIndex:MIN(title.length, (NSUInteger)120)];
-        [self save:self.designs as:@"designs.json"]; reply(@{}, nil); [self publishState];
+        NSString *name = [request[@"name"] isKindOfClass:NSString.class] ? BranchName(request[@"name"]) : @"";
+        // From a chosen version (or the original), else from what is on screen.
+        NSString *from = request[@"from"];
+        if (![from isKindOfClass:NSString.class] || ![self designRoot:from]) from = self.designs[@"active"];
+        NSString *identifier = [self newBranchFrom:from name:name thread:nil];
+        reply(@{@"branch":identifier}, nil); [self showBranch:identifier design:nil];
+    } else if ([action isEqual:@"rename-branch"]) {
+        NSMutableDictionary *branch = [self branch:request[@"branch"]];
+        NSString *name = [request[@"name"] isKindOfClass:NSString.class] ? BranchName(request[@"name"]) : @"";
+        if (!branch || !name.length) { reply(nil, @"invalid"); return; }
+        branch[@"name"] = name; [self save:self.designs as:@"designs.json"]; reply(@{}, nil); [self publishState];
+    } else if ([action isEqual:@"keep-lesson"]) {
+        NSDictionary *kept = [self keepLesson:request[@"lesson"]];
+        if (!kept) { reply(nil, @"invalid"); return; }
+        reply(@{}, nil);
+        if (self.onLessonChanged) self.onLessonChanged(kept);
+    } else if ([action isEqual:@"delete-branch"]) {
+        if (![self branch:request[@"branch"]]) { reply(nil, @"invalid"); return; }
+        if (self.turn) { reply(nil, @"busy"); return; }
+        reply(@{}, nil); [self deleteBranch:request[@"branch"]];
     } else reply(nil, @"invalid");
 }
 
 - (void)restoreOriginal {
     if (self.turn) return;
-    self.designs[@"active"] = @"original"; [self save:self.designs as:@"designs.json"];
-    [self publishState]; if (self.onReload) self.onReload();
-}
-
-- (void)deleteDesign:(NSString *)identifier {
-    NSMutableArray *list = self.designs[@"designs"];
-    NSDictionary *removed = nil;
-    for (NSDictionary *design in list) if ([design[@"id"] isEqual:identifier]) removed = design;
-    if (!removed) return;
-    // Designs made from the removed one now come from its parent.
-    for (NSMutableDictionary *design in list) if ([design[@"parent"] isEqual:identifier]) design[@"parent"] = removed[@"parent"] ?: @"original";
-    [list removeObject:removed];
-    [NSFileManager.defaultManager removeItemAtURL:[[self.root URLByAppendingPathComponent:@"designs"] URLByAppendingPathComponent:identifier] error:NULL];
-    BOOL wasActive = [self.designs[@"active"] isEqual:identifier];
-    if (wasActive) self.designs[@"active"] = removed[@"parent"] && [self designRoot:removed[@"parent"]] ? removed[@"parent"] : @"original";
-    [self save:self.designs as:@"designs.json"]; [self publishState];
-    if (wasActive && self.onReload) self.onReload();
+    [self showBranch:Main design:nil];
 }
 
 #pragma mark Sign in with ChatGPT
@@ -606,12 +775,49 @@ static NSString *MimeType(NSString *extension) {
 - (BOOL)prepareWorkspace {
     NSFileManager *files = NSFileManager.defaultManager;
     [files removeItemAtURL:self.workspace error:NULL];
-    return [files copyItemAtURL:self.activeRoot toURL:self.workspace error:NULL];
+    if (![files copyItemAtURL:self.activeRoot toURL:self.workspace error:NULL]) return NO;
+    [self restoreProtectedIn:self.workspace];
+    return YES;
+}
+
+// Puts the protected files back exactly as they are in the bundle.
+- (NSArray<NSString *> *)restoreProtectedIn:(NSURL *)folder {
+    NSFileManager *files = NSFileManager.defaultManager;
+    NSMutableArray *restored = [NSMutableArray new];
+    for (NSString *path in ProtectedPaths()) {
+        NSString *name = [path stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
+        NSURL *original = [self.source URLByAppendingPathComponent:name], *copy = [folder URLByAppendingPathComponent:name];
+        if ([path hasSuffix:@"/"] ? [self changedFilesFrom:original to:copy protect:NO].count : ![[NSData dataWithContentsOfURL:original] isEqualToData:[NSData dataWithContentsOfURL:copy]]) {
+            [restored addObject:name];
+            [files removeItemAtURL:copy error:NULL];
+            [files createDirectoryAtURL:copy.URLByDeletingLastPathComponent withIntermediateDirectories:YES attributes:nil error:NULL];
+            [files copyItemAtURL:original toURL:copy error:NULL];
+        }
+    }
+    NSURL *page = [folder URLByAppendingPathComponent:@"piano.html"];
+    NSString *html = [NSString stringWithContentsOfURL:page encoding:NSUTF8StringEncoding error:NULL];
+    NSString *bundled = [NSString stringWithContentsOfURL:[self.source URLByAppendingPathComponent:@"piano.html"] encoding:NSUTF8StringEncoding error:NULL];
+    NSRange mine = html ? ScriptBlock(html, @"midi-library") : NSMakeRange(NSNotFound, 0);
+    NSRange theirs = bundled ? ScriptBlock(bundled, @"midi-library") : NSMakeRange(NSNotFound, 0);
+    if (mine.location != NSNotFound && theirs.location != NSNotFound && ![[html substringWithRange:mine] isEqual:[bundled substringWithRange:theirs]]) {
+        [[html stringByReplacingCharactersInRange:mine withString:[bundled substringWithRange:theirs]] writeToURL:page atomically:YES encoding:NSUTF8StringEncoding error:NULL];
+        [restored addObject:@"piano.html#midi-library"];
+    }
+    return restored;
+}
+// Saved versions leave the protected files out; they are served from the bundle.
+- (void)stripProtectedFrom:(NSURL *)folder {
+    for (NSString *path in ProtectedPaths())
+        [NSFileManager.defaultManager removeItemAtURL:[folder URLByAppendingPathComponent:[path stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]]] error:NULL];
 }
 
 - (void)send:(NSString *)text reply:(void (^)(id, NSString *))reply {
     NSString *base = self.designs[@"active"];
-    self.turn = [@{@"prompt":text, @"base":base, @"thread":self.thread ?: NSNull.null, @"files":[NSMutableSet new], @"outside":@NO, @"lessons":[NSMutableArray new],
+    NSDictionary *branch = self.activeBranch;
+    // Changing an older version starts a new branch there, with its own chat.
+    BOOL fork = branch && ![base isEqual:[self tipOf:branch]];
+    if (fork) self.thread = nil;
+    self.turn = [@{@"prompt":text, @"base":base, @"branch":branch ? branch[@"id"] : Main, @"fork":@(fork), @"thread":self.thread ?: NSNull.null, @"files":[NSMutableSet new], @"outside":@NO, @"lessons":[NSMutableArray new],
                    @"tokens":[@{@"input":@0, @"cached":@0, @"output":@0, @"total":@0} mutableCopy], @"started":Milliseconds()} mutableCopy];
     [self publishState];
     __weak CustomizeService *weakSelf = self;
@@ -621,7 +827,11 @@ static NSString *MimeType(NSString *extension) {
         if (![self prepareWorkspace]) { fail(@"workspace"); return; }
         void (^start)(NSString *) = ^(NSString *thread) {
             self.thread = thread; self.turn[@"thread"] = thread;
-            self.preferences[@"thread"] = thread; [self save:self.preferences as:@"preferences.json"];
+            if (!fork) {
+                NSMutableDictionary *current = [self branch:self.turn[@"branch"]];
+                if (current) current[@"thread"] = thread; else self.designs[@"mainThread"] = thread;
+                [self save:self.designs as:@"designs.json"];
+            }
             [self call:@"turn/start" params:@{@"threadId":thread, @"cwd":self.workspace.path, @"approvalPolicy":@"never",
                 @"input":@[@{@"type":@"text", @"text":text, @"text_elements":@[]}]} done:^(id result, NSDictionary *failure) {
                 if (failure) { fail(@"codex"); return; }
@@ -669,8 +879,8 @@ static NSDictionary *CleanError(NSDictionary *raw, NSString *design) {
     for (NSString *key in @[@"kind", @"message", @"source", @"line", @"column", @"stack"]) {
         id value = raw[key];
         if ([value isKindOfClass:NSString.class]) {
-            NSString *text = [[value stringByReplacingOccurrencesOfString:@"rach3-app://app/" withString:@""]
-                stringByReplacingOccurrencesOfString:@"rach3-preview://app/" withString:@""];
+            NSString *text = [value stringByReplacingOccurrencesOfString:@"rach3-(app|preview)://[a-z0-9-]+/" withString:@""
+                options:NSRegularExpressionSearch range:NSMakeRange(0, [value length])];
             error[key] = [text substringToIndex:MIN(text.length, (NSUInteger)2000)];
         } else if ([value isKindOfClass:NSNumber.class]) error[key] = value;
     }
@@ -704,13 +914,186 @@ static NSString *JSONText(id value) {
         @{@"type":@"function", @"name":@"read_lesson", @"description":@"One lesson: title, description, duration and notes per hand as [midi, start, end, velocity]. Optionally only notes starting between `from` and `to` seconds.",
           @"inputSchema":@{@"type":@"object", @"required":@[@"id"], @"additionalProperties":@NO, @"properties":@{
             @"id":@{@"type":@"string"}, @"from":@{@"type":@"number"}, @"to":@{@"type":@"number"}}}},
-        @{@"type":@"function", @"name":@"save_lesson", @"description":@"Create a lesson (no id) or replace one (with id) for the person. Replaced lessons are backed up. Changing notes drops the engraved score, which no longer matches. The lesson opens on screen when saved.",
+        @{@"type":@"function", @"name":@"save_lesson", @"description":@"Create a lesson (no id) or change one (with id). Lessons you save belong to this version of rach3: changing one of the person's lessons saves a copy that takes its place here, and their original is kept as it is. Changing notes drops the engraved score, which no longer matches. The newest lesson opens on screen when the change is saved.",
           @"inputSchema":@{@"type":@"object", @"required":@[@"title"], @"additionalProperties":@NO, @"properties":@{
             @"id":@{@"type":@"string"}, @"title":@{@"type":@"string"}, @"description":@{@"type":@"string"},
             @"tracks":@{@"type":@"array", @"items":track, @"description":@"Omit to keep the notes of an existing lesson."}}}}]}];
 }
 
 - (NSURL *)lessonsURL { return [self.support URLByAppendingPathComponent:@"Lessons" isDirectory:YES]; }
+
+#pragma mark Lessons made with ChatGPT
+
+// The person's own lessons live in Lessons and are shared by every version. A lesson
+// ChatGPT makes belongs to the version that was saved with it: it is stored apart, in
+// Customize/lessons, and shows only on that version and on versions made from it.
+// Changing one of the person's lessons makes a copy that takes its place there; the
+// person's file is never written. designs.json "lessons" records who owns what.
+- (NSURL *)branchLessonsURL { return [self.root URLByAppendingPathComponent:@"lessons" isDirectory:YES]; }
+- (NSURL *)branchLessonURL:(NSString *)identifier {
+    if (![identifier isKindOfClass:NSString.class] || ![[NSUUID alloc] initWithUUIDString:identifier]) return nil;
+    return [self.branchLessonsURL URLByAppendingPathComponent:[identifier.lowercaseString stringByAppendingPathExtension:@"json"]];
+}
+- (NSMutableDictionary *)lessonRecords {
+    if (![self.designs[@"lessons"] isKindOfClass:NSMutableDictionary.class]) self.designs[@"lessons"] = [NSMutableDictionary new];
+    return self.designs[@"lessons"];
+}
+- (NSMutableDictionary *)readBranchLesson:(NSString *)identifier {
+    NSData *data = [NSData dataWithContentsOfURL:[self branchLessonURL:identifier]];
+    id lesson = data ? [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:NULL] : nil;
+    return [lesson isKindOfClass:NSMutableDictionary.class] ? lesson : nil;
+}
+
+// A version and every version it was made from, back to the original.
+- (NSSet<NSString *> *)ancestorsOf:(NSString *)design {
+    NSMutableDictionary *parents = [NSMutableDictionary new];
+    for (NSDictionary *item in self.designs[@"designs"]) parents[item[@"id"]] = item[@"parent"];
+    NSMutableSet *chain = [NSMutableSet new];
+    while ([design isKindOfClass:NSString.class] && parents[design] && ![chain containsObject:design]) {
+        [chain addObject:design]; design = parents[design];
+    }
+    return chain;
+}
+
+// What a version sees: its own lessons, and which of the person's lessons they replace.
+// The preview and ChatGPT's tools look from the version being changed, plus the
+// lessons made so far in this change.
+- (NSDictionary *)lessonScope:(BOOL)forChange {
+    NSString *design = forChange && self.turn ? self.turn[@"base"] : self.designs[@"active"];
+    NSSet *chain = [self ancestorsOf:design];
+    NSMutableSet *mine = [NSMutableSet new], *replaced = [NSMutableSet new];
+    [self.lessonRecords enumerateKeysAndObjectsUsingBlock:^(NSString *identifier, NSDictionary *record, BOOL *stop) {
+        (void)stop;
+        for (NSString *anchor in record[@"anchors"]) if ([chain containsObject:anchor]) { [mine addObject:identifier]; break; }
+    }];
+    if (forChange) for (NSDictionary *saved in self.turn[@"lessons"]) [mine addObject:[saved[@"id"] lowercaseString]];
+    for (NSString *identifier in mine) {
+        NSString *replaces = self.lessonRecords[identifier][@"replaces"];
+        for (NSDictionary *saved in forChange ? self.turn[@"lessons"] : @[]) if ([[saved[@"id"] lowercaseString] isEqual:identifier]) replaces = saved[@"replaces"];
+        if ([replaces isKindOfClass:NSString.class]) [replaced addObject:replaces.lowercaseString];
+    }
+    return @{@"mine":mine, @"replaced":replaced};
+}
+
+- (NSArray *)personLessonSummaries {
+    NSMutableArray *list = [NSMutableArray new];
+    for (NSURL *url in [NSFileManager.defaultManager contentsOfDirectoryAtURL:self.lessonsURL includingPropertiesForKeys:nil options:0 error:NULL]) {
+        if (![url.pathExtension isEqual:@"json"]) continue;
+        NSDictionary *lesson = [self readLesson:url.URLByDeletingPathExtension.lastPathComponent];
+        if (lesson[@"id"] && lesson[@"title"]) [list addObject:@{@"id":lesson[@"id"], @"title":lesson[@"title"], @"noteCount":lesson[@"noteCount"] ?: @0,
+                                                              @"duration":lesson[@"duration"] ?: @0}];
+    }
+    return list;
+}
+
+- (NSArray *)lessonList:(BOOL)forChange {
+    NSDictionary *scope = [self lessonScope:forChange];
+    NSMutableArray *list = [NSMutableArray new];
+    for (NSDictionary *lesson in self.personLessonSummaries)
+        if (![scope[@"replaced"] containsObject:[lesson[@"id"] lowercaseString]]) [list addObject:lesson];
+    for (NSString *identifier in scope[@"mine"]) {
+        if ([scope[@"replaced"] containsObject:identifier]) continue;
+        NSDictionary *lesson = [self readBranchLesson:identifier];
+        if (lesson[@"id"]) [list addObject:@{@"id":lesson[@"id"], @"title":lesson[@"title"] ?: @"", @"noteCount":lesson[@"noteCount"] ?: @0,
+                                            @"duration":lesson[@"duration"] ?: @0, @"madeHere":@YES}];
+    }
+    [list sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) { return [a[@"title"] localizedCaseInsensitiveCompare:b[@"title"]]; }];
+    return list;
+}
+
+// Follows replacements, so a lesson opened before it was copied opens as the copy.
+- (NSDictionary *)resolveLesson:(NSString *)identifier forChange:(BOOL)forChange {
+    if (![identifier isKindOfClass:NSString.class] || ![[NSUUID alloc] initWithUUIDString:identifier]) return nil;
+    NSDictionary *scope = [self lessonScope:forChange];
+    NSString *key = identifier.lowercaseString;
+    for (NSUInteger step = 0; step < 64 && [scope[@"replaced"] containsObject:key]; step++) {
+        NSString *next = nil;
+        for (NSString *candidate in scope[@"mine"]) {
+            NSString *replaces = self.lessonRecords[candidate][@"replaces"];
+            for (NSDictionary *saved in forChange ? self.turn[@"lessons"] : @[]) if ([[saved[@"id"] lowercaseString] isEqual:candidate]) replaces = saved[@"replaces"];
+            if ([[replaces lowercaseString] isEqual:key]) next = candidate;
+        }
+        if (!next) return nil;
+        key = next;
+    }
+    if ([scope[@"mine"] containsObject:key]) {
+        NSDictionary *lesson = [self readBranchLesson:key];
+        return lesson ? @{@"lesson":lesson, @"mine":@YES} : nil;
+    }
+    NSDictionary *lesson = [self readLesson:key];
+    return lesson ? @{@"lesson":lesson, @"mine":@NO} : nil;
+}
+
+- (NSArray *)lessonsForPage:(BOOL)preview { return [self lessonList:preview]; }
+- (NSDictionary *)lessonForPage:(NSString *)identifier preview:(BOOL)preview { return [self resolveLesson:identifier forChange:preview][@"lesson"]; }
+- (BOOL)onOriginal { return ![self.designs[@"branch"] isKindOfClass:NSString.class] || [self.designs[@"branch"] isEqual:Main]; }
+
+// The page may delete a lesson made on the version it shows. The person's own lessons
+// can only be deleted from the original rach3, where no changed code runs.
+- (NSString *)deleteLessonForPage:(NSString *)identifier personal:(BOOL *)personal {
+    NSDictionary *found = [self resolveLesson:identifier forChange:NO];
+    if (!found) return @"missing";
+    if (![found[@"mine"] boolValue]) { *personal = YES; return self.onOriginal ? nil : @"original-only"; }
+    *personal = NO;
+    NSString *key = [found[@"lesson"][@"id"] lowercaseString];
+    [NSFileManager.defaultManager trashItemAtURL:[self branchLessonURL:key] resultingItemURL:NULL error:NULL];
+    [self.lessonRecords removeObjectForKey:key];
+    [self save:self.designs as:@"designs.json"]; [self publishState];
+    return nil;
+}
+
+// The person keeps a lesson ChatGPT made: it moves to their own lessons, for every version.
+- (NSDictionary *)keepLesson:(NSString *)identifier {
+    NSString *key = [identifier lowercaseString];
+    if (!self.lessonRecords[key]) return nil;
+    NSMutableDictionary *lesson = [self readBranchLesson:key];
+    if (!lesson) return nil;
+    [lesson removeObjectForKey:@"replaces"];
+    [NSFileManager.defaultManager createDirectoryAtURL:self.lessonsURL withIntermediateDirectories:YES attributes:nil error:NULL];
+    NSData *data = [NSJSONSerialization dataWithJSONObject:lesson options:0 error:NULL];
+    if (![data writeToURL:[self.lessonsURL URLByAppendingPathComponent:[key stringByAppendingPathExtension:@"json"]] options:NSDataWritingWithoutOverwriting error:NULL]) return nil;
+    [NSFileManager.defaultManager removeItemAtURL:[self branchLessonURL:key] error:NULL];
+    [self.lessonRecords removeObjectForKey:key];
+    [self save:self.designs as:@"designs.json"]; [self publishState];
+    return lesson;
+}
+
+// Lessons whose versions are all gone go to the Trash.
+- (void)dropLessonsWithoutVersions {
+    NSMutableSet *alive = [NSMutableSet setWithArray:[self.designs[@"designs"] valueForKey:@"id"]];
+    for (NSString *identifier in self.lessonRecords.allKeys) {
+        NSMutableDictionary *record = self.lessonRecords[identifier];
+        record[@"anchors"] = [[record[@"anchors"] ?: @[] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *anchor, NSDictionary *bindings) {
+            (void)bindings; return [alive containsObject:anchor]; }]] mutableCopy];
+        if (![record[@"anchors"] count]) {
+            [NSFileManager.defaultManager trashItemAtURL:[self branchLessonURL:identifier] resultingItemURL:NULL error:NULL];
+            [self.lessonRecords removeObjectForKey:identifier];
+        }
+    }
+}
+
+// Lessons ChatGPT made before lessons belonged to versions move to the version that
+// was saved with them. Ones made in a change that saved no version stay the person's.
+- (void)migrateLessons {
+    NSDictionary *usage = self.usage[@"threads"];
+    NSMutableDictionary *byTurn = [NSMutableDictionary new];
+    for (NSDictionary *design in self.designs[@"designs"]) if ([design[@"turn"] isKindOfClass:NSString.class]) byTurn[design[@"turn"]] = design[@"id"];
+    for (NSString *thread in usage) for (NSDictionary *record in usage[thread][@"turns"]) {
+        NSString *design = byTurn[record[@"turn"]];
+        if (!design) continue;
+        for (NSDictionary *saved in record[@"lessons"]) {
+            NSMutableDictionary *lesson = [self readLesson:saved[@"id"]];
+            if (!lesson || ![lesson[@"provenance"][@"model"] isEqual:@"Made with ChatGPT in rach3"]) continue;
+            NSString *key = [lesson[@"id"] lowercaseString];
+            [NSFileManager.defaultManager createDirectoryAtURL:self.branchLessonsURL withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:NULL];
+            NSURL *from = [self.lessonsURL URLByAppendingPathComponent:[lesson[@"id"] stringByAppendingPathExtension:@"json"]];
+            if ([NSFileManager.defaultManager moveItemAtURL:from toURL:[self branchLessonURL:key] error:NULL])
+                self.lessonRecords[key] = [@{@"anchors":[@[design] mutableCopy], @"replaces":NSNull.null, @"title":lesson[@"title"] ?: @"", @"created":Milliseconds()} mutableCopy];
+        }
+    }
+    [self save:self.designs as:@"designs.json"];
+}
+
 - (NSURL *)lessonURL:(NSString *)identifier {
     if (![identifier isKindOfClass:NSString.class] || ![[NSUUID alloc] initWithUUIDString:identifier]) return nil;
     return [self.lessonsURL URLByAppendingPathComponent:[identifier.uppercaseString isEqual:identifier] ? identifier : identifier.lowercaseString].URLByStandardizingPath;
@@ -733,16 +1116,10 @@ static NSString *JSONText(id value) {
     } else if ([tool isEqual:@"preview"]) {
         [self preview:[arguments[@"script"] isKindOfClass:NSString.class] ? arguments[@"script"] : nil done:done];
     } else if ([tool isEqual:@"list_lessons"]) {
-        NSMutableArray *list = [NSMutableArray new];
-        for (NSURL *url in [NSFileManager.defaultManager contentsOfDirectoryAtURL:self.lessonsURL includingPropertiesForKeys:nil options:0 error:NULL]) {
-            if (![url.pathExtension isEqual:@"json"]) continue;
-            NSDictionary *lesson = [self readLesson:url.URLByDeletingPathExtension.lastPathComponent];
-            if (lesson[@"id"]) [list addObject:@{@"id":lesson[@"id"], @"title":lesson[@"title"] ?: @"", @"noteCount":lesson[@"noteCount"] ?: @0,
-                                                  @"duration":lesson[@"duration"] ?: @0}];
-        }
+        NSArray *list = [self lessonList:YES];
         done(@[Text(list.count ? JSONText(list) : @"The person has no saved lessons yet.")], YES);
     } else if ([tool isEqual:@"read_lesson"]) {
-        NSDictionary *lesson = [self readLesson:arguments[@"id"]];
+        NSDictionary *lesson = [self resolveLesson:arguments[@"id"] forChange:YES][@"lesson"];
         if (!lesson) { done(@[Text(@"No lesson with that id.")], NO); return; }
         double from = [arguments[@"from"] respondsToSelector:@selector(doubleValue)] ? [arguments[@"from"] doubleValue] : -INFINITY;
         double to = [arguments[@"to"] respondsToSelector:@selector(doubleValue)] ? [arguments[@"to"] doubleValue] : INFINITY;
@@ -766,26 +1143,34 @@ static NSString *JSONText(id value) {
     } else if ([tool isEqual:@"save_lesson"]) {
         NSString *error = nil;
         NSDictionary *saved = [self saveLesson:arguments error:&error];
-        if (saved && self.turn) [self.turn[@"lessons"] addObject:@{@"id":saved[@"id"], @"title":saved[@"title"] ?: @""}];
+        if (saved) [self.turn[@"lessons"] addObject:@{@"id":saved[@"id"], @"title":saved[@"title"] ?: @"", @"replaces":saved[@"replaces"] ?: NSNull.null}];
         done(@[Text(saved ? JSONText(@{@"saved":saved[@"id"], @"title":saved[@"title"], @"noteCount":saved[@"noteCount"]}) : error)], saved != nil);
     } else done(@[Text(@"Unknown tool.")], NO);
 }
 
+// ChatGPT's lessons are always new files in Customize/lessons. Changing an existing
+// lesson saves a copy that replaces it on this version; the original is never written.
 - (NSDictionary *)saveLesson:(NSDictionary *)arguments error:(NSString **)error {
+    if (!self.turn) { *error = @"Lessons can only be saved while making a change."; return nil; }
     NSString *title = [arguments[@"title"] isKindOfClass:NSString.class] ? [arguments[@"title"] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] : @"";
     if (!title.length) { *error = @"A title is required."; return nil; }
     NSMutableDictionary *lesson = nil;
+    NSString *replaces = nil;
     if (arguments[@"id"]) {
-        lesson = [self readLesson:arguments[@"id"]];
-        if (!lesson) { *error = @"No lesson with that id."; return nil; }
-        NSURL *backups = [self.root URLByAppendingPathComponent:@"lesson-backups" isDirectory:YES];
-        [NSFileManager.defaultManager createDirectoryAtURL:backups withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:NULL];
-        [[NSJSONSerialization dataWithJSONObject:lesson options:0 error:NULL] writeToURL:[backups URLByAppendingPathComponent:
-            [NSString stringWithFormat:@"%@-%@.json", lesson[@"id"], Milliseconds()]] atomically:YES];
+        NSDictionary *found = [self resolveLesson:arguments[@"id"] forChange:YES];
+        if (!found) { *error = @"No lesson with that id."; return nil; }
+        lesson = [found[@"lesson"] mutableCopy];
+        NSString *current = [lesson[@"id"] lowercaseString];
+        // A lesson made earlier in this same change is simply updated.
+        BOOL ownedByTurn = NO;
+        for (NSDictionary *saved in self.turn[@"lessons"]) if ([[saved[@"id"] lowercaseString] isEqual:current]) { ownedByTurn = YES; replaces = saved[@"replaces"]; }
+        if (!ownedByTurn) { replaces = current; lesson[@"id"] = NSUUID.UUID.UUIDString.lowercaseString; }
+        if (replaces == (id)NSNull.null) replaces = nil;
     } else {
         if (![arguments[@"tracks"] isKindOfClass:NSArray.class]) { *error = @"A new lesson needs tracks with notes."; return nil; }
         lesson = [@{@"id":NSUUID.UUID.UUIDString.lowercaseString, @"description":@""} mutableCopy];
     }
+    if (replaces) lesson[@"replaces"] = replaces;
     lesson[@"title"] = [title substringToIndex:MIN(title.length, (NSUInteger)120)];
     if ([arguments[@"description"] isKindOfClass:NSString.class]) lesson[@"description"] = arguments[@"description"];
     if ([arguments[@"tracks"] isKindOfClass:NSArray.class]) {
@@ -815,18 +1200,10 @@ static NSString *JSONText(id value) {
         [lesson removeObjectForKey:@"notation"];
         lesson[@"provenance"] = @{@"model":@"Made with ChatGPT in rach3"};
     }
-    [NSFileManager.defaultManager createDirectoryAtURL:self.lessonsURL withIntermediateDirectories:YES attributes:nil error:NULL];
+    lesson[@"midiFilename"] = [NSString stringWithFormat:@"rach3-%@.mid", lesson[@"id"]];
+    [NSFileManager.defaultManager createDirectoryAtURL:self.branchLessonsURL withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:NULL];
     NSData *data = [NSJSONSerialization dataWithJSONObject:lesson options:0 error:NULL];
-    NSURL *pending = [self.lessonsURL URLByAppendingPathComponent:[lesson[@"id"] stringByAppendingPathExtension:@"pending"]];
-    if (![data writeToURL:pending atomically:YES] || ![NSFileManager.defaultManager replaceItemAtURL:
-          [self.lessonsURL URLByAppendingPathComponent:[lesson[@"id"] stringByAppendingPathExtension:@"json"]] withItemAtURL:pending
-          backupItemName:nil options:0 resultingItemURL:NULL error:NULL]) {
-        // replaceItemAtURL needs an existing file; a new lesson is a plain move.
-        if (![NSFileManager.defaultManager moveItemAtURL:pending toURL:[self.lessonsURL URLByAppendingPathComponent:[lesson[@"id"] stringByAppendingPathExtension:@"json"]] error:NULL]) {
-            *error = @"The lesson could not be saved."; return nil;
-        }
-    }
-    if (self.onLessonChanged) self.onLessonChanged(lesson);
+    if (![data writeToURL:[self branchLessonURL:lesson[@"id"]] options:NSDataWritingAtomic error:NULL]) { *error = @"The lesson could not be saved."; return nil; }
     return lesson;
 }
 
@@ -919,7 +1296,8 @@ static NSString *JSONText(id value) {
 - (NSString *)instructions {
     return @"You are inside rach3, a piano practice app, changing the app for the person using it. They are not a programmer. "
         "The current folder is the app's web interface; AGENTS.md there explains it. Change only files in this folder. "
-        "Every finished change is saved as a new design the person can switch back from, so make the change they asked for and nothing else. "
+        "Every finished change is saved as a new version on the person's branch, and they can go back to any earlier version, so make the change they asked for and nothing else. "
+        "They may also just want to talk: when they ask a question, think out loud, or it is not clear what they want changed, answer or ask and leave the files alone until they ask for a change. "
         "Reply in the language the person writes in, in a few short plain sentences without code or file names, unless they ask for details. "
         "There is no internet access, git, or package installation here. "
         "After changing files, call the rach3.preview tool to see your edited copy running and fix any errors it reports before you finish. "
@@ -946,7 +1324,7 @@ static NSString *JSONText(id value) {
         self.turn[@"summary"] = params[@"item"][@"text"] ?: @"";
     } else if ([method isEqual:@"turn/completed"]) {
         NSDictionary *turn = params[@"turn"];
-        [self finishTurn:turn[@"status"] ?: @"completed" error:[turn[@"error"] isKindOfClass:NSDictionary.class] ? turn[@"error"][@"message"] : nil];
+        [self turnCompleted:turn[@"status"] ?: @"completed" error:[turn[@"error"] isKindOfClass:NSDictionary.class] ? turn[@"error"][@"message"] : nil];
     }
 }
 
@@ -962,15 +1340,57 @@ static NSArray<NSString *> *RelativeFiles(NSURL *root) {
 }
 
 - (NSArray<NSString *> *)changedFilesFrom:(NSURL *)base to:(NSURL *)changed {
+    return [self changedFilesFrom:base to:changed protect:YES];
+}
+- (NSArray<NSString *> *)changedFilesFrom:(NSURL *)base to:(NSURL *)changed protect:(BOOL)protect {
     NSMutableSet *all = [NSMutableSet setWithArray:RelativeFiles(base)];
     [all addObjectsFromArray:RelativeFiles(changed)];
     NSMutableArray *different = [NSMutableArray new];
     for (NSString *path in all) {
+        if (protect && IsProtected(path)) continue;
         NSData *before = [NSData dataWithContentsOfURL:[base URLByAppendingPathComponent:path] options:NSDataReadingMappedIfSafe error:NULL];
         NSData *after = [NSData dataWithContentsOfURL:[changed URLByAppendingPathComponent:path] options:NSDataReadingMappedIfSafe error:NULL];
         if (!(before == after || [before isEqualToData:after])) [different addObject:path];
     }
     return [different sortedArrayUsingSelector:@selector(compare:)];
+}
+
+// Before anything is saved, rach3 itself opens the changed copy in the hidden
+// preview. If the page reports errors, it asks ChatGPT to fix them, up to CheckLimit
+// times, whether or not ChatGPT checked its own work.
+- (void)turnCompleted:(NSString *)status error:(NSString *)error {
+    NSMutableDictionary *turn = self.turn;
+    if (!turn) return;
+    NSURL *base = [self designRoot:turn[@"base"]];
+    BOOL usable = [status isEqual:@"completed"] && ![turn[@"outside"] boolValue] && ![turn[@"stopping"] boolValue] && base &&
+        [NSFileManager.defaultManager fileExistsAtPath:self.workspace.path];
+    if (usable) {
+        NSMutableArray *restored = turn[@"restored"] ?: [NSMutableArray new];
+        for (NSString *path in [self restoreProtectedIn:self.workspace]) if (![restored containsObject:path]) [restored addObject:path];
+        turn[@"restored"] = restored;
+    }
+    if (!usable || ![self changedFilesFrom:base to:self.workspace].count) { [self finishTurn:status error:error]; return; }
+    [self publish:@{@"event":@"customize-check", @"phase":@"checking"}];
+    [self preview:nil done:^(NSArray *content, BOOL loaded) {
+        (void)content;
+        if (self.turn != turn) return;
+        NSArray *errors = [self.previewErrors copy] ?: @[];
+        if (!loaded && !errors.count) errors = @[@{@"kind":@"load", @"message":@"The page did not finish loading."}];
+        turn[@"errors"] = errors;
+        NSInteger checks = [turn[@"checks"] integerValue];
+        if (!errors.count || checks >= CheckLimit || [turn[@"stopping"] boolValue]) { [self finishTurn:status error:error]; return; }
+        turn[@"checks"] = @(checks + 1);
+        [self publish:@{@"event":@"customize-check", @"phase":@"fixing", @"errors":@(errors.count)}];
+        NSString *text = [NSString stringWithFormat:@"%@ rach3 opened your changed copy and the page reported these errors:\n%@\n"
+            "Fix them without changing anything else, check with rach3.preview, then finish.", CheckMarker, JSONText(errors)];
+        [self call:@"turn/start" params:@{@"threadId":turn[@"thread"], @"cwd":self.workspace.path, @"approvalPolicy":@"never",
+            @"input":@[@{@"type":@"text", @"text":text, @"text_elements":@[]}]} done:^(id result, NSDictionary *failure) {
+            if (self.turn != turn) return;
+            if (failure) { [self finishTurn:status error:error]; return; }
+            turn[@"check"] = result[@"turn"][@"id"] ?: NSNull.null;
+            [self publishState];
+        }];
+    }];
 }
 
 - (void)finishTurn:(NSString *)status error:(NSString *)error {
@@ -998,26 +1418,49 @@ static NSArray<NSString *> *RelativeFiles(NSURL *root) {
     NSArray *changed = @[];
     BOOL outside = [turn[@"outside"] boolValue];
     NSURL *base = [self designRoot:turn[@"base"]];
-    if (base && [NSFileManager.defaultManager fileExistsAtPath:self.workspace.path] && !outside && ![status isEqual:@"failed"])
-        changed = [self changedFilesFrom:base to:self.workspace];
-    if (changed.count) {
-        NSDateFormatter *format = [NSDateFormatter new];
-        format.dateFormat = @"yyyyMMdd-HHmmss"; format.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-        design = [NSString stringWithFormat:@"%@-%04x", [format stringFromDate:NSDate.date], arc4random_uniform(0x10000)];
-        NSURL *destination = [[self.root URLByAppendingPathComponent:@"designs" isDirectory:YES] URLByAppendingPathComponent:design isDirectory:YES];
-        if ([NSFileManager.defaultManager moveItemAtURL:self.workspace toURL:destination error:NULL]) {
+    BOOL usable = base && [NSFileManager.defaultManager fileExistsAtPath:self.workspace.path] && !outside && ![status isEqual:@"failed"];
+    if (usable) changed = [self changedFilesFrom:base to:self.workspace];
+    NSArray *lessons = usable ? turn[@"lessons"] : @[];
+    if (changed.count || lessons.count) {
+        design = NewIdentifier(@"");
+        NSURL *designs = [[self.root URLByAppendingPathComponent:@"designs" isDirectory:YES] URLByStandardizingPath];
+        NSURL *destination = [designs URLByAppendingPathComponent:design isDirectory:YES];
+        // A change only ever becomes a new folder under designs, never the original.
+        BOOL safe = [destination.path hasPrefix:[designs.path stringByAppendingString:@"/"]] &&
+            ![destination.path hasPrefix:self.source.URLByStandardizingPath.path];
+        [self stripProtectedFrom:self.workspace];
+        if (safe && [NSFileManager.defaultManager moveItemAtURL:self.workspace toURL:destination error:NULL]) {
             NSString *prompt = turn[@"prompt"];
+            // Changes on main, or on an older version, start a branch; others extend the branch.
+            NSMutableDictionary *branch = [turn[@"fork"] boolValue] ? nil : [self branch:turn[@"branch"]];
+            if (!branch) branch = [self branch:[self newBranchFrom:turn[@"base"] name:BranchName(prompt) thread:thread]];
+            if (![branch[@"name"] length]) branch[@"name"] = BranchName(prompt);
+            branch[@"head"] = design; branch[@"thread"] = thread ?: NSNull.null;
+            NSArray *errors = turn[@"errors"] ?: @[];
             [self.designs[@"designs"] addObject:[@{@"id":design, @"title":[prompt substringToIndex:MIN(prompt.length, (NSUInteger)120)],
-                @"summary":turn[@"summary"] ?: @"", @"parent":turn[@"base"], @"thread":thread ?: NSNull.null, @"turn":turn[@"turn"] ?: NSNull.null,
-                @"created":Milliseconds(), @"files":changed, @"tokens":tokens, @"appVersion":self.version} mutableCopy]];
-            self.designs[@"active"] = design; [self save:self.designs as:@"designs.json"];
+                @"summary":turn[@"summary"] ?: @"", @"parent":turn[@"base"], @"branch":branch[@"id"], @"thread":thread ?: NSNull.null,
+                @"turn":turn[@"turn"] ?: NSNull.null, @"created":Milliseconds(), @"files":changed, @"tokens":tokens, @"appVersion":self.version,
+                @"errors":errors, @"restored":turn[@"restored"] ?: @[]} mutableCopy]];
+            // A version that still shows errors is kept on its branch but not put on screen.
+            if (!errors.count) { self.designs[@"active"] = design; self.designs[@"branch"] = branch[@"id"]; self.thread = thread; }
+            for (NSDictionary *saved in lessons)
+                self.lessonRecords[[saved[@"id"] lowercaseString]] = [@{@"anchors":[@[design] mutableCopy], @"replaces":saved[@"replaces"] ?: NSNull.null,
+                    @"title":saved[@"title"] ?: @"", @"created":Milliseconds()} mutableCopy];
+            [self save:self.designs as:@"designs.json"];
         } else design = nil;
     }
+    // Lessons from a change that saved nothing are thrown away with it.
+    if (!design) for (NSDictionary *saved in turn[@"lessons"])
+        [NSFileManager.defaultManager trashItemAtURL:[self branchLessonURL:saved[@"id"]] resultingItemURL:NULL error:NULL];
     [NSFileManager.defaultManager removeItemAtURL:self.workspace error:NULL];
+    BOOL shown = design && [self.designs[@"active"] isEqual:design];
     [self publish:@{@"event":@"customize-finished", @"status":status ?: @"completed", @"error":error ?: NSNull.null, @"design":design ?: NSNull.null,
+                    @"broken":@(design && !shown), @"restored":turn[@"restored"] ?: @[],
                     @"tokens":tokens, @"files":changed, @"outside":@(outside), @"thread":thread ?: NSNull.null, @"lessons":turn[@"lessons"]}];
     [self publishState];
-    if (design && self.onReload) self.onReload();
+    if (shown && self.onReload) self.onReload();
+    NSDictionary *opened = [turn[@"lessons"] lastObject];
+    if (shown && opened && self.onLessonChanged) self.onLessonChanged([self readBranchLesson:opened[@"id"]] ?: opened);
 }
 
 @end

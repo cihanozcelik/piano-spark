@@ -857,7 +857,9 @@ import { startAppShell } from './app-shell.js';
         if(!currentReference) loadSong(lesson);
       } else loadSong(rubatoSong);
     } catch(error) {
-      if(!currentReference) {loadSong(rubatoSong);showError('Son ders açılamadı: '+error.message);}
+      // A lesson made for another version of rach3 isn't here; start quietly with the example.
+      const elsewhere=error.message===message('Bu ders burada yok.');
+      if(!currentReference) {loadSong(rubatoSong);if(!elsewhere) showError('Son ders açılamadı: '+error.message);}
     }
     staff.prepare().then(draw).catch(()=>showError('Nota sembolleri yüklenemedi. Uygulamayı yeniden aç.'));
     new ResizeObserver(resize).observe(ui.roll);
