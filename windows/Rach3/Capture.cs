@@ -162,6 +162,35 @@ namespace Rach3
                 await PageCheck("window.rach3Customize.toggle(); return {};", panel);
                 await Task.Delay(1000);
                 report["send"] = await PageCheck("return await window.rach3Core.postMessage({ action: 'send', text: 'Add a test file' });", panel);
+                try { await Change(report, standIn, original); }
+                finally
+                {
+                    // What ChatGPT's stand-in saw, and what Codex said, for when the change goes wrong.
+                    lock (standIn.Outputs) report["standInOutputs"] = standIn.Outputs.Cast<object>().ToList();
+                    lock (standIn.Authorizations) report["standInRequests"] = standIn.Authorizations.Count;
+                    try { report["finalState"] = await PageCheck("const s = await window.rach3Core.postMessage({ action: 'state' }); return JSON.parse(JSON.stringify(s, (k, v) => typeof v === 'string' && v.length > 400 ? v.slice(0, 400) : v));", panel); }
+                    catch (Exception error) { report["finalState"] = error.Message; }
+                    try { report["codexLog"] = string.Join("\n", CodexLogTail()); }
+                    catch (Exception error) { report["codexLog"] = error.Message; }
+                    if (!File.Exists(Path.Combine(options.Capture, "customize-panel.png")))
+                        using (var file = File.Create(Path.Combine(options.Capture, "customize-panel-failed.png")))
+                            await panel.CoreWebView2.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png, file);
+                }
+            }
+            Verdict(report, page, box, cards, card, served, preview, previewErrors);
+        }
+
+        /// <summary>The end of codex.log, which Codex is still writing.</summary>
+        string[] CodexLogTail()
+        {
+            using (var stream = new FileStream(Path.Combine(paths.Logs, "codex.log"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+            using (var reader = new StreamReader(stream))
+                return reader.ReadToEnd().Split('\n').Reverse().Take(60).Reverse().ToArray();
+        }
+
+        async Task Change(Dictionary<string, object> report, CustomizeService.StandIn standIn, string original)
+        {
+            {
                 var state = await Until(() => PageCheck("const s = await window.rach3Core.postMessage({ action: 'state' });" +
                         "return { turn: !!s.turn, active: s.active, branch: s.branch, designs: s.designs };", panel),
                     value => value.Flag("turn", true) == false && Collections.AsList(value.TryGetValue("designs", out var list) ? list : null).Count > 0, 240, "The change did not finish");
@@ -181,6 +210,11 @@ namespace Rach3
                 await Until(() => Task.FromResult(pageReady && pageUrl == original), ready => ready, 60, "The original did not come back");
                 report["backToOriginal"] = await PageCheck("return { href: location.href, test: (await fetch('/customize-test.txt')).status };");
             }
+        }
+
+        void Verdict(Dictionary<string, object> report, Dictionary<string, object> page, Dictionary<string, object> box, Dictionary<string, object> cards,
+                     Dictionary<string, object> card, Dictionary<string, object> served, Dictionary<string, object> preview, object previewErrors)
+        {
 
             bool Pass(object value) => value is Dictionary<string, object> checks && checks.Count > 0 && checks.Values.All(entry => (entry as string) == "pass");
             bool Image(string name) => served?.Text(name) is string line && line.StartsWith("200 image/png ", StringComparison.Ordinal) &&
