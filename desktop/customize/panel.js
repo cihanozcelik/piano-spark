@@ -2,7 +2,8 @@
 // version changed by ChatGPT can't hide it, cover it, read it or catch its keys.
 (() => {
   if (window.rach3Customize) return;
-  const native = window.webkit?.messageHandlers?.customize;
+  // core.js, loaded just before this, does the work; this file only draws the panel.
+  const native = window.rach3Core;
   if (!native) return;
   const call = (action, fields = {}) => native.postMessage({ action, ...fields });
 
@@ -345,7 +346,7 @@
     input.addEventListener('keydown', event => { if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); submit(); } });
     queueMicrotask(() => { if (!state.turn && view === 'chat') input.focus(); });
     return element('div', { class: 'composer' }, input, element('div', { class: 'row' },
-      element('span', { class: 'small muted' }, '⌘↩'),
+      element('span', { class: 'small muted' }, window.PianoPlatform === 'windows' ? 'Ctrl+↩' : '⌘↩'),
       state.turn ? element('button', { type: 'button', onclick: () => call('stop') }, t('stop'))
                  : element('button', { type: 'button', class: 'primary', onclick: submit }, t('send'))));
   }
