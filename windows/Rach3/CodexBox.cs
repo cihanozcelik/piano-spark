@@ -11,13 +11,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Rach3
 {
-    /// <summary>
-    /// rach3 starts Codex inside a Windows AppContainer, the Windows counterpart of the Mac
-    /// app's codex.sb. Windows, not Codex, enforces it, so it binds Codex itself and anything
-    /// Codex starts. The container may read Windows' own files and Codex's program, read and
-    /// write Codex's home and the scratch folder, and reach the internet. The person's files,
-    /// rach3's other data (the ChatGPT sign-in among them) and other programs' data are closed.
-    /// </summary>
+    /// <summary>A program rach3 started inside the Codex box, with its own pipes.</summary>
     sealed class BoxedProcess : IDisposable
     {
         public int Id { get; internal set; }
@@ -30,8 +24,6 @@ namespace Rach3
 
         public int ExitCode => CodexBox.GetExitCodeProcess(Handle, out var code) ? (int)code : -1;
 
-        public void Kill() { try { CodexBox.TerminateProcess(Handle, 1); } catch (ObjectDisposedException) { } }
-
         public void Dispose()
         {
             try { Input?.Dispose(); } catch (IOException) { }
@@ -40,22 +32,34 @@ namespace Rach3
         }
     }
 
+    /// <summary>
+    /// rach3 starts Codex inside this box, the Windows counterpart of the Mac app's codex.sb.
+    /// Windows, not Codex, enforces it, so it binds Codex itself and anything Codex starts.
+    /// Codex runs with a restricted copy of the person's sign-in: a file opens only when it is
+    /// open to the person and also to everyone, to all users, or to the box. Windows' own files
+    /// are open to all users; the box is given Codex's program to read, and Codex's home and
+    /// scratch folder to change. The person's files, which only they may open, rach3's other
+    /// data (the ChatGPT sign-in among them) and other programs' data stay closed.
+    /// (An AppContainer would be stricter, but Codex cannot start in one: Windows refuses
+    /// to turn a path into its drive-letter form there, and Codex does that first.)
+    /// </summary>
     static class CodexBox
     {
-        const string Name = "rach3.codex";
-        const string InternetClient = "S-1-15-3-1";
-
-        /// <summary>The container's identity; made once per Windows account, then reused.</summary>
+        /// <summary>The box's own identity, the same on every Windows machine.</summary>
         public static SecurityIdentifier Identity()
         {
-            var result = CreateAppContainerProfile(Name, "rach3 Codex", "Codex as rach3 runs it", IntPtr.Zero, 0, out var sid);
-            if (result == unchecked((int)0x800700B7)) result = DeriveAppContainerSidFromAppContainerName(Name, out sid);
-            if (result != 0) throw new Win32Exception(result, "The Codex container could not be made");
-            try { return new SecurityIdentifier(sid); }
-            finally { FreeSid(sid); }
+            if (!DeriveCapabilitySidsFromName("rach3Codex", out var groups, out var groupCount, out var capabilities, out var capabilityCount))
+                throw new Win32Exception(Marshal.GetLastWin32Error(), "The Codex box could not be named");
+            try { return new SecurityIdentifier(Marshal.ReadIntPtr(capabilities)); }
+            finally
+            {
+                for (var i = 0; i < groupCount; i++) LocalFree(Marshal.ReadIntPtr(groups, i * IntPtr.Size));
+                for (var i = 0; i < capabilityCount; i++) LocalFree(Marshal.ReadIntPtr(capabilities, i * IntPtr.Size));
+                LocalFree(groups); LocalFree(capabilities);
+            }
         }
 
-        /// <summary>Lets the container read (and run) one folder, or read and write it.</summary>
+        /// <summary>Lets the box read (and run) one folder, or read and change it.</summary>
         public static void Grant(SecurityIdentifier identity, string folder, bool write)
         {
             var security = Directory.GetAccessControl(folder);
@@ -66,48 +70,59 @@ namespace Rach3
         }
 
         /// <summary>
-        /// Starts a program inside the container with its own input, output and error pipes,
-        /// held suspended until <paramref name="beforeRunning"/> has seen it (to join a job object).
+        /// Starts a program inside the box with its own input, output and error pipes, held
+        /// suspended until <paramref name="beforeRunning"/> has seen it (to join a job object).
         /// </summary>
         public static BoxedProcess Start(string program, string arguments, string directory, IDictionary<string, string> environment,
                                          Action<IntPtr> beforeRunning = null)
         {
             var identity = Identity();
-            var sidBytes = new byte[identity.BinaryLength];
-            identity.GetBinaryForm(sidBytes, 0);
-            var internet = new SecurityIdentifier(InternetClient);
-            var internetBytes = new byte[internet.BinaryLength];
-            internet.GetBinaryForm(internetBytes, 0);
-
+            IntPtr token = IntPtr.Zero, restricted = IntPtr.Zero, attributes = IntPtr.Zero, handleList = IntPtr.Zero;
+            IntPtr inputRead = IntPtr.Zero, inputWrite = IntPtr.Zero, outputRead = IntPtr.Zero, outputWrite = IntPtr.Zero, errorRead = IntPtr.Zero, errorWrite = IntPtr.Zero;
             var pinned = new List<GCHandle>();
             IntPtr Pin(object value) { var handle = GCHandle.Alloc(value, GCHandleType.Pinned); pinned.Add(handle); return handle.AddrOfPinnedObject(); }
-            IntPtr attributes = IntPtr.Zero, capabilities = IntPtr.Zero, handleList = IntPtr.Zero;
-            IntPtr inputRead = IntPtr.Zero, inputWrite = IntPtr.Zero, outputRead = IntPtr.Zero, outputWrite = IntPtr.Zero, errorRead = IntPtr.Zero, errorWrite = IntPtr.Zero;
+            byte[] Binary(SecurityIdentifier sid) { var bytes = new byte[sid.BinaryLength]; sid.GetBinaryForm(bytes, 0); return bytes; }
             try
             {
+                if (!OpenProcessToken(GetCurrentProcess(), 0x000F01FF, out token)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                var user = WindowsIdentity.GetCurrent().User;
+                // A file must be open to one of these as well as to the person.
+                var allowed = new List<SecurityIdentifier>
+                {
+                    new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                    new SecurityIdentifier(WellKnownSidType.BuiltinUsersSid, null),
+                    new SecurityIdentifier(WellKnownSidType.RestrictedCodeSid, null),
+                    identity,
+                };
+                var logon = LogonSid(token);   // the window station and desktop of this session
+                if (logon != null) allowed.Add(logon);
+                var restricting = allowed.Select(sid => new SID_AND_ATTRIBUTES { Sid = Pin(Binary(sid)) }).ToArray();
+                if (!CreateRestrictedToken(token, 0x1, 0, IntPtr.Zero, 0, IntPtr.Zero, (uint)restricting.Length, restricting, out restricted))   // DISABLE_MAX_PRIVILEGE
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                // What Codex itself creates (its pipes, its processes) is open to it and to the person.
+                var dacl = new RawAcl(GenericAcl.AclRevision, 3);
+                foreach (var sid in new[] { user, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), identity })
+                    dacl.InsertAce(dacl.Count, new CommonAce(AceFlags.None, AceQualifier.AccessAllowed, 0x10000000, sid, false, null));   // GENERIC_ALL
+                var daclBytes = new byte[dacl.BinaryLength];
+                dacl.GetBinaryForm(daclBytes, 0);
+                var defaultDacl = new TOKEN_DEFAULT_DACL { DefaultDacl = Pin(daclBytes) };
+                if (!SetTokenInformation(restricted, 6, ref defaultDacl, (uint)Marshal.SizeOf(typeof(TOKEN_DEFAULT_DACL))))   // TokenDefaultDacl
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
+
                 var security = new SECURITY_ATTRIBUTES { nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES)), bInheritHandle = true };
                 if (!CreatePipe(out inputRead, out inputWrite, ref security, 0) || !CreatePipe(out outputRead, out outputWrite, ref security, 0) ||
                     !CreatePipe(out errorRead, out errorWrite, ref security, 0))
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 foreach (var ours in new[] { inputWrite, outputRead, errorRead }) SetHandleInformation(ours, 1, 0);
-
-                var granted = new SID_AND_ATTRIBUTES { Sid = Pin(internetBytes), Attributes = 4 };   // SE_GROUP_ENABLED
-                capabilities = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SECURITY_CAPABILITIES)));
-                Marshal.StructureToPtr(new SECURITY_CAPABILITIES
-                {
-                    AppContainerSid = Pin(sidBytes), Capabilities = Pin(new[] { granted }), CapabilityCount = 1,
-                }, capabilities, false);
-                // Only the three pipe ends pass to the container, not every inheritable handle rach3 holds.
+                // Only the three pipe ends pass to the box, not every inheritable handle rach3 holds.
                 handleList = Marshal.AllocHGlobal(IntPtr.Size * 3);
                 Marshal.WriteIntPtr(handleList, 0, inputRead);
                 Marshal.WriteIntPtr(handleList, IntPtr.Size, outputWrite);
                 Marshal.WriteIntPtr(handleList, IntPtr.Size * 2, errorWrite);
-
                 var size = IntPtr.Zero;
-                InitializeProcThreadAttributeList(IntPtr.Zero, 2, 0, ref size);
+                InitializeProcThreadAttributeList(IntPtr.Zero, 1, 0, ref size);
                 attributes = Marshal.AllocHGlobal(size);
-                if (!InitializeProcThreadAttributeList(attributes, 2, 0, ref size)) throw new Win32Exception(Marshal.GetLastWin32Error());
-                if (!UpdateProcThreadAttribute(attributes, 0, (IntPtr)0x00020009, capabilities, (IntPtr)Marshal.SizeOf(typeof(SECURITY_CAPABILITIES)), IntPtr.Zero, IntPtr.Zero) ||
+                if (!InitializeProcThreadAttributeList(attributes, 1, 0, ref size) ||
                     !UpdateProcThreadAttribute(attributes, 0, (IntPtr)0x00020002, handleList, (IntPtr)(IntPtr.Size * 3), IntPtr.Zero, IntPtr.Zero))
                     throw new Win32Exception(Marshal.GetLastWin32Error());
 
@@ -116,13 +131,12 @@ namespace Rach3
                 startup.StartupInfo.dwFlags = 0x100;   // STARTF_USESTDHANDLES
                 startup.StartupInfo.hStdInput = inputRead; startup.StartupInfo.hStdOutput = outputWrite; startup.StartupInfo.hStdError = errorWrite;
                 startup.lpAttributeList = attributes;
-
                 var block = new StringBuilder();
                 foreach (var pair in environment.OrderBy(pair => pair.Key, StringComparer.OrdinalIgnoreCase)) block.Append(pair.Key).Append('=').Append(pair.Value).Append('\0');
                 block.Append('\0');
                 var commandLine = new StringBuilder(Files.Arguments(new[] { program }) + (string.IsNullOrEmpty(arguments) ? "" : " " + arguments));
                 const uint flags = 0x00080000 | 0x08000000 | 0x00000400 | 0x00000004;   // extended startup info, no window, Unicode environment, suspended
-                if (!CreateProcess(program, commandLine, IntPtr.Zero, IntPtr.Zero, true, flags, block.ToString(), directory, ref startup, out var info))
+                if (!CreateProcessAsUser(restricted, program, commandLine, IntPtr.Zero, IntPtr.Zero, true, flags, block.ToString(), directory, ref startup, out var info))
                     throw new Win32Exception(Marshal.GetLastWin32Error());
 
                 var process = new BoxedProcess { Id = info.dwProcessId, Handle = new SafeWaitHandle(info.hProcess, true) };
@@ -142,10 +156,24 @@ namespace Rach3
                 foreach (var theirs in new[] { inputRead, outputWrite, errorWrite }) if (theirs != IntPtr.Zero) CloseHandle(theirs);
                 foreach (var ours in new[] { inputWrite, outputRead, errorRead }) if (ours != IntPtr.Zero) CloseHandle(ours);
                 if (attributes != IntPtr.Zero) { DeleteProcThreadAttributeList(attributes); Marshal.FreeHGlobal(attributes); }
-                if (capabilities != IntPtr.Zero) Marshal.FreeHGlobal(capabilities);
                 if (handleList != IntPtr.Zero) Marshal.FreeHGlobal(handleList);
+                if (restricted != IntPtr.Zero) CloseHandle(restricted);
+                if (token != IntPtr.Zero) CloseHandle(token);
                 foreach (var handle in pinned) handle.Free();
             }
+        }
+
+        static SecurityIdentifier LogonSid(IntPtr token)
+        {
+            GetTokenInformation(token, 28, IntPtr.Zero, 0, out var length);   // TokenLogonSid
+            if (length == 0) return null;
+            var buffer = Marshal.AllocHGlobal((int)length);
+            try
+            {
+                if (!GetTokenInformation(token, 28, buffer, length, out length) || Marshal.ReadInt32(buffer) < 1) return null;
+                return new SecurityIdentifier(Marshal.ReadIntPtr(buffer, IntPtr.Size));   // TOKEN_GROUPS: count, then the first SID_AND_ATTRIBUTES
+            }
+            finally { Marshal.FreeHGlobal(buffer); }
         }
 
 #if PIANO_CAPTURE
@@ -182,7 +210,7 @@ namespace Rach3
         struct SID_AND_ATTRIBUTES { public IntPtr Sid; public uint Attributes; }
 
         [StructLayout(LayoutKind.Sequential)]
-        struct SECURITY_CAPABILITIES { public IntPtr AppContainerSid; public IntPtr Capabilities; public uint CapabilityCount; public uint Reserved; }
+        struct TOKEN_DEFAULT_DACL { public IntPtr DefaultDacl; }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         struct STARTUPINFO
@@ -198,14 +226,27 @@ namespace Rach3
         [StructLayout(LayoutKind.Sequential)]
         struct PROCESS_INFORMATION { public IntPtr hProcess, hThread; public int dwProcessId, dwThreadId; }
 
-        [DllImport("userenv.dll", CharSet = CharSet.Unicode)]
-        static extern int CreateAppContainerProfile(string name, string displayName, string description, IntPtr capabilities, uint count, out IntPtr sid);
+        [DllImport("kernelbase.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern bool DeriveCapabilitySidsFromName(string name, out IntPtr groupSids, out int groupCount, out IntPtr capabilitySids, out int capabilityCount);
 
-        [DllImport("userenv.dll", CharSet = CharSet.Unicode)]
-        static extern int DeriveAppContainerSidFromAppContainerName(string name, out IntPtr sid);
+        [DllImport("kernel32.dll")]
+        static extern IntPtr LocalFree(IntPtr memory);
 
-        [DllImport("advapi32.dll")]
-        static extern IntPtr FreeSid(IntPtr sid);
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetCurrentProcess();
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        static extern bool OpenProcessToken(IntPtr process, uint access, out IntPtr token);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        static extern bool GetTokenInformation(IntPtr token, int type, IntPtr information, uint length, out uint returned);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        static extern bool CreateRestrictedToken(IntPtr token, uint flags, uint disableCount, IntPtr disable, uint deleteCount, IntPtr delete,
+                                                 uint restrictCount, SID_AND_ATTRIBUTES[] restrict, out IntPtr restricted);
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        static extern bool SetTokenInformation(IntPtr token, int type, ref TOKEN_DEFAULT_DACL information, uint length);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CreatePipe(out IntPtr read, out IntPtr write, ref SECURITY_ATTRIBUTES attributes, int size);
@@ -222,9 +263,9 @@ namespace Rach3
         [DllImport("kernel32.dll")]
         static extern void DeleteProcThreadAttributeList(IntPtr list);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern bool CreateProcess(string application, StringBuilder commandLine, IntPtr processAttributes, IntPtr threadAttributes, bool inherit,
-                                         uint flags, string environment, string directory, ref STARTUPINFOEX startup, out PROCESS_INFORMATION information);
+        [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern bool CreateProcessAsUser(IntPtr token, string application, StringBuilder commandLine, IntPtr processAttributes, IntPtr threadAttributes,
+                                               bool inherit, uint flags, string environment, string directory, ref STARTUPINFOEX startup, out PROCESS_INFORMATION information);
 
         [DllImport("kernel32.dll")]
         static extern uint ResumeThread(IntPtr thread);
@@ -239,7 +280,7 @@ namespace Rach3
         internal static extern bool GetExitCodeProcess(SafeWaitHandle handle, out uint code);
 
         [DllImport("kernel32.dll")]
-        internal static extern bool TerminateProcess(SafeWaitHandle handle, uint code);
+        static extern bool TerminateProcess(SafeWaitHandle handle, uint code);
 
         #endregion
     }

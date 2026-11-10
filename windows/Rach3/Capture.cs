@@ -114,7 +114,7 @@ namespace Rach3
             var ok = page.Text("chat") == "1" && page.Flag("tab", false) && page.Text("state") == "signed-out" &&
                 codex.Flag("available", false) && codex.Text("started") == "ok" && codex.Flag("catalog", false) &&
                 codex.Text("thread") is string thread && !thread.StartsWith("{", StringComparison.Ordinal) && codex.Flag("listLessons", false) &&
-                codex.TryGetValue("box", out var box) && box is Dictionary<string, object> boxed && boxed.Count == 7 && boxed.Values.All(value => (value as string) == "pass") &&
+                codex.TryGetValue("box", out var box) && box is Dictionary<string, object> boxed && boxed.Count(pair => pair.Key != "notes") == 7 && boxed.Where(pair => pair.Key != "notes").All(pair => (pair.Value as string) == "pass") &&
                 cards.Flag("refusesHttp", false) && cards.Flag("youtubeId", false) && card != null && card.Number("pageCount") >= 1 &&
                 card.Number("width") > 500 && card.Number("height") > 100 && Image("page-1.png") && Image("large-1.png") &&
                 served.Text("nothing.png")?.StartsWith("404", StringComparison.Ordinal) == true &&
