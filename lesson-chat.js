@@ -62,6 +62,17 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
     'signed-out': t('Önce ChatGPT hesabınla giriş yap.'), expired: t('Önce ChatGPT hesabınla giriş yap.'),
     offline: t('İnternete bağlanılamadı.'), codex: t('ChatGPT’ye ulaşılamadı. Yeniden dene.'),
   }[code] || code || t('Bir şeyler ters gitti.'));
+  const signInText = code => ({
+    failed: t('Giriş tamamlanmadı. Yeniden dene.'), denied: t('Giriş iptal edildi.'),
+    plan: t('Bu ChatGPT hesabı planını uygulamalarla paylaşamıyor. Planını ChatGPT’de kontrol et.'),
+    port: t('rach3 giriş dönüşünü açamadı. rach3’ü yeniden başlatıp tekrar dene.'),
+  }[code] || errorText(code));
+  async function signIn() {
+    notice = ''; render();
+    try { await command('desk-sign-in'); }
+    catch (error) { notice = signInText(error.message); }
+    await refresh();
+  }
 
   async function refresh() {
     if (!native) { state = { unavailable: true }; render(); return; }
@@ -318,7 +329,9 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
     if (!state.signedIn) {
       log.append(element('div', { class: 'ai-empty' },
         element('p', {}, t('ChatGPT hesabınla giriş yap; istediğin parçayı birlikte bulup derse çevirelim.')),
-        element('button', { type: 'button', class: 'primary', onclick: () => command('desk-sign-in').catch(() => {}) }, t('ChatGPT ile giriş yap'))));
+        element('button', { type: 'button', class: 'primary', onclick: () => signIn() }, t('ChatGPT ile giriş yap')),
+        state.signingIn ? element('p', { class: 'ai-meta' }, t('Tarayıcıda ChatGPT girişi bekleniyor…')) : null,
+        notice ? element('p', { class: 'ai-error' }, notice) : null));
       composer.hidden = true; return;
     }
     composer.hidden = false;

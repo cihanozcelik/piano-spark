@@ -124,6 +124,13 @@ namespace Rach3
                 case "lesson-cancel":
                     lessons.Cancel(); return Empty;
                 default:
+                    // The "With AI" tab. On Windows the page is always rach3's own, so unlike
+                    // the Mac (where ChatGPT may have changed it) no click check is needed here.
+                    if (command != null && command.StartsWith("desk-", StringComparison.Ordinal))
+                    {
+                        var reply = await DeskCommand(command, body);
+                        if (reply != null) return reply;
+                    }
                     throw new UserError("Unknown command");
             }
         }

@@ -266,16 +266,54 @@ namespace Rach3
             OnIdle?.Invoke();
         }
 
-        public void OpenVideo(string path)
+        public void OpenVideo(string path) => ImportFile(path, "video", null);
+
+        /// <summary>Bytes still to download before a lesson of this kind can be made.</summary>
+        public long MissingToolBytes(string kind)
+        {
+            var catalog = Tools();
+            var groups = new List<string> { "notation" };
+            if (kind == "pdf") groups.Add("pdf");
+            // Videos are made with the voice separated from the piano, as in Create a Lesson.
+            if (kind == "video" || kind == "youtube") groups.AddRange(new[] { "transcription", "separation" });
+            if (kind == "youtube") groups.Add("youtube");
+            var known = catalog["groups"] as Dictionary<string, object>;
+            var artifacts = (Dictionary<string, object>)catalog["artifacts"];
+            var keys = new HashSet<string>();
+            foreach (var group in groups)
+                if (known != null && known.TryGetValue(group, out var members))
+                    foreach (var key in Collections.AsList(members).OfType<string>()) keys.Add(key);
+            long missing = 0;
+            foreach (var key in keys)
+            {
+                if (!(artifacts.TryGetValue(key, out var value) && value is Dictionary<string, object> artifact) || artifact.Flag("ready", false)) continue;
+                missing += Math.Max(0, artifact.Number("size") - artifact.Number("received"));
+            }
+            return missing;
+        }
+
+        public string ImportYouTube(string link, string title)
+        {
+            var request = new Dictionary<string, object> { ["name"] = "YouTube", ["url"] = link ?? "", ["separate"] = true };
+            if (!string.IsNullOrEmpty(title)) request["title"] = title;
+            var job = (string)Begin(request)["id"];
+            Start(job);
+            return job;
+        }
+
+        public string ImportFile(string path, string kind, string title)
         {
             var size = new FileInfo(path).Length;
-            var job = Begin(new Dictionary<string, object> { ["name"] = Path.GetFileName(path), ["size"] = size, ["separate"] = true });
+            var request = new Dictionary<string, object> { ["name"] = Path.GetFileName(path), ["size"] = size, ["separate"] = true, ["kind"] = kind };
+            if (!string.IsNullOrEmpty(title)) request["title"] = title;
+            var job = (string)Begin(request)["id"];
             upload?.Dispose(); upload = null;
-            var input = Path.Combine(jobDirectory, "input.video");
+            var input = Path.Combine(jobDirectory, "input." + (kind == "pdf" || kind == "midi" ? kind : "video"));
             try { File.Copy(path, input, true); }
             catch (Exception) { Cancel(); throw; }
             uploadedSize = size;
-            Start((string)job["id"]);
+            Start(job);
+            return job;
         }
 
         public void Cancel()

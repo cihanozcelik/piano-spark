@@ -11,7 +11,7 @@ namespace Rach3
 {
     sealed class Options
     {
-        public string Capture, SelfTestMidi, OpenFile;
+        public string Capture, SelfTestMidi, SelfTestPdf, OpenFile;
 
         public static Options Parse(string[] args)
         {
@@ -20,6 +20,7 @@ namespace Rach3
             {
                 if (args[i] == "--capture" && i + 1 < args.Length) options.Capture = args[++i];
                 else if (args[i] == "--self-test-midi" && i + 1 < args.Length) options.SelfTestMidi = args[++i];
+                else if (args[i] == "--self-test-pdf" && i + 1 < args.Length) options.SelfTestPdf = args[++i];
                 else if (!args[i].StartsWith("--", StringComparison.Ordinal)) options.OpenFile = args[i];
             }
             return options;
@@ -41,6 +42,7 @@ namespace Rach3
         readonly Settings settings;
         readonly WebView2 web = new WebView2 { Dock = DockStyle.Fill };
         readonly LessonService lessons;
+        readonly ChatGptService chat;
         readonly Updates updates;
         readonly Bluetooth bluetooth;
         readonly List<string> pageErrors = new List<string>();
@@ -72,8 +74,15 @@ namespace Rach3
             Controls.Add(web);
 
             lessons = new LessonService(paths);
-            lessons.OnEvent = Publish;
+            lessons.OnEvent = progress => { Publish(progress); chat.LessonProgress(progress); };
             lessons.OnIdle = FinishTermination;
+            chat = new ChatGptService(paths, lessons, Application.ProductVersion);
+            chat.OnDeskEvent = Publish;
+            chat.OnSignedIn = () =>
+            {
+                if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
+                Activate();
+            };
             updates = new Updates(paths, settings, !capture);
             updates.OnChange = Publish;
             bluetooth = new Bluetooth(settings);
@@ -131,6 +140,7 @@ namespace Rach3
             core.Settings.IsGeneralAutofillEnabled = false;
             core.SetVirtualHostNameToFolderMapping(Host, paths.Resources, CoreWebView2HostResourceAccessKind.Deny);
             await core.AddScriptToExecuteOnDocumentCreatedAsync(BridgeScript);
+            await InitializeDesk(core);
             core.WebMessageReceived += OnMessage;
             core.NavigationStarting += (sender, args) =>
             {
@@ -229,6 +239,7 @@ namespace Rach3
             }
             catch (Exception) { }
             savedWorkspace = true;
+            chat.Stop();
             bluetooth.Stop();
             lessons.Cancel();
             FinishTermination();

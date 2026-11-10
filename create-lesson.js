@@ -435,7 +435,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   for(const id of ['lesson-title','separate-vocals','document-tempo']) ui[id].addEventListener('input',saveDraft);
   ui['separate-vocals'].addEventListener('change',renderTools);
   ui['retry-tools'].addEventListener('click',refreshTools);
-  // The Mac app marks the page when it carries Codex; elsewhere the tab is not offered.
+  // The desktop app marks the page when it carries Codex; elsewhere the tab is not offered.
   const chat=native&&document.documentElement.dataset.lessonChat==='1'?startLessonChat({container:ui['ai-source'],command:lessonCommand,openLesson}):null;
   ui['source-ai'].hidden=!chat;
   const sources=chat?['ai','video','youtube','document']:['video','youtube','document'];

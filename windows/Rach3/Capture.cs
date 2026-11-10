@@ -59,7 +59,61 @@ namespace Rach3
             await Shot("create-lesson.png");
             var mac = Json.Parse(await Script("(document.body.innerText.match(/[^\\n]*(\\bMac\\b|Mac’|macOS)[^\\n]*/) || [''])[0]")) as string;
             if (!string.IsNullOrEmpty(mac)) throw new InvalidOperationException("Mac wording on Windows: " + mac);
+            await ChatGptSelfTest();
             if (options.SelfTestMidi != null) await SelfTest(options.SelfTestMidi);
+        }
+
+        /// <summary>Runs page JavaScript that sets window.__pianoCheck, and waits for its JSON result.</summary>
+        async Task<Dictionary<string, object>> PageCheck(string body)
+        {
+            await Script("window.__pianoCheck = null; (async () => { try { window.__pianoCheck = await (async () => {" + body +
+                "})(); } catch (error) { window.__pianoCheck = { error: String(error && error.message || error) }; } })();");
+            for (var attempt = 0; attempt < 120; attempt++)
+            {
+                if (Json.Parse(await Script("JSON.stringify(window.__pianoCheck)")) is string text && text != "null") return Json.Object(text);
+                await Task.Delay(500);
+            }
+            throw new TimeoutException("A page check did not finish: " + body);
+        }
+
+        /// <summary>
+        /// The "With AI" tab on a real Windows machine: the tab is offered, the bundled Codex
+        /// starts and opens a lesson conversation with rach3's tools, and a PDF candidate's
+        /// pages reach the page through /_desk/. No ChatGPT account is used.
+        /// </summary>
+        async Task ChatGptSelfTest()
+        {
+            var report = new Dictionary<string, object>();
+            await Script("document.getElementById('source-ai')?.click();");
+            await Task.Delay(1000);
+            report["page"] = await PageCheck("return { chat: document.documentElement.dataset.lessonChat || '', tab: !document.getElementById('source-ai').hidden, " +
+                "state: document.getElementById('ai-source')?.dataset.state || '', text: document.getElementById('ai-source')?.innerText || '' };");
+            await Shot("with-ai.png");
+            report["codex"] = await chat.SelfTest();
+            var cards = await chat.SelfTestCards(options.SelfTestPdf);
+            report["cards"] = cards;
+            var card = cards.TryGetValue("pdfCard", out var made) ? made as Dictionary<string, object> : null;
+            if (card != null)
+                report["served"] = await PageCheck("const id = " + Json.Write(card.Text("id")) + "; const out = {};" +
+                    "for (const name of ['page-1.png', 'large-1.png', 'nothing.png', '..%2F..%2Fdesk.json']) {" +
+                    "  const response = await fetch('/_desk/' + id + '/' + name);" +
+                    "  out[name] = response.status + ' ' + (response.headers.get('content-type') || '') + ' ' + (await response.arrayBuffer()).byteLength; }" +
+                    "out.unknownCard = (await fetch('/_desk/000000000000/page-1.png')).status; return out;");
+            var text = Json.Write(report);
+            File.WriteAllText(Path.Combine(options.Capture, "chatgpt-self-test.json"), text);
+            var page = (Dictionary<string, object>)report["page"];
+            var codex = (Dictionary<string, object>)report["codex"];
+            var served = report.TryGetValue("served", out var files) ? files as Dictionary<string, object> : null;
+            bool Image(string name) => served?.Text(name) is string line && line.StartsWith("200 image/png ", StringComparison.Ordinal) &&
+                long.Parse(line.Substring(line.LastIndexOf(' ') + 1)) > 10000;
+            var ok = page.Text("chat") == "1" && page.Flag("tab", false) && page.Text("state") == "signed-out" &&
+                codex.Flag("available", false) && codex.Text("started") == "ok" && codex.Flag("catalog", false) &&
+                codex.Text("thread") is string thread && !thread.StartsWith("{", StringComparison.Ordinal) && codex.Flag("listLessons", false) &&
+                cards.Flag("refusesHttp", false) && cards.Flag("youtubeId", false) && card != null && card.Number("pageCount") >= 1 &&
+                card.Number("width") > 500 && card.Number("height") > 100 && Image("page-1.png") && Image("large-1.png") &&
+                served.Text("nothing.png")?.StartsWith("404", StringComparison.Ordinal) == true &&
+                served.Text("..%2F..%2Fdesk.json")?.StartsWith("404", StringComparison.Ordinal) == true && served.Number("unknownCard") == 404;
+            if (!ok) throw new InvalidOperationException("ChatGPT self-test failed: " + text);
         }
 
         /// <summary>Create a lesson from a MIDI file through the page bridge, exactly as the UI does.</summary>

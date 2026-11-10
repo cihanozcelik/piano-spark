@@ -133,14 +133,14 @@ namespace Rach3
     {
         IntPtr handle;
 
-        public ProcessGroup()
+        public ProcessGroup(bool belowNormal = true)
         {
             handle = CreateJobObject(IntPtr.Zero, null);
             if (handle == IntPtr.Zero) throw new InvalidOperationException("CreateJobObject failed: " + Marshal.GetLastWin32Error());
             var info = new JOBOBJECT_EXTENDED_LIMIT_INFORMATION();
             // Kill on close, and below-normal priority for ffmpeg and the PDF reader too.
-            info.BasicLimitInformation.LimitFlags = 0x2000 | 0x20;
-            info.BasicLimitInformation.PriorityClass = 0x4000;
+            info.BasicLimitInformation.LimitFlags = 0x2000 | (belowNormal ? 0x20u : 0);
+            if (belowNormal) info.BasicLimitInformation.PriorityClass = 0x4000;
             var size = Marshal.SizeOf(typeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION));
             if (!SetInformationJobObject(handle, 9, ref info, (uint)size))
                 throw new InvalidOperationException("SetInformationJobObject failed: " + Marshal.GetLastWin32Error());

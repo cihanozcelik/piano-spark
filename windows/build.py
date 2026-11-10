@@ -30,6 +30,12 @@ DIST = ROOT/'dist/windows/Rach3'
 RELEASES = ROOT/'dist/windows/releases'
 PACKAGE_ID = 'rach3'
 SETUP = f'{PACKAGE_ID}-win-Setup.exe'
+# ChatGPT features (With AI) run Codex, Apache-2.0, from github.com/openai/codex.
+# The same version the Mac release bundles (.github/workflows/release.yml).
+CODEX_VERSION = '0.167.0'
+CODEX_TRIPLE = 'x86_64-pc-windows-msvc'
+CODEX_FILES = ('bin/codex.exe', 'bin/codex-code-mode-host.exe', 'codex-path/rg.exe', 'codex-package.json',
+               'codex-resources/codex-command-runner.exe', 'codex-resources/codex-windows-sandbox-setup.exe')
 
 
 def mac_build():
@@ -92,12 +98,50 @@ def compile_shell(output, capture):
     for leftover in output.glob('*.pdb'): leftover.unlink()
 
 
+def codex_vendor():
+    """Codex's native Windows package: RACH3_CODEX_VENDOR (an unpacked npm vendor folder),
+    else @openai/codex-<version>-win32-x64 from npm, which checks the registry's integrity hash."""
+    if os.environ.get('RACH3_CODEX_VENDOR'):
+        vendor = Path(os.environ['RACH3_CODEX_VENDOR'])/CODEX_TRIPLE
+    else:
+        import tarfile
+        cache = ROOT/'build/windows'/f'codex-{CODEX_VERSION}'
+        vendor = cache/'package/vendor'/CODEX_TRIPLE
+        if not (vendor/'bin/codex.exe').is_file():
+            if cache.exists(): shutil.rmtree(cache)
+            cache.mkdir(parents=True)
+            npm = shutil.which('npm')
+            if not npm: raise RuntimeError('npm is needed to fetch Codex for the With AI tab')
+            subprocess.run([npm, 'pack', '--silent', f'@openai/codex@{CODEX_VERSION}-win32-x64'], cwd=cache, check=True)
+            with tarfile.open(cache/f'openai-codex-{CODEX_VERSION}-win32-x64.tgz') as archive:
+                archive.extractall(cache, filter='data')
+    missing = [name for name in CODEX_FILES if not (vendor/name).is_file()]
+    if missing: raise RuntimeError(f'Codex package is missing {missing} in {vendor}')
+    return vendor
+
+
+def bundle_codex(app):
+    """Codex in the app folder, as in the Mac app's Resources/Codex. Without it the
+    With AI tab is not offered, so a build without Codex is an error."""
+    vendor = codex_vendor()
+    codex = app/'Codex'
+    if codex.exists(): shutil.rmtree(codex)
+    for name in CODEX_FILES:
+        (codex/name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(vendor/name, codex/name)
+    for name in ('LICENSE', 'NOTICE'):
+        shutil.copy2(ROOT/f'desktop/customize/CODEX-{name}', codex/name)
+    size = sum(path.stat().st_size for path in codex.rglob('*') if path.is_file())
+    print(f'Codex {CODEX_VERSION}: {size/1e6:.0f} MB')
+
+
 def build(destination, capture=False):
     work = ROOT/'build/windows'/('capture' if capture else 'release')
     compile_shell(work/'shell', capture)
     if destination.exists(): shutil.rmtree(destination)
     shutil.copytree(work/'shell', destination)
     write_resources(destination/'Resources')
+    bundle_codex(destination)
     stage_engine(destination/'Engine', prepare_runtime())
     size = sum(path.stat().st_size for path in destination.rglob('*') if path.is_file())
     print(f'Windows app: {destination} ({size/1e6:.0f} MB)')
@@ -107,13 +151,14 @@ def build(destination, capture=False):
 def capture(directory, midi):
     app = build(ROOT/'build/windows/capture/Rach3', capture=True)
     directory.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run([str(app/'Rach3.exe'), '--capture', str(directory), '--self-test-midi', str(midi)],
+    result = subprocess.run([str(app/'Rach3.exe'), '--capture', str(directory), '--self-test-midi', str(midi),
+                             '--self-test-pdf', str(ROOT/'assets/example-lessons/bach-prelude/score.pdf')],
                             timeout=1200)
-    for name in ('capture-error.txt', 'page-errors.txt', 'self-test.json'):
+    for name in ('capture-error.txt', 'page-errors.txt', 'self-test.json', 'chatgpt-self-test.json'):
         path = directory/name
         if path.exists() and path.read_text(encoding='utf-8').strip():
             print(f'{name}:\n{path.read_text(encoding="utf-8")}')
-    missing = [name for name in ('practice.png', 'create-lesson.png', 'lesson-created.png')
+    missing = [name for name in ('practice.png', 'create-lesson.png', 'with-ai.png', 'lesson-created.png')
                if not (directory/name).is_file() or (directory/name).stat().st_size < 10000]
     if result.returncode or missing:
         raise RuntimeError(f'Windows capture failed (exit {result.returncode}, missing {missing})')
