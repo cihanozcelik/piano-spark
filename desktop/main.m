@@ -72,7 +72,10 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
         tools:[support URLByAppendingPathComponent:@"Rach3/Tools/1" isDirectory:YES]];
     __weak PianoApp *weakSelf = self;
-    self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; [weakSelf.customize lessonProgress:event]; };
+    self.lessons.onEvent = ^(NSDictionary *event) {
+        [weakSelf publish:event];
+        [weakSelf.customize ask:@"lesson-progress" body:@{@"snapshot":event} reply:^(id result, NSString *error) { (void)result; (void)error; }];
+    };
     self.lessons.onIdle = ^{ dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf finishTermination]; }); };
     // The page is served from the design on screen: the original files in the
     // bundle, or a copy the person changed with ChatGPT (CustomizeService).
@@ -82,8 +85,19 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.customize = [[CustomizeService alloc] initWithSource:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Source"]
         codex:codex support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
         version:[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-    self.customize.onEvent = ^(NSDictionary *event) { [weakSelf publishCustomize:event]; };
-    self.customize.onReload = ^{ [weakSelf reloadDesign]; };
+    // core.js, the shared part of the ChatGPT features, runs in the panel's web view.
+    self.customize.onCore = ^(NSDictionary *message) {
+        [weakSelf.panelView callAsyncJavaScript:@"window.rach3Core?.receive(message);" arguments:@{@"message":message}
+            inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:nil];
+    };
+    self.customize.onShow = ^(BOOL start) { [weakSelf showDesign:start]; };
+    self.customize.onPanel = ^(BOOL open, CGFloat toggle) {
+        PianoApp *app = weakSelf;
+        app.panelOpen = open;
+        app.toggleWidth = MAX(60, MIN(240, toggle));
+        [app layoutCustomize];
+        [app.window makeFirstResponder:open ? app.panelView : app.webView];
+    };
     // The "With AI" tab of Create a Lesson: lessons come from rach3's own import.
     self.customize.onDeskEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
     self.customize.missingTools = ^unsigned long long(NSString *kind) { return [weakSelf.lessons missingToolBytes:kind]; };
@@ -108,14 +122,13 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         }
         return event;
     }];
-    self.customize.previewBridge = ^id(NSDictionary *body) { return [weakSelf previewReply:body]; };
+    self.customize.previewBridge = ^(NSDictionary *body, void (^reply)(id)) { [weakSelf previewReply:body reply:reply]; };
     // Opens a lesson ChatGPT made, once the version saved with it is on screen.
     self.customize.onLessonChanged = ^(NSDictionary *lesson) {
         weakSelf.pendingLesson = @{@"event":@"lesson-progress", @"phase":@"complete", @"progress":@1, @"message":@"",
                                    @"id":lesson[@"id"], @"title":lesson[@"title"] ?: @"", @"noteCount":lesson[@"noteCount"] ?: @0};
         if (weakSelf.pageReady && !weakSelf.reloadPending) [weakSelf openPendingLesson];
     };
-    self.pageURL = self.customize.pageURL;
 
     WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
     [configuration setURLSchemeHandler:self.customize forURLScheme:CustomizeService.scheme];
@@ -179,8 +192,13 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #ifndef PIANO_CAPTURE
     [self.updates start];
 #endif
+    // The page loads once core.js says which design is on screen; without the panel,
+    // or if it never answers, the original rach3 loads.
     [CustomizeService blockInternetIn:self.webView.configuration.userContentController then:^{
-        [weakSelf.webView loadRequest:[NSURLRequest requestWithURL:weakSelf.pageURL]];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 6 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            if (!weakSelf.pageURL) [weakSelf loadPage:weakSelf.customize.pageURL seed:nil];
+        });
+        if (!weakSelf.panelView) [weakSelf loadPage:weakSelf.customize.pageURL seed:nil];
     }];
     [self.window makeKeyAndOrderFront:nil];
     [self placeWindowButtons];
@@ -282,10 +300,13 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         @"fullscreen":@((self.window.styleMask & NSWindowStyleMaskFullScreen) != 0)};
 }
 
-- (void)publishCustomize:(NSDictionary *)event {
-    if (self.quitting) return;
-    [self.panelView callAsyncJavaScript:@"window.rach3Customize?.receive(event);" arguments:@{@"event":event}
-        inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:nil];
+// core.js put a design on screen. When the panel has just (re)loaded, a page that
+// already shows that design stays as it is.
+- (void)showDesign:(BOOL)start {
+    NSURL *next = self.customize.pageURL;
+    if (!self.pageURL) { [self loadPage:next seed:nil]; return; }
+    if (start && [next isEqual:self.pageURL]) return;
+    [self reloadDesign];
 }
 
 - (void)openPendingLesson {
@@ -295,14 +316,16 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 }
 
 - (void)makePanel {
-    NSString *script = [NSString stringWithContentsOfURL:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Customize/panel.js"]
-        encoding:NSUTF8StringEncoding error:NULL];
-    if (!script) return;
+    NSURL *folder = [NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Customize"];
+    NSString *core = [NSString stringWithContentsOfURL:[folder URLByAppendingPathComponent:@"core.js"] encoding:NSUTF8StringEncoding error:NULL];
+    NSString *script = [NSString stringWithContentsOfURL:[folder URLByAppendingPathComponent:@"panel.js"] encoding:NSUTF8StringEncoding error:NULL];
+    if (!core || !script) return;
     WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
     configuration.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
-    [configuration.userContentController addScriptMessageHandlerWithReply:self contentWorld:WKContentWorld.pageWorld name:@"customize"];
-    [configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:script
-        injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES]];
+    [configuration.userContentController addScriptMessageHandlerWithReply:self contentWorld:WKContentWorld.pageWorld name:@"native"];
+    for (NSString *source in @[core, script])
+        [configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:source
+            injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES]];
     self.panelView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];
     self.panelView.navigationDelegate = self;
     [self.panelView setValue:@NO forKey:@"drawsBackground"];
@@ -445,17 +468,28 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 }
 
 // What the hidden preview may ask the native side: reading only.
-- (id)previewReply:(NSDictionary *)body {
+- (void)previewReply:(NSDictionary *)body reply:(void (^)(id))reply {
     self.customize.previewSize = self.webView.bounds.size;
     NSString *command = body[@"command"];
-    if ([command isEqual:@"get-language"]) return @{@"language":PianoLanguage()};
-    if ([command isEqual:@"subscribe"]) return [self snapshot];
-    if ([command isEqual:@"update-state"]) return [self.updates snapshot];
-    if ([command isEqual:@"lesson-state"]) return [self.lessons snapshot];
-    if ([command isEqual:@"lesson-tools"]) return [self.lessons tools];
-    if ([command isEqual:@"lesson-list"]) return [self.customize lessonsForPage:YES];
-    if ([command isEqual:@"lesson-load"]) return [self.customize lessonForPage:body[@"id"] preview:YES];
-    return @{};
+    if ([command isEqual:@"get-language"]) reply(@{@"language":PianoLanguage()});
+    else if ([command isEqual:@"subscribe"]) reply([self snapshot]);
+    else if ([command isEqual:@"update-state"]) reply([self.updates snapshot]);
+    else if ([command isEqual:@"lesson-state"]) reply([self.lessons snapshot]);
+    else if ([command isEqual:@"lesson-tools"]) reply([self.lessons tools]);
+    else if ([command isEqual:@"lesson-list"])
+        [self.customize ask:@"lesson-list" body:@{@"preview":@YES} reply:^(id result, NSString *error) { reply(error ? @[] : result); }];
+    else if ([command isEqual:@"lesson-load"])
+        [self.customize ask:@"lesson-load" body:@{@"id":body[@"id"] ?: @"", @"preview":@YES} reply:^(id result, NSString *error) {
+            reply(error ? @{} : [self parsedLesson:result] ?: @{});
+        }];
+    else reply(@{});
+}
+
+// core.js hands a lesson over as its saved JSON text.
+- (NSDictionary *)parsedLesson:(id)result {
+    NSString *json = [result isKindOfClass:NSDictionary.class] ? result[@"json"] : nil;
+    id lesson = [json isKindOfClass:NSString.class] ? [NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:NULL] : nil;
+    return [lesson isKindOfClass:NSDictionary.class] ? lesson : nil;
 }
 
 // A YouTube video ChatGPT showed plays over its card. The page itself stays offline,
@@ -508,7 +542,10 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.videoClip = nil; self.videoView = nil;
 }
 
-- (void)restoreOriginalDesign:(id)sender { (void)sender; [self.customize restoreOriginal]; }
+- (void)restoreOriginalDesign:(id)sender {
+    (void)sender;
+    [self.customize ask:@"restore-original" body:@{} reply:^(id result, NSString *error) { (void)result; (void)error; }];
+}
 - (void)toggleCustomize:(id)sender {
     (void)sender;
     [self.panelView callAsyncJavaScript:@"window.rach3Customize?.toggle();" arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:nil];
@@ -692,17 +729,10 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     replyHandler:(void (^)(id, NSString *))replyHandler {
     (void)controller;
     if (message.webView == self.panelView) {
-        if (!message.frameInfo.mainFrame || ![message.name isEqual:@"customize"] || ![message.body isKindOfClass:NSDictionary.class]) {
+        if (!message.frameInfo.mainFrame || ![message.name isEqual:@"native"] || ![message.body isKindOfClass:NSDictionary.class]) {
             replyHandler(nil, @"Unknown page"); return;
         }
-        if ([message.body[@"action"] isEqual:@"panel"]) {
-            BOOL open = [message.body[@"open"] boolValue];
-            self.panelOpen = open;
-            self.toggleWidth = MAX(60, MIN(240, [message.body[@"toggle"] doubleValue]));
-            [self layoutCustomize];
-            [self.window makeFirstResponder:open ? self.panelView : self.webView];
-        }
-        [self.customize handle:message.body reply:replyHandler]; return;
+        [self.customize native:message.body reply:replyHandler]; return;
     }
     NSURL *origin = message.frameInfo.request.URL;
     if (!message.frameInfo.mainFrame || ![message.name isEqual:@"rach3"] || ![origin.scheme isEqual:self.pageURL.scheme] ||
@@ -724,7 +754,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         [self publish:[self snapshot]];
         [self publish:[self.updates snapshot]];
         [self publish:[self.lessons snapshot]];
-        [self.customize publishState];
+        [self.customize ask:@"language" body:@{@"language":PianoLanguage()} reply:^(id result, NSString *error) { (void)result; (void)error; }];
     } else if ([command isEqual:@"subscribe"]) {
         self.pageReady = YES;
         NSLog(@"rach3 arayüzü hazır");
@@ -733,7 +763,8 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         if (self.pendingLesson) dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ [self openPendingLesson]; });
         replyHandler([self snapshot], nil);
 #ifdef PIANO_CAPTURE
-        if (!self.captureStarted) { self.captureStarted = YES; [self captureWhenReady:0]; }
+        // RACH3_CAPTURE_IDLE keeps a development build open for scripted checks instead.
+        if (!self.captureStarted && !NSProcessInfo.processInfo.environment[@"RACH3_CAPTURE_IDLE"]) { self.captureStarted = YES; [self captureWhenReady:0]; }
 #endif
     } else if ([command isEqual:@"update-state"]) {
         replyHandler([self.updates snapshot], nil);
@@ -786,25 +817,28 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         self.pageReady = NO; replyHandler(@{}, nil);
     } else if ([command isEqual:@"page-error"]) {
         NSLog(@"rach3 JavaScript: %@", message.body[@"message"]); replyHandler(@{}, nil);
-        [self.customize pageError:message.body];
+        [self.customize ask:@"page-error" body:@{@"error":message.body} reply:^(id result, NSString *error) { (void)result; (void)error; }];
     } else if ([command isEqual:@"lesson-state"]) {
         replyHandler([self.lessons snapshot], nil);
     } else if ([command isEqual:@"lesson-tools"]) {
         replyHandler([self.lessons tools], nil);
     } else if ([command isEqual:@"lesson-list"]) {
-        replyHandler([self.customize lessonsForPage:NO], nil);
+        [self.customize ask:@"lesson-list" body:@{@"preview":@NO} reply:^(id result, NSString *error) { replyHandler(error ? @[] : result, nil); }];
     } else if ([command isEqual:@"lesson-delete"]) {
         // Changed code may run on this page, so it can delete only what is visible here,
         // and the person's own lessons only from the original rach3.
-        BOOL personal = NO;
-        NSString *refusal = [self.customize deleteLessonForPage:message.body[@"id"] personal:&personal];
-        if (refusal) { replyHandler(nil, [refusal isEqual:@"original-only"] ? PianoText(@"Kendi derslerini orijinal rach3’ten silebilirsin.") : PianoText(@"Bu ders burada yok.")); return; }
-        if (!personal) { replyHandler(@{}, nil); return; }
-        NSError *error; BOOL ok = [self.lessons deleteLesson:message.body[@"id"] error:&error];
-        replyHandler(@{@"ok":@(ok)},error.localizedDescription);
+        id identifier = message.body[@"id"] ?: @"";
+        [self.customize ask:@"lesson-delete" body:@{@"id":identifier} reply:^(id result, NSString *refusal) {
+            if (refusal) { replyHandler(nil, [refusal isEqual:@"original-only"] ? PianoText(@"Kendi derslerini orijinal rach3’ten silebilirsin.") : PianoText(@"Bu ders burada yok.")); return; }
+            if (![result[@"personal"] boolValue]) { replyHandler(@{}, nil); return; }
+            NSError *error; BOOL ok = [self.lessons deleteLesson:identifier error:&error];
+            replyHandler(@{@"ok":@(ok)},error.localizedDescription);
+        }];
     } else if ([command isEqual:@"lesson-load"]) {
-        NSDictionary *lesson = [self.customize lessonForPage:message.body[@"id"] preview:NO];
-        replyHandler(lesson, lesson ? nil : PianoText(@"Bu ders burada yok."));
+        [self.customize ask:@"lesson-load" body:@{@"id":message.body[@"id"] ?: @"", @"preview":@NO} reply:^(id result, NSString *error) {
+            NSDictionary *lesson = error ? nil : [self parsedLesson:result];
+            replyHandler(lesson, lesson ? nil : PianoText(@"Bu ders burada yok."));
+        }];
     } else if ([command isEqual:@"lesson-begin"]) {
         NSError *error; NSDictionary *job = [self.lessons begin:message.body error:&error];
         replyHandler(job,error.localizedDescription);
@@ -817,9 +851,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     } else if ([command isEqual:@"lesson-cancel"]) {
         [self.lessons cancel]; replyHandler(@{},nil);
     } else if ([command isEqual:@"desk-state"]) {
-        replyHandler([self.customize deskState], nil);
+        [self.customize ask:@"desk-state" body:@{} reply:replyHandler];
     } else if ([command isEqual:@"desk-stop"]) {
-        [self.customize deskStop]; replyHandler(@{}, nil);
+        [self.customize ask:@"desk-stop" body:@{} reply:replyHandler];
     } else if ([command isEqual:@"desk-video-place"]) {
         [self placeVideo:message.body]; replyHandler(@{}, nil);
     } else if ([command isEqual:@"desk-video-close"]) {
@@ -830,13 +864,11 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         if ([command isEqual:@"desk-send"]) {
             NSString *text = [message.body[@"text"] isKindOfClass:NSString.class] ? message.body[@"text"] : @"";
             if (![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length) { replyHandler(nil, @"empty"); return; }
-            [self.customize deskSend:text reply:^(id result, NSString *error) { replyHandler(result, error); }];
+            [self.customize ask:@"desk-send" body:@{@"text":text} reply:replyHandler];
         } else if ([command isEqual:@"desk-make"]) {
-            NSString *error = [self.customize deskMake:message.body[@"card"]];
-            replyHandler(error ? nil : @{}, error);
+            [self.customize ask:@"desk-make" body:@{@"card":message.body[@"card"] ?: @""} reply:replyHandler];
         } else if ([command isEqual:@"desk-clear"]) {
-            NSString *error = [self.customize deskClear];
-            replyHandler(error ? nil : @{}, error);
+            [self.customize ask:@"desk-clear" body:@{} reply:replyHandler];
         } else if ([command isEqual:@"desk-play"]) {
             NSDictionary *card = [self.customize deskCard:message.body[@"card"]];
             if (![card[@"link"] isKindOfClass:NSString.class]) { replyHandler(nil, @"missing"); return; }
@@ -985,7 +1017,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView {
     if (webView == self.videoView) { [self closeVideo]; return; }
     if (webView == self.panelView) { [webView removeFromSuperview]; self.panelView = nil; self.panelOpen = NO;
-        [self makePanel]; if (self.panelView) [self.window.contentView addSubview:self.panelView]; [self layoutCustomize]; return; }
+        [self.customize coreRestarted]; [self makePanel]; if (self.panelView) [self.window.contentView addSubview:self.panelView]; [self layoutCustomize]; return; }
     self.pageReady = NO; [self stopBluetooth]; [webView reload];
 }
 - (void)webView:(WKWebView *)webView runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters

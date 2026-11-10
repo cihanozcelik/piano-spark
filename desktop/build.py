@@ -80,7 +80,7 @@ def write_source(resources):
         shutil.copy2(ROOT/origin, source/target)
     customize = resources/'Customize'
     customize.mkdir(exist_ok=True)
-    shutil.copy2(ROOT/'desktop/customize/panel.js', customize/'panel.js')
+    for name in ('core.js', 'panel.js'): shutil.copy2(ROOT/'desktop/customize'/name, customize/name)
     licenses = resources/'Licenses/Verovio'
     licenses.mkdir(parents=True,exist_ok=True)
     for name in ['COPYING','COPYING.LESSER','README.md','package.json','package-lock.json']:
@@ -116,6 +116,7 @@ def bundle_codex(resources):
     if len(found) < 2: print(f'Codex bundled for {", ".join(found)} only.')
     for name in ['LICENSE', 'NOTICE']:
         shutil.copy2(ROOT/f'desktop/customize/CODEX-{name}', codex/name)
+    shutil.copy2(ROOT/'desktop/customize/codex.sb', codex/'codex.sb')   # the macOS sandbox rach3 starts Codex in
 
 
 def write_ui(resources):
