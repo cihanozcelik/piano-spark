@@ -45,6 +45,8 @@ NSString *PianoText(NSString *text) {
             @"rach3 Hakkında":@"About rach3",
             @"Güncellemeleri denetle…":@"Check for Updates…",
             @"rach3’ü Gizle":@"Hide rach3",
+            @"rach3’ü değiştir…":@"Customize rach3…",
+            @"Orijinal tasarıma dön":@"Back to the Original Design",
             @"rach3’ü kaldır…":@"Uninstall rach3…",
             @"rach3’ten Çık":@"Quit rach3",
             @"Düzenle":@"Edit",
