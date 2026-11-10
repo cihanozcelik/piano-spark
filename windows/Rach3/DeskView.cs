@@ -60,10 +60,11 @@ namespace Rach3
                 catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is ArgumentException) { }
                 var environment = web.CoreWebView2?.Environment;
                 if (environment == null) return;
+                // The page reads these across hosts, so every answer, a missing file too, allows it.
+                const string page = "\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: https://" + Host;
                 args.Response = file == null
-                    ? environment.CreateWebResourceResponse(null, 404, "Not Found", "Content-Type: text/plain")
-                    : environment.CreateWebResourceResponse(new MemoryStream(file.Item1), 200, "OK",
-                        "Content-Type: " + file.Item2 + "\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: https://" + Host);
+                    ? environment.CreateWebResourceResponse(new MemoryStream(new byte[0]), 404, "Not Found", "Content-Type: text/plain" + page)
+                    : environment.CreateWebResourceResponse(new MemoryStream(file.Item1), 200, "OK", "Content-Type: " + file.Item2 + page);
             }
 #if PIANO_CAPTURE
             catch (Exception error) { lock (deskRequests) deskRequests.Add(error.ToString()); throw; }
