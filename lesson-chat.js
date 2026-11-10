@@ -161,7 +161,7 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
         draw.fillRect(x, y, Math.max(2, note.duration / span * 640), Math.max(2, 120 / (high - low + 1)));
       }
       const info = canvas.parentElement?.querySelector('.ai-midi-info');
-      if (info) info.textContent = t('{notes} nota · {length}', { notes: notes.length.toLocaleString(), length: clock(end - first) });
+      if (info) info.textContent = t('{notes} nota · {length}', { notes: notes.length.toLocaleString(window.PianoI18n.language === 'tr' ? 'tr-TR' : 'en-US'), length: clock(end - first) });
     }).catch(() => {});
     return canvas;
   }
