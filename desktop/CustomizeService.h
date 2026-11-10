@@ -22,6 +22,9 @@
 - (void)pageError:(NSDictionary *)error;
 - (instancetype)initWithSource:(NSURL *)source codex:(NSURL *)codex support:(NSURL *)support version:(NSString *)version;
 + (NSString *)scheme;
+// Blocks every load from the internet in that view, then calls back. Pages,
+// including ones Codex changed, may only load rach3's own files.
++ (void)blockInternetIn:(WKUserContentController *)controller then:(void (^)(void))done;
 // The page's address. Each branch has its own host, so its stored settings
 // (localStorage) are its own and can never reach main's.
 - (NSURL *)pageURL;
@@ -41,4 +44,22 @@
 // it is refused ("original-only") unless the original rach3 is on screen.
 - (NSString *)deleteLessonForPage:(NSString *)identifier personal:(BOOL *)personal;
 - (void)stop;
+
+// The "With AI" tab of Create a Lesson: a conversation with ChatGPT about which piece
+// to learn. It never changes the interface; lessons are made by rach3's own import.
+// Starts a lesson the way Create a Lesson does. The request has kind (youtube, midi,
+// pdf), file, link and title; the answer has the job id or an error to show.
+@property (nonatomic, copy) NSDictionary *(^importLesson)(NSDictionary *request);
+// Bytes of tools a lesson of that kind still needs to download.
+@property (nonatomic, copy) unsigned long long (^missingTools)(NSString *kind);
+@property (nonatomic, copy) void (^onDeskEvent)(NSDictionary *event);
+- (NSDictionary *)deskState;
+- (void)deskSend:(NSString *)text reply:(void (^)(id result, NSString *error))reply;
+- (void)deskStop;
+- (NSString *)deskClear;
+// The person pressed "Make the lesson" on a card. Returns an error to show, or nil.
+- (NSString *)deskMake:(NSString *)card;
+- (NSDictionary *)deskCard:(NSString *)card;
+// Progress of the lesson service, to follow a lesson started from a card.
+- (void)lessonProgress:(NSDictionary *)snapshot;
 @end

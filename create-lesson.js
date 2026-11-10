@@ -1,3 +1,4 @@
+import { startLessonChat } from './lesson-chat.js';
 const t=(source,params)=>window.PianoI18n.t(source,params);
 const translated=source=>window.PianoI18n.message(source);
 export async function lessonCommand(command,fields={}) {
@@ -22,10 +23,10 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     'lesson-document','document-name','document-tempo','lesson-tools','lesson-tools-title',
     'lesson-tools-detail','lesson-tools-size','separation-tools','separation-tools-detail',
     'separation-tools-size','retry-tools','tool-transfer','tool-stage','tool-percent',
-    'tool-progress','tool-bytes','tool-speed'];
+    'tool-progress','tool-bytes','tool-speed','source-ai','ai-source','create-intro','create-panel'];
   const ui = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
   const video = ui['source-preview'];
-  let source = 'video';
+  let source = 'ai';
   let selectedVideo = null,selectedDocument=null;
   let videoURL = '';
   let videoReady = false;
@@ -108,7 +109,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
 
   function updateControls() {
     ui['create-lesson'].disabled = !available || !toolsCatalog || busy || (source==='video'?!videoReady:source==='document'?!selectedDocument:!youtubeURL);
-    for (const id of ['source-video','source-youtube','source-document','choose-document','document-tempo','choose-video','remove-video','remove-youtube','youtube-url','lesson-title','separate-vocals']) ui[id].disabled=busy;
+    for (const id of ['source-ai','source-video','source-youtube','source-document','choose-document','document-tempo','choose-video','remove-video','remove-youtube','youtube-url','lesson-title','separate-vocals']) ui[id].disabled=busy;
     ui['cancel-lesson'].hidden=!busy;
     renderTools();
   }
@@ -183,6 +184,11 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   function showSource(next) {
     source = next;
     video.pause();
+    ui['create-panel'].dataset.source=next;
+    ui['source-ai'].setAttribute('aria-pressed',String(next==='ai'));
+    ui['ai-source'].hidden=next!=='ai';
+    const intro=next==='ai'?'Çalışmak istediğin parçayı söyle; birlikte bulup derse çevirelim.':'Çalışmak istediğin videoyu ekle.';
+    ui['create-intro'].dataset.i18n=intro; ui['create-intro'].textContent=t(intro);
     ui['source-video'].setAttribute('aria-pressed', String(next === 'video'));
     ui['source-youtube'].setAttribute('aria-pressed', String(next === 'youtube'));
     ui['source-document'].setAttribute('aria-pressed',String(next==='document'));
@@ -190,6 +196,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     ui['separate-vocals'].closest('label').hidden=next==='document';
     ui['video-source'].hidden = next !== 'video';
     ui['youtube-source'].hidden = next !== 'youtube';
+    if(next==='ai') { announce(''); updateControls(); chat?.focus(); return; }
     if (next === 'youtube') announce(youtubeURL ? 'Bağlantı seçildi.' : '', youtubeURL ? 'ready' : 'idle');
     else if(next==='document') announce(selectedDocument?'Dosya seçildi.':'MIDI veya nota PDF’si seç.');
     else announce(selectedVideo ? (videoReady ? 'Video seçildi.' : 'Video açılıyor…') : '', videoReady ? 'ready' : 'idle');
@@ -263,6 +270,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   }
   video.addEventListener('error', videoFailed);
 
+  ui['source-ai'].addEventListener('click',()=>{showSource('ai');saveDraft();});
   ui['source-video'].addEventListener('click', () => {showSource('video');saveDraft();});
   ui['source-youtube'].addEventListener('click', () => {showSource('youtube');saveDraft();});
   ui['source-document'].addEventListener('click',()=>{showSource('document');saveDraft();});
@@ -427,7 +435,10 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   for(const id of ['lesson-title','separate-vocals','document-tempo']) ui[id].addEventListener('input',saveDraft);
   ui['separate-vocals'].addEventListener('change',renderTools);
   ui['retry-tools'].addEventListener('click',refreshTools);
-  showSource(['youtube','document'].includes(draft.source)?draft.source:'video');
+  const chat=native?startLessonChat({container:ui['ai-source'],command:lessonCommand,openLesson}):null;
+  ui['source-ai'].hidden=!chat;
+  const sources=chat?['ai','video','youtube','document']:['video','youtube','document'];
+  showSource(sources.includes(draft.source)?draft.source:sources[0]);
   if(available) {
     refreshTools();
     refreshLessons().catch(error=>announce(error.message,'error'));

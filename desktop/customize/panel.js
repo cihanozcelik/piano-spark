@@ -38,7 +38,7 @@
       tokens: n => `${n} tokens`, cached: n => `${n} from cache`, today: 'Today',
       plan: 'Using ChatGPT plan', manage: 'Manage usage', signOut: 'Sign out',
       limit: 'You’ve reached the usage limit for your ChatGPT plan.', offline: 'rach3 couldn’t reach ChatGPT. Check your connection.',
-      expired: 'Your ChatGPT sign-in ended. Sign in again.', busy: 'Wait for the current change to finish.',
+      expired: 'Your ChatGPT sign-in ended. Sign in again.', busy: 'Wait for the current change to finish.', deskBusy: 'ChatGPT is helping in Create a Lesson…',
       welcomeTitle: 'You’re using your ChatGPT plan',
       welcomeBody: 'Changes you ask for here use your ChatGPT subscription, just like chatting in ChatGPT. You’ll see how much each change used right below it.',
       gotIt: 'Got it', emptyChat: 'Your conversation will appear here.',
@@ -77,7 +77,7 @@
       tokens: n => `${n} token`, cached: n => `${n} önbellekten`, today: 'Bugün',
       plan: 'ChatGPT planın kullanılıyor', manage: 'Kullanımı yönet', signOut: 'Çıkış yap',
       limit: 'ChatGPT planının kullanım sınırına ulaştın.', offline: 'rach3 ChatGPT’ye ulaşamadı. Bağlantını kontrol et.',
-      expired: 'ChatGPT oturumun sona erdi. Yeniden giriş yap.', busy: 'Önce süren değişikliğin bitmesini bekle.',
+      expired: 'ChatGPT oturumun sona erdi. Yeniden giriş yap.', busy: 'Önce süren değişikliğin bitmesini bekle.', deskBusy: 'ChatGPT, Ders oluştur’da yardım ediyor…',
       welcomeTitle: 'ChatGPT aboneliğin kullanılıyor',
       welcomeBody: 'Burada istediğin değişiklikler, ChatGPT’de sohbet eder gibi aboneliğini kullanır. Her değişikliğin altında ne kadar harcadığını görürsün.',
       gotIt: 'Anladım', emptyChat: 'Konuşman burada görünecek.',
@@ -329,7 +329,7 @@
       const tokens = tokenLine(state.turn.tokens);
       if (live?.text) body.append(element('div', { class: 'msg assistant' }, rich(live.text)));
       body.append(element('div', { class: 'activity' }, element('span', { class: 'dot' }),
-        live?.activity || t('working'), tokens ? element('span', { class: 'usage' }, `· ${tokens}`) : null));
+        live?.activity || (state.turn.desk ? t('deskBusy') : t('working')), tokens ? element('span', { class: 'usage' }, `· ${tokens}`) : null));
     }
     const usage = state.thread && state.threadUsage?.[state.thread];
     if (usage?.total && !state.turn) body.append(element('div', { class: 'small muted usage' }, `${t('thisChat')}: ${tokenLine(usage)}`));

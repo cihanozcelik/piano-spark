@@ -63,7 +63,7 @@ SOURCE = {
     'player.js': 'player.js', 'workspace-state.js': 'workspace-state.js', 'sheet-music.js': 'sheet-music.js',
     'piano-input.js': 'piano-input.js', 'piano-output.js': 'piano-output.js', 'practice-clock.js': 'practice-clock.js',
     'practice-session.js': 'practice-session.js', 'hand-reach.js': 'hand-reach.js', 'staff-notation.js': 'staff-notation.js',
-    'create-lesson.js': 'create-lesson.js', 'app-shell.js': 'app-shell.js',
+    'create-lesson.js': 'create-lesson.js', 'lesson-chat.js': 'lesson-chat.js', 'app-shell.js': 'app-shell.js',
     'bluetooth.js': 'bluetooth-connection/bluetooth.js', 'bluetooth-diagnostics.js': 'bluetooth-connection/bluetooth-diagnostics.js',
     'assets/bravura/Bravura.woff2': 'assets/bravura/Bravura.woff2',
     'assets/brand/rach3-wordmark-on-dark.png': 'assets/brand/rach3-wordmark-on-dark.png',
@@ -123,7 +123,7 @@ def write_ui(resources):
     # Flatten our known ES modules into one offline document. Tone's bundled
     # dependency and embedded song already live in piano.html, including license.
     scripts = []
-    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'hand-reach.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
+    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'hand-reach.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'lesson-chat.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
         code = (ROOT / name).read_text()
         code = re.sub(r'^import .*?;\s*$', '', code, flags=re.MULTILINE)
         code = re.sub(r'^export (?=(?:async )?(?:class |function ))', '', code, flags=re.MULTILINE)
@@ -169,6 +169,7 @@ def compile_native(destination, objects_dir, capture=False):
             ('desktop/LessonService.m', [], 'lessons'),
             ('desktop/UpdateController.m', [], 'updates'),
             ('desktop/CustomizeService.m', [], 'customize'),
+            ('desktop/LessonDesk.m', [], 'lesson-desk'),
             ('bluetooth-connection/main.m', ['-Dmain=PianoBluetoothMain'], 'bluetooth'),
             ('bluetooth-connection/BLEMIDI.m', [], 'decoder'),
             ('bluetooth-connection/BLEMIDIOutput.m', [], 'midi-output'),

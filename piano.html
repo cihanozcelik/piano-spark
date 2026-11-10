@@ -226,6 +226,66 @@
     .source-button { min-height:33px; gap:8px; background:transparent; color:#a7a7b0; border:0; border-radius:6px; padding:6px 14px; font-size:12px; }
     .source-button[aria-pressed=true] { color:var(--ink); background:#414149; box-shadow:0 1px 3px #0003; }
     .source-area { border:1px solid var(--line); border-radius:10px; background:#202023; }
+    /* With AI: a conversation with ChatGPT that shows candidate pieces as cards. */
+    .create-panel[data-source=ai] .lesson-create-actions > label, .create-panel[data-source=ai] #lesson-tools,
+    .create-panel[data-source=ai] #separation-tools, .create-panel[data-source=ai] #retry-tools,
+    .create-panel[data-source=ai] #create-lesson, .create-panel[data-source=ai] .create-caption { display:none; }
+    /* The conversation fills the window; only the conversation scrolls, never the page. */
+    .create-panel[data-source=ai]:not([hidden]) { display:flex; flex-direction:column; }
+    .create-panel[data-source=ai] .create-content { flex:1; min-height:0; width:100%; box-sizing:border-box; display:flex; flex-direction:column; padding-bottom:20px; }
+    .create-panel[data-source=ai] .create-intro { margin-bottom:20px; }
+    .create-panel[data-source=ai] .library-heading, .create-panel[data-source=ai] #saved-lessons, .create-panel[data-source=ai] #create-status:empty { display:none; }
+    .ai-source { display:flex; flex-direction:column; flex:1; min-height:300px; }
+    .ai-source[hidden] { display:none; }
+    .ai-log { flex:1; overflow:auto; padding:18px; display:flex; flex-direction:column; gap:12px; }
+    .ai-msg { max-width:86%; padding:9px 13px; border-radius:12px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; }
+    .ai-msg.user { align-self:flex-end; background:#33415a; color:var(--ink); }
+    .ai-msg.assistant { align-self:flex-start; background:var(--raised); }
+    .ai-msg.commentary { background:transparent; color:var(--muted); padding:0 2px; font-size:12px; }
+    .ai-empty { margin:auto; max-width:440px; text-align:center; color:var(--muted); line-height:1.6; font-size:13px; }
+    .ai-empty .primary { margin-top:8px; }
+    .ai-example { font-style:italic; }
+    .ai-activity { display:flex; gap:8px; align-items:center; color:var(--muted); font-size:12px; }
+    .ai-activity .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); animation:ai-pulse 1s ease-in-out infinite alternate; }
+    @keyframes ai-pulse { from { opacity:.3; } to { opacity:1; } }
+    .ai-error { color:#ffb4a8; font-size:12px; }
+    .ai-meta { color:var(--muted); font-size:11.5px; }
+    .ai-card { align-self:stretch; display:flex; flex-direction:column; gap:8px; padding:12px; border:1px solid var(--line); border-radius:12px; background:#26262b; }
+    .ai-card p { margin:0; }
+    .ai-card header { display:flex; flex-direction:column; gap:2px; }
+    .ai-card header strong { font-size:13.5px; overflow-wrap:anywhere; }
+    .ai-kind { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+    .ai-note { color:#c6c6cf; font-size:12.5px; line-height:1.5; }
+    .ai-card footer { display:flex; gap:8px; }
+    .ai-video { position:relative; padding:0; border:0; border-radius:9px; overflow:hidden; aspect-ratio:16/9; max-width:420px; background:#000; cursor:pointer; }
+    .ai-video img { width:100%; height:100%; object-fit:cover; display:block; }
+    .ai-video.playing { width:100%; cursor:default; }
+    .ai-play { position:absolute; inset:0; margin:auto; width:54px; height:54px; display:grid; place-items:center; border-radius:50%; background:#000a; color:#fff; font-size:20px; }
+    .ai-midi { display:flex; flex-direction:column; gap:6px; }
+    .ai-roll { width:100%; max-width:640px; height:auto; border-radius:7px; }
+    .ai-midi-bar { display:flex; gap:10px; align-items:center; }
+    .ai-pages { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
+    .ai-pages button { flex:none; padding:0; border:0; border-radius:4px; background:#fff; cursor:zoom-in; overflow:hidden; }
+    .ai-pages img { display:block; height:280px; }
+    .ai-pages button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    /* A PDF page full size: zoom with the trackpad or buttons, drag to move. */
+    .ai-viewer { position:fixed; inset:0; z-index:200; display:flex; flex-direction:column; background:#0d0d0fef; }
+    .ai-viewer-bar { flex:none; display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--line); background:#1b1b1e; }
+    .ai-viewer-bar strong { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+    .ai-viewer-bar span { color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; min-width:52px; text-align:center; }
+    .ai-viewer-bar button { min-width:34px; height:30px; padding:0 10px; }
+    .ai-viewer-stage { position:relative; flex:1; min-height:0; overflow:hidden; cursor:grab; touch-action:none; }
+    .ai-viewer-stage.dragging { cursor:grabbing; }
+    .ai-viewer-stage img { position:absolute; left:0; top:0; transform-origin:0 0; background:#fff; user-select:none; -webkit-user-drag:none; box-shadow:0 4px 30px #0008; }
+    .ai-viewer-stage p { position:absolute; inset:0; margin:auto; height:1em; text-align:center; color:var(--muted); font-size:13px; }
+    .ai-viewer-turn { position:absolute; top:50%; transform:translateY(-50%); width:42px; height:64px; border-radius:10px; background:#000a; font-size:20px; z-index:1; }
+    .ai-viewer-turn[data-side=previous] { left:12px; } .ai-viewer-turn[data-side=next] { right:12px; }
+    .ai-viewer-turn:disabled { display:none; }
+    .ai-composer { display:flex; flex-direction:column; gap:8px; padding:12px; border-top:1px solid var(--line); }
+    .ai-composer[hidden] { display:none; }
+    .ai-composer textarea { resize:none; padding:9px 11px; border:1px solid var(--line); border-radius:8px; background:var(--panel); color:var(--ink); font:inherit; font-size:13px; }
+    .ai-composer-actions { display:flex; gap:8px; justify-content:flex-end; }
+    .ai-composer-actions button[hidden] { display:none; }
     .video-drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; min-height:220px; padding:30px; text-align:center; }
     .video-drop.is-dragging,.video-drop.dragging { border-radius:14px; outline:2px solid var(--accent); outline-offset:-2px; background:#29374b; }
     .video-drop > svg { width:34px; height:34px; fill:none; stroke:#8b8b96; stroke-width:1.2; stroke-linecap:round; stroke-linejoin:round; }
@@ -459,12 +519,14 @@
     <section class="create-panel" id="create-panel" role="tabpanel" aria-labelledby="tab-create" hidden>
       <div class="create-content">
         <h1 class="create-heading" data-i18n="Ders oluştur">Ders oluştur</h1>
-        <p class="create-intro" data-i18n="Çalışmak istediğin videoyu ekle.">Çalışmak istediğin videoyu ekle.</p>
+        <p class="create-intro" id="create-intro" data-i18n="Çalışmak istediğin videoyu ekle.">Çalışmak istediğin videoyu ekle.</p>
         <div class="source-picker" role="group" aria-label="Video kaynağı" data-i18n-aria-label="Video kaynağı">
+          <button class="source-button" id="source-ai" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 13.8 9a2 2 0 0 0 1.2 1.2l5.5 1.8-5.5 1.8a2 2 0 0 0-1.2 1.2L12 20.5 10.2 15A2 2 0 0 0 9 13.8L3.5 12 9 10.2A2 2 0 0 0 10.2 9z"/></svg><span data-i18n="AI ile">AI ile</span></button>
           <button class="source-button" id="source-video" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="m10 9 5 3-5 3z"/></svg><span data-i18n="Video dosyası">Video dosyası</span></button>
           <button class="source-button" id="source-youtube" type="button" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 13 4-4m-6 6-2 2a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m4 2 2-2a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0" transform="translate(2 -1) scale(.85)"/></svg><span data-i18n="YouTube bağlantısı">YouTube bağlantısı</span></button>
           <button class="source-button" id="source-document" type="button" aria-pressed="false" data-i18n="MIDI / Nota PDF">MIDI / Nota PDF</button>
         </div>
+        <div class="source-area ai-source" id="ai-source" hidden></div>
         <div class="source-area" id="document-source" hidden>
           <button class="primary" id="choose-document" type="button" data-i18n="MIDI veya nota PDF’si seç…">MIDI veya nota PDF’si seç…</button>
           <input id="lesson-document" type="file" accept=".mid,.midi,.pdf" hidden>

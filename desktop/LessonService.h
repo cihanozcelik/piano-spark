@@ -15,5 +15,11 @@
 - (BOOL)append:(NSString *)encoded identifier:(NSString *)identifier error:(NSError **)error;
 - (BOOL)start:(NSString *)identifier error:(NSError **)error;
 - (BOOL)openVideo:(NSURL *)url error:(NSError **)error;
+// Bytes of tools a lesson of this kind (video, youtube, midi, pdf) still has to download; 0 when ready.
+- (unsigned long long)missingToolBytes:(NSString *)kind;
+// Starts a lesson from a file on disk (video, midi, pdf) or a YouTube link, as Create a Lesson
+// does. Returns the job's id, or nil.
+- (NSString *)importFile:(NSURL *)file kind:(NSString *)kind title:(NSString *)title error:(NSError **)error;
+- (NSString *)importYouTube:(NSString *)link title:(NSString *)title error:(NSError **)error;
 - (void)cancel;
 @end
