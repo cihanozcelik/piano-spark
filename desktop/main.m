@@ -6,6 +6,7 @@
 #import <unistd.h>
 #import "LessonService.h"
 #import "UpdateController.h"
+#import "CustomizeService.h"
 #import "../bluetooth-connection/BLEMIDIOutput.h"
 
 int PianoBluetoothMain(int argc, const char *argv[]);
@@ -27,6 +28,21 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 @property (nonatomic, strong) NSURL *pendingVideo;
 @property (nonatomic) BOOL uninstalling;
 @property (nonatomic, strong) UpdateController *updates;
+@property (nonatomic, strong) CustomizeService *customize;
+// The Customize panel is a separate web view beside the page, so a version changed
+// by ChatGPT has no way to reach it: not its DOM, its keys, or its commands.
+@property (nonatomic, strong) WKWebView *panelView;
+@property (nonatomic, strong) WKContentWorld *frameWorld;
+@property (nonatomic) BOOL panelOpen;
+@property (nonatomic) CGFloat toggleWidth;
+@property (nonatomic, strong) NSDictionary *pendingLesson;
+@property (nonatomic, copy) NSArray<WKUserScript *> *pageScripts;
+@property (nonatomic) BOOL reloadPending;
+@property (nonatomic, strong) dispatch_source_t developmentSignal;
+@property (nonatomic) NSTimeInterval pageInput;     // last real click or key press on the page
+@property (nonatomic, strong) id inputMonitor;
+@property (nonatomic, strong) NSView *videoClip;        // a YouTube player laid over its card on the page
+@property (nonatomic, strong) WKWebView *videoView;
 #ifdef PIANO_CAPTURE
 @property (nonatomic, copy) NSString *captureDirectory;
 @property (nonatomic, copy) NSString *captureLanguage;
@@ -56,27 +72,73 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
         tools:[support URLByAppendingPathComponent:@"Rach3/Tools/1" isDirectory:YES]];
     __weak PianoApp *weakSelf = self;
-    self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
+    self.lessons.onEvent = ^(NSDictionary *event) { [weakSelf publish:event]; [weakSelf.customize lessonProgress:event]; };
     self.lessons.onIdle = ^{ dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf finishTermination]; }); };
-    self.pageURL = [NSBundle.mainBundle URLForResource:@"index" withExtension:@"html"];
+    // The page is served from the design on screen: the original files in the
+    // bundle, or a copy the person changed with ChatGPT (CustomizeService).
+    NSURL *codex = [NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Codex"];
+    NSString *developmentCodex = NSProcessInfo.processInfo.environment[@"RACH3_CODEX_ROOT"];
+    if (developmentCodex.length) codex = [NSURL fileURLWithPath:developmentCodex];
+    self.customize = [[CustomizeService alloc] initWithSource:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Source"]
+        codex:codex support:[support URLByAppendingPathComponent:@"Rach3" isDirectory:YES]
+        version:[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+    self.customize.onEvent = ^(NSDictionary *event) { [weakSelf publishCustomize:event]; };
+    self.customize.onReload = ^{ [weakSelf reloadDesign]; };
+    // The "With AI" tab of Create a Lesson: lessons come from rach3's own import.
+    self.customize.onDeskEvent = ^(NSDictionary *event) { [weakSelf publish:event]; };
+    self.customize.missingTools = ^unsigned long long(NSString *kind) { return [weakSelf.lessons missingToolBytes:kind]; };
+    self.customize.importLesson = ^NSDictionary *(NSDictionary *request) {
+        NSError *error = nil; NSString *job = nil;
+        NSString *kind = request[@"kind"], *title = request[@"title"];
+        if ([kind isEqual:@"youtube"] && [request[@"link"] isKindOfClass:NSString.class]) job = [weakSelf.lessons importYouTube:request[@"link"] title:title error:&error];
+        else if ([request[@"file"] isKindOfClass:NSURL.class]) job = [weakSelf.lessons importFile:request[@"file"] kind:kind title:title error:&error];
+        if (job) dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf publish:[weakSelf.lessons snapshot]]; });
+        return job ? @{@"job":job} : @{@"error":error.localizedDescription ?: PianoText(@"Ders başlatılamadı.")};
+    };
+    // Code ChatGPT changed runs on this page, so commands that spend the person's
+    // ChatGPT plan or start work need a real click or key press on the page first.
+    self.inputMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown | NSEventMaskLeftMouseDown handler:^NSEvent *(NSEvent *event) {
+        PianoApp *app = weakSelf;
+        if (event.window == app.window && app.webView) {
+            NSView *hit = [app.window.contentView hitTest:[app.window.contentView.superview convertPoint:event.locationInWindow fromView:nil]];
+            BOOL onPage = event.type == NSEventTypeKeyDown
+                ? [app.window.firstResponder isKindOfClass:NSView.class] && [(NSView *)app.window.firstResponder isDescendantOf:app.webView]
+                : [hit isDescendantOf:app.webView];
+            if (onPage) app.pageInput = NSDate.timeIntervalSinceReferenceDate;
+        }
+        return event;
+    }];
+    self.customize.previewBridge = ^id(NSDictionary *body) { return [weakSelf previewReply:body]; };
+    // Opens a lesson ChatGPT made, once the version saved with it is on screen.
+    self.customize.onLessonChanged = ^(NSDictionary *lesson) {
+        weakSelf.pendingLesson = @{@"event":@"lesson-progress", @"phase":@"complete", @"progress":@1, @"message":@"",
+                                   @"id":lesson[@"id"], @"title":lesson[@"title"] ?: @"", @"noteCount":lesson[@"noteCount"] ?: @0};
+        if (weakSelf.pageReady && !weakSelf.reloadPending) [weakSelf openPendingLesson];
+    };
+    self.pageURL = self.customize.pageURL;
 
     WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
+    [configuration setURLSchemeHandler:self.customize forURLScheme:CustomizeService.scheme];
+    self.frameWorld = [WKContentWorld worldWithName:@"rach3-frame"];
     configuration.websiteDataStore = WKWebsiteDataStore.defaultDataStore;
 #ifdef PIANO_CAPTURE
     configuration.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
 #endif
     [configuration.userContentController addScriptMessageHandlerWithReply:self
         contentWorld:WKContentWorld.pageWorld name:@"rach3"];
-    WKUserScript *errors = [[WKUserScript alloc] initWithSource:
-        @"window.addEventListener('error', e => window.webkit.messageHandlers.rach3.postMessage({command:'page-error',message:e.message}));"
+    WKUserScript *errors = [[WKUserScript alloc] initWithSource:CustomizeService.errorScript
         injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
-    [configuration.userContentController addUserScript:errors];
+    NSMutableArray *pageScripts = [@[errors] mutableCopy];
 #ifndef PIANO_CAPTURE
     // The page's header is the title bar: it leaves room for the window buttons.
-    [configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:
-        @"document.documentElement.dataset.windowControls='mac';"
+    [pageScripts addObject:[[WKUserScript alloc] initWithSource:@"document.documentElement.dataset.windowControls='mac';"
         injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
 #endif
+    // Only a copy that carries Codex offers the "With AI" tab.
+    if (self.customize.available) [pageScripts addObject:[[WKUserScript alloc] initWithSource:@"document.documentElement.dataset.lessonChat='1';"
+        injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
+    self.pageScripts = pageScripts;
+    for (WKUserScript *script in pageScripts) [configuration.userContentController addUserScript:script];
     self.webView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate = self;
@@ -101,7 +163,14 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     self.window.collectionBehavior = NSWindowCollectionBehaviorFullScreenPrimary;
     self.window.backgroundColor = [NSColor colorWithSRGBRed:.075 green:.08 blue:.09 alpha:1];
     self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
-    self.window.contentView = self.webView;
+    NSView *content = [[NSView alloc] initWithFrame:frame];
+    content.autoresizesSubviews = YES;
+    self.webView.frame = content.bounds;
+    [content addSubview:self.webView];
+    [self makePanel];
+    if (self.panelView) [content addSubview:self.panelView];
+    self.window.contentView = content;
+    [self layoutCustomize];
     if (![self.window setFrameUsingName:@"Rach3MainWindow"]) [self.window center];
     [self.window setFrameAutosaveName:@"Rach3MainWindow"];
     self.updates = [UpdateController new];
@@ -110,10 +179,14 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #ifndef PIANO_CAPTURE
     [self.updates start];
 #endif
-    [self.webView loadFileURL:self.pageURL allowingReadAccessToURL:NSBundle.mainBundle.resourceURL];
+    [CustomizeService blockInternetIn:self.webView.configuration.userContentController then:^{
+        [weakSelf.webView loadRequest:[NSURLRequest requestWithURL:weakSelf.pageURL]];
+    }];
     [self.window makeKeyAndOrderFront:nil];
     [self placeWindowButtons];
     [NSApp activateIgnoringOtherApps:YES];
+    [self startDevelopmentHook];
+    self.customize.previewSize = self.webView.bounds.size;
     if (self.pendingVideo) {
         NSError *error;
         if (![self.lessons openVideo:self.pendingVideo error:&error]) [self showLessonError:error];
@@ -132,6 +205,12 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     [app addItemWithTitle:PianoText(@"rach3’ü Gizle") action:@selector(hide:) keyEquivalent:@"h"];
     NSMenuItem *uninstall = [app addItemWithTitle:PianoText(@"rach3’ü kaldır…") action:@selector(uninstall:) keyEquivalent:@""];
     uninstall.target = self;
+    [app addItem:NSMenuItem.separatorItem];
+    NSMenuItem *customize = [app addItemWithTitle:PianoText(@"rach3’ü değiştir…") action:@selector(toggleCustomize:) keyEquivalent:@"k"];
+    customize.target = self;
+    NSMenuItem *original = [app addItemWithTitle:PianoText(@"Orijinal rach3’ü etkinleştir") action:@selector(restoreOriginalDesign:) keyEquivalent:@""];
+    original.target = self;
+    [app addItem:NSMenuItem.separatorItem];
     [app addItemWithTitle:PianoText(@"rach3’ten Çık") action:@selector(terminate:) keyEquivalent:@"q"];
     appItem.submenu = app; [bar addItem:appItem];
     NSMenuItem *editItem = [NSMenuItem new];
@@ -201,6 +280,238 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (NSDictionary *)snapshot {
     return @{@"event":@"snapshot", @"language":PianoLanguage(), @"status":PianoLocalizedStatus(self.state), @"held":self.held.allValues,
         @"fullscreen":@((self.window.styleMask & NSWindowStyleMaskFullScreen) != 0)};
+}
+
+- (void)publishCustomize:(NSDictionary *)event {
+    if (self.quitting) return;
+    [self.panelView callAsyncJavaScript:@"window.rach3Customize?.receive(event);" arguments:@{@"event":event}
+        inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:nil];
+}
+
+- (void)openPendingLesson {
+    NSDictionary *event = self.pendingLesson;
+    self.pendingLesson = nil;
+    if (event) [self publish:event];
+}
+
+- (void)makePanel {
+    NSString *script = [NSString stringWithContentsOfURL:[NSBundle.mainBundle.resourceURL URLByAppendingPathComponent:@"Customize/panel.js"]
+        encoding:NSUTF8StringEncoding error:NULL];
+    if (!script) return;
+    WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
+    configuration.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
+    [configuration.userContentController addScriptMessageHandlerWithReply:self contentWorld:WKContentWorld.pageWorld name:@"customize"];
+    [configuration.userContentController addUserScript:[[WKUserScript alloc] initWithSource:script
+        injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES]];
+    self.panelView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];
+    self.panelView.navigationDelegate = self;
+    [self.panelView setValue:@NO forKey:@"drawsBackground"];
+    self.toggleWidth = 110;
+    [self.panelView loadHTMLString:@"<!doctype html><html><head><meta charset=\"utf-8\"><style>html,body{margin:0;background:transparent;overflow:hidden}</style></head><body></body></html>"
+        baseURL:nil];
+}
+
+// Open, the panel takes the right side of the window and the page gets the rest.
+// Closed, only its button shows, at the end of the page's header.
+- (void)layoutCustomize {
+    if (!self.panelView) return;
+    NSRect bounds = self.window.contentView.bounds;
+    CGFloat width = NSWidth(bounds), height = NSHeight(bounds);
+    if (self.panelOpen) {
+        CGFloat panel = MIN(400, MAX(300, width - 480));
+        self.webView.frame = NSMakeRect(0, 0, width - panel, height);
+        self.panelView.frame = NSMakeRect(width - panel, 0, panel, height);
+        self.panelView.autoresizingMask = NSViewMinXMargin | NSViewHeightSizable;
+    } else {
+        CGFloat button = self.toggleWidth + 28;
+        self.webView.frame = bounds;
+        self.panelView.frame = NSMakeRect(width - button, height - 48, button, 48);
+        self.panelView.autoresizingMask = NSViewMinXMargin | NSViewMinYMargin;
+    }
+    self.customize.previewSize = self.webView.bounds.size;
+    [self makeRoomForToggle];
+}
+
+// Keeps the end of the page's header clear for the button while the panel is closed.
+- (void)makeRoomForToggle {
+    if (!self.pageReady || !self.panelView) return;
+    CGFloat room = self.panelOpen ? 0 : self.toggleWidth + 28;
+    [self.webView callAsyncJavaScript:@"let style = document.getElementById('rach3-room');"
+        "if (!style) { style = document.createElement('style'); style.id = 'rach3-room'; document.head.appendChild(style); }"
+        "style.textContent = room ? `.app-bar { padding-right: ${room}px !important; }` : '';"
+        arguments:@{@"room":@(room)} inFrame:nil inContentWorld:self.frameWorld completionHandler:nil];
+}
+
+// Shows the design that just became active. Waits while a lesson video is being handed over.
+- (void)reloadDesign {
+    [self closeVideo];
+    if (self.reloadPending) return;
+    self.reloadPending = YES;
+    [self.webView callAsyncJavaScript:@"return document.documentElement.dataset.lessonPhase === 'upload';" arguments:@{}
+        inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id busy, NSError *error) {
+            (void)error;
+            if ([busy boolValue]) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^{ self.reloadPending = NO; [self reloadDesign]; });
+                return;
+            }
+            [self.webView callAsyncJavaScript:@"window.dispatchEvent(new Event('rach3-save-state'));" arguments:@{}
+                inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id result, NSError *failure) {
+                    (void)result; (void)failure;
+                    NSURL *next = self.customize.pageURL;
+                    if ([next.host isEqual:self.pageURL.host] || ![self.customize needsSeed:next.host]) { [self loadPage:next seed:nil]; return; }
+                    // First visit to this branch: it starts with this page's settings.
+                    [self.webView callAsyncJavaScript:@"return JSON.stringify(Object.fromEntries(Object.keys(localStorage).map(key => [key, localStorage.getItem(key)])));"
+                        arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id stored, NSError *readError) {
+                            (void)readError;
+                            [self loadPage:next seed:[stored isKindOfClass:NSString.class] ? stored : @"{}"];
+                        }];
+                }];
+        }];
+}
+
+- (void)loadPage:(NSURL *)url seed:(NSString *)seed {
+    [self closeVideo];
+    WKUserContentController *controller = self.webView.configuration.userContentController;
+    [controller removeAllUserScripts];
+    for (WKUserScript *script in self.pageScripts) [controller addUserScript:script];
+    if (seed) {
+        NSData *json = [NSJSONSerialization dataWithJSONObject:url.host options:NSJSONWritingFragmentsAllowed error:NULL];
+        NSString *host = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+        NSDictionary *parsed = [NSJSONSerialization JSONObjectWithData:[seed dataUsingEncoding:NSUTF8StringEncoding] options:0 error:NULL];
+        NSData *values = [NSJSONSerialization dataWithJSONObject:[parsed isKindOfClass:NSDictionary.class] ? parsed : @{} options:0 error:NULL];
+        NSString *source = [NSString stringWithFormat:@"(() => { if (location.host !== %@) return; try {"
+            " if (localStorage.getItem('rach3.seeded')) return;"
+            " for (const [key, value] of Object.entries(%@)) if (typeof value === 'string') localStorage.setItem(key, value);"
+            " localStorage.setItem('rach3.seeded', '1'); } catch {} })();", host,
+            [[NSString alloc] initWithData:values encoding:NSUTF8StringEncoding]];
+        [controller addUserScript:[[WKUserScript alloc] initWithSource:source injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
+    }
+    self.reloadPending = NO; self.pageReady = NO;
+    self.pageURL = url;
+    [self.webView loadRequest:[NSURLRequest requestWithURL:url]];
+}
+
+// Development only: with RACH3_DEV_DIR set by whoever launched the app, SIGUSR1 runs
+// command.json ({"world":"page"|"customize","js":"…","snapshot":"name.png"}) and
+// writes result.json and the snapshot there. Without the variable nothing listens.
+- (void)startDevelopmentHook {
+    NSString *folder = NSProcessInfo.processInfo.environment[@"RACH3_DEV_DIR"];
+    if (!folder.length) return;
+    signal(SIGUSR1, SIG_IGN);
+    self.developmentSignal = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGUSR1, 0, dispatch_get_main_queue());
+    dispatch_source_set_event_handler(self.developmentSignal, ^{
+        NSData *data = [NSData dataWithContentsOfFile:[folder stringByAppendingPathComponent:@"command.json"]];
+        NSDictionary *command = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL] : nil;
+        BOOL inPanel = [command[@"world"] isEqual:@"customize"];
+        WKWebView *view = inPanel ? self.panelView : [command[@"world"] isEqual:@"video"] && self.videoView ? self.videoView : self.webView;
+        void (^finish)(id, NSString *) = ^(id value, NSString *failure) {
+            NSDictionary *result = @{@"value":value ?: NSNull.null, @"error":failure ?: NSNull.null,
+                @"video":self.videoClip ? @{@"clip":NSStringFromRect(self.videoClip.frame), @"player":NSStringFromRect(self.videoView.frame),
+                    @"hidden":@(self.videoClip.hidden), @"page":NSStringFromRect(self.webView.frame)} : NSNull.null};
+            NSData *json = [NSJSONSerialization dataWithJSONObject:result options:NSJSONWritingFragmentsAllowed error:NULL]
+                ?: [NSJSONSerialization dataWithJSONObject:@{@"value":[value description] ?: @"", @"error":failure ?: NSNull.null} options:0 error:NULL];
+            [json writeToFile:[folder stringByAppendingPathComponent:@"result.json"] atomically:YES];
+        };
+        void (^run)(void) = ^{
+        [view callAsyncJavaScript:command[@"js"] ?: @"return null;" arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld
+            completionHandler:^(id value, NSError *error) {
+            NSString *name = command[@"snapshot"];
+            if (![name isKindOfClass:NSString.class]) { finish(value, error.localizedDescription); return; }
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [view takeSnapshotWithConfiguration:nil completionHandler:^(NSImage *image, NSError *snapshotError) {
+                    NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithData:image.TIFFRepresentation];
+                    [[bitmap representationUsingType:NSBitmapImageFileTypePNG properties:@{}] writeToFile:[folder stringByAppendingPathComponent:name] atomically:YES];
+                    finish(value, error.localizedDescription ?: snapshotError.localizedDescription);
+                }];
+            });
+        }];
+        };
+        // "click": a CSS selector clicked with a real mouse event, as a person would.
+        NSString *selector = command[@"click"];
+        if (![selector isKindOfClass:NSString.class]) { run(); return; }
+        [view callAsyncJavaScript:@"const r = document.querySelector(selector)?.getBoundingClientRect(); return r ? [r.x + r.width / 2, r.y + r.height / 2] : null;"
+            arguments:@{@"selector":selector} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:^(id center, NSError *error) {
+            if (![center isKindOfClass:NSArray.class]) { finish(nil, error.localizedDescription ?: @"No such element"); return; }
+            CGFloat y = [center[1] doubleValue];
+            NSPoint point = [view convertPoint:NSMakePoint([center[0] doubleValue], view.isFlipped ? y : NSHeight(view.bounds) - y) toView:nil];
+            [NSApp activateIgnoringOtherApps:YES]; [self.window makeKeyAndOrderFront:nil];
+            for (NSNumber *type in @[@(NSEventTypeLeftMouseDown), @(NSEventTypeLeftMouseUp)])
+                [NSApp postEvent:[NSEvent mouseEventWithType:(NSEventType)type.integerValue location:point modifierFlags:0 timestamp:NSProcessInfo.processInfo.systemUptime
+                    windowNumber:self.window.windowNumber context:nil eventNumber:0 clickCount:1 pressure:1] atStart:NO];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), run);
+        }];
+    });
+    dispatch_resume(self.developmentSignal);
+}
+
+// What the hidden preview may ask the native side: reading only.
+- (id)previewReply:(NSDictionary *)body {
+    self.customize.previewSize = self.webView.bounds.size;
+    NSString *command = body[@"command"];
+    if ([command isEqual:@"get-language"]) return @{@"language":PianoLanguage()};
+    if ([command isEqual:@"subscribe"]) return [self snapshot];
+    if ([command isEqual:@"update-state"]) return [self.updates snapshot];
+    if ([command isEqual:@"lesson-state"]) return [self.lessons snapshot];
+    if ([command isEqual:@"lesson-tools"]) return [self.lessons tools];
+    if ([command isEqual:@"lesson-list"]) return [self.customize lessonsForPage:YES];
+    if ([command isEqual:@"lesson-load"]) return [self.customize lessonForPage:body[@"id"] preview:YES];
+    return @{};
+}
+
+// A YouTube video ChatGPT showed plays over its card. The page itself stays offline,
+// so the player is a separate view the page only positions; YouTube also wants a
+// web origin to embed from, which the page's own scheme is not.
+- (void)playVideo:(NSString *)link {
+    NSString *identifier = nil;
+    for (NSURLQueryItem *item in [NSURLComponents componentsWithString:link].queryItems) if ([item.name isEqual:@"v"]) identifier = item.value;
+    NSCharacterSet *allowed = [NSCharacterSet characterSetWithCharactersInString:@"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"];
+    if (identifier.length != 11 || [identifier rangeOfCharacterFromSet:allowed.invertedSet].location != NSNotFound) return;
+    if (!self.videoView) {
+        WKWebViewConfiguration *configuration = [WKWebViewConfiguration new];
+        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore;
+        configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeNone;
+        configuration.preferences.elementFullscreenEnabled = YES;
+        self.videoClip = [[NSView alloc] initWithFrame:NSZeroRect];
+        self.videoClip.wantsLayer = YES; self.videoClip.layer.masksToBounds = YES;
+        self.videoView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];
+        self.videoView.navigationDelegate = self;
+        [self.videoView setValue:@NO forKey:@"drawsBackground"];
+        [self.videoClip addSubview:self.videoView];
+        [self.webView.superview addSubview:self.videoClip positioned:NSWindowAbove relativeTo:self.webView];
+    }
+    self.videoClip.hidden = YES;   // until the page says where the card is
+    NSString *html = [NSString stringWithFormat:@"<!doctype html><meta name=viewport content='width=device-width'>"
+        "<style>html,body{margin:0;height:100%%;background:#000;overflow:hidden}iframe{border:0;width:100%%;height:100%%;display:block}</style>"
+        "<iframe src='https://www.youtube-nocookie.com/embed/%@?autoplay=1&rel=0&playsinline=1' referrerpolicy='strict-origin-when-cross-origin' "
+        "allow='autoplay; encrypted-media; fullscreen; picture-in-picture' allowfullscreen></iframe>", identifier];
+    [self.videoView loadHTMLString:html baseURL:[NSURL URLWithString:@"https://rach3.com/"]];
+}
+// The page reports the card's frame and the part of it that is visible, in its own pixels.
+- (void)placeVideo:(NSDictionary *)body {
+    if (!self.videoClip) return;
+    NSArray *frame = body[@"frame"], *clip = body[@"clip"];
+    BOOL valid = [frame isKindOfClass:NSArray.class] && frame.count == 4 && [clip isKindOfClass:NSArray.class] && clip.count == 4;
+    NSRect (^convert)(NSArray *) = ^NSRect(NSArray *box) {
+        CGFloat x = [box[0] doubleValue], y = [box[1] doubleValue], w = MAX(0, [box[2] doubleValue]), h = MAX(0, [box[3] doubleValue]);
+        if (!self.webView.isFlipped) y = NSHeight(self.webView.bounds) - y - h;
+        return [self.webView convertRect:NSMakeRect(x, y, w, h) toView:self.webView.superview];
+    };
+    NSRect outer = valid ? convert(clip) : NSZeroRect, inner = valid ? convert(frame) : NSZeroRect;
+    self.videoClip.hidden = NSWidth(outer) < 1 || NSHeight(outer) < 1;
+    self.videoClip.frame = outer;
+    self.videoView.frame = NSOffsetRect(inner, -NSMinX(outer), -NSMinY(outer));
+}
+- (void)closeVideo {
+    if (!self.videoClip) return;
+    [self.videoView loadHTMLString:@"" baseURL:nil];
+    [self.videoClip removeFromSuperview];
+    self.videoClip = nil; self.videoView = nil;
+}
+
+- (void)restoreOriginalDesign:(id)sender { (void)sender; [self.customize restoreOriginal]; }
+- (void)toggleCustomize:(id)sender {
+    (void)sender;
+    [self.panelView callAsyncJavaScript:@"window.rach3Customize?.toggle();" arguments:@{} inFrame:nil inContentWorld:WKContentWorld.pageWorld completionHandler:nil];
 }
 
 - (void)publish:(NSDictionary *)event {
@@ -380,8 +691,22 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 - (void)userContentController:(WKUserContentController *)controller didReceiveScriptMessage:(WKScriptMessage *)message
     replyHandler:(void (^)(id, NSString *))replyHandler {
     (void)controller;
-    if (!message.frameInfo.mainFrame || ![message.frameInfo.request.URL.path isEqual:self.pageURL.path] ||
-        ![message.body isKindOfClass:NSDictionary.class]) {
+    if (message.webView == self.panelView) {
+        if (!message.frameInfo.mainFrame || ![message.name isEqual:@"customize"] || ![message.body isKindOfClass:NSDictionary.class]) {
+            replyHandler(nil, @"Unknown page"); return;
+        }
+        if ([message.body[@"action"] isEqual:@"panel"]) {
+            BOOL open = [message.body[@"open"] boolValue];
+            self.panelOpen = open;
+            self.toggleWidth = MAX(60, MIN(240, [message.body[@"toggle"] doubleValue]));
+            [self layoutCustomize];
+            [self.window makeFirstResponder:open ? self.panelView : self.webView];
+        }
+        [self.customize handle:message.body reply:replyHandler]; return;
+    }
+    NSURL *origin = message.frameInfo.request.URL;
+    if (!message.frameInfo.mainFrame || ![message.name isEqual:@"rach3"] || ![origin.scheme isEqual:self.pageURL.scheme] ||
+        ![origin.host isEqual:self.pageURL.host] || ![message.body isKindOfClass:NSDictionary.class]) {
         replyHandler(nil, @"Unknown page"); return;
     }
     NSString *command = message.body[@"command"];
@@ -399,9 +724,13 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         [self publish:[self snapshot]];
         [self publish:[self.updates snapshot]];
         [self publish:[self.lessons snapshot]];
+        [self.customize publishState];
     } else if ([command isEqual:@"subscribe"]) {
         self.pageReady = YES;
         NSLog(@"rach3 arayüzü hazır");
+        [self makeRoomForToggle];
+        [self.customize markSeeded:self.pageURL.host];
+        if (self.pendingLesson) dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.8 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ [self openPendingLesson]; });
         replyHandler([self snapshot], nil);
 #ifdef PIANO_CAPTURE
         if (!self.captureStarted) { self.captureStarted = YES; [self captureWhenReady:0]; }
@@ -457,18 +786,25 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         self.pageReady = NO; replyHandler(@{}, nil);
     } else if ([command isEqual:@"page-error"]) {
         NSLog(@"rach3 JavaScript: %@", message.body[@"message"]); replyHandler(@{}, nil);
+        [self.customize pageError:message.body];
     } else if ([command isEqual:@"lesson-state"]) {
         replyHandler([self.lessons snapshot], nil);
     } else if ([command isEqual:@"lesson-tools"]) {
         replyHandler([self.lessons tools], nil);
     } else if ([command isEqual:@"lesson-list"]) {
-        replyHandler([self.lessons lessons], nil);
+        replyHandler([self.customize lessonsForPage:NO], nil);
     } else if ([command isEqual:@"lesson-delete"]) {
+        // Changed code may run on this page, so it can delete only what is visible here,
+        // and the person's own lessons only from the original rach3.
+        BOOL personal = NO;
+        NSString *refusal = [self.customize deleteLessonForPage:message.body[@"id"] personal:&personal];
+        if (refusal) { replyHandler(nil, [refusal isEqual:@"original-only"] ? PianoText(@"Kendi derslerini orijinal rach3’ten silebilirsin.") : PianoText(@"Bu ders burada yok.")); return; }
+        if (!personal) { replyHandler(@{}, nil); return; }
         NSError *error; BOOL ok = [self.lessons deleteLesson:message.body[@"id"] error:&error];
         replyHandler(@{@"ok":@(ok)},error.localizedDescription);
     } else if ([command isEqual:@"lesson-load"]) {
-        NSError *error; NSDictionary *lesson = [self.lessons lesson:message.body[@"id"] error:&error];
-        replyHandler(lesson,error.localizedDescription);
+        NSDictionary *lesson = [self.customize lessonForPage:message.body[@"id"] preview:NO];
+        replyHandler(lesson, lesson ? nil : PianoText(@"Bu ders burada yok."));
     } else if ([command isEqual:@"lesson-begin"]) {
         NSError *error; NSDictionary *job = [self.lessons begin:message.body error:&error];
         replyHandler(job,error.localizedDescription);
@@ -480,6 +816,41 @@ int PianoBluetoothMain(int argc, const char *argv[]);
         replyHandler(@{@"ok":@(ok)},error.localizedDescription);
     } else if ([command isEqual:@"lesson-cancel"]) {
         [self.lessons cancel]; replyHandler(@{},nil);
+    } else if ([command isEqual:@"desk-state"]) {
+        replyHandler([self.customize deskState], nil);
+    } else if ([command isEqual:@"desk-stop"]) {
+        [self.customize deskStop]; replyHandler(@{}, nil);
+    } else if ([command isEqual:@"desk-video-place"]) {
+        [self placeVideo:message.body]; replyHandler(@{}, nil);
+    } else if ([command isEqual:@"desk-video-close"]) {
+        [self closeVideo]; replyHandler(@{}, nil);
+    } else if ([@[@"desk-send", @"desk-make", @"desk-clear", @"desk-play", @"desk-sign-in"] containsObject:command ?: @""]) {
+        if (NSDate.timeIntervalSinceReferenceDate - self.pageInput > 2) { replyHandler(nil, PianoText(@"Bunu bir tıklamayla ya da Enter’la yap.")); return; }
+        self.pageInput = 0;
+        if ([command isEqual:@"desk-send"]) {
+            NSString *text = [message.body[@"text"] isKindOfClass:NSString.class] ? message.body[@"text"] : @"";
+            if (![text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length) { replyHandler(nil, @"empty"); return; }
+            [self.customize deskSend:text reply:^(id result, NSString *error) { replyHandler(result, error); }];
+        } else if ([command isEqual:@"desk-make"]) {
+            NSString *error = [self.customize deskMake:message.body[@"card"]];
+            replyHandler(error ? nil : @{}, error);
+        } else if ([command isEqual:@"desk-clear"]) {
+            NSString *error = [self.customize deskClear];
+            replyHandler(error ? nil : @{}, error);
+        } else if ([command isEqual:@"desk-play"]) {
+            NSDictionary *card = [self.customize deskCard:message.body[@"card"]];
+            if (![card[@"link"] isKindOfClass:NSString.class]) { replyHandler(nil, @"missing"); return; }
+            if ([card[@"embeddable"] isEqual:@NO]) {
+                // Its owner does not let it play inside other apps; it opens on YouTube.
+                NSURL *link = [NSURL URLWithString:card[@"link"]];
+                if ([link.scheme isEqual:@"https"] && [link.host isEqual:@"www.youtube.com"]) [NSWorkspace.sharedWorkspace openURL:link];
+                replyHandler(@{@"external":@YES}, nil); return;
+            }
+            [self playVideo:card[@"link"]]; replyHandler(@{}, nil);
+        } else {
+            if (!self.panelOpen) [self toggleCustomize:nil];
+            replyHandler(@{}, nil);
+        }
     } else replyHandler(nil, @"Unknown command");
 }
 
@@ -507,6 +878,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 #endif
 }
 - (void)windowDidResize:(NSNotification *)notification {
+    [self layoutCustomize];
     (void)notification; [self placeWindowButtons];
 }
 - (void)windowDidEnterFullScreen:(NSNotification *)notification {
@@ -531,7 +903,7 @@ int PianoBluetoothMain(int argc, const char *argv[]);
             self.savingWorkspace = NO;
             [self finishTermination];
         }];
-    [self stopBluetooth]; [self.lessons cancel]; return NSTerminateLater;
+    [self stopBluetooth]; [self.lessons cancel]; [self.customize stop]; return NSTerminateLater;
 }
 - (void)finishTermination {
     if (!self.quitting || self.savingWorkspace || self.bluetooth || self.lessons.running) return;
@@ -582,20 +954,38 @@ int PianoBluetoothMain(int argc, const char *argv[]);
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)action
     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    (void)webView;
+    if (webView == self.videoView) {
+        // The player keeps its YouTube frame; links that would replace it open in the browser.
+        NSURL *target = action.request.URL;
+        BOOL own = [target.absoluteString isEqual:@"about:blank"] || ([target.host isEqual:@"rach3.com"] && action.navigationType == WKNavigationTypeOther);
+        if (!action.targetFrame.isMainFrame || own) { decisionHandler(WKNavigationActionPolicyAllow); return; }
+        if ([target.scheme isEqual:@"https"]) [NSWorkspace.sharedWorkspace openURL:target];
+        decisionHandler(WKNavigationActionPolicyCancel); return;
+    }
+    if (webView == self.panelView) {
+        // The panel never leaves its own page.
+        decisionHandler([action.request.URL.absoluteString isEqual:@"about:blank"] ? WKNavigationActionPolicyAllow : WKNavigationActionPolicyCancel);
+        return;
+    }
     if (action.shouldPerformDownload) { decisionHandler(WKNavigationActionPolicyDownload); return; }
-    if ([action.request.URL.path isEqual:self.pageURL.path] && action.request.URL.isFileURL) {
+    NSURL *target = action.request.URL;
+    if ([target.scheme isEqual:self.pageURL.scheme] && [target.host isEqual:self.pageURL.host] &&
+        (target.path.length <= 1 || [target.path isEqual:self.pageURL.path])) {
         decisionHandler(WKNavigationActionPolicyAllow); return;
     }
     decisionHandler(WKNavigationActionPolicyCancel);
 }
 - (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error {
-    (void)webView; (void)navigation;
+    (void)navigation;
+    if (webView == self.panelView || webView == self.videoView) return;
     NSAlert *alert = [NSAlert new]; alert.messageText = PianoText(@"rach3 açılamadı");
     [alert addButtonWithTitle:PianoText(@"Tamam")];
     alert.informativeText = error.localizedDescription; [alert beginSheetModalForWindow:self.window completionHandler:nil];
 }
 - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView {
+    if (webView == self.videoView) { [self closeVideo]; return; }
+    if (webView == self.panelView) { [webView removeFromSuperview]; self.panelView = nil; self.panelOpen = NO;
+        [self makePanel]; if (self.panelView) [self.window.contentView addSubview:self.panelView]; [self layoutCustomize]; return; }
     self.pageReady = NO; [self stopBluetooth]; [webView reload];
 }
 - (void)webView:(WKWebView *)webView runOpenPanelWithParameters:(WKOpenPanelParameters *)parameters

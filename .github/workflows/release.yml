@@ -66,6 +66,23 @@ jobs:
           PY
       - name: Prepare small portable runtime
         run: python3 desktop/prepare_engine.py
+      - name: Fetch Codex for both Mac processors
+        # ChatGPT features (With AI, Customize) run Codex, Apache-2.0, from github.com/openai/codex.
+        run: |
+          set -euo pipefail
+          version=0.167.0
+          folder="$RUNNER_TEMP/codex"
+          mkdir -p "$folder/vendor"
+          cd "$folder"
+          for arch in arm64 x64; do
+            npm pack --silent "@openai/codex@$version-darwin-$arch"
+            mkdir "unpack-$arch"
+            tar -xzf "openai-codex-$version-darwin-$arch.tgz" -C "unpack-$arch"
+            cp -R "unpack-$arch/package/vendor/." vendor/
+          done
+          test -x vendor/aarch64-apple-darwin/bin/codex
+          test -x vendor/x86_64-apple-darwin/bin/codex
+          echo "RACH3_CODEX_VENDOR=$folder/vendor" >> "$GITHUB_ENV"
       - name: Build application and DMG installer
         run: python3 desktop/build.py
       - name: Fetch small signed baseline when available

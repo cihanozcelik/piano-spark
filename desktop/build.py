@@ -56,11 +56,74 @@ def build_installer():
     print(f'Installer: {image}\nSize: {image.stat().st_size/1000000:.1f} MB')
 
 
+# The interface as the page sees it: one flat folder. The app serves it from the
+# bundle (the original design) or from a copy the person changed with ChatGPT.
+SOURCE = {
+    'piano.html': 'piano.html', 'i18n.js': 'i18n.js', 'i18n-messages.js': 'i18n-messages.js', 'desktop.js': 'desktop.js',
+    'player.js': 'player.js', 'workspace-state.js': 'workspace-state.js', 'sheet-music.js': 'sheet-music.js',
+    'piano-input.js': 'piano-input.js', 'piano-output.js': 'piano-output.js', 'practice-clock.js': 'practice-clock.js',
+    'practice-session.js': 'practice-session.js', 'hand-reach.js': 'hand-reach.js', 'staff-notation.js': 'staff-notation.js',
+    'create-lesson.js': 'create-lesson.js', 'lesson-chat.js': 'lesson-chat.js', 'app-shell.js': 'app-shell.js',
+    'bluetooth.js': 'bluetooth-connection/bluetooth.js', 'bluetooth-diagnostics.js': 'bluetooth-connection/bluetooth-diagnostics.js',
+    'assets/bravura/Bravura.woff2': 'assets/bravura/Bravura.woff2',
+    'assets/brand/rach3-wordmark-on-dark.png': 'assets/brand/rach3-wordmark-on-dark.png',
+    'assets/notation/verovio-toolkit-wasm.js': 'assets/notation/verovio-toolkit-wasm.js',
+    'AGENTS.md': 'desktop/customize/AGENTS.md',
+}
+CODEX_TRIPLES = {'arm64': 'aarch64-apple-darwin', 'x86_64': 'x86_64-apple-darwin'}
+
+
+def write_source(resources):
+    source = resources/'Source'
+    for target, origin in SOURCE.items():
+        (source/target).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT/origin, source/target)
+    customize = resources/'Customize'
+    customize.mkdir(exist_ok=True)
+    shutil.copy2(ROOT/'desktop/customize/panel.js', customize/'panel.js')
+    licenses = resources/'Licenses/Verovio'
+    licenses.mkdir(parents=True,exist_ok=True)
+    for name in ['COPYING','COPYING.LESSER','README.md','package.json','package-lock.json']:
+        shutil.copy2(ROOT/'assets/notation'/name,licenses/name)
+
+
+def codex_vendor(triple):
+    """Codex's native package for one Mac architecture (Apache-2.0, github.com/openai/codex)."""
+    import os
+    folder = os.environ.get('RACH3_CODEX_VENDOR')
+    candidates = [Path(folder)/triple] if folder else []
+    npm = subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip() if shutil.which('npm') else ''
+    if npm:
+        package = 'codex-darwin-arm64' if triple.startswith('aarch64') else 'codex-darwin-x64'
+        candidates.append(Path(npm)/f'@openai/codex/node_modules/@openai/{package}/vendor'/triple)
+    return next((path for path in candidates if (path/'bin/codex').exists()), None)
+
+
+def bundle_codex(resources):
+    vendors = {arch: codex_vendor(triple) for arch, triple in CODEX_TRIPLES.items()}
+    found = {arch: path for arch, path in vendors.items() if path}
+    if not found:
+        print('Codex not found: the app is built without ChatGPT changes. Install @openai/codex or set RACH3_CODEX_VENDOR.')
+        return
+    codex = resources/'Codex'
+    (codex/'bin').mkdir(parents=True)
+    (codex/'codex-path').mkdir()
+    # One universal file per tool when both architectures are present.
+    for relative in ['bin/codex', 'bin/codex-code-mode-host', 'codex-path/rg']:
+        parts = [path/relative for path in found.values() if (path/relative).exists()]
+        if len(parts) > 1: run('xcrun', 'lipo', '-create', *parts, '-output', codex/relative)
+        elif parts: shutil.copy2(parts[0], codex/relative)
+    if len(found) < 2: print(f'Codex bundled for {", ".join(found)} only.')
+    for name in ['LICENSE', 'NOTICE']:
+        shutil.copy2(ROOT/f'desktop/customize/CODEX-{name}', codex/name)
+
+
 def write_ui(resources):
+    # Windows still loads one flattened page; the Mac serves the SOURCE folder.
     # Flatten our known ES modules into one offline document. Tone's bundled
     # dependency and embedded song already live in piano.html, including license.
     scripts = []
-    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'hand-reach.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
+    for name in ['workspace-state.js', 'sheet-music.js', 'piano-input.js', 'piano-output.js', 'practice-clock.js', 'practice-session.js', 'hand-reach.js', 'staff-notation.js', 'bluetooth-connection/bluetooth-diagnostics.js', 'bluetooth-connection/bluetooth.js', 'lesson-chat.js', 'create-lesson.js', 'app-shell.js', 'player.js']:
         code = (ROOT / name).read_text()
         code = re.sub(r'^import .*?;\s*$', '', code, flags=re.MULTILINE)
         code = re.sub(r'^export (?=(?:async )?(?:class |function ))', '', code, flags=re.MULTILINE)
@@ -105,6 +168,8 @@ def compile_native(destination, objects_dir, capture=False):
             ('desktop/Localization.m', [], 'localization'),
             ('desktop/LessonService.m', [], 'lessons'),
             ('desktop/UpdateController.m', [], 'updates'),
+            ('desktop/CustomizeService.m', [], 'customize'),
+            ('desktop/LessonDesk.m', [], 'lesson-desk'),
             ('bluetooth-connection/main.m', ['-Dmain=PianoBluetoothMain'], 'bluetooth'),
             ('bluetooth-connection/BLEMIDI.m', [], 'decoder'),
             ('bluetooth-connection/BLEMIDIOutput.m', [], 'midi-output'),
@@ -165,9 +230,8 @@ def main():
         SUEnableSystemProfiling=False)
     with (APP/'Contents/Info.plist').open('wb') as stream: plistlib.dump(app_info,stream)
 
-    write_ui(resources)
-    shutil.copytree(ROOT / 'assets/bravura', resources / 'assets/bravura')
-    shutil.copytree(ROOT / 'assets/brand', resources / 'assets/brand')
+    write_source(resources)
+    bundle_codex(resources)
     bundle_engine(resources)
     shutil.copy2(ROOT/'desktop/release.json',resources/'release.json')
     frameworks = APP/'Contents/Frameworks'

@@ -95,9 +95,10 @@ static NSString *const PianoToolCatalog = @"tools.json";
 - (BOOL)deleteLesson:(NSString *)identifier error:(NSError **)error {
     if (![[NSUUID alloc] initWithUUIDString:identifier]) return [self fail:@"Geçersiz ders kimliği" error:error];
     NSURL *lesson = [[self libraryURL] URLByAppendingPathComponent:[identifier stringByAppendingPathExtension:@"json"]];
-    if (![NSFileManager.defaultManager removeItemAtURL:lesson error:error]) return NO;
+    // Deleted lessons go to the Trash, so a mistaken delete can be undone.
+    if (![NSFileManager.defaultManager trashItemAtURL:lesson resultingItemURL:NULL error:error]) return NO;
     NSURL *assets = [[self libraryURL] URLByAppendingPathComponent:[identifier stringByAppendingPathExtension:@"assets"]];
-    if ([NSFileManager.defaultManager fileExistsAtPath:assets.path] && ![NSFileManager.defaultManager removeItemAtURL:assets error:error]) return NO;
+    if ([NSFileManager.defaultManager fileExistsAtPath:assets.path] && ![NSFileManager.defaultManager trashItemAtURL:assets resultingItemURL:NULL error:error]) return NO;
     if ([self.state[@"id"] isEqual:identifier])
         [self publish:@{@"event":@"lesson-progress",@"phase":@"idle",@"message":@"",@"progress":@0}];
     return YES;
@@ -209,15 +210,43 @@ static NSString *const PianoToolCatalog = @"tools.json";
     return YES;
 }
 - (BOOL)openVideo:(NSURL *)url error:(NSError **)error {
-    NSNumber *size; if (![url getResourceValue:&size forKey:NSURLFileSizeKey error:error]) return NO;
-    NSDictionary *job = [self begin:@{@"name":url.lastPathComponent,@"size":size,@"separate":@YES} error:error];
-    if (!job) return NO;
+    return [self importFile:url kind:@"video" title:nil error:error] != nil;
+}
+- (unsigned long long)missingToolBytes:(NSString *)kind {
+    NSDictionary *catalog = [self tools];
+    NSMutableArray *groups = [@[@"notation"] mutableCopy];
+    if ([kind isEqual:@"pdf"]) [groups addObject:@"pdf"];
+    // Videos are made with the voice separated from the piano, as in Create a Lesson.
+    if ([kind isEqual:@"video"] || [kind isEqual:@"youtube"]) [groups addObjectsFromArray:@[@"transcription", @"separation"]];
+    if ([kind isEqual:@"youtube"]) [groups addObject:@"youtube"];
+    NSMutableSet *keys = [NSMutableSet new];
+    for (NSString *group in groups) [keys addObjectsFromArray:catalog[@"groups"][group] ?: @[]];
+    unsigned long long missing = 0;
+    for (NSString *key in keys) {
+        NSDictionary *artifact = catalog[@"artifacts"][key];
+        if (![artifact[@"ready"] boolValue]) missing += [artifact[@"size"] unsignedLongLongValue] - [artifact[@"received"] unsignedLongLongValue];
+    }
+    return missing;
+}
+- (NSString *)importYouTube:(NSString *)link title:(NSString *)title error:(NSError **)error {
+    NSMutableDictionary *request = [@{@"name":@"YouTube", @"url":link ?: @"", @"separate":@YES} mutableCopy];
+    if (title.length) request[@"title"] = title;
+    NSDictionary *job = [self begin:request error:error];
+    return job && [self start:job[@"id"] error:error] ? job[@"id"] : nil;
+}
+- (NSString *)importFile:(NSURL *)url kind:(NSString *)kind title:(NSString *)title error:(NSError **)error {
+    NSNumber *size; if (![url getResourceValue:&size forKey:NSURLFileSizeKey error:error]) return nil;
+    NSMutableDictionary *request = [@{@"name":url.lastPathComponent, @"size":size, @"separate":@YES, @"kind":kind} mutableCopy];
+    if (title.length) request[@"title"] = title;
+    NSDictionary *job = [self begin:request error:error];
+    if (!job) return nil;
     [self.upload closeAndReturnError:NULL]; self.upload = nil;
-    NSURL *input = [self.jobURL URLByAppendingPathComponent:@"input.video"];
+    NSString *kindName = [kind isEqual:@"pdf"] || [kind isEqual:@"midi"] ? kind : @"video";
+    NSURL *input = [self.jobURL URLByAppendingPathComponent:[@"input." stringByAppendingString:kindName]];
     [NSFileManager.defaultManager removeItemAtURL:input error:NULL];
-    if (![NSFileManager.defaultManager copyItemAtURL:url toURL:input error:error]) { [self cancel]; return NO; }
+    if (![NSFileManager.defaultManager copyItemAtURL:url toURL:input error:error]) { [self cancel]; return nil; }
     self.uploadedSize = size.unsignedLongLongValue;
-    return [self start:job[@"id"] error:error];
+    return [self start:job[@"id"] error:error] ? job[@"id"] : nil;
 }
 - (void)cancel {
     self.cancelling = YES;

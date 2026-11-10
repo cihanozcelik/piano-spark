@@ -46,6 +46,7 @@
   "▶ Başlat": "▶ Play",
   "Çalma hızı": "Playback speed",
   "Çalışmak istediğin videoyu ekle.": "Add the music you want to practice.",
+  "AI ile": "With AI",
   "Video dosyası": "Video file",
   "YouTube bağlantısı": "YouTube link",
   "MIDI / Nota PDF": "MIDI / sheet music PDF",
