@@ -1,28 +1,28 @@
 {
-  "version": "0.10.0",
-  "build": 19,
+  "version": "0.11.0",
+  "build": 20,
   "repository": "cihanozcelik/rach3",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "A new name, a new icon and a new website: rach3.com.",
-    "The title bar and the app's top bar are now one bar, and the lesson title has more room.",
-    "Falling notes are plain bars by default. Turn on note names and small staves in the settings.",
-    "The score now sits on a dark background."
+    "Create a Lesson starts with ChatGPT: say the piece you want, and it searches the web and shows YouTube videos, MIDI files you can listen to and score pages. Pick one and it becomes a lesson.",
+    "Change rach3 by asking ChatGPT: a new button, a different look, a feature you miss. Every change is a new version you can go back from; the original app stays untouched.",
+    "Both use your own ChatGPT account. Sign in from the app; rach3 shows how much of your plan you used.",
+    "PDF scores open full window with zoom, and video lessons separate the voice from the piano."
   ],
   "feedURL": "https://rach3.com/appcast.xml",
   "localizedNotes": {
     "en": [
-      "A new name, a new icon and a new website: rach3.com.",
-      "The title bar and the app's top bar are now one bar, and the lesson title has more room.",
-      "Falling notes are plain bars by default. Turn on note names and small staves in the settings.",
-      "The score now sits on a dark background."
+      "Create a Lesson starts with ChatGPT: say the piece you want, and it searches the web and shows YouTube videos, MIDI files you can listen to and score pages. Pick one and it becomes a lesson.",
+      "Change rach3 by asking ChatGPT: a new button, a different look, a feature you miss. Every change is a new version you can go back from; the original app stays untouched.",
+      "Both use your own ChatGPT account. Sign in from the app; rach3 shows how much of your plan you used.",
+      "PDF scores open full window with zoom, and video lessons separate the voice from the piano."
     ],
     "tr": [
-      "Yeni ad, yeni ikon ve yeni site: rach3.com.",
-      "Pencerenin başlık çubuğu ile uygulamanın üst çubuğu artık tek çubuk; ders başlığına daha çok yer kaldı.",
-      "Düşen notalar artık varsayılan olarak sade çubuklar. Nota adlarını ve küçük porteleri ayarlardan açabilirsin.",
-      "Nota artık koyu bir zeminin üstünde."
+      "Ders oluştur artık ChatGPT ile başlıyor: çalmak istediğin parçayı söyle, web’de arayıp YouTube videolarını, dinleyebileceğin MIDI’leri ve nota sayfalarını göstersin. Birini seç, derse dönüşsün.",
+      "rach3’ü ChatGPT’ye söyleyerek değiştir: yeni bir düğme, farklı bir görünüm, eksik bulduğun bir özellik. Her değişiklik geri dönebileceğin yeni bir sürüm; asıl uygulama hiç değişmez.",
+      "İkisi de kendi ChatGPT hesabınla çalışır. Uygulamadan giriş yap; rach3 planından ne kadar kullandığını gösterir.",
+      "Nota PDF’leri tam pencerede yakınlaştırılarak açılır, video derslerinde ses piyanodan ayrılır."
     ]
   }
 }

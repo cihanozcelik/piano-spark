@@ -17,6 +17,8 @@
 @property (nonatomic, copy) void (^onLessonChanged)(NSDictionary *lesson);
 @property (nonatomic) NSSize previewSize;
 @property (nonatomic, readonly) BOOL busy;
+// Whether this copy of rach3 carries Codex, so ChatGPT features can be offered.
+@property (nonatomic, readonly) BOOL available;
 // Reports runtime errors on the page so the person and ChatGPT can see them.
 + (NSString *)errorScript;
 - (void)pageError:(NSDictionary *)error;

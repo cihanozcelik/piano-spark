@@ -134,6 +134,9 @@ int PianoBluetoothMain(int argc, const char *argv[]);
     [pageScripts addObject:[[WKUserScript alloc] initWithSource:@"document.documentElement.dataset.windowControls='mac';"
         injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
 #endif
+    // Only a copy that carries Codex offers the "With AI" tab.
+    if (self.customize.available) [pageScripts addObject:[[WKUserScript alloc] initWithSource:@"document.documentElement.dataset.lessonChat='1';"
+        injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES]];
     self.pageScripts = pageScripts;
     for (WKUserScript *script in pageScripts) [configuration.userContentController addUserScript:script];
     self.webView = [[WKWebView alloc] initWithFrame:NSZeroRect configuration:configuration];

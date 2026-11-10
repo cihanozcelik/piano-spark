@@ -652,6 +652,7 @@ static NSString *MimeType(NSString *extension) {
 #pragma mark Codex
 
 - (NSURL *)codexBinary { return [self.codexRoot URLByAppendingPathComponent:@"bin/codex"]; }
+- (BOOL)available { return [NSFileManager.defaultManager isExecutableFileAtPath:self.codexBinary.path]; }
 
 - (void)writeCodexConfiguration:(NSURL *)home {
     // Commands Codex runs may read the system's own tools and read and write the
