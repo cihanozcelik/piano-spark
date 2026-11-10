@@ -38,6 +38,7 @@ namespace Rach3
   });
   Object.defineProperty(window, 'webkit', { value: Object.freeze({ messageHandlers: Object.freeze({ rach3 }) }) });
   Object.defineProperty(window, 'PianoPlatform', { value: 'windows' });
+  Object.defineProperty(window, 'PianoDeskFiles', { value: '" + DeskFiles + @"' });
   window.addEventListener('error', e => rach3.postMessage({ command: 'page-error', message: e.message }));
 })();";
 

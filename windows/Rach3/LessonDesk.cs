@@ -350,6 +350,7 @@ namespace Rach3
                 var ratio = size.Width > 0 ? size.Height / size.Width : 1.414;
                 var height = (uint)Math.Max(1, Math.Min(width * 4.0, width * ratio));
                 await page.RenderToStreamAsync(output, new PdfPageRenderOptions { DestinationWidth = width, DestinationHeight = height });
+                output.Seek(0);
                 using (var stream = output.AsStreamForRead())
                 using (var copy = new MemoryStream())
                 {

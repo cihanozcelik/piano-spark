@@ -17,7 +17,9 @@ namespace Rach3
     /// </summary>
     sealed partial class MainForm
     {
-        const string DeskFiles = "https://" + Host + "/_desk/";
+        // Candidates' files come from a host of their own, answered only by rach3: the page's
+        // host is a folder mapping, which these requests must not go through.
+        const string DeskFiles = "https://desk." + Host + "/";
         // YouTube wants a web origin to embed from, which the app page's own host is not.
         // This one page is answered by rach3 itself and never reaches the network.
         const string VideoPage = "https://rach3.com/rach3-app-video";
@@ -30,14 +32,25 @@ namespace Rach3
         async Task InitializeDesk(CoreWebView2 core)
         {
             if (!chat.Available) return;
-            await core.AddScriptToExecuteOnDocumentCreatedAsync(
-                "if (window.location.href === '" + PageUrl + "') document.documentElement.dataset.lessonChat = '1';");
-            core.AddWebResourceRequestedFilter(DeskFiles + "*", CoreWebView2WebResourceContext.All);
+            // Runs before the page's <html> exists; marks it as soon as it does, before any page script.
+            await core.AddScriptToExecuteOnDocumentCreatedAsync("(() => {" +
+                "if (window.location.href !== '" + PageUrl + "') return;" +
+                "const mark = () => { if (!document.documentElement) return false; document.documentElement.dataset.lessonChat = '1'; return true; };" +
+                "if (!mark()) new MutationObserver((changes, observer) => { if (mark()) observer.disconnect(); }).observe(document, { childList: true });" +
+                "})();");
+            core.AddWebResourceRequestedFilter(DeskFiles + "_desk/*", CoreWebView2WebResourceContext.All);
             core.WebResourceRequested += OnDeskFile;
         }
 
+#if PIANO_CAPTURE
+        readonly List<string> deskRequests = new List<string>();
+#endif
+
         async void OnDeskFile(object sender, CoreWebView2WebResourceRequestedEventArgs args)
         {
+#if PIANO_CAPTURE
+            lock (deskRequests) deskRequests.Add(args.Request.Uri);
+#endif
             if (!Uri.TryCreate(args.Request.Uri, UriKind.Absolute, out var url) || !args.Request.Uri.StartsWith(DeskFiles, StringComparison.Ordinal)) return;
             var deferral = args.GetDeferral();
             try
@@ -52,6 +65,9 @@ namespace Rach3
                     : environment.CreateWebResourceResponse(new MemoryStream(file.Item1), 200, "OK",
                         "Content-Type: " + file.Item2 + "\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: https://" + Host);
             }
+#if PIANO_CAPTURE
+            catch (Exception error) { lock (deskRequests) deskRequests.Add(error.ToString()); throw; }
+#endif
             finally { deferral.Complete(); }
         }
 

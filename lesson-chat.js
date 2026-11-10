@@ -5,6 +5,8 @@
 export function startLessonChat({ container, command, openLesson, onBusy }) {
   const t = (key, params) => window.PianoI18n.t(key, params);
   const native = window.webkit?.messageHandlers?.rach3;
+  // Where the app serves the candidates' files: next to the page, or on Windows from its own host.
+  const asset = path => (window.PianoDeskFiles || '/') + path;
   let state = null, live = null, notice = '', sending = false;
   let player = null, video = null, placed = '';
 
@@ -94,7 +96,7 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
     if (player?.card === card.id) { stopPlayer(); return; }
     stopPlayer(); closeVideo();
     try {
-      const response = await fetch('/' + card.file);
+      const response = await fetch(asset(card.file));
       const midi = new Midi(await response.arrayBuffer());
       const notes = midi.tracks.flatMap(track => track.notes).sort((a, b) => a.time - b.time);
       if (!notes.length) { notice = t('Bu MIDI’de nota yok.'); render(); return; }
@@ -155,7 +157,7 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
   // A small piano roll of the first notes, so the person sees what they will play.
   function midiRoll(card) {
     const canvas = element('canvas', { class: 'ai-roll', width: '640', height: '120', 'aria-hidden': 'true' });
-    fetch('/' + card.file).then(response => response.arrayBuffer()).then(data => {
+    fetch(asset(card.file)).then(response => response.arrayBuffer()).then(data => {
       const midi = new Midi(data);
       const notes = midi.tracks.flatMap(track => track.notes);
       if (!notes.length) return;
@@ -232,7 +234,7 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
         fitWidth();
       };
       image.onerror = () => { loading.textContent = t('Bu sayfa açılamadı.'); };
-      image.src = `/_desk/${card.id}/large-${number}.png`;
+      image.src = asset(`_desk/${card.id}/large-${number}.png`);
     };
     const turn = step => { const target = number + step; if (target >= 1 && target <= count) { number = target; show(); } };
 
@@ -287,7 +289,7 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
     if (card.kind === 'youtube') {
       if (video === card.id) body.push(element('div', { class: 'ai-video playing', 'data-card': card.id }));
       else body.push(element('button', { type: 'button', class: 'ai-video', 'aria-label': t('Videoyu izle'), onclick: () => playVideo(card) },
-        card.thumb ? element('img', { src: '/' + card.thumb, alt: '' }) : null, element('span', { class: 'ai-play' }, '▶')));
+        card.thumb ? element('img', { src: asset(card.thumb), alt: '' }) : null, element('span', { class: 'ai-play' }, '▶')));
       const about = [card.author, card.embeddable === false ? t('Sahibi başka uygulamalarda oynatılmasına izin vermiyor; tıklayınca YouTube’da açılır.') : ''].filter(Boolean).join(' · ');
       if (about) body.push(element('small', { class: 'ai-meta' }, about));
     } else if (card.kind === 'midi') {
@@ -298,7 +300,7 @@ export function startLessonChat({ container, command, openLesson, onBusy }) {
     } else if (card.kind === 'pdf') {
       body.push(element('div', { class: 'ai-pages' }, (card.pages || []).map((page, index) =>
         element('button', { type: 'button', 'aria-label': t('{page}. sayfayı büyüt', { page: index + 1 }), onclick: () => openPages(card, index + 1) },
-          element('img', { src: '/' + page, alt: '', loading: 'lazy' })))));
+          element('img', { src: asset(page), alt: '', loading: 'lazy' })))));
       body.push(element('small', { class: 'ai-meta' }, t('{count} sayfa', { count: card.pageCount || 0 })));
     }
     const busyElsewhere = state?.busy || state?.making;

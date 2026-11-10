@@ -374,7 +374,9 @@ namespace Rach3
             // Codex may search the web (OpenAI runs the search); rach3 fetches anything it
             // shows the person. On Windows only the "With AI" tab uses Codex, and it needs no
             // commands, so the shell is off: Codex works through rach3's own tools alone.
-            // Files it could change are limited to its empty scratch folder.
+            // Files it could change are limited to its empty scratch folder. Windows' sandbox
+            // cannot limit reading to system files only (the Mac's ":minimal"), so it reads
+            // like the person does; with no shell, nothing reads on its behalf anyway.
             var config = "# Written by rach3 on every start.\n" +
                 "default_permissions = \"rach3\"\n" +
                 "web_search = \"live\"\n\n" +
@@ -384,7 +386,7 @@ namespace Rach3
                 "ignore_default_excludes = false\n" +
                 "exclude = [\"ACCESS_TOKEN\", \"*TOKEN*\", \"*KEY*\", \"*SECRET*\"]\n\n" +
                 "[permissions.rach3.filesystem]\n" +
-                "\":minimal\" = \"read\"\n" +
+                "\":root\" = \"read\"\n" +
                 TomlString(Workspace) + " = \"write\"\n";
             Files.WriteAtomic(Path.Combine(home, "config.toml"), config);
         }

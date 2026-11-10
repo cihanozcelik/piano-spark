@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Web.WebView2.Core;
 
@@ -96,9 +97,13 @@ namespace Rach3
             if (card != null)
                 report["served"] = await PageCheck("const id = " + Json.Write(card.Text("id")) + "; const out = {};" +
                     "for (const name of ['page-1.png', 'large-1.png', 'nothing.png', '..%2F..%2Fdesk.json']) {" +
-                    "  const response = await fetch('/_desk/' + id + '/' + name);" +
+                    "  const response = await fetch(window.PianoDeskFiles + '_desk/' + id + '/' + name);" +
                     "  out[name] = response.status + ' ' + (response.headers.get('content-type') || '') + ' ' + (await response.arrayBuffer()).byteLength; }" +
-                    "out.unknownCard = (await fetch('/_desk/000000000000/page-1.png')).status; return out;");
+                    "out.unknownCard = (await fetch(window.PianoDeskFiles + '_desk/000000000000/page-1.png')).status; return out;");
+            lock (deskRequests) report["deskRequests"] = deskRequests.ToList();
+            if (card != null)
+                report["image"] = await PageCheck("const image = new Image(); image.src = window.PianoDeskFiles + '_desk/' + " + Json.Write(card.Text("id")) + " + '/page-1.png';" +
+                    "return await new Promise(resolve => { image.onload = () => resolve({ width: image.naturalWidth }); image.onerror = () => resolve({ error: 'load' }); });");
             var text = Json.Write(report);
             File.WriteAllText(Path.Combine(options.Capture, "chatgpt-self-test.json"), text);
             var page = (Dictionary<string, object>)report["page"];
@@ -112,7 +117,8 @@ namespace Rach3
                 cards.Flag("refusesHttp", false) && cards.Flag("youtubeId", false) && card != null && card.Number("pageCount") >= 1 &&
                 card.Number("width") > 500 && card.Number("height") > 100 && Image("page-1.png") && Image("large-1.png") &&
                 served.Text("nothing.png")?.StartsWith("404", StringComparison.Ordinal) == true &&
-                served.Text("..%2F..%2Fdesk.json")?.StartsWith("404", StringComparison.Ordinal) == true && served.Number("unknownCard") == 404;
+                served.Text("..%2F..%2Fdesk.json")?.StartsWith("404", StringComparison.Ordinal) == true && served.Number("unknownCard") == 404 &&
+                report.TryGetValue("image", out var image) && (image as Dictionary<string, object>).Number("width") > 500;
             if (!ok) throw new InvalidOperationException("ChatGPT self-test failed: " + text);
         }
 
