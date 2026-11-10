@@ -1108,8 +1108,13 @@ namespace Rach3
                 report["writeScratch"] = made.Item1 == 0 && File.Exists(scratch) ? "pass" : made.Item1 + " " + made.Item2;
                 var program = Run("dir /b \"" + Path.Combine(codexRoot, "bin") + "\"");
                 report["readCodex"] = program.Item1 == 0 && program.Item2.Contains("codex.exe") ? "pass" : program.Item1 + " " + program.Item2;
-                var internet = Run("curl.exe -s -o NUL -w %{http_code} https://example.com");
-                report["internet"] = internet.Item2.Trim() == "200" ? "pass" : internet.Item1 + " " + internet.Item2;
+                // Codex itself reaches a web server over HTTPS: example.com answers its request with 405.
+                const string probe = "model_providers.probe.";
+                var internet = Run("set ACCESS_TOKEN=probe&& \"" + CodexBinary + "\" exec --skip-git-repo-check -c model_provider=probe -c " +
+                    probe + "name=probe -c " + probe + "base_url=https://example.com/v1 -c " + probe + "env_key=ACCESS_TOKEN -c " +
+                    probe + "wire_api=responses -c " + probe + "requires_openai_auth=false -c " + probe + "supports_websockets=false -c " +
+                    probe + "request_max_retries=0 -c " + probe + "stream_max_retries=0 hi");
+                report["internet"] = internet.Item2.Contains("405") ? "pass" : internet.Item1 + " " + internet.Item2.Substring(Math.Max(0, internet.Item2.Length - 1500));
             }
             catch (Exception error) { report["error"] = error.ToString(); }
             finally
