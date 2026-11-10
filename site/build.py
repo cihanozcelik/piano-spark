@@ -12,19 +12,24 @@ ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = 'cihanozcelik/rach3'
 STATIC_FILES = (
     'style.css',
+    'assets/customize.jpg',
+    'assets/tr/customize.jpg',
+    'assets/ai-find.jpg',
+    'assets/tr/ai-find.jpg',
+    'assets/customize-original.jpg',
+    'assets/tr/customize-original.jpg',
+    'assets/metronome.jpg',
+    'assets/tr/metronome.jpg',
+    'assets/sleepy-cat.jpg',
+    'assets/tr/sleepy-cat.jpg',
     'assets/practice.png',
-    'assets/create-lesson.png',
     'assets/tr/practice.png',
-    'assets/tr/create-lesson.png',
     'assets/keyboard-hero.jpg',
     'assets/rach3-hero.png',
     'assets/piano-at-home.jpg',
     'assets/tr/piano-at-home.jpg',
-    'assets/youtube-cover.jpg',
     'assets/learner-morning.jpg',
     'assets/tr/learner-morning.jpg',
-    'assets/learner-night.jpg',
-    'assets/tr/learner-night.jpg',
     'assets/learner-family.jpg',
     'assets/tr/learner-family.jpg',
     'assets/rach3-wordmark-on-dark.png',
@@ -122,9 +127,10 @@ LANGUAGES = {
     'en': {'__LANG__': 'en', '__OTHER_LANG__': 'tr', '__OTHER_NAME__': 'Türkçe', '__OTHER_PAGE__': 'tr/'},
     'tr': {'__LANG__': 'tr', '__OTHER_LANG__': 'en', '__OTHER_NAME__': 'English', '__OTHER_PAGE__': '../'},
 }
-# Screenshots of the app in each language
-LOCALIZED_ASSETS = ('assets/practice.png', 'assets/create-lesson.png', 'assets/piano-at-home.jpg',
-                    'assets/learner-morning.jpg', 'assets/learner-night.jpg', 'assets/learner-family.jpg')
+# Screenshots of the app (and photos showing it) in each language
+LOCALIZED_ASSETS = ('assets/customize.jpg', 'assets/ai-find.jpg', 'assets/customize-original.jpg',
+                    'assets/metronome.jpg', 'assets/sleepy-cat.jpg', 'assets/practice.png',
+                    'assets/piano-at-home.jpg', 'assets/learner-morning.jpg', 'assets/learner-family.jpg')
 
 
 def translate(english, template):
