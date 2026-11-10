@@ -652,23 +652,42 @@ static NSString *MimeType(NSString *extension) {
 #pragma mark Codex
 
 - (NSURL *)codexBinary { return [self.codexRoot URLByAppendingPathComponent:@"bin/codex"]; }
-- (BOOL)available { return [NSFileManager.defaultManager isExecutableFileAtPath:self.codexBinary.path]; }
+- (NSURL *)codexRule { return [self.codexRoot URLByAppendingPathComponent:@"codex.sb"]; }
+- (BOOL)available {
+    return [NSFileManager.defaultManager isExecutableFileAtPath:self.codexBinary.path]
+        && [NSFileManager.defaultManager fileExistsAtPath:self.codexRule.path];
+}
+
+// Codex never runs outside codex.sb: macOS, not Codex, keeps it and every command it
+// starts to its program, its home and the scratch copy, and keeps commands off the
+// network. Codex's temporary folder lives in its home, since the shared one is closed.
+- (NSTask *)codexTask:(NSURL *)home arguments:(NSArray *)arguments {
+    NSURL *temporary = [home URLByAppendingPathComponent:@"tmp" isDirectory:YES];
+    [NSFileManager.defaultManager createDirectoryAtURL:temporary withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:NULL];
+    NSString *codex = self.codexRoot.URLByResolvingSymlinksInPath.path;   // the rule names real paths
+    NSTask *task = [NSTask new];
+    task.executableURL = [NSURL fileURLWithPath:@"/usr/bin/sandbox-exec"];
+    task.arguments = [@[@"-f", self.codexRule.path, @"-D", [@"CODEX=" stringByAppendingString:codex],
+        @"-D", [@"HOME=" stringByAppendingString:home.URLByResolvingSymlinksInPath.path],
+        @"-D", [@"WORKSPACE=" stringByAppendingString:self.workspace.URLByResolvingSymlinksInPath.path],
+        [codex stringByAppendingPathComponent:@"bin/codex"]] arrayByAddingObjectsFromArray:arguments];
+    task.environment = @{@"CODEX_HOME":home.path, @"HOME":NSHomeDirectory(), @"TMPDIR":temporary.path, @"PATH":@"/usr/bin:/bin"};
+    return task;
+}
 
 - (void)writeCodexConfiguration:(NSURL *)home {
-    // Commands Codex runs may read the system's own tools and read and write the
-    // scratch copy, nothing else: not the person's files, not rach3's other data,
+    // codex.sb sets the limits; Codex's own sandbox is off because macOS allows no
+    // sandbox inside one. Commands may read the system's own tools and read and write
+    // the scratch copy, nothing else: not the person's files, not rach3's other data,
     // not the network, and not the ChatGPT token. Codex itself may search the web
     // (OpenAI runs the search); rach3 fetches anything it shows the person.
-    NSString *config = [NSString stringWithFormat:
+    NSString *config =
         @"# Written by rach3 on every start.\n"
-        "default_permissions = \"rach3\"\n"
+        "sandbox_mode = \"danger-full-access\"\n"
         "web_search = \"live\"\n\n"
         "[shell_environment_policy]\n"
         "ignore_default_excludes = false\n"
-        "exclude = [\"ACCESS_TOKEN\", \"*TOKEN*\", \"*KEY*\", \"*SECRET*\"]\n\n"
-        "[permissions.rach3.filesystem]\n"
-        "\":minimal\" = \"read\"\n"
-        "%@ = \"write\"\n", TomlString(self.workspace.path)];
+        "exclude = [\"ACCESS_TOKEN\", \"*TOKEN*\", \"*KEY*\", \"*SECRET*\"]\n";
     [config writeToURL:[home URLByAppendingPathComponent:@"config.toml"] atomically:YES encoding:NSUTF8StringEncoding error:NULL];
 }
 
@@ -676,10 +695,7 @@ static NSString *MimeType(NSString *extension) {
 // tokens may not use. The Responses API itself accepts its web search tool with
 // these tokens, so rach3 hands Codex its own bundled model list with that path on.
 - (NSURL *)writeModelCatalog:(NSURL *)home {
-    NSTask *task = [NSTask new];
-    task.executableURL = self.codexBinary;
-    task.arguments = @[@"debug", @"models", @"--bundled"];
-    task.environment = @{@"CODEX_HOME":home.path, @"HOME":NSHomeDirectory(), @"PATH":@"/usr/bin:/bin"};
+    NSTask *task = [self codexTask:home arguments:@[@"debug", @"models", @"--bundled"]];
     NSPipe *output = [NSPipe pipe];
     task.standardOutput = output;
     task.standardError = [NSFileHandle fileHandleForWritingAtPath:@"/dev/null"];
@@ -712,15 +728,13 @@ static NSString *MimeType(NSString *extension) {
 }
 
 - (NSString *)startCodex:(NSString *)token {
-    if (![NSFileManager.defaultManager isExecutableFileAtPath:self.codexBinary.path]) return @"missing";
+    if (!self.available) return @"missing";
     NSURL *home = [self.root URLByAppendingPathComponent:@"codex" isDirectory:YES];
     [NSFileManager.defaultManager createDirectoryAtURL:home withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:NULL];
     [NSFileManager.defaultManager createDirectoryAtURL:self.workspace withIntermediateDirectories:YES attributes:nil error:NULL];
     [self writeCodexConfiguration:home];
     NSString *provider = @"model_providers.chatgpt_plan";
-    NSTask *task = [NSTask new];
-    task.executableURL = self.codexBinary;
-    task.arguments = @[@"app-server", @"--listen", @"stdio://",
+    NSArray *arguments = @[@"app-server", @"--listen", @"stdio://",
         @"-c", @"model_provider=\"chatgpt_plan\"",
         @"-c", [provider stringByAppendingString:@".name=\"ChatGPT plan\""],
         @"-c", [provider stringByAppendingFormat:@".base_url=%@", TomlString(Resource)],
@@ -729,10 +743,11 @@ static NSString *MimeType(NSString *extension) {
         @"-c", [provider stringByAppendingString:@".requires_openai_auth=false"],
         @"-c", [provider stringByAppendingString:@".supports_websockets=false"]];
     NSURL *catalog = [self writeModelCatalog:home];
-    if (catalog) task.arguments = [task.arguments arrayByAddingObjectsFromArray:@[@"-c", [@"model_catalog_json=" stringByAppendingString:TomlString(catalog.path)]]];
+    if (catalog) arguments = [arguments arrayByAddingObjectsFromArray:@[@"-c", [@"model_catalog_json=" stringByAppendingString:TomlString(catalog.path)]]];
+    NSTask *task = [self codexTask:home arguments:arguments];
     NSDictionary *inherited = NSProcessInfo.processInfo.environment;
-    NSMutableDictionary *environment = [NSMutableDictionary new];
-    for (NSString *key in @[@"HOME", @"USER", @"LOGNAME", @"LANG", @"TMPDIR", @"__CF_USER_TEXT_ENCODING"]) if (inherited[key]) environment[key] = inherited[key];
+    NSMutableDictionary *environment = [task.environment mutableCopy];
+    for (NSString *key in @[@"USER", @"LOGNAME", @"LANG", @"__CF_USER_TEXT_ENCODING"]) if (inherited[key]) environment[key] = inherited[key];
     environment[@"PATH"] = [[self.codexRoot URLByAppendingPathComponent:@"codex-path"].path stringByAppendingString:@":/usr/bin:/bin:/usr/sbin:/sbin"];
     environment[@"SHELL"] = @"/bin/zsh";
     environment[@"CODEX_HOME"] = home.path;

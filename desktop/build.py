@@ -116,6 +116,7 @@ def bundle_codex(resources):
     if len(found) < 2: print(f'Codex bundled for {", ".join(found)} only.')
     for name in ['LICENSE', 'NOTICE']:
         shutil.copy2(ROOT/f'desktop/customize/CODEX-{name}', codex/name)
+    shutil.copy2(ROOT/'desktop/customize/codex.sb', codex/'codex.sb')   # the macOS sandbox rach3 starts Codex in
 
 
 def write_ui(resources):
