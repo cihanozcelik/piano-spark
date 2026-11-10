@@ -1043,7 +1043,14 @@ namespace Rach3
             var started = await WithCodex();
             report["started"] = started ?? "ok";
             report["catalog"] = File.Exists(Path.Combine(root, "codex", "models.json"));
-            if (started != null) return report;
+            if (started != null)
+            {
+                await Task.Delay(2000);
+                try { report["log"] = string.Join("\n", File.ReadAllLines(Path.Combine(paths.Logs, "codex.log")).Reverse().Take(30).Reverse()); }
+                catch (IOException error) { report["log"] = error.Message; }
+                report["box"] = await Task.Run(() => SelfTestBox());
+                return report;
+            }
             Directory.CreateDirectory(Workspace);
             var thread = await Call("thread/start", new Dictionary<string, object>
             {
