@@ -46,8 +46,11 @@ namespace Rach3
     static class CodexBox
     {
         /// <summary>The box's own identity, the same on every Windows machine.</summary>
+        internal static bool CustomIdentity;   // development diagnosis only
+
         public static SecurityIdentifier Identity()
         {
+            if (CustomIdentity) return new SecurityIdentifier("S-1-5-21-2604174936-1806624826-2876335745-1987");
             if (!DeriveCapabilitySidsFromName("rach3Codex", out var groups, out var groupCount, out var capabilities, out var capabilityCount))
                 throw new Win32Exception(Marshal.GetLastWin32Error(), "The Codex box could not be named");
             try { return new SecurityIdentifier(Marshal.ReadIntPtr(capabilities)); }
@@ -84,7 +87,7 @@ namespace Rach3
             byte[] Binary(SecurityIdentifier sid) { var bytes = new byte[sid.BinaryLength]; sid.GetBinaryForm(bytes, 0); return bytes; }
             try
             {
-                if (!OpenProcessToken(GetCurrentProcess(), 0x000F01FF, out token)) throw new Win32Exception(Marshal.GetLastWin32Error());
+                if (!OpenProcessToken(GetCurrentProcess(), 0x000F01FF, out token)) throw Failed("OpenProcessToken");
                 var user = WindowsIdentity.GetCurrent().User;
                 // A file must be open to one of these as well as to the person.
                 var allowed = new List<SecurityIdentifier>
@@ -98,7 +101,7 @@ namespace Rach3
                 if (logon != null) allowed.Add(logon);
                 var restricting = allowed.Select(sid => new SID_AND_ATTRIBUTES { Sid = Pin(Binary(sid)) }).ToArray();
                 if (!CreateRestrictedToken(token, 0x1, 0, IntPtr.Zero, 0, IntPtr.Zero, (uint)restricting.Length, restricting, out restricted))   // DISABLE_MAX_PRIVILEGE
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    throw Failed("CreateRestrictedToken");
                 // What Codex itself creates (its pipes, its processes) is open to it and to the person.
                 var dacl = new RawAcl(GenericAcl.AclRevision, 3);
                 foreach (var sid in new[] { user, new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null), identity })
@@ -107,12 +110,12 @@ namespace Rach3
                 dacl.GetBinaryForm(daclBytes, 0);
                 var defaultDacl = new TOKEN_DEFAULT_DACL { DefaultDacl = Pin(daclBytes) };
                 if (!SetTokenInformation(restricted, 6, ref defaultDacl, (uint)Marshal.SizeOf(typeof(TOKEN_DEFAULT_DACL))))   // TokenDefaultDacl
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    throw Failed("SetTokenInformation");
 
                 var security = new SECURITY_ATTRIBUTES { nLength = Marshal.SizeOf(typeof(SECURITY_ATTRIBUTES)), bInheritHandle = true };
                 if (!CreatePipe(out inputRead, out inputWrite, ref security, 0) || !CreatePipe(out outputRead, out outputWrite, ref security, 0) ||
                     !CreatePipe(out errorRead, out errorWrite, ref security, 0))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    throw Failed("CreatePipe");
                 foreach (var ours in new[] { inputWrite, outputRead, errorRead }) SetHandleInformation(ours, 1, 0);
                 // Only the three pipe ends pass to the box, not every inheritable handle rach3 holds.
                 handleList = Marshal.AllocHGlobal(IntPtr.Size * 3);
@@ -124,7 +127,7 @@ namespace Rach3
                 attributes = Marshal.AllocHGlobal(size);
                 if (!InitializeProcThreadAttributeList(attributes, 1, 0, ref size) ||
                     !UpdateProcThreadAttribute(attributes, 0, (IntPtr)0x00020002, handleList, (IntPtr)(IntPtr.Size * 3), IntPtr.Zero, IntPtr.Zero))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    throw Failed("UpdateProcThreadAttribute");
 
                 var startup = new STARTUPINFOEX();
                 startup.StartupInfo.cb = Marshal.SizeOf(typeof(STARTUPINFOEX));
@@ -137,7 +140,7 @@ namespace Rach3
                 var commandLine = new StringBuilder(Files.Arguments(new[] { program }) + (string.IsNullOrEmpty(arguments) ? "" : " " + arguments));
                 const uint flags = 0x00080000 | 0x08000000 | 0x00000400 | 0x00000004;   // extended startup info, no window, Unicode environment, suspended
                 if (!CreateProcessAsUser(restricted, program, commandLine, IntPtr.Zero, IntPtr.Zero, true, flags, block.ToString(), directory, ref startup, out var info))
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+                    throw Failed("CreateProcessAsUser");
 
                 var process = new BoxedProcess { Id = info.dwProcessId, Handle = new SafeWaitHandle(info.hProcess, true) };
                 try { beforeRunning?.Invoke(info.hProcess); }
@@ -161,6 +164,12 @@ namespace Rach3
                 if (token != IntPtr.Zero) CloseHandle(token);
                 foreach (var handle in pinned) handle.Free();
             }
+        }
+
+        static Win32Exception Failed(string step)
+        {
+            var code = Marshal.GetLastWin32Error();
+            return new Win32Exception(code, step + ": " + new Win32Exception(code).Message);
         }
 
         static SecurityIdentifier LogonSid(IntPtr token)

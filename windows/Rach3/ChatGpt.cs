@@ -1096,6 +1096,19 @@ namespace Rach3
             }
             string Closed(Tuple<int, string> run) => run.Item1 != 0 && !run.Item2.Contains(secret) ? "pass" : run.Item1 + " " + run.Item2;
             var report = new Dictionary<string, object>();
+            var tries = new Dictionary<string, object>();
+            foreach (var custom in new[] { false, true })
+            {
+                CodexBox.CustomIdentity = custom;
+                try
+                {
+                    OpenBox(home);
+                    tries[custom ? "customSid" : "capabilitySid"] = Run("echo started").Item2;
+                }
+                catch (Exception error) { tries[custom ? "customSid" : "capabilitySid"] = error.Message; }
+            }
+            CodexBox.CustomIdentity = false;
+            report["tries"] = tries;
             try
             {
                 OpenBox(home);
