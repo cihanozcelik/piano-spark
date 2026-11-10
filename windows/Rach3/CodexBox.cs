@@ -148,6 +148,31 @@ namespace Rach3
             }
         }
 
+#if PIANO_CAPTURE
+        /// <summary>Development only: how a path resolves from inside the box, the way Codex resolves its home.</summary>
+        public static int PathProbe(string path)
+        {
+            var handle = CreateFile(path, 0, 7, IntPtr.Zero, 3, 0x02000000, IntPtr.Zero);   // any access, share all, open existing, backup semantics
+            if (handle.IsInvalid) { Console.WriteLine("open error " + Marshal.GetLastWin32Error()); return 2; }
+            using (handle)
+            {
+                foreach (var flag in new uint[] { 0, 2 })   // VOLUME_NAME_DOS, VOLUME_NAME_NT
+                {
+                    var buffer = new StringBuilder(1024);
+                    var length = GetFinalPathNameByHandle(handle, buffer, (uint)buffer.Capacity, flag);
+                    Console.WriteLine((flag == 0 ? "dos " : "nt ") + (length == 0 ? "error " + Marshal.GetLastWin32Error() : buffer.ToString()));
+                }
+            }
+            return 0;
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern SafeFileHandle CreateFile(string name, uint access, uint share, IntPtr security, uint disposition, uint flags, IntPtr template);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "GetFinalPathNameByHandleW")]
+        static extern uint GetFinalPathNameByHandle(SafeFileHandle file, StringBuilder path, uint length, uint flags);
+#endif
+
         #region Windows
 
         [StructLayout(LayoutKind.Sequential)]
