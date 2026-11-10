@@ -1118,7 +1118,33 @@ namespace Rach3
                     probe + "name=probe -c " + probe + "base_url=https://example.com/v1 -c " + probe + "env_key=ACCESS_TOKEN -c " +
                     probe + "wire_api=responses -c " + probe + "requires_openai_auth=false -c " + probe + "supports_websockets=false -c " +
                     probe + "request_max_retries=0 -c " + probe + "stream_max_retries=0 hi");
-                report["internet"] = internet.Item2.Contains("405") ? "pass" : internet.Item1 + " " + internet.Item2.Substring(Math.Max(0, internet.Item2.Length - 1500));
+                report["internet"] = internet.Item2.Contains("405") ? "pass" : internet.Item1 + " " + internet.Item2.Substring(Math.Max(0, internet.Item2.Length - 600));
+                // Diagnosis (temporary): where the connection stops, and which group opens it.
+                var variants = new Dictionary<string, System.Security.Principal.SecurityIdentifier[]>
+                {
+                    ["box"] = new System.Security.Principal.SecurityIdentifier[0],
+                    ["+authenticated"] = new[] { new System.Security.Principal.SecurityIdentifier("S-1-5-11") },
+                    ["+authenticated+interactive"] = new[] { new System.Security.Principal.SecurityIdentifier("S-1-5-11"), new System.Security.Principal.SecurityIdentifier("S-1-5-4") },
+                    ["+user (no box)"] = new[] { System.Security.Principal.WindowsIdentity.GetCurrent().User },
+                };
+                var network = new Dictionary<string, object>();
+                foreach (var variant in variants)
+                {
+                    CodexBox.Extra = variant.Value.ToList();
+                    var steps = new Dictionary<string, object>();
+                    steps["dns"] = Run("nslookup example.com 2>&1 | findstr /i address").Item2;
+                    steps["http"] = Run("curl.exe -s -o NUL -w %{http_code} http://example.com").Item2;
+                    steps["httpsNoVerify"] = Run("curl.exe -sk -o NUL -w %{http_code} https://example.com 2>&1").Item2;
+                    steps["https"] = Run("curl.exe -sS -o NUL -w %{http_code} https://example.com 2>&1").Item2;
+                    var codexRun = Run("set ACCESS_TOKEN=probe&& \"" + CodexBinary + "\" exec --skip-git-repo-check -c model_provider=probe -c " +
+                        probe + "name=probe -c " + probe + "base_url=https://example.com/v1 -c " + probe + "env_key=ACCESS_TOKEN -c " +
+                        probe + "wire_api=responses -c " + probe + "requires_openai_auth=false -c " + probe + "supports_websockets=false -c " +
+                        probe + "request_max_retries=0 -c " + probe + "stream_max_retries=0 hi");
+                    steps["codex"] = codexRun.Item2.Contains("405") ? "405 reached" : codexRun.Item2.Substring(Math.Max(0, codexRun.Item2.Length - 200));
+                    network[variant.Key] = steps;
+                }
+                CodexBox.Extra = new List<System.Security.Principal.SecurityIdentifier>();
+                report["network"] = network;
             }
             catch (Exception error) { report["error"] = error.ToString(); }
             finally
