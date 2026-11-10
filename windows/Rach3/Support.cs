@@ -152,6 +152,12 @@ namespace Rach3
                 throw new InvalidOperationException("AssignProcessToJobObject failed: " + Marshal.GetLastWin32Error());
         }
 
+        public void Add(IntPtr process)
+        {
+            if (!AssignProcessToJobObject(handle, process))
+                throw new InvalidOperationException("AssignProcessToJobObject failed: " + Marshal.GetLastWin32Error());
+        }
+
         public void Terminate() { if (handle != IntPtr.Zero) TerminateJobObject(handle, 1); }
 
         public void Dispose()

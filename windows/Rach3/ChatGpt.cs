@@ -54,7 +54,7 @@ namespace Rach3
         Task<string> refreshing;
 
         // Codex app-server
-        Process codex;
+        BoxedProcess codex;
         ProcessGroup codexGroup;
         Stream codexInput;
         string codexToken;
@@ -374,20 +374,16 @@ namespace Rach3
             // Codex may search the web (OpenAI runs the search); rach3 fetches anything it
             // shows the person. On Windows only the "With AI" tab uses Codex, and it needs no
             // commands, so the shell is off: Codex works through rach3's own tools alone.
-            // Files it could change are limited to its empty scratch folder. Windows' sandbox
-            // cannot limit reading to system files only (the Mac's ":minimal"), so it reads
-            // like the person does; with no shell, nothing reads on its behalf anyway.
+            // CodexBox sets the limits: Windows keeps Codex to its program, its home and its
+            // empty scratch folder. Codex's own sandbox is off; it cannot run inside the box.
             var config = "# Written by rach3 on every start.\n" +
-                "default_permissions = \"rach3\"\n" +
+                "sandbox_mode = \"danger-full-access\"\n" +
                 "web_search = \"live\"\n\n" +
                 "[features]\n" +
                 "shell_tool = false\n\n" +
                 "[shell_environment_policy]\n" +
                 "ignore_default_excludes = false\n" +
-                "exclude = [\"ACCESS_TOKEN\", \"*TOKEN*\", \"*KEY*\", \"*SECRET*\"]\n\n" +
-                "[permissions.rach3.filesystem]\n" +
-                "\":root\" = \"read\"\n" +
-                TomlString(Workspace) + " = \"write\"\n";
+                "exclude = [\"ACCESS_TOKEN\", \"*TOKEN*\", \"*KEY*\", \"*SECRET*\"]\n";
             Files.WriteAtomic(Path.Combine(home, "config.toml"), config);
         }
 
@@ -396,7 +392,7 @@ namespace Rach3
             var environment = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var key in new[] { "SystemRoot", "SystemDrive", "windir", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "USERNAME", "USERDOMAIN",
                 "APPDATA", "LOCALAPPDATA", "ProgramData", "ProgramFiles", "ProgramFiles(x86)", "CommonProgramFiles", "COMPUTERNAME",
-                "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE", "OS", "PATHEXT", "ComSpec", "TEMP", "TMP",
+                "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE", "OS", "PATHEXT", "ComSpec",
                 "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "http_proxy", "https_proxy", "no_proxy" })
             {
                 var value = Environment.GetEnvironmentVariable(key);
@@ -406,7 +402,28 @@ namespace Rach3
             environment["PATH"] = string.Join(";", Path.Combine(codexRoot, "codex-path"), Path.Combine(system, "System32"), system,
                 Path.Combine(system, "System32", "Wbem"), Path.Combine(system, "System32", "WindowsPowerShell", "v1.0"));
             environment["CODEX_HOME"] = home;
+            environment["TEMP"] = environment["TMP"] = Path.Combine(home, "tmp");   // the person's temporary folder is closed to the box
             return environment;
+        }
+
+        /// <summary>Opens Codex's program to the box for reading, and its home and scratch folder for writing.</summary>
+        void OpenBox(string home)
+        {
+            Directory.CreateDirectory(Path.Combine(home, "tmp"));
+            Directory.CreateDirectory(Workspace);
+            var box = CodexBox.Identity();
+            CodexBox.Grant(box, codexRoot, write: false);
+            CodexBox.Grant(box, home, write: true);
+            CodexBox.Grant(box, Workspace, write: true);
+        }
+
+        /// <summary>Starts the bundled Codex inside the box, joined to <paramref name="group"/> before it runs.</summary>
+        BoxedProcess StartBoxed(string home, IEnumerable<string> arguments, string directory, ProcessGroup group, string token = null)
+        {
+            OpenBox(home);
+            var environment = CodexEnvironment(home);
+            if (token != null) environment["ACCESS_TOKEN"] = token;
+            return CodexBox.Start(CodexBinary, Files.Arguments(arguments), directory, environment, group.Add);
         }
 
         // Codex's newer models send searches to a separate endpoint that ChatGPT sign-in
@@ -416,20 +433,14 @@ namespace Rach3
         {
             try
             {
-                var start = new ProcessStartInfo(CodexBinary, "debug models --bundled")
-                {
-                    UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true,
-                    StandardOutputEncoding = new UTF8Encoding(false), WorkingDirectory = home,
-                };
-                start.EnvironmentVariables.Clear();
-                foreach (var pair in CodexEnvironment(home)) start.EnvironmentVariables[pair.Key] = pair.Value;
                 string output;
-                using (var process = Process.Start(start))
+                using (var group = new ProcessGroup(belowNormal: false))
+                using (var process = StartBoxed(home, new[] { "debug", "models", "--bundled" }, home, group))
                 {
-                    process.ErrorDataReceived += (sender, line) => { };
-                    process.BeginErrorReadLine();
-                    output = process.StandardOutput.ReadToEnd();
-                    if (!process.WaitForExit(30000)) { try { process.Kill(); } catch (InvalidOperationException) { } return null; }
+                    process.Input.Dispose();
+                    _ = Task.Run(() => process.Error.ReadToEnd());
+                    output = process.Output.ReadToEnd();
+                    if (!process.WaitForExit(30000)) { group.Terminate(); return null; }
                     if (process.ExitCode != 0) return null;
                 }
                 var catalog = Json.Object(output);
@@ -440,7 +451,8 @@ namespace Rach3
                 Files.WriteAtomic(file, Json.Write(catalog));
                 return file;
             }
-            catch (Exception error) when (error is IOException || error is System.ComponentModel.Win32Exception || error is InvalidOperationException || error is ArgumentException)
+            catch (Exception error) when (error is IOException || error is System.ComponentModel.Win32Exception || error is InvalidOperationException ||
+                                          error is ArgumentException || error is UnauthorizedAccessException)
             {
                 return null;
             }
@@ -483,39 +495,32 @@ namespace Rach3
                 "-c", provider + ".supports_websockets=false",
             };
             if (catalog != null) arguments.AddRange(new[] { "-c", "model_catalog_json=" + TomlString(catalog) });
-            var start = new ProcessStartInfo(CodexBinary, Files.Arguments(arguments))
-            {
-                UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Workspace,
-                RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true,
-                StandardOutputEncoding = new UTF8Encoding(false), StandardErrorEncoding = new UTF8Encoding(false),
-            };
-            start.EnvironmentVariables.Clear();
-            foreach (var pair in CodexEnvironment(home)) start.EnvironmentVariables[pair.Key] = pair.Value;
-            start.EnvironmentVariables["ACCESS_TOKEN"] = token;
             Directory.CreateDirectory(paths.Logs);
             var log = new StreamWriter(Path.Combine(paths.Logs, "codex.log"), false, new UTF8Encoding(false)) { AutoFlush = true };
-            var process = new Process { StartInfo = start };
-            process.ErrorDataReceived += (sender, line) => { if (line.Data != null) lock (log) log.WriteLine(line.Data); };
             var group = new ProcessGroup(belowNormal: false);
-            try
+            BoxedProcess process;
+            try { process = StartBoxed(home, arguments, Workspace, group, token); }
+            catch (Exception error) when (error is System.ComponentModel.Win32Exception || error is InvalidOperationException ||
+                                          error is IOException || error is UnauthorizedAccessException)
             {
-                process.Start();
-                group.Add(process);
-            }
-            catch (Exception error) when (error is System.ComponentModel.Win32Exception || error is InvalidOperationException || error is IOException)
-            {
-                group.Terminate(); group.Dispose(); log.Dispose(); process.Dispose();
+                lock (log) log.WriteLine("Codex did not start in its box: " + error.Message);
+                group.Terminate(); group.Dispose(); log.Dispose();
                 return "missing";
             }
-            process.BeginErrorReadLine();
-            codex = process; codexGroup = group; codexInput = process.StandardInput.BaseStream; codexToken = token;
+            new Thread(() =>
+            {
+                try { string line; while ((line = process.Error.ReadLine()) != null) lock (log) log.WriteLine(line); }
+                catch (IOException) { }
+                catch (ObjectDisposedException) { }
+            }) { IsBackground = true, Name = "Codex errors" }.Start();
+            codex = process; codexGroup = group; codexInput = process.Input; codexToken = token;
             codexReady = false; loadedThreads.Clear();
             var reader = new Thread(() =>
             {
                 try
                 {
                     string line;
-                    while ((line = process.StandardOutput.ReadLine()) != null)
+                    while ((line = process.Output.ReadLine()) != null)
                     {
                         Dictionary<string, object> message = null;
                         try { message = Json.Object(line); } catch (Exception) { }
@@ -524,7 +529,7 @@ namespace Rach3
                 }
                 catch (IOException) { }
                 catch (ObjectDisposedException) { }
-                try { process.WaitForExit(); } catch (InvalidOperationException) { }
+                try { process.WaitForExit(); } catch (ObjectDisposedException) { }
                 lock (log) log.Dispose();
                 ui.Post(_ => CodexEnded(process), null);
             }) { IsBackground = true, Name = "Codex output" };
@@ -558,9 +563,9 @@ namespace Rach3
             if (failTurn && turn != null) FinishTurn("failed", "codex");
         }
 
-        void CodexEnded(Process process)
+        void CodexEnded(BoxedProcess process)
         {
-            try { process.Dispose(); } catch (InvalidOperationException) { }
+            process.Dispose();
             if (process != codex) return;
             codexGroup?.Dispose();
             codex = null; codexGroup = null; codexReady = false; codexInput = null;
@@ -842,9 +847,12 @@ namespace Rach3
             try
             {
                 Files.Delete(Workspace);
-                Directory.CreateDirectory(Workspace);
+                OpenBox(Path.Combine(root, "codex"));   // a new scratch folder needs the box's access again
             }
-            catch (IOException) { return Fail("workspace"); }
+            catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is System.ComponentModel.Win32Exception)
+            {
+                return Fail("workspace");
+            }
             var thread = saved;
             if (thread == null)
             {
@@ -1045,8 +1053,62 @@ namespace Rach3
             report["thread"] = thread.Error != null ? Json.Write(thread.Error) : (thread.Result as Dictionary<string, object>)?.TryGetValue("thread", out var made) == true ? (made as Dictionary<string, object>)?.Text("id") : null;
             var tool = await RunTool(new Dictionary<string, object> { ["tool"] = "list_lessons", ["arguments"] = new Dictionary<string, object>() });
             report["listLessons"] = tool.Item2;
+            report["box"] = await Task.Run(() => SelfTestBox());
             StopCodex();
             session = new Dictionary<string, object>();
+            return report;
+        }
+
+        /// <summary>
+        /// What the box lets through, tried by a command prompt in the same box as Codex:
+        /// the person's files, rach3's own data and the Desktop stay closed; Codex's
+        /// program, its scratch folder and the internet stay open. Each entry is "pass" or why not.
+        /// </summary>
+        Dictionary<string, object> SelfTestBox()
+        {
+            var home = Path.Combine(root, "codex");
+            var secret = "rach3-box-secret-" + Guid.NewGuid().ToString("N");
+            var personal = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "rach3-box-probe.txt");
+            var ours = Path.Combine(root, "rach3-box-probe.txt");
+            var desktop = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "rach3-box-probe.txt");
+            var scratch = Path.Combine(Workspace, "rach3-box-probe.txt");
+            File.WriteAllText(personal, secret); File.WriteAllText(ours, secret);
+            if (File.Exists(desktop)) File.Delete(desktop);
+            Tuple<int, string> Run(string command)
+            {
+                using (var group = new ProcessGroup(belowNormal: false))
+                using (var process = CodexBox.Start(Path.Combine(Environment.SystemDirectory, "cmd.exe"), "/d /s /c \"" + command + "\"",
+                                                    Workspace, CodexEnvironment(home), group.Add))
+                {
+                    process.Input.Dispose();
+                    var error = Task.Run(() => process.Error.ReadToEnd());
+                    var output = process.Output.ReadToEnd();
+                    if (!process.WaitForExit(60000)) { group.Terminate(); return Tuple.Create(-1, "timed out"); }
+                    return Tuple.Create(process.ExitCode, (output + error.Result).Trim());
+                }
+            }
+            string Closed(Tuple<int, string> run) => run.Item1 != 0 && !run.Item2.Contains(secret) ? "pass" : run.Item1 + " " + run.Item2;
+            var report = new Dictionary<string, object>();
+            try
+            {
+                OpenBox(home);
+                report["readPersonal"] = Closed(Run("type \"" + personal + "\""));
+                report["listPersonal"] = Closed(Run("dir /b \"" + Path.GetDirectoryName(personal) + "\""));
+                report["readRach3Data"] = Closed(Run("type \"" + ours + "\""));
+                var write = Run("echo box> \"" + desktop + "\"");
+                report["writeDesktop"] = !File.Exists(desktop) ? "pass" : write.Item1 + " " + write.Item2;
+                var made = Run("echo box> \"" + scratch + "\" && type \"" + scratch + "\"");
+                report["writeScratch"] = made.Item1 == 0 && File.Exists(scratch) ? "pass" : made.Item1 + " " + made.Item2;
+                var program = Run("dir /b \"" + Path.Combine(codexRoot, "bin") + "\"");
+                report["readCodex"] = program.Item1 == 0 && program.Item2.Contains("codex.exe") ? "pass" : program.Item1 + " " + program.Item2;
+                var internet = Run("curl.exe -s -o NUL -w %{http_code} https://example.com");
+                report["internet"] = internet.Item2.Trim() == "200" ? "pass" : internet.Item1 + " " + internet.Item2;
+            }
+            catch (Exception error) { report["error"] = error.ToString(); }
+            finally
+            {
+                foreach (var file in new[] { personal, ours, desktop, scratch }) try { File.Delete(file); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            }
             return report;
         }
 
