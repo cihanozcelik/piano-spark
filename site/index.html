@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="rach3 is a free, open-source piano practice app in public beta. Follow the score, play your own piano, and learn at your pace. Create lessons from MIDI, sheet music, videos, and YouTube links.">
+  <meta name="description" content="rach3 is a free, open-source, AI-powered piano practice app in public beta. AI finds the piece you ask for and makes it a lesson, changes the app the way you describe, and guides your practice on your own piano.">
   <meta name="theme-color" content="#000000">
   <meta property="og:title" content="rach3. Your piano. Your pace.">
-  <meta property="og:description" content="A free app for practicing on your own piano. It waits until you play the right keys.">
+  <meta property="og:description" content="AI-powered piano practice: lessons from a single sentence, an app you can reshape by asking, and AI that tells you what to work on.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://rach3.com/assets/social-card.jpg">
   <meta property="og:image:width" content="1200">
@@ -34,11 +34,20 @@
   </script>
 </head>
 <body>
+<!-- The app's AI sparkle, filled with the same blue-violet-coral as the gradient headlines. -->
+<svg class="svg-sprite" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="ai-ink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d8ee6"/><stop offset=".55" stop-color="#9a8fe0"/><stop offset="1" stop-color="#d9939a"/></linearGradient>
+  <symbol id="ai-spark" viewBox="0 0 16 16"><path d="M8 0l1.6 4.8L14.4 6 9.6 7.6 8 12.4 6.4 7.6 1.6 6l4.8-1.2zM13 10l.8 2.2L16 13l-2.2.8L13 16l-.8-2.2L10 13l2.2-.8z"/></symbol>
+  <symbol id="lock" viewBox="0 0 16 16"><path d="M4 7V5a4 4 0 1 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 1 0-4 0z"/></symbol>
+  <symbol id="ic-find" viewBox="0 0 28 28"><circle cx="12" cy="13" r="7.5"/><path d="m17.5 18.5 6 6M22.5 2.5v5M20 5h5"/></symbol>
+  <symbol id="ic-customize" viewBox="0 0 28 28"><path d="M3 7.5h10m5 0h7M3 14h4m5 0h13M3 20.5h13m5 0h4"/><circle cx="15.5" cy="7.5" r="2.5"/><circle cx="9.5" cy="14" r="2.5"/><circle cx="18.5" cy="20.5" r="2.5"/></symbol>
+  <symbol id="ic-guide" viewBox="0 0 28 28"><path d="M2.5 14h3.5l2.5-6 4 13 4-17 3.5 12 2-2h3.5"/></symbol>
+</defs></svg>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <nav class="nav shell" aria-label="Main navigation">
     <a class="wordmark" href="#main" aria-label="rach3 home"><img class="wordmark-logo" src="assets/rach3-wordmark-on-dark.png" alt="" width="75" height="19"><span class="beta-badge">Beta</span></a>
-    <div class="nav-links"><a href="#how">How it works</a><a href="#practice">Practice</a><a href="#create">Creating lessons</a><a href="#requirements">What you need</a><a href="#open-source">Open source</a></div>
+    <div class="nav-links"><a href="#ai">AI</a><a href="#practice">Practice</a><a href="#how">How it works</a><a href="#open-source">Open source</a></div>
     <a class="nav-language" href="__OTHER_PAGE__" data-language="__OTHER_LANG__" lang="__OTHER_LANG__" hreflang="__OTHER_LANG__">__OTHER_NAME__</a>
     <div class="nav-cta"><a class="button button-small" href="#download">Download</a></div>
   </nav>
@@ -47,100 +56,162 @@
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-stage section-shell">
       <div class="hero-copy">
-        <p class="eyebrow">Free and open source <span>· Public beta</span></p>
         <h1 id="hero-title">Your piano.<span class="gradient-text">Your pace.</span></h1>
-        <p class="hero-description">Follow the notes. Play the right keys. rach3 waits until you’re ready to move on.</p>
-        <div class="hero-actions"><a class="button" href="#download">Download <span aria-hidden="true">↓</span></a><a class="text-link" href="#practice">Take a closer look <span aria-hidden="true">›</span></a></div>
-        <p class="platform-line">__PLATFORM_LINE__</p>
+        <ul class="hero-ai">
+          <li><a href="#find"><svg class="hero-ai-icon" aria-hidden="true"><use href="#ic-find"/></svg><strong><svg class="hero-ai-spark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-powered lesson creation</strong><span>Name a piece. An AI agent finds it and guides you to a ready lesson.</span></a></li>
+          <li><a href="#customize"><svg class="hero-ai-icon" aria-hidden="true"><use href="#ic-customize"/></svg><strong><svg class="hero-ai-spark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-powered customization</strong><span>Describe a change in your own words. AI builds it into rach3.</span></a></li>
+          <li><a href="#feedback"><svg class="hero-ai-icon" aria-hidden="true"><use href="#ic-guide"/></svg><strong><svg class="hero-ai-spark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-guided lessons</strong><span>AI follows how you play and tells you what to work on next.</span></a></li>
+        </ul>
+        <div class="hero-actions"><a class="button" href="#download">Download <span aria-hidden="true">↓</span></a><a class="text-link" href="#ai">See what it can do <span aria-hidden="true">›</span></a></div>
+        <p class="platform-line">__PLATFORM_LINE__ <span>AI features: Mac for now, with your ChatGPT account.</span></p>
         <p class="beta-line">Still in beta, so expect rough edges — <a href="https://github.com/cihanozcelik/rach3/issues">tell us what you find</a>.</p>
       </div>
       <div class="hero-art" aria-hidden="true"><img src="assets/rach3-hero.png" alt="" width="960" height="770" fetchpriority="high"></div>
       <figure class="hero-product">
         <div class="product-bloom" aria-hidden="true"></div>
-        <div class="app-window"><img class="app-screen" src="assets/practice.png" alt="rach3’s real practice screen, showing classical sheet music above color-coded falling notes and a piano keyboard." width="3200" height="2196"></div>
-        <figcaption>The score on top, the falling notes below, the keyboard at the bottom.</figcaption>
+        <div class="app-window"><img class="app-screen" src="assets/customize.jpg" alt="rach3 with the Customize panel open. Someone asked for a wooden metronome, then a sleepy cat. The metronome now sits over the falling notes, saved as version 1 on a branch called Metronome." width="2400" height="1957" fetchpriority="high"></div>
+        <figcaption><svg class="ai-mark" aria-hidden="true"><use href="#ai-spark"/></svg>The practice screen with Customize open. Someone asked for a wooden metronome, and it now sits over the falling notes.</figcaption>
       </figure>
     </div>
   </section>
 
-  <section class="home-section" id="how" aria-labelledby="home-title">
+  <section class="ai-chapter" id="ai" aria-labelledby="ai-title">
     <div class="section-shell">
-      <div class="section-heading centered"><p class="eyebrow">HOW IT WORKS</p><h2 id="home-title">Your own piano.<br><span class="gradient-text">A little more fun.</span></h2><p class="section-description">For people with a digital piano at home.</p></div>
-      <figure class="home-photo"><img src="assets/piano-at-home.jpg" alt="A woman plays a black Yamaha digital piano. Her laptop lies on the folded music rest, showing rach3’s practice screen." width="1536" height="1024" loading="lazy"></figure>
-      <div class="home-steps">
-        <article><h3>Set it on the piano.</h3><p>Fold the music rest back and set your laptop on top. The score and the falling notes stay in front of you while you play.</p></article>
-        <article><h3>Connect over Bluetooth MIDI.</h3><p>Turn on Bluetooth MIDI on your piano and choose it in the app.</p></article>
-        <article><h3>Play.</h3><p>rach3 sees every key and the pedal as you press them.</p></article>
+      <div class="section-heading centered">
+        <p class="eyebrow ai-eyebrow"><svg class="ai-mark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-POWERED</p>
+        <h2 id="ai-title">Just ask.<br><span class="gradient-text">Then play.</span></h2>
+        <p class="section-description">AI finds the music you ask for, reshapes rach3 around you and guides your practice. It signs in with your own ChatGPT account.</p>
       </div>
+      <nav class="ai-index" aria-label="AI features">
+        <a href="#find"><svg aria-hidden="true"><use href="#ic-find"/></svg><span>AI-powered lesson creation</span></a>
+        <a href="#customize"><svg aria-hidden="true"><use href="#ic-customize"/></svg><span>AI-powered customization</span></a>
+        <a href="#feedback"><svg aria-hidden="true"><use href="#ic-guide"/></svg><span>AI-guided lessons</span></a>
+      </nav>
+
+      <article class="ai-part" id="find" aria-labelledby="find-title">
+        <div class="ai-copy">
+          <p class="ai-label"><svg class="ai-mark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-POWERED LESSON CREATION</p>
+          <h3 id="find-title">From a sentence<br><span class="soft-text">to a lesson.</span></h3>
+          <p class="ai-lead">Tell rach3 what you want to play. An AI agent searches the web for free MIDI files, sheet music and YouTube videos, lets you listen and look first, and turns the one you pick into a lesson.</p>
+          <ol class="ask-steps">
+            <li><span class="step-number">01</span><strong>Say it your way.</strong><span>A title, a composer, a film song. “Something easy for my left hand” works too.</span></li>
+            <li><span class="step-number">02</span><strong>Listen and look first.</strong><span>Play the MIDI, flip through and zoom into the score, watch the video right in the chat. Not quite it? Ask for another.</span></li>
+            <li><span class="step-number">03</span><strong>One click to a lesson.</strong><span>Pick the one you want. It joins your lessons with the score and falling notes.</span></li>
+          </ol>
+          <p class="ai-fine">Mac only for now. Sign in with your ChatGPT account; it uses your ChatGPT plan. Music found on the web keeps its own license.</p>
+        </div>
+        <figure class="ai-visual">
+          <div class="product-bloom" aria-hidden="true"></div>
+          <div class="app-window"><img class="app-screen" src="assets/ai-find.jpg" alt="rach3’s Create a Lesson screen, on the With AI tab. Someone asks for the first movement of the Moonlight Sonata, and rach3 answers with a MIDI to listen to and the pages of a free score." width="1344" height="1989" loading="lazy"></div>
+          <figcaption>Score and MIDI: Beethoven, Moonlight Sonata, from the <a href="https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=276">Mutopia Project</a>, CC BY-SA 2.5.</figcaption>
+        </figure>
+      </article>
+
+      <div class="own-sources" id="create">
+        <div class="own-heading"><h4>Already have the music?</h4><p>Give rach3 a MIDI file, a PDF score, a video or a YouTube link.</p></div>
+        <ul class="source-list">
+          <li><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M7 4v16m0 0c0 4-6 4-6 0s6-4 6 0Zm0-16 15-3v16m0 0c0 4-6 4-6 0s6-4 6 0ZM7 10l15-3"/></svg></span><strong>MIDI</strong><span>Uses the notes, timing and pedal already in the file.</span></li>
+          <li><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M7 2h10l5 5v19H7zM17 2v6h5M10 13h9M10 17h9M10 21h6"/></svg></span><strong>Sheet music</strong><span>Reads a PDF score and turns its notes into a lesson.</span></li>
+          <li><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3" y="5" width="22" height="18" rx="4"/><path d="m11 10 7 4-7 4z"/></svg></span><strong>Video</strong><span>Makes a lesson from the piano in a video on your computer.</span></li>
+          <li><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M11 7H5v17h17v-6M14 4h10v10M24 4 11 17"/></svg></span><strong>YouTube</strong><span>Paste a link and the piano in the video becomes a lesson.</span></li>
+        </ul>
+        <p class="feature-note">Audio transcription and PDF recognition are experimental. Generated lessons can contain note or rhythm errors. Local-file processing runs on your Mac; YouTube requires an internet connection.</p>
+      </div>
+
+      <article class="ai-part ai-part-reverse" id="customize" aria-labelledby="customize-title">
+        <div class="ai-copy">
+          <p class="ai-label"><svg class="ai-mark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-POWERED CUSTOMIZATION</p>
+          <h3 id="customize-title">Describe a change.<br><span class="soft-text">Watch it happen.</span></h3>
+          <p class="ai-lead">Open Customize and say what you want in your own words: a missing feature, a different look, a wooden metronome. AI rewrites rach3’s interface while you watch, and you can always go back.</p>
+          <ul class="assurances">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><strong>The original never changes.</strong><span>Every change is saved as a version on its own branch. Switch to any of them, or back to rach3 as it came, in one click.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="3"/><path d="M3 9h18"/></svg><strong>It only touches rach3.</strong><span>It works on a sealed-off copy of rach3’s interface. It can’t open your files, and your changes stay on your Mac.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17.5a8.5 8.5 0 1 1 17 0M12 17.5l4.5-5"/></svg><strong>You see what it uses.</strong><span>Sign in with ChatGPT. The panel shows how much of your plan each change used.</span></li>
+          </ul>
+          <p class="ai-fine">Mac only for now, with your ChatGPT account. Changes apply to rach3’s interface only.</p>
+        </div>
+        <fieldset class="versions ai-visual">
+          <legend class="visually-hidden">Versions of rach3</legend>
+          <input class="visually-hidden" type="radio" name="version" id="v-original">
+          <input class="visually-hidden" type="radio" name="version" id="v-metronome" checked>
+          <input class="visually-hidden" type="radio" name="version" id="v-cat">
+          <div class="version-tabs">
+            <label for="v-original"><svg class="lock" aria-hidden="true"><use href="#lock"/></svg>As it came</label>
+            <label for="v-metronome">Metronome</label>
+            <label for="v-cat">Sleepy cat</label>
+          </div>
+          <div class="version-say">
+            <p class="version-note v-original">rach3 as it came. It stays locked, so you can always go back to it.</p>
+            <p class="prompt-bubble v-metronome">Add a metronome next to the falling notes. Something warm, like a real wooden one.</p>
+            <p class="prompt-bubble v-cat">And a sleepy cat on the keyboard, reaching out a paw.</p>
+          </div>
+          <div class="version-frame">
+            <img class="v-original" src="assets/customize-original.jpg" alt="rach3’s falling notes and keyboard as the app came, with nothing added." width="1156" height="1200" loading="lazy">
+            <img class="v-metronome" src="assets/metronome.jpg" alt="A wooden metronome at 72 BPM in 4/4, lighting each beat, with − and + and Tap tempo, over rach3’s falling notes." width="1156" height="1200" loading="lazy">
+            <img class="v-cat" src="assets/sleepy-cat.jpg" alt="A ginger cat asleep on rach3’s on-screen keyboard, one paw hanging over the keys." width="1156" height="1200" loading="lazy">
+          </div>
+        </fieldset>
+      </article>
+
+      <article class="ai-guide" id="feedback" aria-labelledby="feedback-title">
+        <div class="guide-copy">
+          <p class="ai-label"><svg class="ai-mark" aria-hidden="true"><use href="#ai-spark"/></svg>AI-GUIDED LESSONS</p>
+          <h3 id="feedback-title">rach3 hears every note.<br><span class="soft-text">AI tells you what to work on.</span></h3>
+          <p class="ai-lead">rach3 knows every key and pedal you press, and exactly when. AI looks at how you played and tells you, in plain words, which part needs work and what to practice next.</p>
+        </div>
+        <div class="guide-asks">
+          <p class="guide-asks-label" id="guide-asks-label">Just ask:</p>
+          <ul aria-labelledby="guide-asks-label">
+            <li class="prompt-bubble">How did that go?</li>
+            <li class="prompt-bubble">Which part should I practice again?</li>
+            <li class="prompt-bubble">What should I work on next?</li>
+          </ul>
+        </div>
+      </article>
     </div>
   </section>
 
-  <section class="practice-section section-shell" id="practice" aria-labelledby="practice-title">
-    <div class="section-heading split-heading">
-      <div><p class="eyebrow">PRACTICE</p><h2 id="practice-title">The music waits<br><span class="soft-text">for the right keys.</span></h2></div>
-      <p class="section-description">It doesn’t run on like a video. The lesson moves only when you press the next notes, and stops while you hold a wrong key.</p>
-    </div>
-    <div class="learning-sequence">
-      <article><span class="step-number">01</span><h3>Read the score or watch the bars.</h3><p>Both move together. Follow whichever is easier for you.</p></article>
-      <article><span class="step-number">02</span><h3>Press the right keys.</h3><p>The lesson waits until every note of the chord is down and any extra key is up.</p></article>
-      <article><span class="step-number">03</span><h3>Hold, then let go.</h3><p>Keep long notes down for as long as they last, then let go and play the next ones.</p></article>
-    </div>
-    <div class="photo-pair"><figure class="home-photo"><img src="assets/learner-morning.jpg" alt="A smiling woman plays a black digital piano by a window, with rach3 open on the laptop on top of it." width="1536" height="1024" loading="lazy"></figure><figure class="home-photo"><img src="assets/learner-family.jpg" alt="A girl plays a digital piano while her father points at rach3 on the laptop on top of it." width="1536" height="1024" loading="lazy"></figure></div>
-  </section>
-
-  <section class="ways-section" aria-labelledby="ways-title">
+  <section class="practice-section" id="practice" aria-labelledby="practice-title">
     <div class="section-shell">
-      <div class="section-heading centered"><p class="eyebrow">THE SCREEN</p><h2 id="ways-title">The score on top.<br><span class="soft-text">The keys below.</span></h2><p class="section-description">Can’t read music yet? Follow the falling notes. Can read it? Use both.</p></div>
+      <div class="section-heading split-heading">
+        <div><p class="eyebrow">PRACTICE</p><h2 id="practice-title">The music waits<br><span class="soft-text">for the right keys.</span></h2></div>
+        <p class="section-description">It doesn’t run on like a video. The lesson moves only when you press the next notes, and stops while you hold a wrong key. Can’t read music yet? Follow the falling notes. Can read it? Use both.</p>
+      </div>
       <div class="practice-detail">
-        <figure class="detail-screen"><img src="assets/practice.png" alt="The score, falling-note lanes, playback controls, and on-screen keys in the rach3 app." width="3200" height="2196" loading="lazy"></figure>
+        <figure class="practice-shot">
+          <div class="product-bloom" aria-hidden="true"></div>
+          <div class="app-window"><img class="app-screen" src="assets/practice.png" alt="rach3’s real practice screen, showing classical sheet music above color-coded falling notes and a piano keyboard." width="3200" height="2196" loading="lazy"></div>
+          <figcaption>The score on top, the falling notes below, the keyboard at the bottom.</figcaption>
+        </figure>
         <div class="detail-copy">
           <article><span class="feature-line blue" aria-hidden="true"></span><h3>Left hand blue,<br>right hand coral.</h3><p>In lessons with separate hands. Practice one hand first, then both together.</p></article>
           <article><span class="feature-line coral" aria-hidden="true"></span><h3>Slow down,<br>listen first.</h3><p>Lower the tempo, listen to the lesson before you play it, and turn on Repeat to start again at the end.</p></article>
           <article><span class="feature-line graphite" aria-hidden="true"></span><h3>Pick up<br>where you left off.</h3><p>Close the app and open it again: the lesson, the position and your settings are as you left them.</p></article>
         </div>
       </div>
-    </div>
-  </section>
 
-  <section class="create-section section-shell" id="create" aria-labelledby="create-title">
-    <div class="section-heading centered"><p class="eyebrow">CREATING LESSONS</p><h2 id="create-title">Turn the song you want<br><span class="gradient-text">into a lesson.</span></h2><p class="section-description">Give rach3 a MIDI file, a PDF score, a video or a YouTube link.</p></div>
-    <div class="youtube-flow">
-      <figure class="flow-card">
-        <p class="flow-label">From YouTube</p>
-        <div class="flow-frame video-frame"><img src="assets/youtube-cover.jpg" alt="A home video: a young man plays an upright piano while a young woman sings next to him." width="1536" height="1024" loading="lazy"><span class="video-bar" aria-hidden="true"><span></span></span></div>
-        <figcaption>Piano and singing, filmed at home.</figcaption>
-      </figure>
-      <div class="flow-arrow" aria-hidden="true"><span>→</span></div>
-      <figure class="flow-card">
-        <p class="flow-label">In rach3</p>
-        <div class="flow-frame notes-frame"><img src="assets/practice.png" alt="The same song as a rach3 lesson: falling notes above the keyboard." width="3200" height="2196" loading="lazy"></div>
-        <figcaption>The singing is removed, the piano becomes notes.</figcaption>
-      </figure>
+      <div class="home-part" id="how">
+        <div class="home-heading">
+          <div><p class="eyebrow">HOW IT WORKS</p><h3 id="home-title">Your own piano.<br><span class="soft-text">A little more fun.</span></h3></div>
+          <p class="section-description">For people with a digital piano at home.</p>
+        </div>
+        <div class="photo-mosaic">
+          <figure class="home-photo"><img src="assets/piano-at-home.jpg" alt="A woman plays a black Yamaha digital piano. Her laptop lies on the folded music rest, showing rach3’s practice screen." width="1536" height="1024" loading="lazy"></figure>
+          <figure class="home-photo"><img src="assets/learner-morning.jpg" alt="A smiling woman plays a black digital piano by a window, with rach3 open on the laptop on top of it." width="1536" height="1024" loading="lazy"></figure>
+          <figure class="home-photo"><img src="assets/learner-family.jpg" alt="A girl plays a digital piano while her father points at rach3 on the laptop on top of it." width="1536" height="1024" loading="lazy"></figure>
+        </div>
+        <div class="home-steps">
+          <article><span class="step-number">01</span><h4>Set it on the piano.</h4><p>Fold the music rest back and set your laptop on top. The score and the falling notes stay in front of you while you play.</p></article>
+          <article><span class="step-number">02</span><h4>Connect over Bluetooth MIDI.</h4><p>Turn on Bluetooth MIDI on your piano and choose it in the app.</p></article>
+          <article><span class="step-number">03</span><h4>Play.</h4><p>rach3 sees every key and the pedal as you press them.</p></article>
+        </div>
+      </div>
     </div>
-    <figure class="creation-product"><div class="product-bloom" aria-hidden="true"></div><div class="app-window"><img class="app-screen" src="assets/create-lesson.png" alt="The actual Create a Lesson screen in rach3, with options for video files, YouTube links, MIDI, and PDF sheet music." width="3200" height="2196" loading="lazy"></div></figure>
-    <p class="library-copy">Lessons you make stay in your library.</p>
-    <div class="source-list">
-      <article><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M7 4v16m0 0c0 4-6 4-6 0s6-4 6 0Zm0-16 15-3v16m0 0c0 4-6 4-6 0s6-4 6 0ZM7 10l15-3"/></svg></span><h3>MIDI</h3><p>Uses the notes, timing and pedal already in the file.</p></article>
-      <article><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M7 2h10l5 5v19H7zM17 2v6h5M10 13h9M10 17h9M10 21h6"/></svg></span><h3>Sheet music</h3><p>Reads a PDF score and turns its notes into a lesson.</p></article>
-      <article><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="3" y="5" width="22" height="18" rx="4"/><path d="m11 10 7 4-7 4z"/></svg></span><h3>Video</h3><p>Makes a lesson from the piano in a video on your computer.</p></article>
-      <article><span class="source-icon" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M11 7H5v17h17v-6M14 4h10v10M24 4 11 17"/></svg></span><h3>YouTube</h3><p>Paste a link and the piano in the video becomes a lesson.</p></article>
-    </div>
-    <p class="feature-note">Audio transcription and PDF recognition are experimental. Generated lessons can contain note or rhythm errors. Local-file processing runs on your Mac; YouTube requires an internet connection.</p>
   </section>
 
   <section class="atmosphere-section" aria-labelledby="atmosphere-title">
-    <div class="atmosphere-copy section-shell"><p class="eyebrow">FREE</p><h2 id="atmosphere-title">No account.<br><span class="soft-text">No subscription.</span></h2><p>Download it, open it, start playing.</p></div>
+    <div class="atmosphere-copy section-shell"><p class="eyebrow">FREE</p><h2 id="atmosphere-title">No sign-up.<br><span class="soft-text">No subscription.</span></h2><p>Download it, open it, play. For the AI features, sign in with your own ChatGPT account; they use your ChatGPT plan. rach3 has no plan to sell you.</p></div>
     <img class="keyboard-art" src="assets/keyboard-hero.jpg" alt="A studio illustration of piano keys with soft blue and coral light, echoing rach3’s visual note guidance." width="1672" height="941" loading="lazy">
-  </section>
-
-  <section class="setup-section section-shell" id="requirements" aria-labelledby="setup-title">
-    <div class="section-heading split-heading"><div><p class="eyebrow">WHAT YOU NEED</p><h2 id="setup-title">A computer<br><span class="soft-text">and a piano.</span></h2></div><p class="section-description">Nothing else to install. The tools for making lessons from videos and PDFs download the first time you use them.</p></div>
-    <div class="setup-grid">
-      <article><span class="setup-label">THE COMPUTER</span><h3>__MAC_TITLE__</h3><p>__MAC_TEXT__</p></article>
-      <article><span class="setup-label">THE PIANO</span><h3>A piano with<br>Bluetooth MIDI.</h3><p>rach3 reads your keys and pedal over Bluetooth MIDI. A piano that only plays audio over Bluetooth isn’t enough.</p></article>
-      <article><span class="setup-label">UPDATES</span><h3>Updates keep<br>your lessons.</h3><p>Lessons and settings stay after every update, and downloaded tools aren’t downloaded again.</p></article>
-    </div>
-    <figure class="home-photo"><img src="assets/learner-night.jpg" alt="A young man with headphones plays a digital piano at night, with rach3 open on the laptop on top of it." width="1536" height="1024" loading="lazy"></figure>
   </section>
 
   <section class="open-section" id="open-source" aria-labelledby="open-title">
@@ -178,6 +249,16 @@
       <h2 id="download-title">Download rach3.</h2>
       <div class="platform-grid">__PLATFORM_DOWNLOADS__</div>
       <p class="download-release">__RELEASE_LABEL__</p>
+      <div class="needs" id="requirements" aria-labelledby="needs-title">
+        <h3 id="needs-title">What you need</h3>
+        <p class="needs-intro">Nothing else to install. The tools for making lessons from videos and PDFs download the first time you use them.</p>
+        <div class="needs-grid">
+          <article><span class="setup-label">THE COMPUTER</span><h4>__MAC_TITLE__</h4><p>__MAC_TEXT__</p></article>
+          <article><span class="setup-label">THE PIANO</span><h4>A piano with Bluetooth MIDI.</h4><p>rach3 reads your keys and pedal over Bluetooth MIDI. A piano that only plays audio over Bluetooth isn’t enough.</p></article>
+          <article><span class="setup-label">AI FEATURES</span><h4>A ChatGPT account.</h4><p>The With AI tab and Customize work on Mac for now. Both sign in with your ChatGPT account and use your ChatGPT plan. Music found on the web keeps its own license.</p></article>
+          <article><span class="setup-label">UPDATES</span><h4>Updates keep your lessons.</h4><p>Lessons and settings stay after every update, and downloaded tools aren’t downloaded again.</p></article>
+        </div>
+      </div>
     </div>
   </section>
 </main>

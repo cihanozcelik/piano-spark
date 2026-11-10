@@ -11,6 +11,8 @@
   --blue:#0071e3;
   --blue-hover:#0077ed;
   --link:#2997ff;
+  --accent:#8fa6e4;
+  --bubble:#33415a;
   --max:1180px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
 }
@@ -22,12 +24,19 @@ a{color:inherit;text-decoration:none}
 button,a{-webkit-tap-highlight-color:transparent}
 button{font:inherit}
 a:focus-visible,button:focus-visible{outline:3px solid var(--link);outline-offset:5px}
-figure,p,h1,h2,h3,h4{margin:0}
+figure,p,h1,h2,h3,h4,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
 img{display:block;max-width:100%;height:auto}
 svg{display:block}
+h2,h3,h4,figcaption{text-wrap:balance}
+p,li{text-wrap:pretty}
+/* a heading's second line is its own block, so it balances on its own too */
+h2 .soft-text,h3 .soft-text{display:block;text-wrap:balance}
 .section-shell,.shell{width:min(var(--max),calc(100% - 80px));margin-inline:auto}
 .skip-link{position:fixed;top:10px;left:12px;z-index:100;padding:12px 18px;background:var(--ink);color:#000;border-radius:8px;transform:translateY(-160%)}
 .skip-link:focus{transform:translateY(0)}
+.svg-sprite{position:absolute;width:0;height:0;overflow:hidden}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 /* ---------- Header ---------- */
 .site-header{height:52px;position:sticky;top:0;z-index:20;background:#000000b8;
@@ -39,14 +48,14 @@ svg{display:block}
 .beta-badge{display:inline-flex;align-items:center;padding:2px 5px 1px;border:1px solid #ffffff38;border-radius:5px;
   color:var(--secondary);font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;line-height:1.2}
 .wordmark .beta-badge{position:relative;top:1px}
-.nav-links{display:flex;gap:26px;margin-left:auto;font-size:12.5px;letter-spacing:-.01em;color:#d2d2d7}
+.nav-links{display:flex;gap:28px;margin-left:auto;font-size:12.5px;letter-spacing:-.01em;color:#d2d2d7}
 .nav-links a{opacity:.86;transition:opacity .2s}
 .nav-links a:hover{opacity:1}
 .nav-language{font-size:12px;color:var(--secondary);border:1px solid #ffffff2e;border-radius:980px;padding:3px 10px;transition:color .2s,border-color .2s}
 .nav-language:hover{color:var(--ink);border-color:#ffffff66}
 .nav-cta{flex:none}
 
-/* ---------- Buttons and links ---------- */
+/* ---------- Buttons, links and small type ---------- */
 .button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:980px;
   background:var(--blue);color:#fff;font-size:17px;font-weight:400;line-height:1.2;padding:12px 24px;
   text-align:center;transition:background .2s;white-space:nowrap;cursor:pointer}
@@ -55,26 +64,38 @@ svg{display:block}
 .button:disabled{background:#2a2a2d;color:#8e8e93;cursor:default;pointer-events:none}
 .text-link{color:var(--link);font-size:17px;display:inline-flex;align-items:center;gap:6px;line-height:1.3;letter-spacing:-.01em}
 .text-link:hover{text-decoration:underline;text-underline-offset:4px}
-.eyebrow{font-size:14px;font-weight:600;letter-spacing:.01em;line-height:1.5;color:#8fa6e4}
+.eyebrow{font-size:14px;font-weight:600;letter-spacing:.01em;line-height:1.5;color:var(--accent)}
 .eyebrow span{color:var(--tertiary);font-weight:400}
+/* Gradient ink is kept for AI: the hero's second line, the AI chapter and the ✦ mark. */
 .gradient-text{background:linear-gradient(105deg,#5076d5 8%,#7a73ba 48%,#c48288 78%,#bf7b65);
   -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 .soft-text{color:#6e6e73}
+.ai-mark{width:14px;height:14px;flex:none;fill:url(#ai-ink)}
+.step-number{display:block;font-size:13px;font-weight:600;color:var(--tertiary);font-variant-numeric:tabular-nums}
 
 /* ---------- Hero: the pianist under the moon, then the app ---------- */
-.hero{position:relative;isolation:isolate;overflow:hidden;padding-bottom:110px}
+.hero{position:relative;isolation:isolate;overflow:hidden;padding-bottom:120px}
 .hero::before{content:"";position:absolute;inset:0;z-index:-2;pointer-events:none;
-  background:radial-gradient(45% 40% at 70% 26%,#8fa6e41a,transparent 70%),radial-gradient(50% 30% at 50% 94%,#2997ff0d,transparent 70%)}
+  background:radial-gradient(45% 40% at 70% 26%,#8fa6e41a,transparent 70%),radial-gradient(50% 30% at 50% 94%,#2997ff0d,transparent 70%),
+    radial-gradient(28% 24% at 86% 78%,#be8cff12,transparent 70%)}
 /* --sw: width of the artwork; --ov: how much of it the app window covers (the piano's fading base). */
-.hero-stage{--sw:min(600px,46vw);--ov:calc(var(--sw) * .085);
+.hero-stage{--sw:min(640px,46vw);--ov:calc(var(--sw) * .085);
   display:grid;grid-template-columns:minmax(0,1fr) var(--sw);grid-template-areas:"copy art" "shot shot";
   column-gap:24px;padding-top:44px}
 .hero-copy{grid-area:copy;align-self:center;position:relative;z-index:4;padding-bottom:calc(var(--ov) + 20px)}
 .hero .eyebrow{margin-bottom:16px}
 h1{font-size:clamp(46px,5.6vw,80px);font-weight:700;line-height:1.02;letter-spacing:-.035em}
 h1 .gradient-text{display:block;padding-bottom:.06em}
-.hero-description{margin-top:22px;max-width:24em;font-size:clamp(17px,1.4vw,20px);line-height:1.45;letter-spacing:-.01em;color:var(--secondary)}
-.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px;margin-top:30px}
+.hero-description{margin-top:22px;max-width:25em;font-size:clamp(17px,1.4vw,20px);line-height:1.45;letter-spacing:-.01em;color:var(--secondary)}
+/* The three AI features carry the hero's message: each names a feature and jumps to its part below. */
+.hero-ai{display:grid;gap:22px;margin-top:36px;max-width:34em}
+.hero-ai a{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:18px;align-items:start}
+.hero-ai-icon{grid-row:span 2;width:30px;height:30px;margin-top:-1px;fill:none;stroke:url(#ai-ink);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.hero-ai-spark{display:inline-block;width:15px;height:15px;margin-right:8px;vertical-align:-1px;fill:url(#ai-ink);filter:drop-shadow(0 0 5px #8a8fe08c)}
+.hero-ai strong{padding-top:1px;font-size:18px;font-weight:600;line-height:1.3;letter-spacing:-.015em;color:var(--ink)}
+.hero-ai a>span:last-child{margin-top:3px;text-wrap:pretty;font-size:15px;line-height:1.45;color:var(--secondary)}
+.hero-ai a:hover strong{text-decoration:underline;text-underline-offset:4px;text-decoration-color:#ffffff55}
+.hero-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px;margin-top:38px}
 .platform-line{margin-top:20px;font-size:12px;line-height:1.6;color:var(--tertiary)}
 .beta-line{margin-top:4px;font-size:12px;line-height:1.6;color:var(--tertiary)}
 .beta-line a{color:#d2d2d7}
@@ -89,7 +110,8 @@ h1 .gradient-text{display:block;padding-bottom:.06em}
 .app-screen{width:100%;height:auto;border-radius:10px}
 .product-bloom{position:absolute;left:-4%;right:-4%;top:42%;bottom:-14%;z-index:-1;pointer-events:none;filter:blur(40px);
   background:radial-gradient(18% 40% at 22% 60%,#408cff61,transparent 70%),radial-gradient(18% 40% at 56% 62%,#ff96784d,transparent 70%),radial-gradient(10% 40% at 97% 55%,#be8cff4d,transparent 70%)}
-.hero-product figcaption,.creation-product figcaption{margin-top:28px;text-align:center;font-size:14px;line-height:1.5;color:var(--tertiary)}
+.hero-product figcaption,.practice-shot figcaption,.ai-visual figcaption{margin-top:26px;text-align:center;font-size:14px;line-height:1.5;color:var(--tertiary)}
+.hero-product figcaption .ai-mark{display:inline-block;margin-right:8px;vertical-align:-1px}
 
 /* ---------- Section basics ---------- */
 h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-height:1.05;letter-spacing:-.035em}
@@ -100,35 +122,106 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
 .centered{text-align:center}
 .centered .section-description{margin:24px auto 0;max-width:690px}
 
-/* ---------- For your real piano ---------- */
-.home-section{padding:120px 0 110px;border-top:1px solid #ffffff14}
-.home-photo{position:relative;margin-top:60px;overflow:hidden;border-radius:24px;box-shadow:inset 0 0 0 1px #ffffff14,0 50px 120px -50px #000}
-.home-photo img{width:100%}
-.photo-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:66px}
-.photo-pair .home-photo{margin-top:0}
-.home-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:56px}
-.home-steps article{padding-top:24px;border-top:1px solid var(--line)}
-.home-steps h3{font-size:23px;font-weight:600;line-height:1.2;letter-spacing:-.03em}
-.home-steps p{margin-top:14px;font-size:16px;line-height:1.65;color:var(--secondary)}
+/* ---------- AI: one chapter, three parts ---------- */
+.ai-chapter{position:relative;isolation:isolate;overflow:hidden;background:var(--surface);padding:130px 0 150px;border-top:1px solid #ffffff14}
+/* the moon's blue at the top left, the pianist's warm rim light below it */
+.ai-chapter::before{content:"";position:absolute;left:0;right:0;top:0;height:1100px;z-index:-1;pointer-events:none;
+  background:radial-gradient(42% 55% at 18% 0%,#5076d51f,transparent 70%),radial-gradient(36% 46% at 82% 8%,#7a73ba1a,transparent 70%),
+    radial-gradient(30% 36% at 52% 42%,#c4828812,transparent 70%)}
+.ai-eyebrow{display:inline-flex;align-items:center;gap:8px}
+.ai-index{display:flex;justify-content:center;gap:64px;margin-top:56px}
+.ai-index a{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:150px;text-align:center;
+  font-size:14px;line-height:1.35;letter-spacing:-.01em;color:#d2d2d7;transition:color .2s}
+.ai-index a:hover{color:var(--ink)}
+.ai-index a:hover span{text-decoration:underline;text-underline-offset:4px;text-decoration-color:#ffffff55}
+.ai-index svg{width:30px;height:30px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ai-index span{text-wrap:balance}
 
-/* ---------- Practice ---------- */
-.practice-section{padding-top:110px;padding-bottom:110px;border-top:1px solid #ffffff14}
-.learning-sequence{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:66px}
-.learning-sequence article{padding-top:24px;border-top:1px solid var(--line)}
-.step-number{display:block;font-size:13px;font-weight:600;color:var(--tertiary);margin-bottom:22px;font-variant-numeric:tabular-nums}
-.learning-sequence h3{font-size:23px;font-weight:600;letter-spacing:-.03em;line-height:1.2}
-.learning-sequence p{margin-top:14px;font-size:16px;line-height:1.65;color:var(--secondary)}
-.focus-strip{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:50px;padding:22px 26px;border-radius:14px;
-  background:var(--card);font-size:15px;line-height:1.5;color:var(--secondary)}
-.focus-strip strong{color:var(--ink);font-weight:600}
-.focus-light{width:8px;height:8px;flex:none;border-radius:50%;background:#81a6ee;box-shadow:0 0 0 5px #81a6ee26,0 0 18px #81a6ee}
+.ai-part{display:grid;grid-template-columns:minmax(0,1fr) 600px;gap:80px;align-items:start;margin-top:130px}
+.ai-part-reverse{grid-template-columns:600px minmax(0,1fr)}
+.ai-part-reverse .ai-visual{order:-1}
+.ai-copy{position:sticky;top:110px;padding-top:24px}
+.ai-label{display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:14px;font-weight:600;letter-spacing:.01em;color:var(--accent)}
+.ai-copy h3,.guide-copy h3,.home-heading h3{font-size:clamp(34px,3.6vw,48px);font-weight:700;line-height:1.08;letter-spacing:-.035em}
+.ai-lead{margin-top:22px;font-size:17px;line-height:1.6;letter-spacing:-.01em;color:var(--secondary)}
+.ai-fine{margin-top:22px;font-size:12.5px;line-height:1.65;color:var(--tertiary)}
+.ai-visual{position:relative;isolation:isolate;min-width:0}
+.ai-visual .app-window{border-radius:16px;padding:8px}
+.ai-visual .app-screen{border-radius:9px}
+.ai-visual figcaption{font-size:13px}
+.ai-visual figcaption a,.practice-shot figcaption a{color:var(--link)}
+.ai-visual figcaption a:hover{text-decoration:underline;text-underline-offset:3px}
 
-/* ---------- Ways to see it ---------- */
-.ways-section{background:var(--surface);padding:110px 0;overflow:hidden}
-.practice-detail{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(245px,.7fr);gap:74px;align-items:center;margin-top:64px}
-.detail-screen{align-self:stretch;overflow:hidden;border-radius:18px;background:#202225;box-shadow:inset 0 0 0 1px #ffffff14,0 40px 80px -40px #000}
-.detail-screen img{width:100%;height:100%;object-fit:cover;object-position:center top}
-.detail-copy{display:flex;flex-direction:column;gap:34px}
+/* Part A: a request in plain words, three steps */
+.ask-steps{margin-top:30px;border-bottom:1px solid var(--line)}
+.ask-steps li{display:grid;grid-template-columns:44px minmax(0,1fr);row-gap:4px;padding:18px 0;border-top:1px solid var(--line)}
+.ask-steps .step-number{grid-row:span 2;padding-top:3px}
+.ask-steps strong{font-size:17px;font-weight:600;line-height:1.35;letter-spacing:-.02em}
+.ask-steps span:last-child{font-size:15px;line-height:1.6;color:var(--secondary)}
+
+/* Already have the music? The same two columns as the part above. */
+.own-sources{display:grid;grid-template-columns:minmax(0,1fr) 600px;grid-template-rows:auto 1fr;grid-template-areas:"head list" "note list";gap:0 80px;
+  margin-top:96px;padding-top:44px;border-top:1px solid var(--line)}
+.own-heading{grid-area:head}
+.own-heading h4{font-size:24px;font-weight:600;line-height:1.2;letter-spacing:-.03em}
+.own-heading p{margin-top:12px;max-width:24em;font-size:17px;line-height:1.55;color:var(--secondary)}
+.source-list{grid-area:list;display:grid;grid-template-columns:1fr 1fr;gap:34px 40px}
+.source-list li{display:flex;flex-direction:column}
+.source-icon{display:block;height:28px;margin-bottom:14px;color:var(--accent)}
+.source-icon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.source-list strong{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.source-list span:last-child{margin-top:6px;font-size:14px;line-height:1.6;color:var(--secondary)}
+.feature-note{grid-area:note;align-self:end;max-width:30em;margin-top:30px;font-size:12px;line-height:1.7;color:var(--tertiary)}
+
+/* Part B: Customize, with the versions you can switch between */
+.assurances{margin-top:30px;border-bottom:1px solid var(--line)}
+.assurances li{display:grid;grid-template-columns:40px minmax(0,1fr);row-gap:4px;padding:18px 0;border-top:1px solid var(--line)}
+.assurances svg{grid-row:span 2;width:22px;height:22px;margin-top:1px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.assurances strong{font-size:17px;font-weight:600;line-height:1.35;letter-spacing:-.02em}
+.assurances span{font-size:15px;line-height:1.6;color:var(--secondary)}
+.versions{border:0;margin:0;padding:0;min-inline-size:0}
+/* the app's own segmented control */
+.version-tabs{display:flex;gap:4px;width:max-content;margin:0 auto;padding:4px;border-radius:12px;background:#1c1c1f;box-shadow:inset 0 0 0 1px #ffffff14}
+.version-tabs label{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 18px;border-radius:9px;font-size:14px;line-height:1.3;
+  color:var(--secondary);cursor:pointer;transition:background .2s,color .2s;white-space:nowrap}
+.version-tabs label:hover{color:var(--ink)}
+.version-tabs .lock{width:11px;height:11px;fill:currentColor;opacity:.85}
+#v-original:checked~.version-tabs [for=v-original],#v-metronome:checked~.version-tabs [for=v-metronome],
+#v-cat:checked~.version-tabs [for=v-cat]{background:#2f2f33;color:var(--ink);box-shadow:inset 0 0 0 1px #ffffff12}
+#v-original:focus-visible~.version-tabs [for=v-original],#v-metronome:focus-visible~.version-tabs [for=v-metronome],
+#v-cat:focus-visible~.version-tabs [for=v-cat]{outline:3px solid var(--link);outline-offset:2px}
+.version-say,.version-frame{display:grid}
+.version-say{align-items:end;margin:22px 0 16px}
+.version-say>*,.version-frame>img{grid-area:1/1;opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
+#v-original:checked~.version-say .v-original,#v-original:checked~.version-frame .v-original,
+#v-metronome:checked~.version-say .v-metronome,#v-metronome:checked~.version-frame .v-metronome,
+#v-cat:checked~.version-say .v-cat,#v-cat:checked~.version-frame .v-cat{opacity:1;visibility:visible}
+.version-frame{position:relative;overflow:hidden;border-radius:18px;background:#111;box-shadow:0 40px 90px -40px #000}
+.version-frame::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px #ffffff17;pointer-events:none}
+.version-frame img{width:100%}
+.version-note{justify-self:center;align-self:center;max-width:24em;text-align:center;font-size:14px;line-height:1.55;color:var(--tertiary)}
+/* A request, written the way the app shows it. */
+.prompt-bubble{justify-self:end;max-width:26em;padding:11px 16px;border-radius:14px;background:var(--bubble);
+  box-shadow:inset 0 0 0 1px #ffffff14;color:var(--ink);font-size:15px;line-height:1.45;letter-spacing:-.01em}
+
+/* Part C: AI-guided lessons. The questions you ask, beside the copy. */
+.ai-guide{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:72px;align-items:center;
+  margin-top:150px;padding:64px 64px;border-radius:28px;background:linear-gradient(180deg,#ffffff0a,#ffffff03);
+  box-shadow:inset 0 0 0 1px #ffffff17}
+.ai-guide::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(50% 80% at 90% 50%,#7a73ba29,transparent 70%),radial-gradient(40% 70% at 70% 100%,#c4828817,transparent 70%)}
+.guide-asks{justify-self:end;width:max-content;max-width:100%}
+.guide-asks-label{margin-bottom:14px;text-align:right;font-size:13px;line-height:1.5;color:var(--tertiary)}
+.guide-asks ul{display:grid;gap:12px;justify-items:end}
+
+/* ---------- Practice: the screen, then the piano at home ---------- */
+.practice-section{padding:130px 0 140px}
+.practice-detail{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(245px,.7fr);gap:74px;align-items:center;margin-top:72px}
+.practice-shot{position:relative;isolation:isolate}
+.practice-shot .app-window{border-radius:16px;padding:8px}
+.practice-shot .app-screen{border-radius:9px}
+.practice-shot .product-bloom{top:50%;opacity:.7}
+.detail-copy{display:flex;flex-direction:column;gap:34px;padding-bottom:40px}
 .detail-copy article{position:relative;padding-left:23px}
 .feature-line{position:absolute;left:0;top:4px;width:3px;height:37px;border-radius:3px}
 .feature-line.blue{background:#7daaf1;box-shadow:0 0 14px #7daaf180}
@@ -136,51 +229,33 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
 .feature-line.graphite{background:#9298a7}
 .detail-copy h3{font-size:23px;font-weight:600;line-height:1.15;letter-spacing:-.03em}
 .detail-copy p{margin-top:13px;font-size:14px;line-height:1.6;color:var(--secondary)}
-
-/* ---------- Create a lesson ---------- */
-.create-section{padding-top:120px;padding-bottom:110px}
-.creation-product{position:relative;isolation:isolate;max-width:1000px;margin:62px auto 0}
-.youtube-flow{display:grid;grid-template-columns:minmax(0,1fr) 56px minmax(0,1fr);align-items:center;gap:20px;max-width:1080px;margin:64px auto 0}
-.flow-card{min-width:0}
-.flow-label{margin-bottom:14px;text-align:center;font-size:14px;font-weight:600;color:#8fa6e4}
-.flow-frame{position:relative;overflow:hidden;aspect-ratio:3/2;border-radius:18px;background:#111;box-shadow:inset 0 0 0 1px #ffffff14,0 40px 90px -40px #000}
-.flow-frame img{width:100%;height:100%;object-fit:cover}
-.notes-frame img{object-position:50% 84%}
-.video-bar{position:absolute;left:14px;right:14px;bottom:12px;height:4px;border-radius:2px;background:#ffffff4d}
-.video-bar span{display:block;width:38%;height:100%;border-radius:2px;background:#ff3b30}
-.flow-card figcaption{margin-top:18px;text-align:center;font-size:14px;line-height:1.55;color:var(--secondary)}
-.flow-card figcaption strong{color:var(--ink);font-weight:600}
-.flow-arrow{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--card);
-  box-shadow:inset 0 0 0 1px #ffffff1f;font-size:22px;color:var(--ink)}
-.creation-product{margin-top:90px}
-.library-copy{max-width:640px;margin:40px auto 0;text-align:center;font-size:18px;line-height:1.6;color:var(--secondary)}
-.library-copy strong{color:var(--ink);font-weight:600}
-.source-list{display:grid;grid-template-columns:repeat(4,1fr);gap:38px;max-width:1040px;margin:60px auto 0}
-.source-icon{display:block;height:31px;margin-bottom:18px;color:#8fa6e4}
-.source-icon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.source-list h3{font-size:19px;font-weight:600;letter-spacing:-.02em}
-.source-list p{margin-top:12px;font-size:14px;line-height:1.65;color:var(--secondary)}
-.feature-note{max-width:1040px;margin:40px auto 0;padding-top:20px;border-top:1px solid var(--line);font-size:11px;line-height:1.7;color:var(--tertiary)}
+.home-part{margin-top:150px;padding-top:110px;border-top:1px solid #ffffff14}
+.home-heading{display:grid;grid-template-columns:1.1fr 1fr;gap:70px;align-items:end}
+.home-heading .eyebrow{margin-bottom:16px}
+.home-heading .section-description{padding-bottom:6px}
+.home-photo{position:relative;overflow:hidden;border-radius:22px;box-shadow:inset 0 0 0 1px #ffffff14,0 50px 120px -50px #000}
+.home-photo img{width:100%}
+.photo-mosaic{display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-top:56px}
+.photo-mosaic .home-photo:first-child{grid-row:span 2}
+.photo-mosaic .home-photo:first-child img{height:100%;object-fit:cover;object-position:40% 50%}
+.photo-mosaic .home-photo:not(:first-child){border-radius:18px}
+.home-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:56px}
+.home-steps article{padding-top:22px;border-top:1px solid var(--line)}
+.home-steps .step-number{margin-bottom:16px}
+.home-steps h4{font-size:22px;font-weight:600;line-height:1.2;letter-spacing:-.03em}
+.home-steps p{margin-top:12px;font-size:16px;line-height:1.65;color:var(--secondary)}
 
 /* ---------- The one light band: the keyboard ---------- */
 .atmosphere-section{position:relative;overflow:hidden;background:#f0f1f5;color:#1d1d1f}
-.atmosphere-copy{position:relative;z-index:2;padding-top:90px;text-align:center}
+.atmosphere-copy{position:relative;z-index:2;padding-top:100px;text-align:center}
 .atmosphere-copy .eyebrow{margin-bottom:18px;color:#5b6dad}
 .atmosphere-copy .soft-text{color:#86868b}
-.atmosphere-copy p:last-child{margin-top:22px;font-size:18px;line-height:1.55;color:#6e6e73}
-.keyboard-art{width:100%;max-height:780px;object-fit:cover;object-position:center 66%;margin-top:-50px;mix-blend-mode:multiply;
+.atmosphere-copy p:last-child{max-width:640px;margin:22px auto 0;font-size:18px;line-height:1.55;color:#6e6e73}
+.keyboard-art{width:100%;max-height:700px;object-fit:cover;object-position:center 66%;margin-top:-50px;mix-blend-mode:multiply;
   -webkit-mask-image:linear-gradient(to bottom,transparent,#000 23%);mask-image:linear-gradient(to bottom,transparent,#000 23%)}
 
-/* ---------- Your Mac, your piano ---------- */
-.setup-section{padding-top:120px;padding-bottom:110px}
-.setup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin-top:62px}
-.setup-grid article{padding-top:25px;border-top:1px solid var(--line)}
-.setup-label{font-size:10px;font-weight:600;letter-spacing:.13em;color:var(--tertiary)}
-.setup-grid h3{margin-top:19px;font-size:24px;font-weight:600;line-height:1.2;letter-spacing:-.03em}
-.setup-grid p{margin-top:17px;font-size:15px;line-height:1.65;color:var(--secondary)}
-
 /* ---------- Open source ---------- */
-.open-section{padding:110px 0 100px;background:var(--surface)}
+.open-section{padding:120px 0 110px;background:var(--surface)}
 .open-links{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
 .open-link{position:relative;display:flex;flex-direction:column;gap:7px;padding:22px 46px 22px 22px;border-radius:16px;background:var(--card);
   box-shadow:inset 0 0 0 1px #ffffff12;transition:box-shadow .2s,background .2s}
@@ -197,7 +272,7 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
 .credits-intro{max-width:620px;margin-top:14px;font-size:17px;line-height:1.55;color:var(--secondary)}
 .credits-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:34px;margin-top:40px}
 .credits-grid article{padding-top:20px;border-top:1px solid var(--line)}
-.credit-role{font-size:10px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--tertiary)}
+.credit-role,.setup-label{font-size:10px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--tertiary)}
 .credits-grid h4{margin-top:12px;font-size:19px;font-weight:600;line-height:1.25;letter-spacing:-.02em}
 .credits-grid p{margin-top:10px;font-size:13px;line-height:1.65;color:var(--secondary)}
 .credits-grid a{color:inherit;text-decoration:underline;text-decoration-color:#ffffff40;text-underline-offset:3px}
@@ -206,13 +281,12 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
 .credits-more a{color:var(--link)}
 .credits-more a:hover{text-decoration:underline;text-underline-offset:3px}
 
-/* ---------- Download ---------- */
-.download-section{position:relative;isolation:isolate;overflow:hidden;padding:110px 0 100px;text-align:center}
+/* ---------- Download, then what you need ---------- */
+.download-section{position:relative;isolation:isolate;overflow:hidden;padding:120px 0 110px;text-align:center}
 .download-section::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:radial-gradient(40% 50% at 50% 18%,#8fa6e41f,transparent 70%)}
+  background:radial-gradient(40% 32% at 50% 10%,#8fa6e41f,transparent 70%)}
 .download-icon{width:128px;height:128px;margin:0 auto 26px}
 .download-section h2{font-size:clamp(44px,5vw,66px)}
-.download-description{margin-top:22px;font-size:20px;line-height:1.4;color:var(--secondary)}
 .platform-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:860px;margin:44px auto 0;text-align:center}
 .platform-card{display:flex;flex-direction:column;align-items:center;padding:36px 32px 30px;border-radius:22px;background:var(--card);
   box-shadow:inset 0 0 0 1px #ffffff12}
@@ -222,9 +296,16 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
 .platform-card .button{margin-top:24px}
 .platform-size{margin-top:12px;font-size:12px;color:var(--tertiary)}
 .platform-help{max-width:340px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;line-height:1.6;color:var(--tertiary)}
-.download-release{margin-top:28px;font-size:13px;color:var(--tertiary)}
+.download-release{margin-top:28px;font-size:13px;color:var(--tertiary);text-wrap:balance}
 .download-release a{color:var(--link)}
 .download-release a:hover{text-decoration:underline;text-underline-offset:3px}
+.needs{max-width:1080px;margin:96px auto 0;padding-top:48px;border-top:1px solid var(--line);text-align:left}
+.needs h3{font-size:30px;font-weight:650;line-height:1.15;letter-spacing:-.035em}
+.needs-intro{max-width:620px;margin-top:14px;font-size:17px;line-height:1.55;color:var(--secondary)}
+.needs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:36px;margin-top:40px}
+.needs-grid article{padding-top:20px;border-top:1px solid var(--line)}
+.needs-grid h4{margin-top:14px;font-size:20px;font-weight:600;line-height:1.22;letter-spacing:-.025em}
+.needs-grid p{margin-top:12px;font-size:14px;line-height:1.65;color:var(--secondary)}
 
 /* ---------- Footer ---------- */
 .site-footer{display:flex;align-items:center;gap:24px;padding-top:24px;padding-bottom:30px;border-top:1px solid #ffffff14;
@@ -246,23 +327,31 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
   @keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
   @keyframes lift{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}a,.button{transition:none}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  a,.button,.version-tabs label,.version-say>*,.version-frame>img{transition:none}
+}
 
 /* ---------- Narrower screens ---------- */
 @media (max-width:1050px){
   .section-shell,.shell{width:calc(100% - 56px)}
   .nav-links{gap:20px}
-  .split-heading{gap:42px}
+  .split-heading,.home-heading{gap:42px}
   .section-description{font-size:18px}
-  .learning-sequence{gap:30px}
-  .home-steps{gap:30px}
+  .ai-part{grid-template-columns:minmax(0,1fr) 440px;gap:48px}
+  .ai-part-reverse{grid-template-columns:440px minmax(0,1fr)}
+  .own-sources{grid-template-columns:minmax(0,1fr) 440px;column-gap:48px}
+  .source-list{gap:28px 28px}
+  .ai-copy{position:static;padding-top:0}
+  .version-tabs label{padding:8px 14px}
+  .prompt-bubble{font-size:14px}
+  .ai-guide{padding:48px;gap:44px}
   .practice-detail{grid-template-columns:1.3fr .8fr;gap:38px}
-  .detail-copy{gap:25px}
+  .detail-copy{gap:25px;padding-bottom:30px}
   .detail-copy h3{font-size:21px}
   .detail-copy p{font-size:13px}
-  .source-list{gap:25px}
-  .setup-grid{gap:32px}
-  .setup-grid h3{font-size:21px}
+  .home-steps{gap:30px}
+  .needs-grid{grid-template-columns:repeat(2,1fr);gap:32px 40px}
   .credits-grid{grid-template-columns:repeat(2,1fr);gap:30px}
 }
 @media (max-width:900px){
@@ -273,9 +362,20 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
   .hero-description{margin-inline:auto}
   .hero-actions{justify-content:center}
   .hero-art{justify-self:center}
-  .app-window{border-radius:12px;padding:6px}
-  .app-screen{border-radius:7px}
-  .hero{padding-bottom:72px}
+  .app-window,.ai-visual .app-window,.practice-shot .app-window{border-radius:12px;padding:6px}
+  .app-screen,.ai-visual .app-screen,.practice-shot .app-screen{border-radius:7px}
+  .hero{padding-bottom:80px}
+  .ai-part,.ai-part-reverse{grid-template-columns:minmax(0,1fr);gap:44px}
+  .ai-part-reverse .ai-visual{order:0}
+  .ai-visual{width:100%;max-width:560px;margin-inline:auto}
+  .own-sources{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "list" "note";row-gap:30px}
+  .own-sources .feature-note{margin-top:0}
+  .ai-guide{grid-template-columns:minmax(0,1fr);gap:32px}
+  .guide-asks{justify-self:stretch;width:auto}
+  .hero-ai{margin-inline:auto;text-align:left}
+  .platform-line span{display:block}
+  .practice-detail{grid-template-columns:minmax(0,1fr);gap:44px}
+  .detail-copy{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;padding-bottom:0}
 }
 @media (max-width:760px){
   .section-shell,.shell{width:calc(100% - 40px)}
@@ -285,54 +385,69 @@ h2,.section-heading h2{font-size:clamp(44px,5vw,68px);font-weight:700;line-heigh
   .button-small{font-size:12px;padding:4px 12px}
   .text-link{font-size:15px}
   .eyebrow{font-size:13px}
-  .hero-product figcaption,.creation-product figcaption{font-size:12px;margin-top:18px}
+  .hero-product figcaption,.practice-shot figcaption,.ai-visual figcaption{font-size:12px;margin-top:16px}
   h2,.section-heading h2{font-size:42px}
-  .split-heading{grid-template-columns:1fr;gap:24px}
+  .split-heading,.home-heading{grid-template-columns:1fr;gap:20px}
   .section-description{font-size:17px;line-height:1.55}
-  .practice-section,.create-section,.setup-section{padding-top:70px;padding-bottom:70px}
-  .ways-section,.open-section{padding:70px 0}
-  .learning-sequence{grid-template-columns:1fr;gap:26px;margin-top:38px}
-  .learning-sequence article{display:grid;grid-template-columns:35px 1fr;column-gap:14px;padding-top:21px}
-  .step-number{grid-column:1;grid-row:1;margin-bottom:0;padding-top:4px;font-size:11px}
-  .learning-sequence h3{grid-column:2;grid-row:1;font-size:22px}
-  .learning-sequence p{grid-column:2;margin-top:10px;font-size:15px}
-  .focus-strip{align-items:flex-start;margin-top:30px;padding:19px 20px;font-size:13px}
-  .focus-light{margin-top:5px}
-  .focus-strip strong{display:block}
-  .practice-detail{grid-template-columns:1fr;gap:35px;margin-top:40px}
-  .detail-screen{border-radius:12px}
-  .detail-screen img{height:auto;object-fit:contain}
+  .ai-chapter{padding:80px 0 90px}
+  .ai-index{gap:12px;margin-top:40px}
+  .ai-index a{flex:1;font-size:12.5px;gap:10px}
+  .ai-index svg{width:26px;height:26px}
+  .ai-part{margin-top:84px}
+  .ai-label{font-size:13px;margin-bottom:14px}
+  .ai-copy h3,.guide-copy h3,.home-heading h3{font-size:34px}
+  .ai-lead{font-size:16px}
+  .ask-steps strong,.assurances strong{font-size:16px}
+  .ask-steps span:last-child,.assurances span{font-size:14px}
+  .own-sources{margin-top:64px;padding-top:36px}
+  .own-heading h4{font-size:21px}
+  .own-heading p{font-size:16px}
+  .source-list{gap:26px 20px}
+  .source-list strong{font-size:16px}
+  .source-list span:last-child{font-size:13px}
+  .version-tabs{width:100%}
+  .version-tabs label{flex:1;gap:5px;padding:8px 4px;font-size:13px}
+  .version-say{margin:18px 0 14px}
+  .prompt-bubble{max-width:100%;font-size:14px;padding:10px 14px}
+  .version-frame{border-radius:14px}
+  .ai-guide{margin-top:84px;padding:32px 22px 28px;border-radius:20px}
+  .hero-ai{gap:16px;margin-top:28px}
+  .hero-ai strong{font-size:16px}
+  .hero-ai a>span:last-child{font-size:14px}
+  .practice-section{padding:80px 0 90px}
+  .practice-detail{margin-top:40px;gap:36px}
+  .detail-copy{grid-template-columns:1fr;gap:26px}
   .detail-copy article{display:grid;grid-template-columns:1fr 1.25fr;gap:20px;align-items:start;padding-left:20px}
-  .detail-copy h3{font-size:22px}
+  .detail-copy h3{font-size:21px}
   .detail-copy p{margin-top:0}
-  .creation-product{margin-top:40px}
-  .library-copy{font-size:15px;margin-top:28px}
-  .source-list{grid-template-columns:1fr 1fr;gap:32px 24px;margin-top:36px}
-  .source-list p{font-size:13px}
-  .home-section{padding:70px 0}
-  .home-photo{margin-top:40px;border-radius:14px}
-  .photo-pair{grid-template-columns:1fr;gap:16px;margin-top:40px}
-  .home-steps{grid-template-columns:1fr;gap:26px;margin-top:36px}
-  .youtube-flow{grid-template-columns:1fr;gap:16px;margin-top:40px}
-  .flow-arrow{transform:rotate(90deg);margin:0 auto;width:44px;height:44px}
-  .creation-product{margin-top:60px}
-  .atmosphere-copy{padding-top:60px}
+  .home-part{margin-top:84px;padding-top:70px}
+  .home-photo{border-radius:14px}
+  .photo-mosaic{grid-template-columns:1fr 1fr;gap:12px;margin-top:36px}
+  .photo-mosaic .home-photo:first-child{grid-column:1/-1;grid-row:auto}
+  .photo-mosaic .home-photo:first-child img{height:auto}
+  .photo-mosaic .home-photo:not(:first-child){border-radius:12px}
+  .home-steps{grid-template-columns:1fr;gap:24px;margin-top:36px}
+  .home-steps article{display:grid;grid-template-columns:35px 1fr;column-gap:14px;padding-top:20px}
+  .home-steps .step-number{grid-row:span 2;margin-bottom:0;padding-top:5px;font-size:11px}
+  .home-steps h4{font-size:20px}
+  .home-steps p{margin-top:8px;font-size:15px}
+  .atmosphere-copy{padding-top:64px}
   .atmosphere-copy p:last-child{font-size:16px}
   .keyboard-art{height:390px;max-height:none;object-position:54% 65%;margin-top:-5px}
-  .setup-grid{grid-template-columns:1fr;gap:28px;margin-top:35px}
-  .setup-grid h3{font-size:23px;margin-top:14px}
-  .setup-grid h3 br{display:none}
+  .open-section{padding:80px 0}
   .open-links{grid-template-columns:1fr;gap:12px;margin-top:36px}
   .beta-panel{flex-direction:column;gap:10px;font-size:13px}
   .credits{margin-top:54px;padding-top:32px}
-  .credits h3{font-size:25px}
-  .credits-intro{font-size:15px}
+  .credits h3,.needs h3{font-size:25px}
+  .credits-intro,.needs-intro{font-size:15px}
   .credits-grid{grid-template-columns:1fr;gap:24px;margin-top:28px}
-  .download-section{padding:70px 0}
+  .download-section{padding:80px 0}
   .download-icon{width:104px;height:104px}
   .download-section h2{font-size:42px}
-  .download-description{font-size:17px}
   .platform-grid{grid-template-columns:1fr;gap:14px}
+  .needs{margin-top:64px;padding-top:36px}
+  .needs-grid{grid-template-columns:1fr;gap:24px;margin-top:28px}
+  .needs-grid h4{margin-top:10px;font-size:19px}
   .site-footer{flex-wrap:wrap;gap:12px 20px}
   .site-footer>span{order:3;flex-basis:100%}
 }
