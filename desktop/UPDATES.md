@@ -57,11 +57,15 @@ Apple Silicon runner'da:
 1. Sürüm, etiket, repo ve imza anahtarı eşleşmesini doğrular.
 2. Apple Silicon ve Intel için küçük portable Python ortamlarını hazırlar.
 3. Universal uygulamayı ve DMG kurulum dosyasını oluşturur.
-4. Önceki sürüm küçük ZIP içeriyorsa imzasını doğrulayıp delta tabanı olarak alır.
-   Eski 2 GB arşivler indirilmez; 0.4.0 geçişi küçük tam ZIP ile gerçekleşir.
-5. ZIP'i ve varsa daha küçük delta'yı Ed25519 ile imzalar. Delta gerçek tabana
-   uygulanır; hedef hash ve codesign doğrulanır. DMG checksum kontrolünden geçer.
-6. İmzalı dosyaları sonraki işlere artifact olarak verir.
+4. Son yayımlanan sürümün ZIP'ini indirir, imzasını doğrulayıp delta tabanı olarak alır.
+   Bu adım provada (dry run) da çalışır: insanların alacağı delta etiketten önce üretilir.
+5. Bir sonraki derlemeyi taklit eder (build sayısı bir artar, bir dosya değişir, yeniden
+   imzalanır) ve bu sürümden ona delta üretip uygular. Delta 1 MiB'ı geçerse yayın durur:
+   sıradan bir güncellemenin küçük kaldığı her yayında ölçülür.
+6. ZIP'i ve delta'yı Ed25519 ile imzalar. Delta gerçek tabana uygulanır; hedef hash ve
+   codesign doğrulanır. Delta tam ZIP'ten küçük değilse yayın durur. DMG checksum
+   kontrolünden geçer.
+7. İmzalı dosyaları sonraki işlere artifact olarak verir.
 
 `intel` gerçek Intel runner'da (`macos-15-intel`) yayımlamadan önce DMG'deki uygulamanın
 güncelleme ZIP'iyle aynı ve imzalı olduğunu, universal binary'leri, Ed25519 güncelleme
@@ -74,8 +78,14 @@ uygulanır.
 
 Sonraki sürümler Python/model motorunu önceki uygulamadan kopyalamaz. Büyük model
 indirip yeniden paketleyen CI adımı yoktur. Delta, son yayımlanan sürümün imzalı ZIP'inden
-üretilir; taban 1 GiB üstündeyse atlanır ve uygulama tam güncelleme ile dağıtılır. Yama tam ZIP'ten küçük
-değilse feed'e eklenmez. Eski feed imzası doğrulanmadan devralınmaz.
+üretilir; taban boyutu için sınır yoktur. Delta üretilemezse ya da tam ZIP'ten küçük
+değilse yayın sessizce tam güncellemeye dönmez, durur. Eski feed imzası doğrulanmadan devralınmaz.
+
+Windows'ta aynı ölçüm `windows/build.py` içindedir: güncelleme denetimi ikinci sürümü
+baştan derler (program dosyasında kendi sürüm numarası, bir değişen dosya) ve Velopack
+yamasının 10 MB'ı geçmediğini, tam paket olmadan yalnız yamayla kurulduğunu doğrular.
+0.12.0, iki sistemin paylaştığı kabuğun ilk sürümüdür; Windows'ta ondan önceki sürümler
+başka bir programdı ve 0.12.0'a tam paketle geçer, sonraki sürümler yamayla gelir.
 
 Yerel paketleme:
 

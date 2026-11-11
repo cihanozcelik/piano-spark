@@ -25,6 +25,8 @@ BASE_APP = BASE/'rach3.app'
 NS = 'http://www.andymatuschak.org/xml-namespaces/sparkle'
 WINDOWS = DIST/'windows/releases'
 WINDOWS_FEED = WINDOWS/'releases.win.json'
+# The most a delta may weigh when the next build changes only its number and one file.
+NEXT_DELTA_LIMIT = 1024**2
 ET.register_namespace('sparkle', NS)
 
 
@@ -79,13 +81,43 @@ def prepare_delta(previous_app):
     return {'fromBuild':old_build,'file':patch.name,'size':patch.stat().st_size,'signature':signature}
 
 
+def check_next_delta():
+    """The download people get from this release to the next one must stay small. The next
+    build is made here as a release makes it (a later build number, one changed file, signed
+    again) and its delta from this app is measured, applied and verified."""
+    with tempfile.TemporaryDirectory(prefix='rach3-next-',dir=ROOT/'build') as directory:
+        following = Path(directory)/'next/rach3.app'
+        following.parent.mkdir()
+        command('cp','-cR',APP,following)
+        info_path = following/'Contents/Info.plist'
+        info = plistlib.loads(info_path.read_bytes())
+        info['CFBundleVersion'] = str(CONFIG['build']+1)
+        info_path.write_bytes(plistlib.dumps(info))
+        release = following/'Contents/Resources/release.json'
+        release.write_text(json.dumps({**CONFIG,'build':CONFIG['build']+1},indent=2,ensure_ascii=False)+'\n')
+        command('codesign','--force','--sign','-','--timestamp=none',following)
+        command('codesign','--verify','--deep','--strict',following)
+        patch = Path(directory)/'next.delta'
+        command(SPARKLE/'bin/BinaryDelta','create','--version','4',APP,following,patch)
+        patched = Path(directory)/'patched/rach3.app'
+        patched.parent.mkdir()
+        command(SPARKLE/'bin/BinaryDelta','apply',APP,patched,patch)
+        command('codesign','--verify','--deep','--strict',patched)
+        size = patch.stat().st_size
+    print(f'Delta from this build to the next: {size/1024:.1f} KiB',flush=True)
+    if size > NEXT_DELTA_LIMIT:
+        raise RuntimeError(f'The delta to the next build is {size/1024**2:.1f} MiB: updates would no longer be small downloads')
+
+
 def prepare_archive(previous_app=None):
     prepare()
     with (APP/'Contents/Info.plist').open('rb') as stream: info=plistlib.load(stream)
     if (info['CFBundleVersion'], info['CFBundleShortVersionString'], info['SUPublicEDKey']) != (str(CONFIG['build']), CONFIG['version'], CONFIG['publicKey']):
         raise RuntimeError('Build rach3 from the current release.json before packaging')
     command('codesign','--verify','--deep','--strict',APP)
+    check_next_delta()
     deltas = [prepare_delta(previous_app)] if previous_app else []
+    if not deltas: print('No earlier app to patch from: this release has the full update only.',flush=True)
     pending = ARCHIVE.with_suffix('.pending.zip')
     try:
         command('ditto','-c','-k','--sequesterRsrc','--keepParent',APP,pending)
@@ -94,13 +126,16 @@ def prepare_archive(previous_app=None):
         pending.replace(ARCHIVE)
     finally:
         pending.unlink(missing_ok=True)
-    deltas = [patch for patch in deltas if patch['size'] < ARCHIVE.stat().st_size]
+    for patch in deltas:
+        if patch['size'] >= ARCHIVE.stat().st_size:
+            raise RuntimeError(f'The delta from build {patch["fromBuild"]} is not smaller than the full update')
     signature=sign(ARCHIVE)
     verify_archive(ARCHIVE,signature)
     metadata={'version':CONFIG['version'],'build':CONFIG['build'],'signature':signature,'size':ARCHIVE.stat().st_size,'deltas':deltas}
     (DIST/'update-signature.json').write_text(json.dumps(metadata,indent=2)+'\n')
     (DIST/'release-notes.txt').write_text('\n'.join(CONFIG['notes'])+'\n')
     print(f'Signed update: {ARCHIVE} ({ARCHIVE.stat().st_size/1024**2:.1f} MiB)')
+    for patch in deltas: print(f'Signed delta from build {patch["fromBuild"]}: {patch["size"]/1024**2:.1f} MiB',flush=True)
 
 
 def make_feed(asset_url, metadata, delta_assets, previous_items):
@@ -231,17 +266,14 @@ def publish():
 
 
 def baseline():
-    """Fetch the signed app of the latest release, which this release's delta starts from.
-    Never the legacy 2 GB engine archive: a base over 1 GiB is left alone."""
+    """Fetch the signed app of the latest release, which this release's delta starts from."""
     prepare()
     release=api(f'repos/{REPO}/releases/latest')
     if release['tag_name'] == TAG:
         print('This version is already the latest release; a dry run of it has nothing to patch from.',flush=True)
         return
     asset=next((a for a in release['assets'] if a['name'].startswith('rach3-') and a['name'].endswith('.zip')),None)
-    if not asset or asset['size'] > 1024**3:
-        print('No app baseline under 1 GiB; this transition uses the full update.',flush=True)
-        return
+    if not asset: raise RuntimeError(f'{release["tag_name"]} has no signed app to patch from')
     with tempfile.TemporaryDirectory(prefix='rach3-baseline-') as directory:
         folder=Path(directory)
         command('gh','release','download',release['tag_name'],'--repo',REPO,'--pattern',asset['name'],

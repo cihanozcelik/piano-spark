@@ -33,6 +33,8 @@ PACKAGE_ID = 'rach3'
 # The first release built on the shell Mac and Windows share (electron/).
 FIRST_SHELL_VERSION = (0, 12, 0)
 SETUP = f'{PACKAGE_ID}-win-Setup.exe'
+# The most a patch may weigh when the next build changes only its version and one file.
+PATCH_LIMIT = 10 * 1000**2
 # ChatGPT features run Codex, Apache-2.0, from github.com/openai/codex.
 # The same version the Mac release bundles (.github/workflows/release.yml).
 CODEX_VERSION = '0.167.0'
@@ -90,12 +92,12 @@ def write_resources(resources, test):
     if test: (resources/'self-test').write_text('test build\n')
 
 
-def write_shell(resources):
+def write_shell(resources, version):
     """The shell's code and the packages it needs when installed (Velopack's updater)."""
     code = resources/'app'
     (code/'electron').mkdir(parents=True)
     for source in sorted((ROOT/'electron').glob('*.js')): shutil.copy2(source, code/'electron'/source.name)
-    (code/'package.json').write_text(json.dumps({'name': 'rach3', 'version': RELEASE['version'], 'main': 'electron/main.js'}))
+    (code/'package.json').write_text(json.dumps({'name': 'rach3', 'version': version, 'main': 'electron/main.js'}))
     npm = shutil.which('npm')
     listed = subprocess.run([npm, 'ls', '--omit=dev', '--all', '--parseable'], cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
     packages = [Path(line) for line in listed if Path(line) != ROOT and (ROOT/'node_modules') in Path(line).parents]
@@ -140,7 +142,7 @@ def bundle_codex(resources):
     print(f'Codex {CODEX_VERSION}: {size/1e6:.0f} MB')
 
 
-def brand(executable):
+def brand(executable, version):
     """rach3's icon and name on the program file itself, which Windows shows in the taskbar,
     the Start menu and the installer's shortcuts."""
     rcedit = next((path for name in ('rcedit-x64.exe', 'rcedit.exe') for path in [ROOT/'node_modules/rcedit/bin'/name] if path.is_file()), None)
@@ -148,18 +150,20 @@ def brand(executable):
     subprocess.run([str(rcedit), str(executable), '--set-icon', str(ROOT/'windows/Rach3/Rach3.ico'),
                     '--set-version-string', 'ProductName', 'rach3', '--set-version-string', 'FileDescription', 'rach3',
                     '--set-version-string', 'CompanyName', 'rach3', '--set-version-string', 'OriginalFilename', 'Rach3.exe',
-                    '--set-file-version', RELEASE['version'], '--set-product-version', RELEASE['version']], check=True)
+                    '--set-file-version', version, '--set-product-version', version], check=True)
 
 
-def build(destination, capture=False):
+def build(destination, capture=False, version=RELEASE['version']):
+    """version is what the program file and the shell say they are; the update check builds
+    a second, later version the way the next release will be built."""
     if not (ELECTRON/'electron.exe').is_file(): raise RuntimeError('Electron is missing: run npm ci, then node node_modules/electron/install.js')
     if destination.exists(): shutil.rmtree(destination)
     shutil.copytree(ELECTRON, destination)
     (destination/'electron.exe').rename(destination/'Rach3.exe')
-    brand(destination/'Rach3.exe')
+    brand(destination/'Rach3.exe', version)
     resources = destination/'resources'
     (resources/'default_app.asar').unlink()
-    write_shell(resources)
+    write_shell(resources, version)
     write_resources(resources, capture)
     bundle_codex(resources)
     stage_engine(resources/'Engine', prepare_runtime())
@@ -340,19 +344,21 @@ def published_update_check():
 
 
 def update_check():
-    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 (with a
-    changed file) is offered as a patch, with a feed signed by a temporary test key. A wrong
-    key must be refused. The right key must update through the patch alone: the full 0.0.2
-    package is withheld, so a broken patch cannot pass by falling back to it."""
+    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 is
+    offered as a patch, with a feed signed by a temporary test key. 0.0.2 is built again from
+    the start, as the next release will be, with its own version on the program file and one
+    changed file. Its patch must stay a small part of the full package: that is the download
+    people get from one release to the next. A wrong key must be refused. The right key must
+    update through the patch alone: the full 0.0.2 package is withheld, so a broken patch
+    cannot pass by falling back to it."""
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
     import base64
     package_id = 'Rach3UpdateTest'
     work = ROOT/'build/windows/update-test'
     if work.exists(): shutil.rmtree(work)
-    app = build(work/'app', capture=True)
-    changed = work/'app-changed'
-    shutil.copytree(app, changed)
+    app = build(work/'app', capture=True, version='0.0.1')
+    changed = build(work/'app-changed', capture=True, version='0.0.2')
     (changed/'resources/update-check.txt').write_text('0.0.2\n', encoding='utf-8')
     feed_dir = work/'feed'
     vpk_pack(app, '0.0.1', feed_dir, package_id, 'rach3 Update Test')
@@ -363,8 +369,11 @@ def update_check():
     public = lambda k: base64.b64encode(k.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
     feed = feed_dir/'releases.win.json'
     (feed_dir/'releases.win.json.sig').write_text(base64.b64encode(key.sign(feed.read_bytes())).decode())
-    full = next(asset['FileName'] for asset in json.loads(feed.read_text(encoding='utf-8-sig'))['Assets']
-                if asset['Version'] == '0.0.2' and asset['Type'] == 'Full')
+    sizes = {asset['Type']: asset for asset in json.loads(feed.read_text(encoding='utf-8-sig'))['Assets'] if asset['Version'] == '0.0.2'}
+    full, patch = sizes['Full']['FileName'], sizes['Delta']
+    print(f'Patch from one build to the next: {patch["Size"]/1e6:.2f} MB; full package: {sizes["Full"]["Size"]/1e6:.1f} MB', flush=True)
+    if patch['Size'] > PATCH_LIMIT:
+        raise RuntimeError(f'The patch to the next build is {patch["Size"]/1e6:.1f} MB: updates would no longer be small downloads')
     shutil.move(feed_dir/full, work/full)
 
     subprocess.run([str(setup), '--silent'], check=True, timeout=900)
