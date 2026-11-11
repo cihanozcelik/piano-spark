@@ -15,7 +15,7 @@ const os = require('os');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
-const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'rach3-customize-test-')));
+const temp = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'rach3-customize-test-')));
 app.setPath('userData', path.join(temp, 'electron'));
 protocol.registerSchemesAsPrivileged([{ scheme: 'rach3-app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 
@@ -364,35 +364,53 @@ async function realPage() {
 
 // One whole change: Codex, talking to a stand-in for OpenAI, writes a file in the
 // scratch copy and core.js saves it as a new version on a new branch.
-// What a command Codex runs is asked to do, to see what it may reach: write the file of
-// the change, then report into env.txt whether it sees the ChatGPT token, the person's
-// files, a place outside the scratch copy, and the internet.
-function probeCommand() {
-  if (process.platform !== 'win32')
-    return 'printf "made by codex" > customize-test.txt; echo leak=${ACCESS_TOKEN:-none} > env.txt; (cat ~/.zshrc >/dev/null 2>&1 && echo home=readable || echo home=closed) >> env.txt; ' +
-      '(echo x > ../outside.txt) 2>/dev/null && echo outside=written >> env.txt || echo outside=closed >> env.txt; ' +
-      '(cat ../session.json >/dev/null 2>&1 && echo signin=readable || echo signin=closed) >> env.txt; ' +
-      '(curl -s -m 8 -o /dev/null https://example.com && echo net=open || echo net=closed) >> env.txt';
-  // Plain PowerShell, as Codex hands it to the system's PowerShell.
-  return [
-    'Set-Content -NoNewline -Path customize-test.txt -Value "made by codex"',
-    '$l = @("leak=" + $(if ($env:ACCESS_TOKEN) { $env:ACCESS_TOKEN } else { "none" }))',
-    'try { Get-Content -LiteralPath "$env:USERPROFILE\\rach3-probe-read.txt" -ErrorAction Stop | Out-Null; $l += "home=readable" } catch { $l += "home=closed" }',
-    'try { Set-Content -LiteralPath "$env:USERPROFILE\\rach3-probe-written.txt" -Value x -ErrorAction Stop; $l += "homewrite=written" } catch { $l += "homewrite=closed" }',
-    'try { Set-Content -LiteralPath "..\\outside.txt" -Value x -ErrorAction Stop; $l += "outside=written" } catch { $l += "outside=closed" }',
-    'try { Get-Content -LiteralPath "..\\session.json" -ErrorAction Stop | Out-Null; $l += "signin=readable" } catch { $l += "signin=closed" }',
-    'try { $c = New-Object Net.Sockets.TcpClient; $c.Connect("example.com", 443); $c.Close(); $l += "net=open" } catch { $l += "net=closed" }',
-    '$l += "user=" + [Environment]::UserName',
-    'Set-Content -Path env.txt -Value ($l -join "`n")',
-  ].join('; ');
+// What Codex is asked to do, as the JavaScript its "exec" tool runs: the work a change
+// needs (read a file, edit with apply_patch, run a command that writes), then one command
+// for each thing a command must not reach. Every step reports on a line of its own.
+function probeScript() {
+  const windows = process.platform === 'win32';
+  const says = (word, test) => windows ? `try { ${test} | Out-Null; "${word}=open" } catch { "${word}=closed" }` : `(${test}) >/dev/null 2>&1 && echo ${word}=open || echo ${word}=closed`;
+  const commands = windows ? {
+    read: 'Get-Content -LiteralPath piano.html -TotalCount 1',
+    list: 'Get-ChildItem -Name | Select-Object -First 3',
+    write: 'Set-Content -LiteralPath written.txt -Value x; "write=" + (Test-Path written.txt)',
+    where: '"cwd=" + (Get-Location).Path + " user=" + [Environment]::UserName',
+    leak: '"leak=" + $(if ($env:ACCESS_TOKEN) { $env:ACCESS_TOKEN } else { "none" })',
+    home: says('home', 'Get-Content -LiteralPath "$env:USERPROFILE\\rach3-probe-read.txt" -ErrorAction Stop'),
+    homewrite: says('homewrite', 'Set-Content -LiteralPath "$env:USERPROFILE\\rach3-probe-written.txt" -Value x -ErrorAction Stop'),
+    outside: says('outside', 'Set-Content -LiteralPath "..\\outside.txt" -Value x -ErrorAction Stop'),
+    signin: says('signin', 'Get-Content -LiteralPath "..\\session.json" -ErrorAction Stop'),
+    net: says('net', '(New-Object Net.Sockets.TcpClient).Connect("example.com", 443)'),
+  } : {
+    read: 'head -1 piano.html',
+    list: 'ls | head -3',
+    write: 'echo x > written.txt && echo write=True',
+    where: 'echo cwd=$(pwd) user=$(id -un)',
+    leak: 'echo leak=${ACCESS_TOKEN:-none}',
+    home: says('home', 'cat ~/.zshrc'),
+    homewrite: says('homewrite', 'echo x > ~/rach3-probe-written.txt'),
+    outside: says('outside', 'echo x > ../outside.txt'),
+    signin: says('signin', 'cat ../session.json'),
+    net: says('net', 'curl -s -m 8 -o /dev/null https://example.com'),
+  };
+  return `const lines = [];
+const short = value => (typeof value === 'string' ? value : JSON.stringify(value)).replace(/\\s+/g, ' ').slice(0, 400);
+const step = async (name, run) => { try { lines.push('STEP ' + name + ' ran ' + short(await run())); } catch (error) { lines.push('STEP ' + name + ' refused ' + short(String(error && error.message || error)).slice(-260)); } };
+await step('patch-add', () => tools.apply_patch('*** Begin Patch\\n*** Add File: customize-test.txt\\n+made by codex\\n*** End Patch\\n'));
+await step('patch-update', () => tools.apply_patch('*** Begin Patch\\n*** Update File: customize-test.txt\\n@@\\n-made by codex\\n+made by codex.\\n*** End Patch\\n'));
+const commands = ${JSON.stringify(commands)};
+for (const [name, cmd] of Object.entries(commands)) await step(name, () => tools.exec_command({ cmd, yield_time_ms: 20000 }));
+text(lines.join('\\n'));
+`;
 }
 
 async function wholeChange() {
   const windows = process.platform === 'win32';
-  const port = 18700 + Math.floor(Math.random() * 200), log = path.join(temp, 'mock.log');
+  const port = 18700 + Math.floor(Math.random() * 200), log = path.join(temp, 'mock.log'), script = path.join(temp, 'probe.js');
   const homeRead = path.join(os.homedir(), 'rach3-probe-read.txt'), homeWritten = path.join(os.homedir(), 'rach3-probe-written.txt');
   if (windows) fs.writeFileSync(homeRead, 'the person\'s file');
-  const server = spawn(windows ? 'python' : 'python3', [mock, String(port), log, probeCommand()], { stdio: 'ignore' });
+  fs.writeFileSync(script, probeScript());
+  const server = spawn(windows ? 'python' : 'python3', [mock, String(port), log, script], { stdio: 'ignore' });
   process.env.RACH3_CODEX_UPSTREAM = `http://127.0.0.1:${port}/v1`;
   try {
     await wait(700);
@@ -408,22 +426,25 @@ async function wholeChange() {
     const finished = await inPanel('return window.events.find(event => event.event === "customize-finished") ?? null;');
     check('whole change: a new version on a new branch', !!design && state.active === design.id && state.branch === design.branch && state.branches.length === 1 && design.files.includes('customize-test.txt'),
       { design: design?.id, branch: state.branch, files: design?.files, errors: design?.errors, finished: finished && { status: finished.status, error: finished.error, outside: finished.outside, tokens: finished.tokens } });
+    const asked = fs.existsSync(log) ? fs.readFileSync(log, 'utf8').trim().split('\n').map(line => JSON.parse(line)) : [];
+    // Each step's line, as Codex reported it back.
+    const reported = JSON.stringify(asked.at(-1)?.outputs ?? []).replace(/\\+r|\\+n/g, ' ');
+    const steps = Object.fromEntries([...reported.matchAll(/STEP ([a-z-]+) (ran|refused) (.*?)(?=STEP [a-z-]+ (?:ran|refused) |$)/g)].map(match => [match[1], `${match[2]} ${match[3]}`.slice(0, 330)]));
+    for (const [name, result] of Object.entries(steps)) console.log(`    | ${name}: ${result}`);
+    const ran = (name, word) => (steps[name] ?? '').startsWith('ran') && (!word || steps[name].toLowerCase().includes(word.toLowerCase()));
+    check('whole change: Codex can do the work (read, apply_patch, a command that writes)', ran('patch-add') && ran('patch-update') && ran('read', 'DOCTYPE') && ran('list') && ran('write', 'write=True'), steps);
+    check('whole change: commands get no token', ran('leak', 'leak=none'), steps.leak);
+    check('whole change: commands cannot read the person\'s files or the sign-in', ran('home', 'home=closed') && ran('signin', 'signin=closed'), [steps.home, steps.signin]);
+    check('whole change: commands cannot write outside the scratch copy', ran('outside', 'outside=closed') && ran('homewrite', 'homewrite=closed') && !fs.existsSync(path.join(support, 'Customize/outside.txt')) && !fs.existsSync(homeWritten), [steps.outside, steps.homewrite]);
+    check('whole change: commands do not reach the internet', ran('net', 'net=closed'), steps.net);
     if (design) {
       const folder = path.join(support, 'Customize/designs', design.id);
-      check('whole change: the file Codex wrote is in the saved version', fs.readFileSync(path.join(folder, 'customize-test.txt'), 'utf8') === 'made by codex' && !fs.existsSync(path.join(folder, 'AGENTS.md')) &&
+      check('whole change: the file Codex wrote is in the saved version', fs.readFileSync(path.join(folder, 'customize-test.txt'), 'utf8').trim() === 'made by codex.' && !fs.existsSync(path.join(folder, 'AGENTS.md')) &&
         !fs.existsSync(path.join(support, 'Customize/workspace')));
-      const environment = fs.existsSync(path.join(folder, 'env.txt')) ? fs.readFileSync(path.join(folder, 'env.txt'), 'utf8').trim().split('\n') : [];
-      check('whole change: commands get no token and stay in the scratch copy', environment.includes('leak=none') && environment.includes('outside=closed') && !fs.existsSync(path.join(support, 'Customize/outside.txt')), environment);
-      check('whole change: commands do not reach the internet', environment.includes('net=closed'), environment);
-      if (windows) check('whole change: commands cannot write to the person\'s folder', environment.includes('homewrite=closed') && !fs.existsSync(homeWritten), environment);
-      console.log(`    | what a command could reach: ${environment.join(', ')}`);
       check('whole change: the page moves to the branch', customize.pageURL === `rach3-app://${state.branch.toLowerCase()}/piano.html` && shown.at(-1) === false, customize.pageURL);
       const answer = await customize.serve(new Request(`${customize.pageURL.replace('piano.html', 'customize-test.txt')}`));
-      check('whole change: served from the branch', answer.status === 200 && await answer.text() === 'made by codex');
+      check('whole change: served from the branch', answer.status === 200 && (await answer.text()).trim() === 'made by codex.');
     }
-    const asked = fs.existsSync(log) ? fs.readFileSync(log, 'utf8').trim().split('\n').map(line => JSON.parse(line)) : [];
-    // What Codex itself said and how the command went, for whoever reads a failed run.
-    for (const request of asked) console.log(`    | stand-in: tools ${Object.keys(request.tools || {}).join(',')} | ${JSON.stringify(request.outputs || []).slice(0, 1500)}`);
     try { console.log(fs.readFileSync(path.join(support, 'Customize/codex/stderr.log'), 'utf8').trim().split('\n').slice(-25).map(line => `    | codex: ${line}`).join('\n')); } catch { /* no log */ }
     check('whole change: the stand-in was asked with the sign-in', asked.length >= 2 && asked.every(request => request.auth === 'Bearer access-1'), { requests: asked.length, path: asked[0]?.path });
     const running = () => { try { return require('child_process').execFileSync('pgrep', ['-f', `app-server.*${path.basename(temp)}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length; } catch { return 0; } };

@@ -13,6 +13,7 @@ const { spawn, execFile } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const http = require('http');
+const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
@@ -907,7 +908,7 @@ function createCustomize(options) {
   // Windows; Codex's own sandbox enforces it on each.
   function writeCodexConfiguration() {
     // TRIAL, development runs only: other settings to find what Windows can enforce.
-    const trial = app.isPackaged ? {} : { profile: process.env.RACH3_CODEX_TRIAL_PROFILE, more: (process.env.RACH3_CODEX_TRIAL_MORE || '').replace(/\\n/g, '\n') };
+    const trial = app.isPackaged ? {} : { profile: process.env.RACH3_CODEX_TRIAL_PROFILE, more: (process.env.RACH3_CODEX_TRIAL_MORE || '').replace(/\\n/g, '\n').replace(/"\{home\}"/g, tomlString(os.homedir())) };
     const config = '# Written by rach3 on every start.\n' +
       `default_permissions = "${trial.profile || 'rach3'}"\n` +
       'web_search = "live"\n\n' +

@@ -59,15 +59,17 @@ jobs:
 
   customize:
     name: ChatGPT features and Codex limits on Windows (${{ matrix.trial }})
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { trial: read-everywhere, more: '":root" = "read"\n', profile: '' }
-          - { trial: read-everywhere-elevated, more: '":root" = "read"\n\n[windows]\nsandbox = "elevated"\n', profile: '' }
-          - { trial: workspace-profile, more: '', profile: ':workspace' }
+          - { trial: unelevated-read-everywhere, os: windows-latest, more: '":root" = "read"\n', profile: '' }
+          - { trial: elevated-read-everywhere, os: windows-latest, more: '":root" = "read"\n\n[windows]\nsandbox = "elevated"\n', profile: '' }
+          - { trial: elevated-home-denied, os: windows-latest, more: '":root" = "read"\n"{home}" = "deny"\n\n[windows]\nsandbox = "elevated"\n', profile: '' }
+          - { trial: mxc-as-on-mac, os: windows-11-arm, more: '\n[windows]\nsandbox = "mxc"\n', profile: '' }
+          - { trial: mxc-home-denied, os: windows-11-arm, more: '":root" = "read"\n"{home}" = "deny"\n\n[windows]\nsandbox = "mxc"\n', profile: '' }
     env:
       RACH3_CODEX_TRIAL_MORE: ${{ matrix.more }}
       RACH3_CODEX_TRIAL_PROFILE: ${{ matrix.profile }}
