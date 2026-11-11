@@ -77,7 +77,10 @@ jobs:
         shell: bash
         env:
           PYTHONUTF8: '1'
-        run: echo "RACH3_TEST_CODEX=$(python -c "import sys; sys.path[:0] = ['windows', 'desktop']; import build; print(build.codex_vendor())")" >> "$GITHUB_ENV"
+        run: |
+          folder=$(python -c "import sys; sys.path[:0] = ['windows', 'desktop']; import build; print(build.codex_vendor())" | tail -n 1 | tr -d '\r')
+          test -f "$folder/bin/codex.exe"
+          echo "RACH3_TEST_CODEX=$folder" >> "$GITHUB_ENV"
       - name: Try the ChatGPT features, and what a command Codex runs may reach
         # Codex talks to a stand-in for OpenAI on this machine; no ChatGPT account is used.
         shell: bash
