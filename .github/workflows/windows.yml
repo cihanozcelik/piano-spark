@@ -58,18 +58,19 @@ jobs:
           if-no-files-found: ignore
 
   customize:
-    name: ChatGPT features and Codex limits on Windows (${{ matrix.trial }})
+    name: ChatGPT features and Codex limits on Windows (${{ matrix.windows }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { trial: Windows 11 with MXC, os: windows-11-arm, more: '' }
-          - { trial: without MXC, os: windows-latest, more: '' }
-          - { trial: without MXC and home denied, os: windows-latest, more: '"{home}" = "deny"\n' }
+          # With MXC a whole change is made and every limit is measured; without it the
+          # features must say they are not offered.
+          - { windows: Windows 11 with MXC, os: windows-11-arm, mxc: 'yes' }
+          - { windows: Windows without MXC, os: windows-latest, mxc: 'no' }
     env:
-      RACH3_CODEX_TRIAL_MORE: ${{ matrix.more }}
+      RACH3_TEST_WINDOWS_MXC: ${{ matrix.mxc }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

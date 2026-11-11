@@ -448,12 +448,6 @@ async function wholeChange() {
       check('whole change: served from the branch', answer.status === 200 && (await answer.text()).trim() === 'made by codex.');
     }
     try { console.log(fs.readFileSync(path.join(support, 'Customize/codex/stderr.log'), 'utf8').trim().split('\n').slice(-25).map(line => `    | codex: ${line}`).join('\n')); } catch { /* no log */ }
-    if (windows) {
-      // What Codex's Windows sandbox wrote about its own setup, and who may open the saved copy.
-      try { console.log(fs.readFileSync(path.join(support, 'Customize/codex/.sandbox/sandbox.log'), 'utf8').trim().split('\n').slice(-40).map(line => `    | sandbox: ${line.slice(0, 400)}`).join('\n')); } catch { console.log('    | sandbox: no log'); }
-      for (const folder of [path.join(support, 'Customize'), design && path.join(support, 'Customize/designs', design.id)].filter(Boolean))
-        try { console.log(require('child_process').execFileSync('icacls', [folder], { encoding: 'utf8' }).trim().split('\n').map(line => `    | icacls: ${line.trim()}`).join('\n')); } catch { /* not there */ }
-    }
     check('whole change: the stand-in was asked with the sign-in', asked.length >= 2 && asked.every(request => request.auth === 'Bearer access-1'), { requests: asked.length, path: asked[0]?.path });
     const running = () => { try { return require('child_process').execFileSync('pgrep', ['-f', `app-server.*${path.basename(temp)}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length; } catch { return 0; } };
     const before = process.platform === 'win32' ? 1 : running();
@@ -497,8 +491,14 @@ app.whenReady().then(async () => {
   try {
     customize = make();
     ipcMain.handle('test-native', async (event, body) => { try { return { value: await customize.native(body) }; } catch (error) { return { error: error.message }; } });
-    check('available without Codex', customize.available === (codexRoot === process.env.RACH3_TEST_CODEX));
     const native = body => customize.native(body);
+    // Offered where Codex is carried and, on Windows, where the computer has MXC
+    // (RACH3_TEST_WINDOWS_MXC=no says this Windows has not).
+    await customize.ready;
+    const carried = codexRoot === process.env.RACH3_TEST_CODEX, offered = carried && process.env.RACH3_TEST_WINDOWS_MXC !== 'no';
+    const info = await native({ op: 'info' });
+    check('ChatGPT features are offered where Codex can be held to the rule', customize.available === offered && info.available === offered && info.needs === (carried && !offered ? 'windows' : null),
+      { available: customize.available, needs: info.needs });
     // Each part on its own: one that stops does not hide the others.
     const part = async (name, run) => { try { await run(); } catch (error) { failures++; console.log(`FAIL ${name} stopped:`, error.stack || error); } };
     await part('files', () => files(native));
@@ -508,8 +508,8 @@ app.whenReady().then(async () => {
     await part('with core.js', withCore);
     await part('the real page', realPage);
     await part('signing in', () => signingIn(native));
-    if (process.env.RACH3_TEST_CODEX && fs.existsSync(mock)) await part('whole change', wholeChange);
-    else console.log('skip whole change (set RACH3_TEST_CODEX)');
+    if (offered && fs.existsSync(mock)) await part('whole change', wholeChange);
+    else console.log(carried ? 'skip whole change (this Windows has no MXC)' : 'skip whole change (set RACH3_TEST_CODEX)');
     await part('signing out', () => signingOut(native));
     customize.stop();
     check('stop leaves no hidden window', BrowserWindow.getAllWindows().every(window => window === panel || window === page), BrowserWindow.getAllWindows().length);

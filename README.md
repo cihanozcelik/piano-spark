@@ -325,7 +325,8 @@ modules and embedded note data into one offline HTML resource and package it wit
 the shell. Audio and animation run inside the page. `electron/lessons.js` owns one
 analysis job; `lesson-engine/worker.py` runs the models in a separate process using
 bundled Python. `electron/customize.js` runs the ChatGPT features with the bundled
-Codex, under Codex's own permissions profile. Updates stay with each system's own
+Codex, under Codex's own permissions profile (Seatbelt on the Mac, MXC on Windows; a Windows
+without MXC, older than Windows 11 24H2, is told the ChatGPT features need it). Updates stay with each system's own
 updater: Sparkle on the Mac (`desktop/UpdateController.m`, loaded by the shell as
 `electron/native/updates.m`) and Velopack on Windows (`electron/updates-windows.js`).
 Local files and imported notes are not uploaded.

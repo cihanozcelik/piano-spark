@@ -16,6 +16,7 @@
       signInFailed: 'Sign-in didn’t finish. Try again.', signInDenied: 'Sign-in was cancelled.',
       signInPlan: 'This ChatGPT account can’t share its plan with apps. Check your plan in ChatGPT.', signInPort: 'rach3 couldn’t open its sign-in callback. Restart rach3 and try again.',
       unavailable: 'This copy of rach3 doesn’t include ChatGPT changes.',
+      unavailableWindows: 'ChatGPT changes need Windows 11 version 24H2 or newer, with the latest Windows updates.',
       chat: 'Chat', branches: 'Branches',
       placeholder: 'What should change?', send: 'Make it', stop: 'Stop', newChat: 'New chat',
       working: 'Working…', reading: 'Looking through rach3…', editing: 'Making the change…',
@@ -55,6 +56,7 @@
       signInFailed: 'Giriş tamamlanmadı. Yeniden dene.', signInDenied: 'Giriş iptal edildi.',
       signInPlan: 'Bu ChatGPT hesabı planını uygulamalarla paylaşamıyor. Planını ChatGPT’de kontrol et.', signInPort: 'rach3 giriş dönüşünü açamadı. rach3’ü yeniden başlatıp tekrar dene.',
       unavailable: 'rach3’ün bu kopyasında ChatGPT ile değiştirme yok.',
+      unavailableWindows: 'ChatGPT ile değiştirme için Windows 11 24H2 veya daha yenisi ve en son Windows güncellemeleri gerekir.',
       chat: 'Sohbet', branches: 'Dallar',
       placeholder: 'Ne değişsin?', send: 'Yap', stop: 'Durdur', newChat: 'Yeni sohbet',
       working: 'Çalışıyor…', reading: 'rach3 inceleniyor…', editing: 'Değişiklik yapılıyor…',
@@ -233,7 +235,7 @@
     panel.setAttribute('aria-label', t('customize'));
     if (panel.hidden || !state) return;
     panel.replaceChildren();
-    if (!state.available) { panel.append(element('div', { class: 'body' }, element('p', { class: 'muted' }, t('unavailable')))); return; }
+    if (!state.available) { panel.append(element('div', { class: 'body' }, element('p', { class: 'muted' }, t(state.needs === 'windows' ? 'unavailableWindows' : 'unavailable')))); return; }
     if (!state.signedIn) { panel.append(renderSignIn()); return; }
     const tab = (name) => element('button', { type: 'button', role: 'tab', 'aria-selected': String(view === name),
       onclick: () => { view = name; render(); } }, t(name));

@@ -178,7 +178,7 @@
       lessons: lessonRecords(),
       // A change made while an older version is on screen starts a new branch from it.
       forking: !!current && designs.active !== tipOf(current),
-      today: usage.days[today()] ?? {}, threadUsage: usage.threads, available: !!info.available, pageErrors,
+      today: usage.days[today()] ?? {}, threadUsage: usage.threads, available: !!info.available, needs: info.needs ?? null, pageErrors,
     };
     if (turn) result.turn = { thread: turn.thread, turn: turn.turn, prompt: turn.prompt, tokens: turn.tokens, desk: turn.mode === 'desk' };
     return result;

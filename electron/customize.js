@@ -13,7 +13,6 @@ const { spawn, execFile } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const http = require('http');
-const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
@@ -532,6 +531,7 @@ function createCustomize(options) {
   let listener = null, signInError = null, signingIn = false, opening = false, refreshing = null;
   // Codex app-server
   let codex = null, codexToken = null, codexStarts = 0, ensuring = Promise.resolve();
+  let windowsSandbox = null;   // on Windows: 'mxc' or 'none', once asked
   // hidden preview of the scratch copy, for Codex to check its work
   let previewSize = { width: 0, height: 0 }, previewWindow = null, previewErrors = [], previewing = Promise.resolve(), previewReady = false;
 
@@ -642,7 +642,10 @@ function createCustomize(options) {
     if (typeof op !== 'string') invalid();
     switch (op) {
       case 'info':
-        return { platform: process.platform === 'darwin' ? 'mac' : 'windows', version, language: hook('language') ?? 'en', available: available(), workspace };
+        await ready;
+        // needs: what this computer lacks when Codex is carried but cannot be offered.
+        return { platform: process.platform === 'darwin' ? 'mac' : 'windows', version, language: hook('language') ?? 'en', available: available(),
+          needs: carried() && !available() ? 'windows' : null, workspace };
       case 'preferences':
         return { welcomed: !!preferences.welcomed, open: !!preferences.open };
       case 'set-preference':
@@ -896,19 +899,19 @@ function createCustomize(options) {
   // Codex
 
   const codexBinary = () => path.join(codexRoot || '', 'bin', WINDOWS ? 'codex.exe' : 'codex');
-  function available() {
+  function carried() {
     if (!codexRoot) return false;
     try { fs.accessSync(codexBinary(), fs.constants.X_OK); return fs.statSync(codexBinary()).isFile(); } catch { return false; }
   }
+  // ChatGPT features are offered where Codex is carried and can keep the rule below.
+  function available() { return carried() && (!WINDOWS || windowsSandbox === 'mxc'); }
 
   // Commands Codex runs may read the system's own tools and read and write the scratch
   // copy, nothing else: not the person's files, not rach3's other data, not the
   // network, and not the ChatGPT token. Codex itself may search the web (OpenAI runs
-  // the search); rach3 fetches anything it shows the person. Codex's own sandbox
-  // enforces it: Seatbelt on the Mac, and on Windows the one findWindowsSandbox names.
-  function writeCodexConfiguration(sandbox) {
-    // TRIAL, development runs only: more filesystem lines, to find what Windows can enforce.
-    const trial = app.isPackaged ? '' : (process.env.RACH3_CODEX_TRIAL_MORE || '').replace(/\\n/g, '\n').replace(/"\{home\}"/g, tomlString(os.homedir()));
+  // the search); rach3 fetches anything it shows the person. The same text on Mac and
+  // Windows. Codex's own sandbox enforces it: Seatbelt on the Mac, MXC on Windows.
+  function writeCodexConfiguration() {
     const config = '# Written by rach3 on every start.\n' +
       'default_permissions = "rach3"\n' +
       'web_search = "live"\n\n' +
@@ -916,29 +919,25 @@ function createCustomize(options) {
       'ignore_default_excludes = false\n' +
       'exclude = ["ACCESS_TOKEN", "*TOKEN*", "*KEY*", "*SECRET*"]\n\n' +
       '[permissions.rach3.filesystem]\n' +
-      // The elevated sandbox runs commands as a Windows account of its own, which cannot
-      // open the person's folders, and only starts when the rest of the disk is readable.
-      `${sandbox === 'elevated' ? '":root"' : '":minimal"'} = "read"\n` +
-      `${tomlString(workspace)} = "write"\n` + trial +
-      (sandbox ? `\n[windows]\nsandbox = "${sandbox}"\n` : '');
+      '":minimal" = "read"\n' +
+      `${tomlString(workspace)} = "write"\n` +
+      (WINDOWS ? '\n[windows]\nsandbox = "mxc"\n' : '');
     writeAtomic(path.join(codexHome, 'config.toml'), config);
   }
 
-  // Windows has more than one sandbox. MXC (Windows 11 24H2 and later) keeps the rule
-  // above as written and needs no setup; this is the check OpenAI documents for it.
-  // Without MXC, the elevated sandbox, which an administrator approves once. Never the
-  // unelevated one: it cannot keep commands from reading the person's files.
-  let windowsSandbox = null;
-  function findWindowsSandbox() {
-    if (!WINDOWS || windowsSandbox) return Promise.resolve(windowsSandbox);
-    return new Promise(resolve => {
-      execFile(codexBinary(), ['-c', 'windows.sandbox=mxc', 'sandbox', '--include-managed-config', '--permission-profile', ':workspace', '--', 'cmd.exe', '/d', '/c', 'echo MXC_OK'],
-        { cwd: workspace, env: codexEnvironment(), timeout: 30000, windowsHide: true }, (error, output) => {
-          windowsSandbox = !error && String(output).includes('MXC_OK') ? 'mxc' : 'elevated';
-          resolve(windowsSandbox);
-        });
-    });
-  }
+  // Of Codex's Windows sandboxes only MXC (Windows 11 24H2 and later) keeps that rule:
+  // the unelevated one cannot keep commands from the person's files, and the elevated
+  // one adds Windows accounts and firewall rules to the computer and needs the whole
+  // disk readable. So on Windows the ChatGPT features need MXC. Whether this computer
+  // has it is asked once per start, with the check OpenAI documents.
+  const ready = !WINDOWS || !carried() ? Promise.resolve() : new Promise(resolve => {
+    makeFolder(codexHome, 0o700);
+    execFile(codexBinary(), ['-c', 'windows.sandbox=mxc', 'sandbox', '--include-managed-config', '--permission-profile', ':workspace', '--', 'cmd.exe', '/d', '/c', 'echo MXC_OK'],
+      { cwd: codexHome, env: codexEnvironment(), timeout: 30000, windowsHide: true }, (error, output) => {
+        windowsSandbox = !error && String(output).includes('MXC_OK') ? 'mxc' : 'none';
+        resolve();
+      });
+  });
 
   // What Codex is told about the computer: where its tools are, and no more of the
   // person's environment than a program needs to run.
@@ -999,8 +998,7 @@ function createCustomize(options) {
     const start = ++codexStarts;
     makeFolder(codexHome, 0o700);
     makeFolder(workspace);
-    writeCodexConfiguration(await findWindowsSandbox());
-    if (start !== codexStarts) return 'codex';
+    writeCodexConfiguration();
     const provider = 'model_providers.chatgpt_plan';
     // Development copies can talk to a stand-in for OpenAI, to try a whole change offline.
     const upstream = !app.isPackaged && process.env.RACH3_CODEX_UPSTREAM ? process.env.RACH3_CODEX_UPSTREAM : RESOURCE;
@@ -1190,8 +1188,10 @@ function createCustomize(options) {
   }
 
   return {
-    // Whether this copy of rach3 carries Codex, so ChatGPT features can be offered.
+    // Whether ChatGPT features can be offered: this copy carries Codex and the computer
+    // can hold it to the rule. On Windows that is known once `ready` settles.
     get available() { return available(); },
+    ready,
     // The page's address. Each branch has its own host, so its stored settings
     // (localStorage) are its own and can never reach main's.
     get pageURL() { return `${SCHEME}://${pageHost || 'app'}/piano.html`; },
