@@ -58,9 +58,20 @@ jobs:
           if-no-files-found: ignore
 
   customize:
-    name: ChatGPT features and Codex limits on Windows
+    name: ChatGPT features and Codex limits on Windows (${{ matrix.trial }})
     runs-on: windows-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { trial: mxc, more: '\n[windows]\nsandbox = "mxc"\n', profile: '' }
+          - { trial: prefer-mxc, more: '\n[features]\nprefer_mxc = true\n', profile: '' }
+          - { trial: elevated, more: '\n[windows]\nsandbox = "elevated"\n', profile: '' }
+          - { trial: workspace-profile, more: '', profile: ':workspace' }
+    env:
+      RACH3_CODEX_TRIAL_MORE: ${{ matrix.more }}
+      RACH3_CODEX_TRIAL_PROFILE: ${{ matrix.profile }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

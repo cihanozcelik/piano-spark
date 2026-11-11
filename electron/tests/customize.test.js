@@ -400,7 +400,7 @@ async function wholeChange() {
     const sent = await inPanel('try { return await window.rach3Core.postMessage({ action: "send", text: "Add a test file" }); } catch (error) { return "error " + error.message; }');
     check('whole change: sent', typeof sent?.thread === 'string', sent);
     const config = fs.readFileSync(path.join(support, 'Customize/codex/config.toml'), 'utf8');
-    check('whole change: Codex\'s own permissions, no sandbox-exec', config.includes('default_permissions = "rach3"') && config.includes('[permissions.rach3.filesystem]') &&
+    check('whole change: Codex\'s own permissions, no sandbox-exec', (config.includes('default_permissions = "rach3"') || !!process.env.RACH3_CODEX_TRIAL_PROFILE) && config.includes('[permissions.rach3.filesystem]') &&
       config.includes(`${JSON.stringify(path.join(support, 'Customize/workspace'))} = "write"`) && !config.includes('danger-full-access') && fs.existsSync(path.join(support, 'Customize/codex/models.json')));
     console.log(config.split('\n').map(line => `    | ${line}`).join('\n'));
     const state = await until(() => customize.ask('state', {}), value => !value.turn && value.designs.length > 0, 150);

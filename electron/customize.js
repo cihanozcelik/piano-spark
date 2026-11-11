@@ -906,15 +906,17 @@ function createCustomize(options) {
   // the search); rach3 fetches anything it shows the person. The same text on Mac and
   // Windows; Codex's own sandbox enforces it on each.
   function writeCodexConfiguration() {
+    // TRIAL, development runs only: other settings to find what Windows can enforce.
+    const trial = app.isPackaged ? {} : { profile: process.env.RACH3_CODEX_TRIAL_PROFILE, more: (process.env.RACH3_CODEX_TRIAL_MORE || '').replace(/\\n/g, '\n') };
     const config = '# Written by rach3 on every start.\n' +
-      'default_permissions = "rach3"\n' +
+      `default_permissions = "${trial.profile || 'rach3'}"\n` +
       'web_search = "live"\n\n' +
       '[shell_environment_policy]\n' +
       'ignore_default_excludes = false\n' +
       'exclude = ["ACCESS_TOKEN", "*TOKEN*", "*KEY*", "*SECRET*"]\n\n' +
       '[permissions.rach3.filesystem]\n' +
       '":minimal" = "read"\n' +
-      `${tomlString(workspace)} = "write"\n`;
+      `${tomlString(workspace)} = "write"\n` + (trial.more || '');
     writeAtomic(path.join(codexHome, 'config.toml'), config);
   }
 
