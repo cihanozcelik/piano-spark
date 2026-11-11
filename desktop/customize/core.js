@@ -180,7 +180,7 @@
       forking: !!current && designs.active !== tipOf(current),
       today: usage.days[today()] ?? {}, threadUsage: usage.threads, available: !!info.available, needs: info.needs ?? null, pageErrors,
     };
-    if (turn) result.turn = { thread: turn.thread, turn: turn.turn, prompt: turn.prompt, tokens: turn.tokens, desk: turn.mode === 'desk' };
+    if (turn) result.turn = { thread: turn.thread, turn: turn.turn, prompt: turn.prompt, tokens: turn.tokens, desk: turn.mode === 'desk', review: turn.mode === 'review' };
     return result;
   }
   const publish = event => { try { window.rach3Customize?.receive(event); } catch (error) { console.error(error); } };
@@ -347,7 +347,7 @@
     if (desk && method === 'item/completed' && params.item?.type === 'agentMessage' && params.item?.text)
       op('desk-add', { entry: { role: 'assistant', text: params.item.text, commentary: params.item.phase === 'commentary' } });
     if (ours) track(method, params);
-    if (!FORWARDED.has(method)) return;
+    if (!FORWARDED.has(method) || (ours && turn.mode === 'review')) return;
     if (desk) op('desk-event', { event: { event: 'desk-codex', method, params } });
     else publish({ event: 'customize-codex', method, params });
   }
@@ -734,6 +734,7 @@
     const tool = request.tool;
     const input = isObject(request.arguments) ? request.arguments : {};
     const done = (content, success) => ({ content: Array.isArray(content) ? content : [inputText(content)], success });
+    if (turn?.mode === 'review') return reviewTool(tool, input, done);
     if (tool === 'page_errors') return done(pageErrors.length ? json(pageErrors) : 'No runtime errors on screen.', true);
     if (tool === 'preview') { const result = await preview(text(input.script)); return done(result.content, result.success); }
     if (tool === 'list_lessons') { const list = await lessonList(true); return done(list.length ? json(list) : 'The person has no saved lessons yet.', true); }
@@ -864,6 +865,222 @@
     await op('desk-update', { card }); publishCard(card);
   }
 
+  // Checking a new lesson with ChatGPT
+  // With "Check and fix with ChatGPT" on, every lesson the person creates is read by
+  // ChatGPT once it is ready. It decides which hand plays each note (a transcription
+  // often guesses from the staff a note is written on); notes are never added or removed.
+  // The corrected lesson takes the original's place, and the original goes to the Trash.
+  const reviewQueue = [];
+  const REACH = 15;              // semitones one hand holds and strikes at once (a tenth)
+  const TOGETHER = .03;          // seconds within which notes count as struck together
+  const publishReview = event => op('desk-event', { event: { event: 'lesson-review', ...event } });
+  const handOf = track => Number(track?.id) === 0 ? 0 : 1;
+
+  function queueReview(identifier) {
+    if (!isUUID(identifier) || !auth.signedIn || !info.available) return false;
+    if (!reviewQueue.some(item => item.toLowerCase() === identifier.toLowerCase())) reviewQueue.push(identifier);
+    if (turn) publishReview({ phase: 'waiting', id: identifier });
+    startQueuedReview();
+    return true;
+  }
+  function startQueuedReview() {
+    if (turn || !reviewQueue.length) return;
+    const identifier = reviewQueue.shift();
+    startReview(identifier).catch(error => {
+      publishReview({ phase: 'failed', id: identifier, error: String(error?.message || error) });
+      startQueuedReview();
+    });
+  }
+
+  async function startReview(identifier) {
+    const found = await personLesson(identifier);
+    const lesson = found ? parse(found.content) : null;
+    if (!lesson || !Array.isArray(lesson.tracks)) { publishReview({ phase: 'failed', id: identifier, error: 'missing' }); startQueuedReview(); return; }
+    const notes = [];
+    for (const track of lesson.tracks) for (const entry of track.notes ?? [])
+      if (isObject(entry)) notes.push({ entry, hand: handOf(track), from: handOf(track) });
+    notes.sort((a, b) => (Number(a.entry.time) - Number(b.entry.time)) || (a.entry.midi - b.entry.midi));
+    const mine = turn = { mode: 'review', lesson, path: found.path, notes, prompt: '', base: designs.active, branch: MAIN, fork: false,
+      thread: null, files: new Set(), outside: false, lessons: [], tokens: { input: 0, cached: 0, output: 0, total: 0 }, started: Date.now() };
+    publishState(); publishDesk();
+    publishReview({ phase: 'checking', id: lesson.id, title: lesson.title ?? '' });
+    const fail = error => { if (turn === mine) finishTurn('failed', error); };
+    if (await withCodex()) return fail('codex');
+    if (!await prepareWorkspace()) return fail('workspace');
+    const chat = await startThread(null, reviewInstructions(), reviewToolSpecs());
+    if (!chat || turn !== mine) return fail('codex');
+    mine.thread = chat;
+    const kind = lesson.provenance?.sourceKind === 'midi' ? 'a MIDI file' : lesson.provenance?.sourceKind === 'pdf' ? 'a PDF score read automatically'
+      : 'a recording transcribed automatically';
+    const report = handReport(notes, -Infinity, Infinity);
+    const message = `Check the hands of the lesson "${lesson.title ?? ''}": ${notes.length} notes, ${Math.round(Number(lesson.duration) || 0)} seconds, made from ${kind}` +
+      `${lesson.notation ? ', with a score' : ''}. Its description says: "${lesson.description ?? ''}". ` +
+      `rach3 found ${report.counts.stretch} places where a hand would stretch past a tenth, ${report.counts.crowded} where it would hold more than five notes ` +
+      `and ${report.counts.crossing} where the hands cross. Fix what a pianist would play differently, then finish.`;
+    const begun = await call('turn/start', { threadId: chat, cwd: info.workspace, approvalPolicy: 'never',
+      input: [{ type: 'text', text: message, text_elements: [] }] });
+    if (turn !== mine) return;
+    if (begun.error) return fail('codex');
+    mine.turn = begun.result?.turn?.id ?? null;
+  }
+
+  const reviewInstructions = () => 'You are inside rach3, a piano practice app. The person just created a lesson, made automatically from a MIDI file, ' +
+    'a PDF score or a recording, and before they practise it you check which hand plays each note. The person is not watching; only your last message is ' +
+    `shown to them, so end with one or two short plain sentences in ${info.language === 'tr' ? 'Turkish' : 'English'} on what you changed, without code. ` +
+    'How pianists play: one hand holds and strikes at most a tenth (15 semitones) at once, an octave comfortably, and at most five notes. ' +
+    'The left hand plays below the right hand, apart from deliberate crossings. A melody, an arpeggio or a broken-chord figure stays in one hand; ' +
+    'the bass line is the left hand; the hand that is free takes a note the busy one cannot reach. ' +
+    'Where the hands came from: in a transcribed recording or a PDF they were guessed from the staff each note was written on, and those guesses are often wrong ' +
+    '(scores write right-hand notes on the lower staff). In a MIDI file whose tracks name the hands they are usually right: change them only where they cannot be played. ' +
+    'Use rach3.hand_report to find places that cannot be played, rach3.read_notes to see the notes around them, rach3.read_score to see how the score writes them, ' +
+    'and rach3.set_hands to give notes to the other hand. Check the whole piece, a stretch at a time. Change only hands: never add, remove or move notes. ' +
+    'Do not change files in this folder.';
+  const reviewToolSpecs = () => [{ type: 'namespace', name: 'rach3', description: 'Read the lesson being checked and change which hand plays its notes.', tools: [
+    { type: 'function', name: 'hand_report', description: 'Places where the current hands cannot be played: a hand stretching past a tenth, holding more than five notes, or crossing the other hand. Each lists the notes sounding there as [index, midi, start, end, hand] (hand 0 left, 1 right). Optionally only between `from` and `to` seconds.',
+      inputSchema: { type: 'object', additionalProperties: false, properties: { from: { type: 'number' }, to: { type: 'number' } } } },
+    { type: 'function', name: 'read_notes', description: 'The lesson\'s notes in time order as [index, midi, start seconds, end seconds, hand] (hand 0 left, 1 right), at most 3000 at a time; ask for a range with `from` and `to` seconds.',
+      inputSchema: { type: 'object', additionalProperties: false, properties: { from: { type: 'number' }, to: { type: 'number' } } } },
+    { type: 'function', name: 'read_score', description: 'How the lesson\'s score writes bars `from_bar` to `to_bar` (at most 16 bars at a time): per staff and voice, each note or chord as pitch/duration, "R" for a rest. Also the time in seconds each bar starts.',
+      inputSchema: { type: 'object', required: ['from_bar', 'to_bar'], additionalProperties: false, properties: { from_bar: { type: 'integer' }, to_bar: { type: 'integer' } } } },
+    { type: 'function', name: 'set_hands', description: 'Give notes to a hand: each change is [index, hand] with hand 0 left, 1 right. Returns how many notes now play in another hand than the lesson had, and the report\'s counts after the change.',
+      inputSchema: { type: 'object', required: ['changes'], additionalProperties: false, properties: {
+        changes: { type: 'array', items: { type: 'array', items: { type: 'integer' }, minItems: 2, maxItems: 2 } } } } },
+  ] }];
+
+  const round = value => Math.round((Number(value) || 0) * 1000) / 1000;
+  const noteRow = (notes, index) => { const { entry, hand } = notes[index]; return [index, entry.midi, round(entry.time), round(entry.end), hand]; };
+
+  // What cannot be played as the hands are now: for every moment notes are struck, what
+  // each hand holds and strikes.
+  function handReport(notes, from, to) {
+    const counts = { stretch: 0, crowded: 0, crossing: 0 }, places = [];
+    const sounding = [[], []];
+    for (let start = 0; start < notes.length;) {
+      const time = Number(notes[start].entry.time) || 0;
+      let stop = start;
+      while (stop < notes.length && (Number(notes[stop].entry.time) || 0) - time <= TOGETHER) stop++;
+      for (const hand of [0, 1]) sounding[hand] = sounding[hand].filter(index => (Number(notes[index].entry.end) || 0) > time + TOGETHER);
+      for (let index = start; index < stop; index++) sounding[notes[index].hand].push(index);
+      const pitches = sounding.map(list => list.map(index => notes[index].entry.midi));
+      const found = [];
+      for (const hand of [0, 1]) {
+        if (!pitches[hand].length) continue;
+        if (Math.max(...pitches[hand]) - Math.min(...pitches[hand]) > REACH) found.push(['stretch', hand]);
+        if (pitches[hand].length > 5) found.push(['crowded', hand]);
+      }
+      if (pitches[0].length && pitches[1].length && Math.max(...pitches[0]) > Math.min(...pitches[1])) found.push(['crossing', null]);
+      for (const [kind, hand] of found) {
+        counts[kind]++;
+        if (time >= from && time <= to && places.length < 120)
+          places.push({ kind, time: round(time), ...(hand == null ? {} : { hand }), notes: [...sounding[0], ...sounding[1]].sort((a, b) => a - b).map(index => noteRow(notes, index)) });
+      }
+      start = stop;
+    }
+    return { counts, places };
+  }
+
+  // The score's bars as text, from the lesson's MusicXML.
+  function scoreBars(lesson, first, last) {
+    const xml = lesson.notation?.musicxml;
+    if (typeof xml !== 'string') return null;
+    const document = new DOMParser().parseFromString(xml, 'application/xml');
+    const parts = [...document.querySelectorAll('score-partwise > part')];
+    const names = ['upper staff', 'lower staff'];
+    const bars = [];
+    for (let number = first; number <= last; number++) {
+      const bar = { bar: number, starts: round(lesson.notation.measures?.[number - 1]?.start), staves: {} };
+      parts.forEach((part, partIndex) => {
+        const measure = part.querySelectorAll(':scope > measure')[number - 1];
+        if (!measure) return;
+        const voices = {};
+        for (const element of measure.querySelectorAll(':scope > note')) {
+          const staff = element.querySelector('staff')?.textContent ?? String(partIndex + 1);
+          const label = parts.length > 1 ? names[partIndex] ?? `staff ${partIndex + 1}` : names[Number(staff) - 1] ?? `staff ${staff}`;
+          const voice = `${label}, voice ${element.querySelector('voice')?.textContent ?? '1'}`;
+          const step = element.querySelector('pitch > step')?.textContent;
+          const alter = Number(element.querySelector('pitch > alter')?.textContent ?? 0);
+          const octave = element.querySelector('pitch > octave')?.textContent;
+          const pitch = step ? `${step}${alter > 0 ? '#'.repeat(alter) : 'b'.repeat(-alter)}${octave}` : 'R';
+          const type = element.querySelector('type')?.textContent ?? 'whole';
+          const dots = element.querySelectorAll('dot').length;
+          const triplet = element.querySelector('time-modification') ? '(3)' : '';
+          const list = voices[voice] ??= [];
+          if (element.querySelector('chord') && list.length) list[list.length - 1] = list[list.length - 1].replace('/', `+${pitch}/`);
+          else list.push(`${pitch}/${type}${'.'.repeat(dots)}${triplet}`);
+        }
+        for (const [voice, list] of Object.entries(voices)) bar.staves[voice] = list.join(' ');
+      });
+      bars.push(bar);
+    }
+    return bars;
+  }
+
+  function reviewTool(tool, input, done) {
+    const notes = turn.notes, lesson = turn.lesson;
+    const from = number(input.from) ?? -Infinity, to = number(input.to) ?? Infinity;
+    if (tool === 'hand_report') return done(json(handReport(notes, from, to)), true);
+    if (tool === 'read_notes') {
+      const rows = [];
+      for (let index = 0; index < notes.length && rows.length < 3000; index++) {
+        const time = Number(notes[index].entry.time) || 0;
+        if (time >= from && time <= to) rows.push(noteRow(notes, index));
+      }
+      const more = rows.length === 3000 ? ' Only the first 3000 notes of this range; ask for a later range.' : '';
+      return done(`${json(rows)}${more}`, true);
+    }
+    if (tool === 'read_score') {
+      const count = lesson.notation?.measures?.length ?? 0;
+      if (!count) return done('This lesson has no score.', false);
+      const first = Math.max(1, Math.floor(number(input.from_bar) ?? 1)), last = Math.min(count, first + 15, Math.floor(number(input.to_bar) ?? first));
+      if (first > count) return done(`The score has ${count} bars.`, false);
+      const bars = scoreBars(lesson, first, last);
+      return done(bars ? `${json(bars)} The score has ${count} bars.` : 'This lesson has no score.', !!bars);
+    }
+    if (tool === 'set_hands') {
+      const changes = Array.isArray(input.changes) ? input.changes : [];
+      for (const change of changes) {
+        const [index, hand] = Array.isArray(change) ? change.map(Number) : [];
+        if (!(Number.isInteger(index) && index >= 0 && index < notes.length && (hand === 0 || hand === 1)))
+          return done(`Invalid change ${json(change)}: [index, hand] with an index from read_notes and hand 0 or 1. Nothing was changed.`, false);
+      }
+      for (const [index, hand] of changes.map(change => change.map(Number))) notes[index].hand = hand;
+      const moved = notes.filter(item => item.hand !== item.from).length;
+      return done(json({ changed: changes.length, inOtherHandThanBefore: moved, report: handReport(notes, 0, -1).counts }), true);
+    }
+    return done('Unknown tool.', false);
+  }
+
+  // The corrected lesson takes the original's place under a new name; the original
+  // goes to the Trash, so nothing ChatGPT did is final.
+  async function finishReview(mine, status, error) {
+    const lesson = mine.lesson, original = String(lesson.id);
+    const moved = mine.notes.filter(item => item.hand !== item.from).length;
+    const summary = (mine.summary ?? '').slice(0, 2000);
+    if (status !== 'completed' || !moved) {
+      publishReview({ phase: status === 'completed' ? 'done' : 'failed', id: original, moved: 0, summary, error: error ?? null });
+      return;
+    }
+    const identifier = uuid().toUpperCase();
+    const corrected = { ...lesson, id: identifier };
+    corrected.tracks = [0, 1].map(hand => {
+      const before = lesson.tracks.find(track => handOf(track) === hand) ?? {};
+      return { ...before, id: hand, name: hand ? 'Sağ el' : 'Sol el',
+        notes: mine.notes.filter(item => item.hand === hand).map(item => ({ ...item.entry, hand })) };
+    });
+    corrected.description = `${lesson.description ?? ''} · ChatGPT ile kontrol edildi`.replace(/^ · /, '');
+    corrected.provenance = { ...(lesson.provenance ?? {}), review: { by: 'ChatGPT', moved, checked: new Date().toISOString(), summary, replaced: original } };
+    if (!await op('write', { area: 'lessons', path: `${identifier}.json`, text: json(corrected), exclusive: true })) {
+      publishReview({ phase: 'failed', id: original, error: 'save' });
+      return;
+    }
+    const base = mine.path.replace(/\.json$/, '');
+    if (await op('exists', at('lessons', `${base}.assets`)) === 'folder')
+      await op('move', { from: at('lessons', `${base}.assets`), to: at('lessons', `${identifier}.assets`) });
+    await op('trash', at('lessons', mine.path));
+    publishReview({ phase: 'done', id: identifier, replaced: original, moved, summary });
+    op('open-lesson', { lesson: corrected });
+  }
+
   function track(method, params) {
     if (method === 'thread/tokenUsage/updated') {
       const last = params.tokenUsage?.last;
@@ -911,7 +1128,7 @@
   async function turnCompleted(status, error) {
     const mine = turn;
     if (!mine) return;
-    if (mine.mode === 'desk') { finishTurn(status, error); return; }
+    if (mine.mode === 'desk' || mine.mode === 'review') { finishTurn(status, error); return; }
     const base = await designRoot(mine.base);
     const usable = status === 'completed' && !mine.outside && !mine.stopping && base && await op('exists', at('data', 'workspace')) === 'folder';
     if (usable) {
@@ -944,7 +1161,7 @@
     const mine = turn;
     if (!mine) return finishing;
     turn = null;
-    finishing = finishing.then(() => finish(mine, status, error)).catch(failure => console.error(failure));
+    finishing = finishing.then(() => finish(mine, status, error)).catch(failure => console.error(failure)).then(startQueuedReview);
     return finishing;
   }
   async function finish(mine, status, error) {
@@ -965,6 +1182,12 @@
     }
     await save(usage, 'usage.json');
 
+    if (mine.mode === 'review') {
+      await op('remove', at('data', 'workspace'));
+      await finishReview(mine, status, error);
+      publishState(); publishDesk();
+      return;
+    }
     // A lesson conversation never changes the interface: its scratch copy is thrown away.
     if (mine.mode === 'desk') {
       await op('remove', at('data', 'workspace'));
@@ -1040,6 +1263,7 @@
         return {};
       }
       case 'lesson-progress': await lessonProgress(body.snapshot); return {};
+      case 'lesson-review': return { queued: queueReview(body.id) };
       case 'language': info.language = body.language; publishState(); publishDesk(); return {};
       case 'restore-original': if (!turn) await showBranch(MAIN, null); return {};
       case 'state': return state();

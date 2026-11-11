@@ -66,6 +66,7 @@ let window, pageView, panelView, video;        // video: { view, full }
 let pageURL = null, pageReady = false, reloadPending = false, pendingSeed = null;
 let panelOpen = false, toggleWidth = 110, roomStyle = null;
 let pendingLesson = null, pendingVideo = null;
+const reviews = new Set();                     // lessons to check with ChatGPT once they are ready
 let pageInput = 0;                             // the last real click or key press on the page
 let quitting = false, savingWorkspace = false, uninstalling = false, leaving = false;
 let lessons, bluetooth, customize, updates;
@@ -89,7 +90,12 @@ const snapshot = () => ({ event: 'snapshot', language: localization.language(), 
 function startServices() {
   lessons = createLessons({
     engine: files.engine, support, tools, text, logs: path.join(support, 'Logs'),
-    onEvent: event => { publish(event); customize.ask('lesson-progress', { snapshot: event }).catch(() => {}); },
+    onEvent: event => {
+      publish(event);
+      customize.ask('lesson-progress', { snapshot: event }).catch(() => {});
+      if (event.phase === 'complete' && reviews.delete(String(event.id))) customize.ask('lesson-review', { id: event.id }).catch(() => {});
+      else if (event.phase === 'error' || event.phase === 'cancelled') reviews.clear();
+    },
     onIdle: () => setImmediate(finishTermination),
   });
   bluetooth = createBluetooth({ text, settings, publish, onStopped: () => setImmediate(finishTermination) });
@@ -221,7 +227,13 @@ const pageCommands = {
     if (!lesson) throw new Error(text('Bu ders burada yok.'));
     return lesson;
   },
-  'lesson-begin': body => lessons.begin(body),
+  // "Check and fix with ChatGPT" spends the person's ChatGPT plan, so it counts only
+  // when the lesson was started with a real click.
+  'lesson-begin': body => {
+    const job = lessons.begin(body);
+    if (body.review === true && customize.available && Date.now() - pageInput <= 2000) reviews.add(String(job.id));
+    return job;
+  },
   'lesson-chunk': async body => ({ ok: Boolean(await lessons.append(body.data, body.id)) }),
   'lesson-start': async body => ({ ok: Boolean(await lessons.start(body.id)) }),
   'lesson-cancel': () => { lessons.cancel(); return {}; },
