@@ -83,6 +83,23 @@ jobs:
           test -x vendor/aarch64-apple-darwin/bin/codex
           test -x vendor/x86_64-apple-darwin/bin/codex
           echo "RACH3_CODEX_VENDOR=$folder/vendor" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell for both Mac processors
+        # npm ci installs this Mac's Electron. The Intel build of the same version comes from
+        # Electron's release and must match the checksum the electron package itself carries.
+        run: |
+          set -euo pipefail
+          npm ci
+          version=$(node -p "require('electron/package.json').version")
+          name="electron-v$version-darwin-x64.zip"
+          curl -fsSL -o "$RUNNER_TEMP/$name" "https://github.com/electron/electron/releases/download/v$version/$name"
+          expected=$(node -p "require('electron/checksums.json')['$name']")
+          test "$(shasum -a 256 "$RUNNER_TEMP/$name" | cut -d' ' -f1)" = "$expected"
+          mkdir -p build/electron/darwin-x64
+          ditto -x -k "$RUNNER_TEMP/$name" build/electron/darwin-x64
+          test -d build/electron/darwin-x64/Electron.app
       - name: Build application and DMG installer
         run: python3 desktop/build.py
       - name: Fetch small signed baseline when available
@@ -167,8 +184,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Create lessons from MIDI, PDF and audio on Windows
         run: python windows/verify_engine.py
+      - name: Install the Electron shell
+        run: npm ci
       - name: Open the Windows app, capture its screens and create a lesson through the page
         run: python windows/build.py --capture "$env:RUNNER_TEMP\windows-screens"
       - name: Install the Velopack packager

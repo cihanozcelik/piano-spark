@@ -38,6 +38,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell
+        run: npm ci
       - name: Build, open the app, take screenshots and create a lesson through the page
         env:
           PYTHONUTF8: '1'
@@ -59,6 +64,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell
+        run: npm ci
       - name: Install the Velopack packager
         run: |
           dotnet tool install -g vpk --version 1.2.161

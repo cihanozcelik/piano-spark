@@ -116,7 +116,6 @@ def bundle_codex(resources):
     if len(found) < 2: print(f'Codex bundled for {", ".join(found)} only.')
     for name in ['LICENSE', 'NOTICE']:
         shutil.copy2(ROOT/f'desktop/customize/CODEX-{name}', codex/name)
-    shutil.copy2(ROOT/'desktop/customize/codex.sb', codex/'codex.sb')   # the macOS sandbox rach3 starts Codex in
 
 
 def write_ui(resources):
@@ -154,92 +153,130 @@ def write_ui(resources):
     pending.replace(resources / 'index.html')
 
 
-def compile_native(destination, objects_dir, capture=False):
-    objects_dir.mkdir(parents=True, exist_ok=True)
-    # Compile the existing BLE implementation into the same executable under a
-    # private helper entry point. Lesson jobs use the bundled portable runtime.
-    flags = ['-fobjc-arc', '-fblocks', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
-             '-mmacosx-version-min=14.0', '-F', str(SPARKLE)]
-    if capture: flags.append('-DPIANO_CAPTURE')
-    binaries = []
-    for arch in ['arm64', 'x86_64']:
-        objects = []
-        for source, extra, name in [
-            ('desktop/main.m', [], 'desktop'),
-            ('desktop/Localization.m', [], 'localization'),
-            ('desktop/LessonService.m', [], 'lessons'),
-            ('desktop/UpdateController.m', [], 'updates'),
-            ('desktop/CustomizeService.m', [], 'customize'),
-            ('desktop/LessonDesk.m', [], 'lesson-desk'),
-            ('bluetooth-connection/main.m', ['-Dmain=PianoBluetoothMain'], 'bluetooth'),
-            ('bluetooth-connection/BLEMIDI.m', [], 'decoder'),
-            ('bluetooth-connection/BLEMIDIOutput.m', [], 'midi-output'),
-        ]:
-            obj = objects_dir / f'{name}-{arch}.o'
-            run('xcrun', 'clang', '-arch', arch, *flags, *extra, '-c', ROOT / source, '-o', obj)
-            objects.append(obj)
-        binary = objects_dir / f'Rach3-{arch}'
-        run('xcrun', 'clang', '-arch', arch, '-mmacosx-version-min=14.0', *objects,
-            '-framework', 'AppKit', '-framework', 'WebKit', '-framework', 'Foundation',
-            '-framework', 'CoreBluetooth', '-framework', 'UniformTypeIdentifiers',
-            '-framework', 'Security', '-F', SPARKLE, '-framework', 'Sparkle',
-            '-Wl,-rpath,@executable_path/../Frameworks', '-o', binary)
-        binaries.append(binary)
-    run('xcrun', 'lipo', '-create', *binaries, '-output', destination)
+ELECTRON = ROOT/'node_modules/electron/dist/Electron.app'
+# The same Electron for Intel Macs, unpacked here, makes the app universal (see electron_shell).
+ELECTRON_INTEL = ROOT/'build/electron/darwin-x64/Electron.app'
+MACH_O = {b'\xcf\xfa\xed\xfe', b'\xce\xfa\xed\xfe', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca'}
+
+
+def is_native(path):
+    if path.is_symlink() or not path.is_file(): return False
+    with path.open('rb') as stream: return stream.read(4) in MACH_O
+
+
+def electron_shell(app):
+    """rach3's window is Electron (electron/main.js), the same on Mac and Windows. This lays
+    the Electron runtime out as rach3.app: named rach3, and universal when the Intel build of
+    the same Electron version is present."""
+    if not ELECTRON.exists(): raise RuntimeError('Electron is missing: run npm ci')
+    run('cp', '-cR', ELECTRON, app)
+    if ELECTRON_INTEL.exists():
+        if (ELECTRON_INTEL.parent/'version').read_text().strip() != (ELECTRON.parent/'version').read_text().strip():
+            raise RuntimeError('The Intel Electron is a different version')
+        for other in ELECTRON_INTEL.rglob('*'):
+            mine = app/other.relative_to(ELECTRON_INTEL)
+            if other.is_symlink() or other.is_dir(): continue
+            if not mine.exists(): shutil.copy2(other, mine)      # each architecture's own V8 snapshot
+            elif is_native(other): run('xcrun', 'lipo', '-create', mine, other, '-output', mine)
+    else:
+        print('Intel Electron not found: this build runs on Apple Silicon only.')
+    contents = app/'Contents'
+    (contents/'Resources/default_app.asar').unlink()
+    (contents/'Resources/electron.icns').unlink()
+    # Electron looks for its helper programs by the app's name (CFBundleName), letter for letter.
+    frameworks = contents/'Frameworks'
+    for helper in sorted(frameworks.glob('Electron Helper*.app')):
+        name = helper.stem.replace('Electron', 'rach3', 1)
+        (helper/'Contents/MacOS'/helper.stem).rename(helper/'Contents/MacOS'/name)
+        info_path = helper/'Contents/Info.plist'
+        info = plistlib.loads(info_path.read_bytes())
+        info.update(CFBundleExecutable=name, CFBundleName=name, CFBundleDisplayName=name,
+                    CFBundleIdentifier=info['CFBundleIdentifier'].replace('com.github.Electron', 'com.rach3.app'))
+        info_path.write_bytes(plistlib.dumps(info))
+        helper.rename(frameworks/f'{name}.app')
+    (contents/'MacOS/Electron').rename(contents/'MacOS/Rach3')
+
+
+def write_shell(resources):
+    """The shell's own code, next to the files it serves."""
+    code = resources/'app'
+    (code/'electron').mkdir(parents=True)
+    for source in sorted((ROOT/'electron').glob('*.js')): shutil.copy2(source, code/'electron'/source.name)
+    (code/'package.json').write_text(json.dumps({'name': 'rach3', 'version': RELEASE['version'], 'main': 'electron/main.js'}))
+    # The shell's words: the Turkish to English table of desktop/Localization.m.
+    strings = subprocess.run(['node', '-e', "process.stdout.write(JSON.stringify(require('./electron/localization').nativeStrings()))"],
+                             cwd=ROOT, check=True, capture_output=True, text=True).stdout
+    (resources/'strings.json').write_text(strings)
+
+
+def compile_updates(destination):
+    """Sparkle stays the Mac's update system: desktop/UpdateController.m, unchanged, as an
+    addon the shell loads (electron/native/updates.m)."""
+    headers = Path(subprocess.run(['node', '-p', 'process.execPath'], check=True, capture_output=True, text=True).stdout.strip()).resolve().parents[1]/'include/node'
+    if not (headers/'node_api.h').exists(): raise RuntimeError(f'Node headers not found in {headers}')
+    run('xcrun', 'clang', '-arch', 'arm64', '-arch', 'x86_64', '-fobjc-arc', '-fblocks', '-std=gnu11', '-Wall', '-Wextra', '-Werror',
+        '-mmacosx-version-min=14.0', '-bundle', '-undefined', 'dynamic_lookup', '-I', headers, '-F', SPARKLE,
+        ROOT/'electron/native/updates.m', ROOT/'desktop/UpdateController.m', ROOT/'desktop/Localization.m',
+        '-framework', 'AppKit', '-framework', 'Sparkle', '-Wl,-rpath,@loader_path/../Frameworks', '-o', destination)
+
+
+def sign(app):
+    """Ad-hoc signatures, inside out: every program and framework, then the app."""
+    frameworks = app/'Contents/Frameworks'
+    for path in sorted(frameworks.rglob('*')):
+        if path.suffix in ('.dylib', '.node') and is_native(path): run('codesign', '--force', '--sign', '-', '--timestamp=none', path)
+    for bundle in [*sorted(frameworks.glob('*.framework')), *sorted(frameworks.glob('*.app'))]:
+        run('codesign', '--force', '--deep', '--sign', '-', '--timestamp=none', bundle)
+    run('codesign', '--force', '--sign', '-', '--timestamp=none', app/'Contents/Resources/updates.node')
+    run('codesign', '--force', '--sign', '-', '--timestamp=none', app)
+    run('codesign', '--verify', '--deep', '--strict', app)
+
 
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--app-only',action='store_true')
     parser.add_argument('--installer-only',action='store_true')
-    parser.add_argument('--capture-assets',type=Path,help='Export actual app screenshots with an isolated development-only capture build')
+    parser.add_argument('--capture-assets',type=Path,help='Export screenshots drawn by the built app itself')
     parser.add_argument('--capture-language',choices=('en','tr'),default='en',help='Language of the exported screenshots')
     args=parser.parse_args()
     BUILD.mkdir(parents=True, exist_ok=True)
     DIST.mkdir(exist_ok=True)
     if args.capture_assets:
         destination=args.capture_assets.resolve(); destination.mkdir(parents=True,exist_ok=True)
-        capture_root=BUILD/'capture'
-        capture_app=capture_root/APP.name
-        if capture_root.exists(): shutil.rmtree(capture_root)
-        capture_root.mkdir()
-        try:
-            run('cp','-cR',APP,capture_app)
-            info_path=capture_app/'Contents/Info.plist'
-            info=plistlib.loads(info_path.read_bytes())
-            info['CFBundleIdentifier']='com.rach3.capture'
-            info_path.write_bytes(plistlib.dumps(info))
-            compile_native(capture_app/'Contents/MacOS/Rach3',capture_root/'objects',capture=True)
-            run('codesign','--force','--sign','-','--timestamp=none',capture_app)
-            run(capture_app/'Contents/MacOS/Rach3',destination,args.capture_language)
-        finally:
-            shutil.rmtree(capture_root)
+        # The real app draws its own screenshots: its capture mode uses a throwaway data folder.
+        run(APP/'Contents/MacOS/Rach3','--capture',destination,args.capture_language)
         return
     if args.installer_only:
         build_installer(); return
     prepare_sparkle()
     if APP.exists():
         shutil.rmtree(APP)
+    electron_shell(APP)
     resources = APP / 'Contents/Resources'
-    executable = APP / 'Contents/MacOS'
-    resources.mkdir(parents=True)
-    executable.mkdir()
-    with (ROOT/'desktop/Info.plist').open('rb') as stream: app_info=plistlib.load(stream)
+    info_path = APP/'Contents/Info.plist'
+    app_info = plistlib.loads(info_path.read_bytes())
+    with (ROOT/'desktop/Info.plist').open('rb') as stream: own = plistlib.load(stream)
+    for key in ('ElectronAsarIntegrity', 'LSApplicationCategoryType', 'NSAudioCaptureUsageDescription', 'NSBluetoothPeripheralUsageDescription',
+                'NSCameraUsageDescription', 'NSMicrophoneUsageDescription', 'NSAppTransportSecurity'):
+        app_info.pop(key, None)
+    # Electron's own application class stays; everything that names the app is rach3's.
+    app_info.update({key: value for key, value in own.items() if key != 'NSPrincipalClass'})
     app_info.update(LSMinimumSystemVersion='14.0',CFBundleVersion=str(RELEASE['build']),CFBundleShortVersionString=RELEASE['version'],
         SUFeedURL=RELEASE['feedURL'],
         SUPublicEDKey=RELEASE['publicKey'],SUEnableAutomaticChecks=True,SUAutomaticallyUpdate=True,
         SUScheduledCheckInterval=3600,SUVerifyUpdateBeforeExtraction=True,SURequireSignedFeed=True,
         SUEnableSystemProfiling=False)
-    with (APP/'Contents/Info.plist').open('wb') as stream: plistlib.dump(app_info,stream)
+    info_path.write_bytes(plistlib.dumps(app_info))
 
     write_source(resources)
+    write_shell(resources)
     bundle_codex(resources)
     bundle_engine(resources)
     shutil.copy2(ROOT/'desktop/release.json',resources/'release.json')
     frameworks = APP/'Contents/Frameworks'
-    frameworks.mkdir()
     shutil.copytree(SPARKLE/'Sparkle.framework',frameworks/'Sparkle.framework',symlinks=True)
+    compile_updates(resources/'updates.node')
 
-    compile_native(executable / 'Rach3', BUILD)
     iconset = BUILD / 'Rach3.iconset'
     iconset.mkdir(exist_ok=True)
     for size in (16, 32, 128, 256, 512):   # desktop/AppIcon.png comes from brand/make.py
@@ -247,8 +284,7 @@ def main():
             name = f'icon_{size}x{size}' + ('@2x' if scale == 2 else '') + '.png'
             run('sips', '-z', size*scale, size*scale, ROOT/'desktop/AppIcon.png', '--out', iconset/name)
     run('iconutil', '-c', 'icns', iconset, '-o', resources / 'Rach3.icns')
-    run('codesign', '--force', '--sign', '-', '--timestamp=none', APP)
-    run('codesign', '--verify', '--deep', '--strict', APP)
+    sign(APP)
     archive = DIST / 'rach3-macOS.zip'
     if archive.exists():
         archive.unlink()
