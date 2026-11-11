@@ -61,11 +61,32 @@ def midi_performance(path):
     return tracks,at,anchors
 
 
+def import_midi(source,request,title,emit):
+    """The lesson plays the file's own timing; its score is read from the file's beat grid."""
+    from midi_score import lesson_tracks, notation, read_midi
+    emit('notation','MIDI notaları ve ritimleri okunuyor…',.25)
+    piece=read_midi(source)
+    tracks=lesson_tracks(piece)
+    emit('notation','Partisyon yazılıyor…',.6)
+    score=notation(piece,title)
+    notes=[n for track in tracks for n in track['notes']]
+    by_tracks=all(hand is not None for hand in piece['hands'].values())
+    description='MIDI’den aktarıldı · '+('El ayrımı MIDI parçalarından' if by_tracks else 'El ayrımı otomatik tahmin')
+    return dict(id=request['id'],title=title,description=description,noteCount=len(notes),
+                duration=max(score['measures'][-1]['end'],max(n['end'] for n in notes)),tracks=tracks,
+                midiFilename=title+'.mid',
+                provenance=dict(sourceKind='midi',sourceName=request.get('sourceName',source.name),
+                                sourceSha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+                                model='MIDI · rach3 nota yazımı · music21 9.9.1',tempoAssumed=False,warnings=[]),
+                notation=score)
+
+
 def import_score(source,request,work,engine,emit):
-    from music21 import converter, layout, midi, stream, tempo
-    from statistics import median
+    from music21 import converter, midi, stream, tempo
     from music21.musicxml.m21ToXml import GeneralObjectExporter
     kind=request['kind'];title=request.get('title') or request.get('sourceName',source.stem)
+    if kind=='midi':
+        return import_midi(source,request,title,emit)
     if kind=='pdf':
         emit('notation','PDF sayfalarındaki notalar okunuyor…',.12)
         output=work/'recognized-pages.json'
@@ -86,22 +107,6 @@ def import_score(source,request,work,engine,emit):
         for part in score.parts:
             for number,measure in enumerate(part.getElementsByClass(stream.Measure),1):measure.number=number
         model='homr 0.7.0 · ONNX'
-    else:
-        emit('notation','MIDI notaları ve ritimleri okunuyor…',.25)
-        score=converter.parse(str(source),format='midi',quantizePost=True,
-                              quarterLengthDivisors=(4,3,8))
-        # MIDI events may overlap without explicit notation voices. Let music21
-        # allocate voices before export, otherwise durations serialize in sequence.
-        for part in score.parts:
-            for measure in part.getElementsByClass(stream.Measure):
-                measure.makeVoices(inPlace=True)
-        if len(score.parts)==2:
-            ordered=sorted(score.parts,key=lambda part:median(
-                [pitch.midi for event in part.recurse().notes for pitch in event.pitches] or [60]),reverse=True)
-            for part in ordered:score.remove(part)
-            for part in ordered:score.insert(0,part)
-            score.insert(0,layout.StaffGroup(ordered,name='Piano',symbol='brace',barTogether=True))
-        model='MIDI · music21 9.9.1'
     if not score.parts:raise ValueError('Dosyada okunabilir bir nota partisi bulunamadı.')
     warnings=[]
     if kind=='pdf':

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PYTHON = '3.12.12'
 RUNTIME_REQUEST = f'cpython-{PYTHON}-windows-x86_64-none'
 RUNTIME = ROOT/'build/lesson-python'/RUNTIME_REQUEST
-ENGINE_FILES = ['worker.py', 'notation.py', 'notation_source.py', 'score_writer.py', 'score_import.py',
+ENGINE_FILES = ['worker.py', 'notation.py', 'notation_source.py', 'score_writer.py', 'score_import.py', 'midi_score.py',
                 'pdf_recognizer.py', 'tools_manager.py', 'torch_compat.py', 'tools-win_amd64.json',
                 'cacert.pem']
 # The Windows tool set brings diffq as the diffq-fixed wheel; the vendored copy

@@ -27,4 +27,5 @@ Dosya SHA-256 değerleri `sources.json` içindedir.
 PDF dersleri otomatik OMR çıktısıdır; nota, ritim ve ses ayrımı hataları olabilir.
 PDF'den sayısal tempo okunamadığında içe aktarma ekranındaki tempo kullanılır.
 MIDI dersleri, kaynak dosyanın zamanlaması, basış şiddeti ve CC64 verisini korur;
-nota sayfasında gösterim kuantizasyonu ve perdeye göre tahmini el ayrımı vardır.
+nota sayfası MIDI vuruş ızgarasından yazılır; el ayrımı parça adlarından ya da
+çalınabilirliğe göre tahmin edilir.
