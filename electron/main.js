@@ -444,7 +444,10 @@ function layout() {
 async function makeRoomForToggle() {
   if (!pageReady || !alive(panelView)) return;
   const room = panelOpen ? 0 : toggleWidth + 28, previous = roomStyle, contents = pageView.webContents;
-  roomStyle = room ? contents.insertCSS(`.app-bar { padding-right: ${room}px !important; }`) : null;
+  // On the Mac the header moves the window; under the button it must not, or the Mac
+  // takes the button's clicks for the title bar's.
+  roomStyle = room ? contents.insertCSS(`.app-bar { padding-right: ${room}px !important; }` +
+    ` .app-bar::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: ${room}px; -webkit-app-region: no-drag; }`) : null;
   if (previous) previous.then(key => contents.removeInsertedCSS(key)).catch(() => {});
 }
 
