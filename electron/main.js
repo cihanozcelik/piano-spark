@@ -14,6 +14,7 @@ const { createBluetooth } = require('./bluetooth');
 const { createCustomize } = require('./customize');
 const { createUpdates } = require('./updates');
 const { captureOptions, runCapture, selfTestUpdate } = require('./self-test');
+const { createEarlierState, readMac, readWindows } = require('./earlier-state');
 
 const MAC = process.platform === 'darwin';
 const INSTALLED = app.isPackaged;
@@ -48,6 +49,13 @@ const settings = capture ? fileSettings(path.join(support, `capture-${process.pi
 if (capture) settings.set('Rach3Language', capture.language);
 const localization = createLocalization({ settings, systemLocale: () => app.getPreferredSystemLanguages()[0] || app.getLocale() });
 const text = source => localization.text(source);
+
+// What the page had saved in the rach3 before this shell (earlier-state.js), for an
+// installed copy using the person's own data folder. RACH3_EARLIER names another place to
+// read it from, for tests.
+const earlier = capture || updateTest || !(INSTALLED ? !process.env.RACH3_SUPPORT || process.env.RACH3_EARLIER : process.env.RACH3_EARLIER) ? null
+  : createEarlierState({ file: path.join(support, 'Electron', 'earlier-page-state.json'),
+    read: () => MAC ? readMac(process.env.RACH3_EARLIER || undefined) : readWindows(process.env.RACH3_EARLIER || support, require('electron')) });
 
 // ---- State -----------------------------------------------------------------------------
 let window, pageView, panelView, video;        // video: { view, full }
@@ -163,6 +171,7 @@ const pageCommands = {
     console.log('rach3 arayüzü hazır');
     makeRoomForToggle();
     customize.markSeeded(new URL(pageURL).host);
+    earlier?.taken(new URL(pageURL).host);
     if (pendingLesson) setTimeout(openPendingLesson, 800);
     if (capture && !capture.started) {
       capture.started = true;
@@ -273,8 +282,11 @@ function pageScripts(address) {
   else { try { scripts.push(`window.PianoPlatformText = ${JSON.stringify(JSON.parse(fs.readFileSync(files.platformText, 'utf8')))};`); } catch {} }
   // Only a copy that carries Codex offers the "With AI" tab.
   if (customize.available) scripts.push(mark('lessonChat', '1'));
-  // First visit to a branch: it starts with the settings of the page it was opened from.
   let host; try { host = new URL(address).host; } catch {}
+  // What this page had saved in the rach3 before this shell, once.
+  const before = host && earlier?.script(host);
+  if (before) scripts.push(before);
+  // First visit to a branch: it starts with the settings of the page it was opened from.
   if (pendingSeed && host === pendingSeed.host)
     scripts.push(`(() => { if (location.host !== ${JSON.stringify(pendingSeed.host)}) return; try {` +
       ` if (localStorage.getItem('rach3.seeded')) return;` +
@@ -704,7 +716,9 @@ else {
   });
   app.on('activate', () => { if (window && !window.isDestroyed()) window.show(); });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
+    // The earlier app's saved page state is read before the first page opens (a moment, once).
+    if (earlier) await Promise.race([earlier.ready, new Promise(done => setTimeout(done, 5000))]);
     startServices();
     ipcMain.handle('rach3', answer(answerPage));
     ipcMain.handle('rach3-native', answer((event, body) => {
