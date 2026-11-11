@@ -231,12 +231,16 @@ def publish():
 
 
 def baseline():
-    """Fetch only a small signed app baseline. Never fetch the legacy 2 GB engine."""
+    """Fetch the signed app of the latest release, which this release's delta starts from.
+    Never the legacy 2 GB engine archive: a base over 1 GiB is left alone."""
     prepare()
     release=api(f'repos/{REPO}/releases/latest')
+    if release['tag_name'] == TAG:
+        print('This version is already the latest release; a dry run of it has nothing to patch from.',flush=True)
+        return
     asset=next((a for a in release['assets'] if a['name'].startswith('rach3-') and a['name'].endswith('.zip')),None)
-    if not asset or asset['size'] > 150*1024**2:
-        print('No small app baseline; this transition uses the small full update.',flush=True)
+    if not asset or asset['size'] > 1024**3:
+        print('No app baseline under 1 GiB; this transition uses the full update.',flush=True)
         return
     with tempfile.TemporaryDirectory(prefix='rach3-baseline-') as directory:
         folder=Path(directory)
@@ -259,7 +263,7 @@ def baseline():
 if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--publish',action='store_true',help='Publish an already prepared, signed archive and update feed')
-    parser.add_argument('--baseline',action='store_true',help='Fetch the small signed previous application for an optional delta')
+    parser.add_argument('--baseline',action='store_true',help='Fetch the signed previous application that the delta starts from')
     parser.add_argument('--previous-app',type=Path,help='Exact older signed application used to generate and verify a delta')
     args=parser.parse_args()
     if args.baseline: baseline()

@@ -18,7 +18,7 @@ jobs:
   build:
     # macos-15 is Apple Silicon. It builds the universal app with both portable runtimes.
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       GH_TOKEN: ${{ github.token }}
       SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
@@ -103,9 +103,8 @@ jobs:
           test -d build/electron/darwin-x64/Electron.app
       - name: Build application and DMG installer
         run: python3 desktop/build.py
-      - name: Fetch small signed baseline when available
-        # A dry run has no newer build than the latest release to patch onto.
-        if: ${{ !inputs.dry_run }}
+      - name: Fetch the signed baseline that the update delta starts from
+        # Also in a dry run, so the delta people will get is made and applied before a tag.
         run: python3 desktop/release.py --baseline
       - name: Create and verify ZIP update and optional delta
         run: python3 desktop/release.py
@@ -148,7 +147,6 @@ jobs:
           test "$(readlink "$mount/Applications")" = /Applications
           hdiutil detach "$mount"
       - name: Fetch the signed baseline that update deltas start from
-        if: ${{ !inputs.dry_run }}
         run: python3 desktop/release.py --baseline
       - name: Verify bundle, updates and the Intel lesson engine
         run: python3 desktop/verify_intel.py

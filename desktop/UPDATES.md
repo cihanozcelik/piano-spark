@@ -73,8 +73,8 @@ Güncelleme feed'i tektir: universal ZIP ve delta'lar iki mimaride de aynı Spar
 uygulanır.
 
 Sonraki sürümler Python/model motorunu önceki uygulamadan kopyalamaz. Büyük model
-indirip yeniden paketleyen CI adımı yoktur. Küçük ZIP tabanı 150 MiB üstündeyse
-atlanır; uygulama yine tam küçük güncelleme ile dağıtılır. Yama tam ZIP'ten küçük
+indirip yeniden paketleyen CI adımı yoktur. Delta, son yayımlanan sürümün imzalı ZIP'inden
+üretilir; taban 1 GiB üstündeyse atlanır ve uygulama tam güncelleme ile dağıtılır. Yama tam ZIP'ten küçük
 değilse feed'e eklenmez. Eski feed imzası doğrulanmadan devralınmaz.
 
 Yerel paketleme:
