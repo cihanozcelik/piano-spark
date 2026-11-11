@@ -156,6 +156,13 @@ jobs:
           python3 desktop/build.py --capture-assets "$RUNNER_TEMP/intel-screens"
           test -s "$RUNNER_TEMP/intel-screens/practice.png"
           test -s "$RUNNER_TEMP/intel-screens/create-lesson.png"
+      - name: Check that opening the app and creating a lesson left the app as shipped
+        # A delta applies only to an unchanged app; a changed one quietly takes the full update.
+        run: |
+          mkdir "$RUNNER_TEMP/as-shipped"
+          ditto -x -k dist/rach3-*.zip "$RUNNER_TEMP/as-shipped"
+          diff -rq "$RUNNER_TEMP/as-shipped/rach3.app" dist/rach3.app
+          codesign --verify --deep --strict dist/rach3.app
       - name: Keep the Intel screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
