@@ -1,28 +1,28 @@
 {
-  "version": "0.11.0",
-  "build": 20,
+  "version": "0.12.0",
+  "build": 21,
   "repository": "cihanozcelik/rach3",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Create a Lesson starts with ChatGPT: say the piece you want, and it searches the web and shows YouTube videos, MIDI files you can listen to and score pages. Pick one and it becomes a lesson.",
-    "Change rach3 by asking ChatGPT: a new button, a different look, a feature you miss. Every change is a new version you can go back from; the original app stays untouched.",
-    "Both use your own ChatGPT account. Sign in from the app; rach3 shows how much of your plan you used.",
-    "PDF scores open full window with zoom, and video lessons separate the voice from the piano."
+    "On Windows, Create a Lesson with ChatGPT and changing rach3 by asking ChatGPT are here, as on the Mac. They need Windows 11 version 24H2 or newer with the latest Windows updates.",
+    "rach3 is now the same app on Mac and Windows: the same window, the same menus and the same features on both.",
+    "Your lessons, your settings and the versions you made with ChatGPT stay as they are.",
+    "This update is a larger download than usual."
   ],
   "feedURL": "https://rach3.com/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Create a Lesson starts with ChatGPT: say the piece you want, and it searches the web and shows YouTube videos, MIDI files you can listen to and score pages. Pick one and it becomes a lesson.",
-      "Change rach3 by asking ChatGPT: a new button, a different look, a feature you miss. Every change is a new version you can go back from; the original app stays untouched.",
-      "Both use your own ChatGPT account. Sign in from the app; rach3 shows how much of your plan you used.",
-      "PDF scores open full window with zoom, and video lessons separate the voice from the piano."
+      "On Windows, Create a Lesson with ChatGPT and changing rach3 by asking ChatGPT are here, as on the Mac. They need Windows 11 version 24H2 or newer with the latest Windows updates.",
+      "rach3 is now the same app on Mac and Windows: the same window, the same menus and the same features on both.",
+      "Your lessons, your settings and the versions you made with ChatGPT stay as they are.",
+      "This update is a larger download than usual."
     ],
     "tr": [
-      "Ders oluştur artık ChatGPT ile başlıyor: çalmak istediğin parçayı söyle, web’de arayıp YouTube videolarını, dinleyebileceğin MIDI’leri ve nota sayfalarını göstersin. Birini seç, derse dönüşsün.",
-      "rach3’ü ChatGPT’ye söyleyerek değiştir: yeni bir düğme, farklı bir görünüm, eksik bulduğun bir özellik. Her değişiklik geri dönebileceğin yeni bir sürüm; asıl uygulama hiç değişmez.",
-      "İkisi de kendi ChatGPT hesabınla çalışır. Uygulamadan giriş yap; rach3 planından ne kadar kullandığını gösterir.",
-      "Nota PDF’leri tam pencerede yakınlaştırılarak açılır, video derslerinde ses piyanodan ayrılır."
+      "Windows’ta da ChatGPT ile ders oluşturma ve rach3’ü ChatGPT’ye söyleyerek değiştirme geldi, Mac’teki gibi. Bunlar için Windows 11 24H2 veya daha yenisi ve en son Windows güncellemeleri gerekir.",
+      "rach3 artık Mac’te ve Windows’ta aynı uygulama: ikisinde de aynı pencere, aynı menüler, aynı özellikler.",
+      "Derslerin, ayarların ve ChatGPT ile yaptığın sürümler olduğu gibi kalır.",
+      "Bu güncelleme her zamankinden büyük bir indirme."
     ]
   }
 }

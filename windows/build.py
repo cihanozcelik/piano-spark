@@ -30,6 +30,8 @@ ELECTRON = ROOT/'node_modules/electron/dist'
 DIST = ROOT/'dist/windows/Rach3'
 RELEASES = ROOT/'dist/windows/releases'
 PACKAGE_ID = 'rach3'
+# The first release built on the shell Mac and Windows share (electron/).
+FIRST_SHELL_VERSION = (0, 12, 0)
 SETUP = f'{PACKAGE_ID}-win-Setup.exe'
 # ChatGPT features run Codex, Apache-2.0, from github.com/openai/codex.
 # The same version the Mac release bundles (.github/workflows/release.yml).
@@ -225,6 +227,12 @@ def previous_release():
         shutil.rmtree(RELEASES)
         return False
     package, previous = names[0], versions[0]
+    if version_key(previous) < FIRST_SHELL_VERSION:
+        # Before the shell both systems share, the Windows app was another program: a patch
+        # from it would be the whole app again, so those copies take the full package.
+        print(f'{previous} is the earlier Windows app; this release has the full package only.')
+        shutil.rmtree(RELEASES)
+        return False
     with tempfile.TemporaryDirectory(prefix='piano-previous-') as folder:
         subprocess.run(['gh', 'release', 'download', f'v{previous}', '--repo', RELEASE['repository'],
                         '--pattern', 'releases.win.json', '--pattern', 'releases.win.json.sig', '--dir', folder], check=True)
@@ -280,6 +288,55 @@ def install_check():
                        ROOT/'assets/example-lessons/bach-prelude/score.mid', 'midi')['noteCount']
     if count != 549: raise RuntimeError(f'The installed engine made a different MIDI lesson: {count} notes')
     print(f'Installed app opens and its engine creates lessons ({app})')
+
+
+def published_update_check():
+    """The update people really get: the published release is installed with its own
+    Setup.exe and opened once, its own Update.exe then installs this release's full
+    package, and the new app must be in place, open and stay open."""
+    latest = subprocess.run(['gh', 'release', 'view', '--repo', RELEASE['repository'], '--json', 'tagName', '--jq', '.tagName'],
+                            capture_output=True, text=True, check=True).stdout.strip()
+    if version_key(latest.lstrip('v')) >= version_key(RELEASE['version']):
+        print(f'{latest} is not older than this build; no published release to update from.')
+        return
+    root = Path(os.environ['LOCALAPPDATA'])/PACKAGE_ID
+    app = root/'current'/'Rach3.exe'
+    with tempfile.TemporaryDirectory(prefix='piano-published-') as folder:
+        subprocess.run(['gh', 'release', 'download', latest, '--repo', RELEASE['repository'], '--pattern', SETUP, '--dir', folder], check=True)
+        subprocess.run([str(Path(folder)/SETUP), '--silent'], check=True, timeout=900)
+    if not app.is_file(): raise RuntimeError(f'The published {latest} Setup did not install the app')
+    time.sleep(5)
+    if not running(): subprocess.Popen([str(app)])
+    time.sleep(25)
+    if not running(): raise RuntimeError(f'The published {latest} app did not stay open')
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
+    time.sleep(5)
+    package = RELEASES/f'{PACKAGE_ID}-{RELEASE["version"]}-full.nupkg'
+    applied = subprocess.run([str(root/'Update.exe'), 'apply', '--norestart', '--package', str(package)], capture_output=True, text=True, timeout=900)
+    print(applied.stdout[-3000:], applied.stderr[-3000:])
+    deadline = time.monotonic() + 300
+    time.sleep(5)
+    while running('Update.exe') and time.monotonic() < deadline: time.sleep(2)
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
+    time.sleep(3)
+    marker = root/'current'/'sq.version'
+    installed = marker.read_text(encoding='utf-8', errors='replace') if marker.is_file() else ''
+    if (applied.returncode != 0 or f'<version>{RELEASE["version"]}</version>' not in installed
+            or not (root/'current'/'resources'/'Engine'/'python/python.exe').is_file()):
+        raise RuntimeError(f'The published {latest} did not update to {RELEASE["version"]}: exit {applied.returncode}, '
+                           f'{sorted(p.name for p in (root/"current").iterdir())[:40]}')
+    subprocess.Popen([str(app)])
+    time.sleep(30)
+    if not running() or not (Path(os.environ['LOCALAPPDATA'])/'Rach3'/'Electron').is_dir():
+        raise RuntimeError(f'After updating from {latest} the app did not stay open with its window')
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
+    time.sleep(5)
+    # A clean computer again for the checks that follow.
+    for attempt in range(5):
+        shutil.rmtree(root, ignore_errors=True)
+        if not root.exists(): break
+        time.sleep(3)
+    print(f'Published {latest} updates to {RELEASE["version"]} with its own Update.exe, and the app opens')
 
 
 def update_check():
@@ -357,7 +414,7 @@ def main():
     parser.add_argument('--package', action='store_true', help='Create, install and check the Velopack installer')
     args = parser.parse_args()
     if args.capture: capture(args.capture.resolve(), args.midi.resolve())
-    elif args.package: package(); install_check(); update_check()
+    elif args.package: package(); published_update_check(); install_check(); update_check()
     else: build(DIST)
 
 
