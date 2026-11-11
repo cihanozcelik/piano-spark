@@ -26,7 +26,7 @@ def bundle_engine(resources):
     for arch, folder in [('aarch64','python'), ('x86_64','python-x86_64')]:
         runtime = ROOT/f'build/lesson-python/cpython-3.12.12-macos-{arch}-none'
         shutil.copytree(runtime,engine/folder,symlinks=True,ignore=ignore)
-    for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py',
+    for name in ['worker.py','notation.py','notation_source.py','score_writer.py','score_import.py','midi_score.py',
                  'pdf_recognizer.py','tools_manager.py','torch_compat.py','tools.json','tools-x86_64.json',
                  'cacert.pem']:
         shutil.copy2(ROOT/'lesson-engine'/name,engine/name)

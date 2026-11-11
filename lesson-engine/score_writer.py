@@ -25,7 +25,14 @@ def _spell_duration(event):
         event.duration.appendTuplet(duration.Tuplet(3, 2))
 
 
-def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks):
+def _ternary(onset, finish):
+    """A note or rest that starts or ends on a triplet subdivision of the quarter."""
+    return Fraction(onset).denominator % 3 == 0 or Fraction(finish).denominator % 3 == 0
+
+
+def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks, tempo_text=None):
+    """Notes whose dicts carry a 'voice' keep that voice; otherwise music21 assigns voices.
+    tempo_text, such as "Adagio sostenuto", is written before the metronome number."""
     score = stream.Score()
     score.metadata = metadata.Metadata(title=title)
     starts = [entry['metric'] * 4 for entry in bars]
@@ -39,17 +46,30 @@ def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks
     for hand in ('PR', 'PL'):
         part = stream.PartStaff(id=hand)
         part.insert(0, instrument.Piano())
-        grouped = defaultdict(list)
+        given = defaultdict(lambda: defaultdict(list))
         for item in physical:
             if item['hand'] == hand:
-                grouped[(item['on'] * 4, item['end'] * 4)].append(item['pitch'].text())
-        unmeasured = stream.Stream()
-        for (onset, finish), pitches in sorted(grouped.items()):
-            event = chord.Chord(pitches) if len(pitches) > 1 else note.Note(pitches[0])
-            event.quarterLength = finish - onset
-            unmeasured.insert(onset, event)
-        unmeasured.makeVoices(inPlace=True, fillGaps=False)
-        voices = list(unmeasured.voices) if unmeasured.hasVoices() else [unmeasured]
+                given[item.get('voice')][(item['on'] * 4, item['end'] * 4)].append(item['pitch'].text())
+        voices, names = [], []
+        for voice in sorted(given, key=lambda value: (value is None, value or 0)):
+            unmeasured = stream.Stream()
+            for (onset, finish), pitches in sorted(given[voice].items()):
+                pitches = list(dict.fromkeys(pitches))
+                event = chord.Chord(pitches) if len(pitches) > 1 else note.Note(pitches[0])
+                event.quarterLength = finish - onset
+                unmeasured.insert(onset, event)
+            if voice is None:
+                unmeasured.makeVoices(inPlace=True, fillGaps=False)
+                found = list(unmeasured.voices) if unmeasured.hasVoices() else [unmeasured]
+                voices.extend(found); names.extend([None] * len(found))
+            else:
+                voices.append(unmeasured); names.append(voice)
+        # Where a given voice crosses to the other staff, its rests on this staff stand
+        # for notes printed there, and are not shown.
+        elsewhere = defaultdict(list)
+        for item in physical:
+            if item['hand'] != hand and item.get('voice') is not None:
+                elsewhere[item['voice']].append((item['on'] * 4, item['end'] * 4))
 
         measures = []
         prior_context = None
@@ -78,9 +98,12 @@ def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks
                 onset = Fraction(event.offset)
                 finish = onset + Fraction(event.quarterLength)
                 first = max(0, bisect_right(starts, onset) - 1)
+                # Only a note that starts or ends inside a triplet is cut at the triplet's
+                # beat; a whole note under triplets stays one whole note.
                 cuts = sorted({onset, finish,
                                *[end for end in ends[first:] if onset < end < finish],
-                               *[at for at in rhythm_boundaries if onset < at < finish]})
+                               *[at for at in rhythm_boundaries if onset < at < finish
+                                 and _ternary(onset, finish)]})
                 fragments = event.splitByQuarterLengths([b - a for a, b in zip(cuts, cuts[1:])])
                 for at, fragment in zip(cuts, fragments):
                     index = min(len(bars) - 1, bisect_right(starts, at) - 1)
@@ -92,17 +115,29 @@ def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks
             for index, voice in destinations.items():
                 voice.makeRests(inPlace=True, fillGaps=True,
                                 refStreamOrTimeRange=(0, bars[index]['length'] * 4))
+                length = bars[index]['length'] * 4
+                hidden = [(a - starts[index], b - starts[index]) for a, b in elsewhere[names[voice_index]]
+                          if a < starts[index] + length and b > starts[index]] if names[voice_index] is not None else []
                 for rest in list(voice.recurse().getElementsByClass(note.Rest)):
                     at = Fraction(rest.offset)
                     finish = at + Fraction(rest.quarterLength)
-                    cuts = [at, *[boundary - starts[index] for boundary in rhythm_boundaries
-                                  if at < boundary - starts[index] < finish], finish]
-                    if len(cuts) == 2:
-                        continue
-                    voice.remove(rest)
-                    for offset, fragment in zip(cuts, rest.splitByQuarterLengths(
-                            [b - a for a, b in zip(cuts, cuts[1:])])):
-                        voice.insert(offset, fragment)
+                    inner = [boundary - starts[index] for boundary in rhythm_boundaries
+                             if at < boundary - starts[index] < finish] if _ternary(at, finish) else []
+                    # In 4/4 and 2/2 a rest that starts after the downbeat does not cross
+                    # the middle of the bar: a quarter rest then a half rest, not a dotted half.
+                    if length == 4 and 0 < at < 2 < finish:
+                        inner.append(Fraction(2))
+                    cuts = [at, *sorted(set(inner)), finish]
+                    pieces = [(at, rest)]
+                    if len(cuts) > 2:
+                        voice.remove(rest)
+                        pieces = list(zip(cuts, rest.splitByQuarterLengths([b - a for a, b in zip(cuts, cuts[1:])])))
+                        for offset, fragment in pieces:
+                            voice.insert(offset, fragment)
+                    for offset, fragment in pieces:
+                        end = offset + Fraction(fragment.quarterLength)
+                        if any(a < end and b > offset for a, b in hidden):
+                            fragment.style.hideObjectOnPrint = True
         for index, measure in enumerate(measures):
             if not measure.hasVoices():
                 silence = stream.Voice(id=voice_base)
@@ -117,6 +152,10 @@ def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks
                 for rank, voice in enumerate(ordered):
                     for event in voice.notes:
                         event.stemDirection = 'up' if rank % 2 == 0 else 'down'
+                    # Rests follow their voice: above the staff's middle for the upper
+                    # voice, below it for the lower, clear of the other voice's notes.
+                    for rest in voice.getElementsByClass(note.Rest):
+                        rest.stepShift = 4 if rank % 2 == 0 else -4
         voice_base += len(voices)
         for event in part.recurse().notesAndRests:
             _spell_duration(event)
@@ -131,7 +170,7 @@ def write_score(bars, physical, clefs, title, quarter_bpm, pedals, dynamic_marks
         parts.append(part)
 
     score.insert(0, layout.StaffGroup(parts, name='Piano', symbol='brace', barTogether=True))
-    opening_tempo = tempo.MetronomeMark(number=quarter_bpm, parentheses=True)
+    opening_tempo = tempo.MetronomeMark(text=tempo_text, number=quarter_bpm, parentheses=True)
     parts[0].measure(1).insert(0, opening_tempo)
     for index, level in dynamic_marks:
         parts[0].measure(index + 1).insert(0, dynamics.Dynamic(level))

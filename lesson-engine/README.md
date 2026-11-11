@@ -2,9 +2,20 @@
 
 ## MIDI ve PDF içe aktarma
 
-`score_import.py`, MIDI dosyalarını mido ile performans verisine, music21 ile
-standart MusicXML'e dönüştürür. Kaynak tempo, velocity, CC64 ve nota zamanları
-korunur; el ayrımı Do4 sınırından tahmin edilir. Bu yol Rubato çalıştırmaz.
+MIDI yolu `midi_score.py`'dir. Ders, kaynak dosyanın zamanlamasını, velocity ve CC64
+verisini olduğu gibi çalar. Nota yazımı saniyelerden değil MIDI vuruş ızgarasından
+(tick) okunur: tempo haritası yalnız ölçülerin ne zaman çalacağını belirler, her
+tempo değişimi partisyona yazılmaz. Ölçü, anahtar ve tempo sözcüğü (ör. "Adagio
+sostenuto") dosyadan alınır; anahtar yoksa notalardan kestirilir. Notalar beşliler
+çizgisinde anahtara ve çevresine göre adlandırılır (Si♯, Fa𝄪). Her parçanın sesleri
+ayrı tutulur (melodi ve eşlik tek portede iki ses), sesler okunması kolay porteye
+geçebilir ve bas anahtarı gereken ölçülerde üst porte bas anahtarı alır.
+
+El ayrımı: adı bir eli söyleyen parça ("Piano right", "left", "RH", "sağ") o eldir.
+Öteki notalar çalınabilirliğe göre ellere dağıtılır: bir el, tuttuğu ve bastığı
+notalarda onluyu aşmaz, eller çaprazlanmaz, bir figür aynı elde kalır. Porte adlı
+parçalar ("up"/"down") yalnız ipucudur; baskıda alt portede yazılan sağ el notaları
+sağ elde kalır. Bu yol Rubato çalıştırmaz.
 
 PDF yolu Java gerektirmez: PDFium sayfaları rasterleştirir, homr 0.7.0 ONNX
 modelleri MusicXML üretir, music21 sayfaları birleştirir ve çalma verisini çıkarır.
