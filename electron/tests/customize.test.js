@@ -223,7 +223,8 @@ async function previewing(native) {
   fs.writeFileSync(file, `${fs.readFileSync(file, 'utf8')}\nconsole.error('rach3 test: a reported error'); setTimeout(() => { throw new Error('rach3 test: a thrown error'); }, 50);\n` +
     'document.body.insertAdjacentHTML("beforeend", "<img src=\\"https://example.com/x.png\\">");\n');
   fs.writeFileSync(path.join(support, 'Customize/workspace/AGENTS.md'), 'changed guide');
-  customize.previewSize = { width: 1100, height: 760 };
+  // No larger than the page a small screen shows: Windows does not make a window larger than the screen.
+  customize.previewSize = { width: 1000, height: 700 };
   const started = Date.now();
   const result = await native({ op: 'preview', script: `
     const online = await fetch('https://example.com/').then(() => 'reached', () => 'blocked');
@@ -233,7 +234,7 @@ async function previewing(native) {
     return { online, language, guide, lessons, address: location.href, mac: document.documentElement.dataset.windowControls ?? null, title: document.title };` });
   const image = result.image ? nativeImage.createFromDataURL(result.image) : null;
   if (image) fs.writeFileSync(path.join(temp, 'preview.jpg'), image.toJPEG(80));
-  check('preview: screenshot', !!image && result.image.startsWith('data:image/jpeg;base64,') && image.getSize().width === 1100 && image.getSize().height === 760, { size: image?.getSize(), seconds: (Date.now() - started) / 1000, snapshotError: result.snapshotError, timedOut: result.timedOut });
+  check('preview: screenshot', !!image && result.image.startsWith('data:image/jpeg;base64,') && image.getSize().width === 1000 && image.getSize().height === 700, { size: image?.getSize(), seconds: (Date.now() - started) / 1000, snapshotError: result.snapshotError, timedOut: result.timedOut });
   let said = {};
   try { said = JSON.parse(result.scriptResult); } catch { said = { raw: result.scriptResult }; }
   check('preview: script result, no internet, read-only bridge, protected files', said.online === 'blocked' && said.language === 'en' && said.guide === '# rach3 interface' &&
@@ -370,21 +371,20 @@ function probeCommand() {
   if (process.platform !== 'win32')
     return 'printf "made by codex" > customize-test.txt; echo leak=${ACCESS_TOKEN:-none} > env.txt; (cat ~/.zshrc >/dev/null 2>&1 && echo home=readable || echo home=closed) >> env.txt; ' +
       '(echo x > ../outside.txt) 2>/dev/null && echo outside=written >> env.txt || echo outside=closed >> env.txt; ' +
+      '(cat ../session.json >/dev/null 2>&1 && echo signin=readable || echo signin=closed) >> env.txt; ' +
       '(curl -s -m 8 -o /dev/null https://example.com && echo net=open || echo net=closed) >> env.txt';
-  const script = [
-    '$d = (Get-Location).Path',
-    '[IO.File]::WriteAllText("$d\\customize-test.txt", "made by codex")',
-    '$l = @()',
-    '$l += "leak=" + $(if ($env:ACCESS_TOKEN) { $env:ACCESS_TOKEN } else { "none" })',
-    'try { [IO.File]::ReadAllText("$env:USERPROFILE\\rach3-probe-read.txt") | Out-Null; $l += "home=readable" } catch { $l += "home=closed" }',
-    'try { [IO.File]::WriteAllText("$env:USERPROFILE\\rach3-probe-written.txt", "x"); $l += "homewrite=written" } catch { $l += "homewrite=closed" }',
-    'try { [IO.File]::WriteAllText("$d\\..\\outside.txt", "x"); $l += "outside=written" } catch { $l += "outside=closed" }',
+  // Plain PowerShell, as Codex hands it to the system's PowerShell.
+  return [
+    'Set-Content -NoNewline -Path customize-test.txt -Value "made by codex"',
+    '$l = @("leak=" + $(if ($env:ACCESS_TOKEN) { $env:ACCESS_TOKEN } else { "none" }))',
+    'try { Get-Content -LiteralPath "$env:USERPROFILE\\rach3-probe-read.txt" -ErrorAction Stop | Out-Null; $l += "home=readable" } catch { $l += "home=closed" }',
+    'try { Set-Content -LiteralPath "$env:USERPROFILE\\rach3-probe-written.txt" -Value x -ErrorAction Stop; $l += "homewrite=written" } catch { $l += "homewrite=closed" }',
+    'try { Set-Content -LiteralPath "..\\outside.txt" -Value x -ErrorAction Stop; $l += "outside=written" } catch { $l += "outside=closed" }',
+    'try { Get-Content -LiteralPath "..\\session.json" -ErrorAction Stop | Out-Null; $l += "signin=readable" } catch { $l += "signin=closed" }',
     'try { $c = New-Object Net.Sockets.TcpClient; $c.Connect("example.com", 443); $c.Close(); $l += "net=open" } catch { $l += "net=closed" }',
     '$l += "user=" + [Environment]::UserName',
-    '[IO.File]::WriteAllText("$d\\env.txt", ($l -join "`n"))',
-  ].join('\n');
-  // The same line whether Codex hands it to PowerShell or to cmd.
-  return `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${Buffer.from(script, 'utf16le').toString('base64')}`;
+    'Set-Content -Path env.txt -Value ($l -join "`n")',
+  ].join('; ');
 }
 
 async function wholeChange() {

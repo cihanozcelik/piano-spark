@@ -65,9 +65,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { trial: mxc, more: '\n[windows]\nsandbox = "mxc"\n', profile: '' }
-          - { trial: prefer-mxc, more: '\n[features]\nprefer_mxc = true\n', profile: '' }
-          - { trial: elevated, more: '\n[windows]\nsandbox = "elevated"\n', profile: '' }
+          - { trial: read-everywhere, more: '":root" = "read"\n', profile: '' }
+          - { trial: read-everywhere-elevated, more: '":root" = "read"\n\n[windows]\nsandbox = "elevated"\n', profile: '' }
           - { trial: workspace-profile, more: '', profile: ':workspace' }
     env:
       RACH3_CODEX_TRIAL_MORE: ${{ matrix.more }}
