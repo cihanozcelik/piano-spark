@@ -99,7 +99,7 @@ function workerEnvironment(layout, temp) {
 function stopWorker(child) {
   if (child.exitCode !== null || child.signalCode !== null) return;
   if (WINDOWS) {
-    // The whole process tree, at once: what the C# shell did by terminating its job object.
+    // The whole process tree, at once.
     const system = process.env.SystemRoot || 'C:\\Windows';
     const killer = spawn(path.join(system, 'System32', 'taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
     killer.on('error', () => child.kill());

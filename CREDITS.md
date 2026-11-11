@@ -46,9 +46,9 @@ homr asks that research using it also cite oemer and Polyphonic-TrOMR.
 | --- | --- | --- |
 | Portable Python runtime | [uv](https://github.com/astral-sh/uv) and python-build-standalone (Astral) | Apache-2.0 / MIT |
 | Mac updates | [Sparkle](https://github.com/sparkle-project/Sparkle) | MIT |
-| Finding pieces and changing the app with ChatGPT (Mac) | [Codex](https://github.com/openai/codex) (OpenAI), runs with the person's own ChatGPT account | Apache-2.0 |
+| Finding pieces and changing the app with ChatGPT | [Codex](https://github.com/openai/codex) (OpenAI), runs with the person's own ChatGPT account | Apache-2.0 |
 | Windows installer and updates | [Velopack](https://github.com/velopack/velopack) | MIT |
-| Windows page view | Microsoft Edge WebView2 | Microsoft license |
+| The app window on Mac and Windows | [Electron](https://github.com/electron/electron) (with Chromium and Node.js) | MIT; BSD and others |
 
 The example lessons and their sources are listed in
 [`assets/example-lessons/README.md`](assets/example-lessons/README.md).

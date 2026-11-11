@@ -1,7 +1,6 @@
 // The Bluetooth piano connection for Mac and Windows: one implementation over Web Bluetooth
-// in a hidden window. It replaces the Mac helper (bluetooth-connection/main.m) together with
-// the Bluetooth parts of desktop/main.m, and windows/Rach3/Bluetooth.cs + BleTransport.cs,
-// and publishes the same events and state to the page.
+// in a hidden window. It publishes the same events and state to the page as the native
+// helpers of the apps before this shell did.
 'use strict';
 const fs = require('fs');
 const path = require('path');

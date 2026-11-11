@@ -77,10 +77,14 @@ git config core.hooksPath .githooks
 
 GitHub enforces the same rule for every push, with or without the hooks.
 
-The developer machine needs Python 3 and Xcode Command Line Tools.
+The developer machine needs Python 3, Node.js 22 and Xcode Command Line Tools.
 
 1. Run `python3 desktop/prepare_engine.py` to prepare the small Apple Silicon and Intel Python runtimes. This step requires uv.
-2. Run `./build-app.command` to bundle the universal native application and both runtimes, apply an ad-hoc signature, and create `dist/rach3-Setup.dmg`.
+2. Run `npm ci`, then `node node_modules/electron/install.js`, to fetch the Electron shell the app is built on.
+3. Run `./build-app.command` to bundle the application and both runtimes, apply an ad-hoc signature, and create `dist/rach3-Setup.dmg`. The app is universal when the Intel build of the same Electron version is in `build/electron/darwin-x64/` (the release workflow fetches and checks it); without it the app is built for this Mac's processor only.
+
+`npm start` opens the same shell from the sources, without building; it keeps its data in the
+development folder (`Rach3Development`), apart from the installed app's.
 
 `python3 desktop/build.py --app-only` builds only the application.
 `python3 desktop/build.py --installer-only` creates the DMG from an existing app bundle.
@@ -112,20 +116,19 @@ so it is considerably slower there.
 
 ## Windows (beta)
 
-`windows/` builds the same page and lesson engine into a Windows app: a small
-.NET Framework 4.8 window (built into Windows 10 and 11) that shows the page in the
-system WebView2 and answers the same bridge messages as the Mac app. The page itself
-is unchanged; `windows/wording.py` replaces every Mac-specific sentence with Windows
-wording, and the build fails if a page string mentions the Mac without one.
+The Windows app is the same program as the Mac app: the Electron shell in `electron/`
+(one JavaScript implementation of the window, lessons, Bluetooth, the ChatGPT features
+and settings) around the same page and lesson engine. `windows/build.py` packages it.
+The page itself is unchanged; `windows/wording.py` replaces every Mac-specific sentence
+with Windows wording, and the build fails if a page string mentions the Mac without one.
 
 - **Lesson engine:** the same Python worker with a portable Windows Python. Lesson
   tools come from `lesson-engine/tools-win_amd64.json`, generated on a Mac with
   `python3 windows/prepare_lock.py` and `python3 desktop/lock_tools.py win_amd64`.
   Windows lessons match the Mac: the Bach MIDI makes 549 notes, the PDF 608 and the
   audio test the same 20 notes.
-- **Bluetooth MIDI:** Windows Bluetooth LE APIs, with the same scanning, connection,
-  pairing and output rules as the Mac helper (`windows/Rach3/BleTransport.cs`).
-  It has not yet been tried with a real piano on a Windows PC.
+- **Bluetooth MIDI:** the same code as on the Mac (`electron/bluetooth.js`, Web
+  Bluetooth). It has not yet been tried with a real piano on a Windows PC.
 - **Installer and updates:** Velopack. `rach3-win-Setup.exe` installs per user
   without administrator rights. Each release also carries a patch from the previous
   Windows release (0.9.1 → 0.9.2: 1.1 MB instead of 26 MB), applied to the installed
@@ -143,8 +146,10 @@ wording, and the build fails if a page string mentions the Mac without one.
   and check that a feed signed with another key is refused. Nothing is published
   unless these pass.
 
-Build on Windows with Python 3.12, uv and the .NET SDK: `python windows/build.py`
-(add `--package` for the installer, with `dotnet tool install -g vpk --version 1.2.161`).
+Build on Windows with Python 3.12, uv and Node.js 22: `npm ci`,
+`node node_modules/electron/install.js`, then `python windows/build.py`
+(add `--package` for the installer; it needs the .NET SDK for
+`dotnet tool install -g vpk --version 1.2.161`).
 
 ## Language selection
 
@@ -313,18 +318,25 @@ drag-and-drop are active only in Practice.
 
 ### Native application and engine ownership
 
-`desktop/main.m` owns the AppKit window and WKWebView. `desktop/build.py` combines
-the player's JavaScript modules and embedded note data into one offline HTML
-resource. Audio and animation run inside WebKit. `LessonService` owns one analysis
-job; `lesson-engine/worker.py` runs the models in a separate process using bundled
-Python. File dialogs and full screen integrate with the native window. Local files
-and imported notes are not uploaded.
+The app is one Electron shell for Mac and Windows. `electron/main.js` owns the
+window, the menus and the page's bridge; the page cannot reach the internet.
+`desktop/build.py` (Mac) and `windows/build.py` combine the player's JavaScript
+modules and embedded note data into one offline HTML resource and package it with
+the shell. Audio and animation run inside the page. `electron/lessons.js` owns one
+analysis job; `lesson-engine/worker.py` runs the models in a separate process using
+bundled Python. `electron/customize.js` runs the ChatGPT features with the bundled
+Codex, under Codex's own permissions profile. Updates stay with each system's own
+updater: Sparkle on the Mac (`desktop/UpdateController.m`, loaded by the shell as
+`electron/native/updates.m`) and Velopack on Windows (`electron/updates-windows.js`).
+Local files and imported notes are not uploaded.
 
-The native application owns the Bluetooth helper process. A private `--bluetooth`
-entry point in the same executable runs the CoreBluetooth implementation; no
-separate installation, compiler, or Python tool is needed. JSON events reach the
-page's input interface through the app. Native runtime files live under
-`~/Library/Application Support/Rach3/Bluetooth/`. Device names, UUIDs, output
+What the page had saved in the apps before the Electron shell (the Mac's WebKit
+storage, the Windows WebView2 profile) is read once, without changing it, and
+handed to the page (`electron/earlier-state.js`).
+
+`electron/bluetooth.js` owns the piano connection: Web Bluetooth in a hidden window
+of the shell, so no helper process or separate installation is needed. Events reach
+the page's input interface through the shell. Device names, UUIDs, output
 channels, the default device, and automatic connection preferences belong to the
 `bluetooth` section of the shared `WorkspaceState` owner. The note stream is not
 recorded to disk.
@@ -371,12 +383,9 @@ with actual devices. macOS may request Bluetooth permission or device pairing on
 first use. The panel distinguishes confirmed Mac-side errors from remote piano
 availability problems whose cause cannot be established remotely.
 
-**Disconnect**, **Cancel**, and quitting the app request a clean shutdown of the
-Bluetooth process owned by the app. Normal shutdown waits for disconnection. If the
-WebKit process exits, Bluetooth is stopped and the interface reloads. If the app
-process exits unexpectedly, the helper also requests shutdown; a forced process
-kill cannot guarantee clean operating-system-level cleanup. Other apps' Bluetooth
-processes are never taken over or stopped.
+**Disconnect**, **Cancel**, and quitting the app end the app's own Bluetooth
+connection. If the page's process exits, Bluetooth is stopped and the interface
+reloads. Other apps' Bluetooth connections are never taken over or stopped.
 
 ## Fast browser development
 
@@ -388,8 +397,11 @@ Reloading waits during video upload. Analysis already started and the Bluetooth
 connection continue across a normal page refresh.
 
 The browser uses the real lesson creation, saved lesson library, and Bluetooth
-interface. `/api/lessons/command` is only the local HTTP transport: the same
-`LessonService.m` owner used by the native app runs in a small `LessonHost` process.
+interface. `/api/lessons/command` is only the local HTTP transport: the
+Objective-C `LessonService.m` runs in a small `LessonHost` process and the Bluetooth
+helper in `bluetooth-connection/` is started by the server. These two serve only this
+browser development mode on a Mac; the app itself uses `electron/lessons.js` and
+`electron/bluetooth.js`.
 The model implementation remains in `lesson-engine/worker.py`. Development engine
 links live under `build/browser/Engine/`; existing local Python, package, and model
 files are not copied again. Development lessons live in
@@ -399,7 +411,7 @@ app's lessons.
 When LessonService or LessonHost changes, the small helper is rebuilt while idle;
 an ongoing analysis job is allowed to finish before replacement. Worker changes
 take effect on the next lesson. Changes to `server.py` require restarting the
-service; changes to the native window, menus, or installer require an app build.
+service; changes to the shell, menus, or installer require an app build (or `npm start`).
 Ctrl+C or SIGTERM shuts down the development service, its analysis job, and its
 Bluetooth connection. `python3 server.py --open` serves the app on port 8783 without
 automatic reload.
@@ -603,11 +615,12 @@ source are rejected. Reconnection clears previously held keys. `reset(source)`
 clears keys while preserving the connection. Native timestamps do not drive the
 practice clock; it uses local event arrival order and the browser's monotonic clock.
 
-Physical note and pedal input, and reconnection without touching the piano, have
-previously been verified with the native helper. End-to-end acceptance testing of
-the standalone app with a real piano is performed by the user. Cross-device
-Bluetooth discovery and reconnection still need hardware verification; the latest
-change did not add automated regression tests.
+Physical note and pedal input, and reconnection without touching the piano, were
+verified with the native helper the app used before the Electron shell. The Web
+Bluetooth connection of the Electron shell has not yet been tried with a real piano,
+on the Mac or on Windows; its packet decoding and connection flow are covered by
+`electron/tests/`. End-to-end acceptance testing with a real piano is performed by
+the user.
 
 ## Public website
 

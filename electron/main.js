@@ -29,9 +29,13 @@ const updateTest = updateTestAt > 0 && process.argv.length > updateTestAt + 3 &&
 if (!MAC && INSTALLED) require('./updates-windows').runHooks(updateTest ? updateTest[2] + '.log' : null);
 
 // ---- Folders ---------------------------------------------------------------------------
-// The person's data stays where rach3 always kept it. RACH3_SUPPORT moves it, for tests.
+// The person's data stays where rach3 always kept it. Run from the sources, the shell keeps
+// to the development folder instead. RACH3_SUPPORT moves it, for tests.
+const home = MAC ? app.getPath('appData') : process.env.LOCALAPPDATA || app.getPath('appData');
 const support = capture ? path.join(app.getPath('temp'), 'Rach3Capture') : process.env.RACH3_SUPPORT
-  || (MAC ? path.join(app.getPath('appData'), 'Rach3') : path.join(process.env.LOCALAPPDATA || app.getPath('appData'), 'Rach3'));
+  || path.join(home, INSTALLED ? 'Rach3' : 'Rach3Development');
+// The downloaded lesson tools are large: a run from the sources uses the installed app's.
+const tools = path.join(capture || process.env.RACH3_SUPPORT ? support : path.join(home, 'Rach3'), 'Tools', '1');
 app.setName('rach3');
 app.setPath('userData', path.join(support, 'Electron'));
 const files = locate({ packaged: INSTALLED, resources: process.resourcesPath });
@@ -84,7 +88,7 @@ const snapshot = () => ({ event: 'snapshot', language: localization.language(), 
 // ---- Services --------------------------------------------------------------------------
 function startServices() {
   lessons = createLessons({
-    engine: files.engine, support, tools: path.join(support, 'Tools', '1'), text, logs: path.join(support, 'Logs'),
+    engine: files.engine, support, tools, text, logs: path.join(support, 'Logs'),
     onEvent: event => { publish(event); customize.ask('lesson-progress', { snapshot: event }).catch(() => {}); },
     onIdle: () => setImmediate(finishTermination),
   });
