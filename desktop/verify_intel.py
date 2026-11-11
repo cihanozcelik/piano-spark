@@ -35,6 +35,9 @@ def check_bundle(app):
     run('codesign', '--verify', '--deep', '--strict', app)
     engine = app/'Contents/Resources/Engine'
     for binary in [app/'Contents/MacOS/Rach3',
+                   app/'Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework',
+                   app/'Contents/Frameworks/rach3 Helper (Renderer).app/Contents/MacOS/rach3 Helper (Renderer)',
+                   app/'Contents/Resources/updates.node',
                    app/'Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle',
                    app/'Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate',
                    engine/'vendor/diffq/bitpack.cpython-312-darwin.so']:

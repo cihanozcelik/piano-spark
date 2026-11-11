@@ -18,7 +18,7 @@ jobs:
   build:
     # macos-15 is Apple Silicon. It builds the universal app with both portable runtimes.
     runs-on: macos-15
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       GH_TOKEN: ${{ github.token }}
       SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
@@ -83,11 +83,28 @@ jobs:
           test -x vendor/aarch64-apple-darwin/bin/codex
           test -x vendor/x86_64-apple-darwin/bin/codex
           echo "RACH3_CODEX_VENDOR=$folder/vendor" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell for both Mac processors
+        # Electron's installer fetches this Mac's Electron. The Intel build of the same version comes from
+        # Electron's release and must match the checksum the electron package itself carries.
+        run: |
+          set -euo pipefail
+          npm ci
+          node node_modules/electron/install.js
+          version=$(node -p "require('electron/package.json').version")
+          name="electron-v$version-darwin-x64.zip"
+          curl -fsSL -o "$RUNNER_TEMP/$name" "https://github.com/electron/electron/releases/download/v$version/$name"
+          expected=$(node -p "require('electron/checksums.json')['$name']")
+          test "$(shasum -a 256 "$RUNNER_TEMP/$name" | cut -d' ' -f1)" = "$expected"
+          mkdir -p build/electron/darwin-x64
+          ditto -x -k "$RUNNER_TEMP/$name" build/electron/darwin-x64
+          test -d build/electron/darwin-x64/Electron.app
       - name: Build application and DMG installer
         run: python3 desktop/build.py
-      - name: Fetch small signed baseline when available
-        # A dry run has no newer build than the latest release to patch onto.
-        if: ${{ !inputs.dry_run }}
+      - name: Fetch the signed baseline that the update delta starts from
+        # Also in a dry run, so the delta people will get is made and applied before a tag.
         run: python3 desktop/release.py --baseline
       - name: Create and verify ZIP update and optional delta
         run: python3 desktop/release.py
@@ -130,7 +147,6 @@ jobs:
           test "$(readlink "$mount/Applications")" = /Applications
           hdiutil detach "$mount"
       - name: Fetch the signed baseline that update deltas start from
-        if: ${{ !inputs.dry_run }}
         run: python3 desktop/release.py --baseline
       - name: Verify bundle, updates and the Intel lesson engine
         run: python3 desktop/verify_intel.py
@@ -140,6 +156,13 @@ jobs:
           python3 desktop/build.py --capture-assets "$RUNNER_TEMP/intel-screens"
           test -s "$RUNNER_TEMP/intel-screens/practice.png"
           test -s "$RUNNER_TEMP/intel-screens/create-lesson.png"
+      - name: Check that opening the app and creating a lesson left the app as shipped
+        # A delta applies only to an unchanged app; a changed one quietly takes the full update.
+        run: |
+          mkdir "$RUNNER_TEMP/as-shipped"
+          ditto -x -k dist/rach3-*.zip "$RUNNER_TEMP/as-shipped"
+          diff -rq "$RUNNER_TEMP/as-shipped/rach3.app" dist/rach3.app
+          codesign --verify --deep --strict dist/rach3.app
       - name: Keep the Intel screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -167,8 +190,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Create lessons from MIDI, PDF and audio on Windows
         run: python windows/verify_engine.py
+      - name: Install the Electron shell
+        # npm ci installs the packages; Electron's own program arrives with its installer.
+        run: |
+          npm ci
+          node node_modules/electron/install.js
       - name: Open the Windows app, capture its screens and create a lesson through the page
         run: python windows/build.py --capture "$env:RUNNER_TEMP\windows-screens"
       - name: Install the Velopack packager

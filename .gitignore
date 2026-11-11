@@ -15,3 +15,5 @@ __pycache__/
 
 # Public Mozilla CA bundle for verified first-use HTTPS downloads.
 !/lesson-engine/cacert.pem
+
+/node_modules/

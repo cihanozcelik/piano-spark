@@ -163,6 +163,6 @@ both in sync when a model changes.
 - `sheet-music.js` / `staff-notation.js`: score rendering and note display.
 - `workspace-state.js`: local persistent controls, layout, lesson selection/position and draft state.
 - `create-lesson.js` / `lesson-engine/worker.py`: video, YouTube, MIDI and PDF import paths.
-- `desktop/main.m` / `bluetooth-connection/main.m`: native BLE service with brand-independent discovery.
-- `desktop/LessonService.m` / `lesson-engine/tools-x86_64.json`: universal app, per-architecture runtime and Intel tools.
+- `electron/bluetooth.js` / `electron/bluetooth-page.js`: Bluetooth MIDI over Web Bluetooth with brand-independent discovery, the same on Mac and Windows.
+- `electron/lessons.js` / `lesson-engine/tools-x86_64.json`: universal app, per-architecture runtime and Intel tools.
 - `desktop/release.py` / `desktop/UpdateController.m`: signed delta update publication and automatic restart.

@@ -1,5 +1,6 @@
-"""Build the Windows app folder: the C# shell, the same offline page as the Mac app,
-and the Windows lesson engine. Runs on Windows (GitHub's windows-latest runner).
+"""Build the Windows app folder: the Electron shell (electron/, the same code as the Mac
+app), the same offline page, Codex and the Windows lesson engine. Runs on Windows
+(GitHub's windows-latest runner) after `npm ci`.
 
     python windows/build.py              -> dist/windows/Rach3
     python windows/build.py --package    -> also the Velopack installer and update package
@@ -25,11 +26,21 @@ sys.path[:0] = [str(ROOT/'windows'), str(ROOT/'desktop')]
 from engine import prepare_runtime, stage_engine  # noqa: E402
 
 RELEASE = json.loads((ROOT/'desktop/release.json').read_text(encoding='utf-8'))
-PROJECT = ROOT/'windows/Rach3/Rach3.csproj'
+ELECTRON = ROOT/'node_modules/electron/dist'
 DIST = ROOT/'dist/windows/Rach3'
 RELEASES = ROOT/'dist/windows/releases'
 PACKAGE_ID = 'rach3'
+# The first release built on the shell Mac and Windows share (electron/).
+FIRST_SHELL_VERSION = (0, 12, 0)
 SETUP = f'{PACKAGE_ID}-win-Setup.exe'
+# The most a patch may weigh when the next build changes only its version and one file.
+PATCH_LIMIT = 10 * 1000**2
+# ChatGPT features run Codex, Apache-2.0, from github.com/openai/codex.
+# The same version the Mac release bundles (.github/workflows/release.yml).
+CODEX_VERSION = '0.167.0'
+CODEX_TRIPLE = 'x86_64-pc-windows-msvc'
+CODEX_FILES = ('bin/codex.exe', 'bin/codex-code-mode-host.exe', 'codex-path/rg.exe', 'codex-package.json',
+               'codex-resources/codex-command-runner.exe', 'codex-resources/codex-windows-sandbox-setup.exe')
 
 
 def mac_build():
@@ -69,36 +80,93 @@ def platform_text():
     return {source: list(pair) for source, pair in TEXT.items()}
 
 
-def write_resources(resources):
-    if resources.exists(): shutil.rmtree(resources)
-    mac_build().write_ui(resources)
-    page = resources/'index.html'
-    html = page.read_text(encoding='utf-8')
-    script = '<script>window.PianoPlatformText=' + json.dumps(platform_text(), ensure_ascii=False).replace('</', '<\\/') + ';</script>'
-    if html.count('<head>') != 1: raise RuntimeError('The page head changed; update windows/build.py')
-    page.write_text(html.replace('<head>', '<head>'+script, 1), encoding='utf-8')
-    # The page loads its music font next to itself, as in the Mac app.
-    shutil.copytree(ROOT/'assets/bravura', resources/'assets/bravura')
-    shutil.copytree(ROOT/'assets/brand', resources/'assets/brand')
+def write_resources(resources, test):
+    """What the shell reads beside its own code, laid out as in the Mac app's Resources:
+    the page (Source), the Customize panel, Windows's wording and the shell's words."""
+    mac = mac_build()
+    mac.write_source(resources)
+    (resources/'platform-text.json').write_text(json.dumps(platform_text(), ensure_ascii=False), encoding='utf-8')
     (resources/'strings.json').write_text(json.dumps(native_strings(), ensure_ascii=False, indent=1), encoding='utf-8')
     shutil.copy2(ROOT/'desktop/release.json', resources/'release.json')
+    # Only a test build answers --self-test-update (electron/self-test.js).
+    if test: (resources/'self-test').write_text('test build\n')
 
 
-def compile_shell(output, capture):
-    if output.exists(): shutil.rmtree(output)
-    subprocess.run(['dotnet', 'build', str(PROJECT), '-c', 'Release', '-nologo', '-o', str(output),
-                    f'-p:PianoVersion={RELEASE["version"]}', f'-p:PianoCapture={"true" if capture else "false"}'],
-                   check=True)
-    for leftover in output.glob('*.pdb'): leftover.unlink()
+def write_shell(resources, version):
+    """The shell's code and the packages it needs when installed (Velopack's updater)."""
+    code = resources/'app'
+    (code/'electron').mkdir(parents=True)
+    for source in sorted((ROOT/'electron').glob('*.js')): shutil.copy2(source, code/'electron'/source.name)
+    (code/'package.json').write_text(json.dumps({'name': 'rach3', 'version': version, 'main': 'electron/main.js'}))
+    npm = shutil.which('npm')
+    listed = subprocess.run([npm, 'ls', '--omit=dev', '--all', '--parseable'], cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
+    packages = [Path(line) for line in listed if Path(line) != ROOT and (ROOT/'node_modules') in Path(line).parents]
+    if not any(package.name == 'velopack' for package in packages): raise RuntimeError('velopack is missing: run npm ci')
+    for package in packages:
+        shutil.copytree(package, code/package.relative_to(ROOT), dirs_exist_ok=True)
 
 
-def build(destination, capture=False):
-    work = ROOT/'build/windows'/('capture' if capture else 'release')
-    compile_shell(work/'shell', capture)
+def codex_vendor():
+    """Codex's native Windows package: RACH3_CODEX_VENDOR (an unpacked npm vendor folder),
+    else @openai/codex-<version>-win32-x64 from npm, which checks the registry's integrity hash."""
+    if os.environ.get('RACH3_CODEX_VENDOR'):
+        vendor = Path(os.environ['RACH3_CODEX_VENDOR'])/CODEX_TRIPLE
+    else:
+        import tarfile
+        cache = ROOT/'build/windows'/f'codex-{CODEX_VERSION}'
+        vendor = cache/'package/vendor'/CODEX_TRIPLE
+        if not (vendor/'bin/codex.exe').is_file():
+            if cache.exists(): shutil.rmtree(cache)
+            cache.mkdir(parents=True)
+            npm = shutil.which('npm')
+            if not npm: raise RuntimeError('npm is needed to fetch Codex for the ChatGPT features')
+            subprocess.run([npm, 'pack', '--silent', f'@openai/codex@{CODEX_VERSION}-win32-x64'], cwd=cache, check=True)
+            with tarfile.open(cache/f'openai-codex-{CODEX_VERSION}-win32-x64.tgz') as archive:
+                archive.extractall(cache, filter='data')
+    missing = [name for name in CODEX_FILES if not (vendor/name).is_file()]
+    if missing: raise RuntimeError(f'Codex package is missing {missing} in {vendor}')
+    return vendor
+
+
+def bundle_codex(resources):
+    """Codex beside the page, as in the Mac app's Resources/Codex. Without it the ChatGPT
+    features are not offered, so a build without Codex is an error."""
+    vendor = codex_vendor()
+    codex = resources/'Codex'
+    for name in CODEX_FILES:
+        (codex/name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(vendor/name, codex/name)
+    for name in ('LICENSE', 'NOTICE'):
+        shutil.copy2(ROOT/f'desktop/customize/CODEX-{name}', codex/name)
+    size = sum(path.stat().st_size for path in codex.rglob('*') if path.is_file())
+    print(f'Codex {CODEX_VERSION}: {size/1e6:.0f} MB')
+
+
+def brand(executable, version):
+    """rach3's icon and name on the program file itself, which Windows shows in the taskbar,
+    the Start menu and the installer's shortcuts."""
+    rcedit = next((path for name in ('rcedit-x64.exe', 'rcedit.exe') for path in [ROOT/'node_modules/rcedit/bin'/name] if path.is_file()), None)
+    if not rcedit: raise RuntimeError('rcedit is missing: run npm ci')
+    subprocess.run([str(rcedit), str(executable), '--set-icon', str(ROOT/'windows/Rach3/Rach3.ico'),
+                    '--set-version-string', 'ProductName', 'rach3', '--set-version-string', 'FileDescription', 'rach3',
+                    '--set-version-string', 'CompanyName', 'rach3', '--set-version-string', 'OriginalFilename', 'Rach3.exe',
+                    '--set-file-version', version, '--set-product-version', version], check=True)
+
+
+def build(destination, capture=False, version=RELEASE['version']):
+    """version is what the program file and the shell say they are; the update check builds
+    a second, later version the way the next release will be built."""
+    if not (ELECTRON/'electron.exe').is_file(): raise RuntimeError('Electron is missing: run npm ci, then node node_modules/electron/install.js')
     if destination.exists(): shutil.rmtree(destination)
-    shutil.copytree(work/'shell', destination)
-    write_resources(destination/'Resources')
-    stage_engine(destination/'Engine', prepare_runtime())
+    shutil.copytree(ELECTRON, destination)
+    (destination/'electron.exe').rename(destination/'Rach3.exe')
+    brand(destination/'Rach3.exe', version)
+    resources = destination/'resources'
+    (resources/'default_app.asar').unlink()
+    write_shell(resources, version)
+    write_resources(resources, capture)
+    bundle_codex(resources)
+    stage_engine(resources/'Engine', prepare_runtime())
     size = sum(path.stat().st_size for path in destination.rglob('*') if path.is_file())
     print(f'Windows app: {destination} ({size/1e6:.0f} MB)')
     return destination
@@ -163,6 +231,12 @@ def previous_release():
         shutil.rmtree(RELEASES)
         return False
     package, previous = names[0], versions[0]
+    if version_key(previous) < FIRST_SHELL_VERSION:
+        # Before the shell both systems share, the Windows app was another program: a patch
+        # from it would be the whole app again, so those copies take the full package.
+        print(f'{previous} is the earlier Windows app; this release has the full package only.')
+        shutil.rmtree(RELEASES)
+        return False
     with tempfile.TemporaryDirectory(prefix='piano-previous-') as folder:
         subprocess.run(['gh', 'release', 'download', f'v{previous}', '--repo', RELEASE['repository'],
                         '--pattern', 'releases.win.json', '--pattern', 'releases.win.json.sig', '--dir', folder], check=True)
@@ -201,15 +275,15 @@ def install_check():
     subprocess.run([str(RELEASES/SETUP), '--silent'], check=True, timeout=900)
     root = Path(os.environ['LOCALAPPDATA'])/PACKAGE_ID
     app = root/'current'/'Rach3.exe'
-    engine = root/'current'/'Engine'
+    engine = root/'current'/'resources'/'Engine'
     if not app.is_file() or not (engine/'python/python.exe').is_file():
         raise RuntimeError(f'Setup did not install the app: {sorted(p.name for p in root.iterdir())}')
     time.sleep(5)
     if not running(): subprocess.Popen([str(app)])
     time.sleep(30)
-    webview = Path(os.environ['LOCALAPPDATA'])/'Rach3'/'WebView'
-    if not running() or not webview.is_dir():
-        raise RuntimeError('The installed app did not stay open with its web view')
+    data = Path(os.environ['LOCALAPPDATA'])/'Rach3'/'Electron'
+    if not running() or not data.is_dir():
+        raise RuntimeError('The installed app did not stay open with its window')
     subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
     from verify_engine import lesson
     with tempfile.TemporaryDirectory(prefix='piano-installed-') as folder:
@@ -220,21 +294,72 @@ def install_check():
     print(f'Installed app opens and its engine creates lessons ({app})')
 
 
+def published_update_check():
+    """The update people really get: the published release is installed with its own
+    Setup.exe and opened once, its own Update.exe then installs this release's full
+    package, and the new app must be in place, open and stay open."""
+    latest = subprocess.run(['gh', 'release', 'view', '--repo', RELEASE['repository'], '--json', 'tagName', '--jq', '.tagName'],
+                            capture_output=True, text=True, check=True).stdout.strip()
+    if version_key(latest.lstrip('v')) >= version_key(RELEASE['version']):
+        print(f'{latest} is not older than this build; no published release to update from.')
+        return
+    root = Path(os.environ['LOCALAPPDATA'])/PACKAGE_ID
+    app = root/'current'/'Rach3.exe'
+    with tempfile.TemporaryDirectory(prefix='piano-published-') as folder:
+        subprocess.run(['gh', 'release', 'download', latest, '--repo', RELEASE['repository'], '--pattern', SETUP, '--dir', folder], check=True)
+        subprocess.run([str(Path(folder)/SETUP), '--silent'], check=True, timeout=900)
+    if not app.is_file(): raise RuntimeError(f'The published {latest} Setup did not install the app')
+    time.sleep(5)
+    if not running(): subprocess.Popen([str(app)])
+    time.sleep(25)
+    if not running(): raise RuntimeError(f'The published {latest} app did not stay open')
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
+    time.sleep(5)
+    package = RELEASES/f'{PACKAGE_ID}-{RELEASE["version"]}-full.nupkg'
+    applied = subprocess.run([str(root/'Update.exe'), 'apply', '--norestart', '--package', str(package)], capture_output=True, text=True, timeout=900)
+    print(applied.stdout[-3000:], applied.stderr[-3000:])
+    deadline = time.monotonic() + 300
+    time.sleep(5)
+    while running('Update.exe') and time.monotonic() < deadline: time.sleep(2)
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
+    time.sleep(3)
+    marker = root/'current'/'sq.version'
+    installed = marker.read_text(encoding='utf-8', errors='replace') if marker.is_file() else ''
+    if (applied.returncode != 0 or f'<version>{RELEASE["version"]}</version>' not in installed
+            or not (root/'current'/'resources'/'Engine'/'python/python.exe').is_file()):
+        raise RuntimeError(f'The published {latest} did not update to {RELEASE["version"]}: exit {applied.returncode}, '
+                           f'{sorted(p.name for p in (root/"current").iterdir())[:40]}')
+    subprocess.Popen([str(app)])
+    time.sleep(30)
+    if not running() or not (Path(os.environ['LOCALAPPDATA'])/'Rach3'/'Electron').is_dir():
+        raise RuntimeError(f'After updating from {latest} the app did not stay open with its window')
+    subprocess.run(['taskkill', '/IM', 'Rach3.exe', '/F'], capture_output=True)
+    time.sleep(5)
+    # A clean computer again for the checks that follow.
+    for attempt in range(5):
+        shutil.rmtree(root, ignore_errors=True)
+        if not root.exists(): break
+        time.sleep(3)
+    print(f'Published {latest} updates to {RELEASE["version"]} with its own Update.exe, and the app opens')
+
+
 def update_check():
-    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 (with a
-    changed file) is offered as a patch, with a feed signed by a temporary test key. A wrong
-    key must be refused. The right key must update through the patch alone: the full 0.0.2
-    package is withheld, so a broken patch cannot pass by falling back to it."""
+    """A real Velopack update of an installed app: version 0.0.1 is installed, 0.0.2 is
+    offered as a patch, with a feed signed by a temporary test key. 0.0.2 is built again from
+    the start, as the next release will be, with its own version on the program file and one
+    changed file. Its patch must stay a small part of the full package: that is the download
+    people get from one release to the next. A wrong key must be refused. The right key must
+    update through the patch alone: the full 0.0.2 package is withheld, so a broken patch
+    cannot pass by falling back to it."""
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
     import base64
     package_id = 'Rach3UpdateTest'
     work = ROOT/'build/windows/update-test'
     if work.exists(): shutil.rmtree(work)
-    app = build(work/'app', capture=True)
-    changed = work/'app-changed'
-    shutil.copytree(app, changed)
-    (changed/'Resources/update-check.txt').write_text('0.0.2\n', encoding='utf-8')
+    app = build(work/'app', capture=True, version='0.0.1')
+    changed = build(work/'app-changed', capture=True, version='0.0.2')
+    (changed/'resources/update-check.txt').write_text('0.0.2\n', encoding='utf-8')
     feed_dir = work/'feed'
     vpk_pack(app, '0.0.1', feed_dir, package_id, 'rach3 Update Test')
     setup = work/'setup-0.0.1.exe'
@@ -244,8 +369,11 @@ def update_check():
     public = lambda k: base64.b64encode(k.public_key().public_bytes(Encoding.Raw, PublicFormat.Raw)).decode()
     feed = feed_dir/'releases.win.json'
     (feed_dir/'releases.win.json.sig').write_text(base64.b64encode(key.sign(feed.read_bytes())).decode())
-    full = next(asset['FileName'] for asset in json.loads(feed.read_text(encoding='utf-8-sig'))['Assets']
-                if asset['Version'] == '0.0.2' and asset['Type'] == 'Full')
+    sizes = {asset['Type']: asset for asset in json.loads(feed.read_text(encoding='utf-8-sig'))['Assets'] if asset['Version'] == '0.0.2'}
+    full, patch = sizes['Full']['FileName'], sizes['Delta']
+    print(f'Patch from one build to the next: {patch["Size"]/1e6:.2f} MB; full package: {sizes["Full"]["Size"]/1e6:.1f} MB', flush=True)
+    if patch['Size'] > PATCH_LIMIT:
+        raise RuntimeError(f'The patch to the next build is {patch["Size"]/1e6:.1f} MB: updates would no longer be small downloads')
     shutil.move(feed_dir/full, work/full)
 
     subprocess.run([str(setup), '--silent'], check=True, timeout=900)
@@ -283,7 +411,7 @@ def update_check():
     after = ask(public(key), 'after-update')
     if after.get('current') != '0.0.2' or after.get('available') is not None:
         raise RuntimeError('The installed app is not the updated version')
-    if (current/'Resources/update-check.txt').read_text(encoding='utf-8').strip() != '0.0.2':
+    if (current/'resources/update-check.txt').read_text(encoding='utf-8').strip() != '0.0.2':
         raise RuntimeError('The patched app does not contain the changed file')
     print('Signed patch installed: 0.0.1 -> 0.0.2 without the full package; a wrong signature is refused')
 
@@ -295,7 +423,7 @@ def main():
     parser.add_argument('--package', action='store_true', help='Create, install and check the Velopack installer')
     args = parser.parse_args()
     if args.capture: capture(args.capture.resolve(), args.midi.resolve())
-    elif args.package: package(); install_check(); update_check()
+    elif args.package: package(); published_update_check(); install_check(); update_check()
     else: build(DIST)
 
 

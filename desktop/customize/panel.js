@@ -2,7 +2,8 @@
 // version changed by ChatGPT can't hide it, cover it, read it or catch its keys.
 (() => {
   if (window.rach3Customize) return;
-  const native = window.webkit?.messageHandlers?.customize;
+  // core.js, loaded just before this, does the work; this file only draws the panel.
+  const native = window.rach3Core;
   if (!native) return;
   const call = (action, fields = {}) => native.postMessage({ action, ...fields });
 
@@ -15,6 +16,7 @@
       signInFailed: 'Sign-in didn’t finish. Try again.', signInDenied: 'Sign-in was cancelled.',
       signInPlan: 'This ChatGPT account can’t share its plan with apps. Check your plan in ChatGPT.', signInPort: 'rach3 couldn’t open its sign-in callback. Restart rach3 and try again.',
       unavailable: 'This copy of rach3 doesn’t include ChatGPT changes.',
+      unavailableWindows: 'ChatGPT changes need Windows 11 version 24H2 or newer, with the latest Windows updates.',
       chat: 'Chat', branches: 'Branches',
       placeholder: 'What should change?', send: 'Make it', stop: 'Stop', newChat: 'New chat',
       working: 'Working…', reading: 'Looking through rach3…', editing: 'Making the change…',
@@ -54,6 +56,7 @@
       signInFailed: 'Giriş tamamlanmadı. Yeniden dene.', signInDenied: 'Giriş iptal edildi.',
       signInPlan: 'Bu ChatGPT hesabı planını uygulamalarla paylaşamıyor. Planını ChatGPT’de kontrol et.', signInPort: 'rach3 giriş dönüşünü açamadı. rach3’ü yeniden başlatıp tekrar dene.',
       unavailable: 'rach3’ün bu kopyasında ChatGPT ile değiştirme yok.',
+      unavailableWindows: 'ChatGPT ile değiştirme için Windows 11 24H2 veya daha yenisi ve en son Windows güncellemeleri gerekir.',
       chat: 'Sohbet', branches: 'Dallar',
       placeholder: 'Ne değişsin?', send: 'Yap', stop: 'Durdur', newChat: 'Yeni sohbet',
       working: 'Çalışıyor…', reading: 'rach3 inceleniyor…', editing: 'Değişiklik yapılıyor…',
@@ -232,7 +235,7 @@
     panel.setAttribute('aria-label', t('customize'));
     if (panel.hidden || !state) return;
     panel.replaceChildren();
-    if (!state.available) { panel.append(element('div', { class: 'body' }, element('p', { class: 'muted' }, t('unavailable')))); return; }
+    if (!state.available) { panel.append(element('div', { class: 'body' }, element('p', { class: 'muted' }, t(state.needs === 'windows' ? 'unavailableWindows' : 'unavailable')))); return; }
     if (!state.signedIn) { panel.append(renderSignIn()); return; }
     const tab = (name) => element('button', { type: 'button', role: 'tab', 'aria-selected': String(view === name),
       onclick: () => { view = name; render(); } }, t(name));
@@ -345,7 +348,7 @@
     input.addEventListener('keydown', event => { if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); submit(); } });
     queueMicrotask(() => { if (!state.turn && view === 'chat') input.focus(); });
     return element('div', { class: 'composer' }, input, element('div', { class: 'row' },
-      element('span', { class: 'small muted' }, '⌘↩'),
+      element('span', { class: 'small muted' }, window.PianoPlatform === 'windows' ? 'Ctrl+↩' : '⌘↩'),
       state.turn ? element('button', { type: 'button', onclick: () => call('stop') }, t('stop'))
                  : element('button', { type: 'button', class: 'primary', onclick: submit }, t('send'))));
   }

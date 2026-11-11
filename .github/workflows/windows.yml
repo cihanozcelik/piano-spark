@@ -38,6 +38,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell
+        # npm ci installs the packages; Electron's own program arrives with its installer.
+        run: |
+          npm ci
+          node node_modules/electron/install.js
       - name: Build, open the app, take screenshots and create a lesson through the page
         env:
           PYTHONUTF8: '1'
@@ -49,6 +57,45 @@ jobs:
           path: ${{ runner.temp }}/windows-screens
           if-no-files-found: ignore
 
+  customize:
+    name: ChatGPT features and Codex limits on Windows (${{ matrix.windows }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # With MXC a whole change is made and every limit is measured; without it the
+          # features must say they are not offered.
+          - { windows: Windows 11 with MXC, os: windows-11-arm, mxc: 'yes' }
+          - { windows: Windows without MXC, os: windows-latest, mxc: 'no' }
+    env:
+      RACH3_TEST_WINDOWS_MXC: ${{ matrix.mxc }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell
+        run: |
+          npm ci
+          node node_modules/electron/install.js
+      - name: Fetch the Codex the app carries
+        shell: bash
+        env:
+          PYTHONUTF8: '1'
+        run: |
+          folder=$(python -c "import sys; sys.path[:0] = ['windows', 'desktop']; import build; print(build.codex_vendor())" | tail -n 1 | tr -d '\r')
+          test -f "$folder/bin/codex.exe"
+          echo "RACH3_TEST_CODEX=$folder" >> "$GITHUB_ENV"
+      - name: Try the ChatGPT features, and what a command Codex runs may reach
+        # Codex talks to a stand-in for OpenAI on this machine; no ChatGPT account is used.
+        shell: bash
+        run: npx electron electron/tests/customize.test.js
+
   installer:
     name: Windows installer and installed app
     runs-on: windows-latest
@@ -59,6 +106,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell
+        # npm ci installs the packages; Electron's own program arrives with its installer.
+        run: |
+          npm ci
+          node node_modules/electron/install.js
       - name: Install the Velopack packager
         run: |
           dotnet tool install -g vpk --version 1.2.161
