@@ -168,7 +168,7 @@ def electron_shell(app):
     """rach3's window is Electron (electron/main.js), the same on Mac and Windows. This lays
     the Electron runtime out as rach3.app: named rach3, and universal when the Intel build of
     the same Electron version is present."""
-    if not ELECTRON.exists(): raise RuntimeError('Electron is missing: run npm ci')
+    if not ELECTRON.exists(): raise RuntimeError('Electron is missing: run npm ci, then node node_modules/electron/install.js')
     run('cp', '-cR', ELECTRON, app)
     if ELECTRON_INTEL.exists():
         if (ELECTRON_INTEL.parent/'version').read_text().strip() != (ELECTRON.parent/'version').read_text().strip():

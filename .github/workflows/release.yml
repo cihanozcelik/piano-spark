@@ -87,11 +87,12 @@ jobs:
         with:
           node-version: '22'
       - name: Install the Electron shell for both Mac processors
-        # npm ci installs this Mac's Electron. The Intel build of the same version comes from
+        # Electron's installer fetches this Mac's Electron. The Intel build of the same version comes from
         # Electron's release and must match the checksum the electron package itself carries.
         run: |
           set -euo pipefail
           npm ci
+          node node_modules/electron/install.js
           version=$(node -p "require('electron/package.json').version")
           name="electron-v$version-darwin-x64.zip"
           curl -fsSL -o "$RUNNER_TEMP/$name" "https://github.com/electron/electron/releases/download/v$version/$name"
@@ -190,7 +191,10 @@ jobs:
       - name: Create lessons from MIDI, PDF and audio on Windows
         run: python windows/verify_engine.py
       - name: Install the Electron shell
-        run: npm ci
+        # npm ci installs the packages; Electron's own program arrives with its installer.
+        run: |
+          npm ci
+          node node_modules/electron/install.js
       - name: Open the Windows app, capture its screens and create a lesson through the page
         run: python windows/build.py --capture "$env:RUNNER_TEMP\windows-screens"
       - name: Install the Velopack packager

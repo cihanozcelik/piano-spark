@@ -150,7 +150,7 @@ def brand(executable):
 
 
 def build(destination, capture=False):
-    if not (ELECTRON/'electron.exe').is_file(): raise RuntimeError('Electron is missing: run npm ci')
+    if not (ELECTRON/'electron.exe').is_file(): raise RuntimeError('Electron is missing: run npm ci, then node node_modules/electron/install.js')
     if destination.exists(): shutil.rmtree(destination)
     shutil.copytree(ELECTRON, destination)
     (destination/'electron.exe').rename(destination/'Rach3.exe')
