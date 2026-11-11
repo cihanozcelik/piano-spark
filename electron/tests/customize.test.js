@@ -3,7 +3,7 @@
 // stand-in, and, when a Codex and a stand-in for OpenAI are at hand, one whole change.
 //
 //   npx electron electron/tests/customize.test.js
-//   RACH3_TEST_CODEX=<folder with bin/codex> RACH3_TEST_MOCK=<mock.py> add the whole change.
+//   RACH3_TEST_CODEX=<folder with bin/codex> adds the whole change (openai-stand-in.py, needs Python).
 //
 // Nothing here touches rach3's real data folder or a real ChatGPT account.
 const electron = require('electron');
@@ -48,7 +48,7 @@ for (const [name, origin] of [...SOURCE.map(name => [name, name]), ...Object.ent
 }
 const scripts = path.join(ROOT, 'desktop', 'customize');
 const codexRoot = process.env.RACH3_TEST_CODEX || path.join(temp, 'no-codex');
-const mock = process.env.RACH3_TEST_MOCK || '';
+const mock = process.env.RACH3_TEST_MOCK || path.join(__dirname, 'openai-stand-in.py');
 
 // Stand-ins for the internet: every request rach3 itself makes goes through fetch.
 const requests = [];
@@ -363,9 +363,36 @@ async function realPage() {
 
 // One whole change: Codex, talking to a stand-in for OpenAI, writes a file in the
 // scratch copy and core.js saves it as a new version on a new branch.
+// What a command Codex runs is asked to do, to see what it may reach: write the file of
+// the change, then report into env.txt whether it sees the ChatGPT token, the person's
+// files, a place outside the scratch copy, and the internet.
+function probeCommand() {
+  if (process.platform !== 'win32')
+    return 'printf "made by codex" > customize-test.txt; echo leak=${ACCESS_TOKEN:-none} > env.txt; (cat ~/.zshrc >/dev/null 2>&1 && echo home=readable || echo home=closed) >> env.txt; ' +
+      '(echo x > ../outside.txt) 2>/dev/null && echo outside=written >> env.txt || echo outside=closed >> env.txt; ' +
+      '(curl -s -m 8 -o /dev/null https://example.com && echo net=open || echo net=closed) >> env.txt';
+  const script = [
+    '$d = (Get-Location).Path',
+    '[IO.File]::WriteAllText("$d\\customize-test.txt", "made by codex")',
+    '$l = @()',
+    '$l += "leak=" + $(if ($env:ACCESS_TOKEN) { $env:ACCESS_TOKEN } else { "none" })',
+    'try { [IO.File]::ReadAllText("$env:USERPROFILE\\rach3-probe-read.txt") | Out-Null; $l += "home=readable" } catch { $l += "home=closed" }',
+    'try { [IO.File]::WriteAllText("$env:USERPROFILE\\rach3-probe-written.txt", "x"); $l += "homewrite=written" } catch { $l += "homewrite=closed" }',
+    'try { [IO.File]::WriteAllText("$d\\..\\outside.txt", "x"); $l += "outside=written" } catch { $l += "outside=closed" }',
+    'try { $c = New-Object Net.Sockets.TcpClient; $c.Connect("example.com", 443); $c.Close(); $l += "net=open" } catch { $l += "net=closed" }',
+    '$l += "user=" + [Environment]::UserName',
+    '[IO.File]::WriteAllText("$d\\env.txt", ($l -join "`n"))',
+  ].join('\n');
+  // The same line whether Codex hands it to PowerShell or to cmd.
+  return `powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${Buffer.from(script, 'utf16le').toString('base64')}`;
+}
+
 async function wholeChange() {
+  const windows = process.platform === 'win32';
   const port = 18700 + Math.floor(Math.random() * 200), log = path.join(temp, 'mock.log');
-  const server = spawn('python3', [mock, String(port), log, 'printf "made by codex" > customize-test.txt; echo leak=${ACCESS_TOKEN:-none} > env.txt; (cat ~/.zshrc >/dev/null 2>&1 && echo home=readable || echo home=closed) >> env.txt; (echo x > ../outside.txt) 2>/dev/null && echo outside=written >> env.txt || echo outside=closed >> env.txt'], { stdio: 'ignore' });
+  const homeRead = path.join(os.homedir(), 'rach3-probe-read.txt'), homeWritten = path.join(os.homedir(), 'rach3-probe-written.txt');
+  if (windows) fs.writeFileSync(homeRead, 'the person\'s file');
+  const server = spawn(windows ? 'python' : 'python3', [mock, String(port), log, probeCommand()], { stdio: 'ignore' });
   process.env.RACH3_CODEX_UPSTREAM = `http://127.0.0.1:${port}/v1`;
   try {
     await wait(700);
@@ -374,7 +401,7 @@ async function wholeChange() {
     check('whole change: sent', typeof sent?.thread === 'string', sent);
     const config = fs.readFileSync(path.join(support, 'Customize/codex/config.toml'), 'utf8');
     check('whole change: Codex\'s own permissions, no sandbox-exec', config.includes('default_permissions = "rach3"') && config.includes('[permissions.rach3.filesystem]') &&
-      config.includes(`"${path.join(support, 'Customize/workspace')}" = "write"`) && !config.includes('danger-full-access') && fs.existsSync(path.join(support, 'Customize/codex/models.json')));
+      config.includes(`${JSON.stringify(path.join(support, 'Customize/workspace'))} = "write"`) && !config.includes('danger-full-access') && fs.existsSync(path.join(support, 'Customize/codex/models.json')));
     console.log(config.split('\n').map(line => `    | ${line}`).join('\n'));
     const state = await until(() => customize.ask('state', {}), value => !value.turn && value.designs.length > 0, 150);
     const design = state.designs?.[0];
@@ -387,12 +414,17 @@ async function wholeChange() {
         !fs.existsSync(path.join(support, 'Customize/workspace')));
       const environment = fs.existsSync(path.join(folder, 'env.txt')) ? fs.readFileSync(path.join(folder, 'env.txt'), 'utf8').trim().split('\n') : [];
       check('whole change: commands get no token and stay in the scratch copy', environment.includes('leak=none') && environment.includes('outside=closed') && !fs.existsSync(path.join(support, 'Customize/outside.txt')), environment);
-      console.log(`    | home folder for commands: ${environment.find(line => line.startsWith('home=')) ?? 'unknown'}`);
+      check('whole change: commands do not reach the internet', environment.includes('net=closed'), environment);
+      if (windows) check('whole change: commands cannot write to the person\'s folder', environment.includes('homewrite=closed') && !fs.existsSync(homeWritten), environment);
+      console.log(`    | what a command could reach: ${environment.join(', ')}`);
       check('whole change: the page moves to the branch', customize.pageURL === `rach3-app://${state.branch.toLowerCase()}/piano.html` && shown.at(-1) === false, customize.pageURL);
       const answer = await customize.serve(new Request(`${customize.pageURL.replace('piano.html', 'customize-test.txt')}`));
       check('whole change: served from the branch', answer.status === 200 && await answer.text() === 'made by codex');
     }
     const asked = fs.existsSync(log) ? fs.readFileSync(log, 'utf8').trim().split('\n').map(line => JSON.parse(line)) : [];
+    // What Codex itself said and how the command went, for whoever reads a failed run.
+    for (const request of asked) console.log(`    | stand-in: tools ${Object.keys(request.tools || {}).join(',')} | ${JSON.stringify(request.outputs || []).slice(0, 1500)}`);
+    try { console.log(fs.readFileSync(path.join(support, 'Customize/codex/stderr.log'), 'utf8').trim().split('\n').slice(-25).map(line => `    | codex: ${line}`).join('\n')); } catch { /* no log */ }
     check('whole change: the stand-in was asked with the sign-in', asked.length >= 2 && asked.every(request => request.auth === 'Bearer access-1'), { requests: asked.length, path: asked[0]?.path });
     const running = () => { try { return require('child_process').execFileSync('pgrep', ['-f', `app-server.*${path.basename(temp)}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length; } catch { return 0; } };
     const before = process.platform === 'win32' ? 1 : running();
@@ -400,7 +432,7 @@ async function wholeChange() {
     await wait(1500);
     await customize.native({ op: 'codex-write', line: '{}' });
     check('whole change: Codex stops with core.js', before === 1 && (process.platform === 'win32' || running() === 0), { before, after: process.platform === 'win32' ? null : running() });
-  } finally { server.kill(); delete process.env.RACH3_CODEX_UPSTREAM; }
+  } finally { server.kill(); delete process.env.RACH3_CODEX_UPSTREAM; for (const file of [homeRead, homeWritten]) if (windows) fs.rmSync(file, { force: true }); }
 }
 
 const make = () => createCustomize({ source, scripts, codexRoot, support, version: '9.9.9', language: () => 'en', text: turkish => `en:${turkish}`,
@@ -438,16 +470,18 @@ app.whenReady().then(async () => {
     ipcMain.handle('test-native', async (event, body) => { try { return { value: await customize.native(body) }; } catch (error) { return { error: error.message }; } });
     check('available without Codex', customize.available === (codexRoot === process.env.RACH3_TEST_CODEX));
     const native = body => customize.native(body);
-    await files(native);
-    await serving(native);
-    await desk(native);
-    await previewing(native);
-    await withCore();
-    await realPage();
-    await signingIn(native);
-    if (process.env.RACH3_TEST_CODEX && mock && fs.existsSync(mock)) await wholeChange();
-    else console.log('skip whole change (set RACH3_TEST_CODEX and RACH3_TEST_MOCK)');
-    await signingOut(native);
+    // Each part on its own: one that stops does not hide the others.
+    const part = async (name, run) => { try { await run(); } catch (error) { failures++; console.log(`FAIL ${name} stopped:`, error.stack || error); } };
+    await part('files', () => files(native));
+    await part('serving', () => serving(native));
+    await part('desk', () => desk(native));
+    await part('previewing', () => previewing(native));
+    await part('with core.js', withCore);
+    await part('the real page', realPage);
+    await part('signing in', () => signingIn(native));
+    if (process.env.RACH3_TEST_CODEX && fs.existsSync(mock)) await part('whole change', wholeChange);
+    else console.log('skip whole change (set RACH3_TEST_CODEX)');
+    await part('signing out', () => signingOut(native));
     customize.stop();
     check('stop leaves no hidden window', BrowserWindow.getAllWindows().every(window => window === panel || window === page), BrowserWindow.getAllWindows().length);
   } catch (error) { failures++; console.log('FAIL the test stopped:', error.stack || error); }

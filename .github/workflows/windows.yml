@@ -57,6 +57,32 @@ jobs:
           path: ${{ runner.temp }}/windows-screens
           if-no-files-found: ignore
 
+  customize:
+    name: ChatGPT features and Codex limits on Windows
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install the Electron shell
+        run: |
+          npm ci
+          node node_modules/electron/install.js
+      - name: Fetch the Codex the app carries
+        shell: bash
+        env:
+          PYTHONUTF8: '1'
+        run: echo "RACH3_TEST_CODEX=$(python -c "import sys; sys.path[:0] = ['windows', 'desktop']; import build; print(build.codex_vendor())")" >> "$GITHUB_ENV"
+      - name: Try the ChatGPT features, and what a command Codex runs may reach
+        # Codex talks to a stand-in for OpenAI on this machine; no ChatGPT account is used.
+        shell: bash
+        run: npx electron electron/tests/customize.test.js
+
   installer:
     name: Windows installer and installed app
     runs-on: windows-latest
