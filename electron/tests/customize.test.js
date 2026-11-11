@@ -418,12 +418,14 @@ async function wholeChange() {
     const sent = await inPanel('try { return await window.rach3Core.postMessage({ action: "send", text: "Add a test file" }); } catch (error) { return "error " + error.message; }');
     check('whole change: sent', typeof sent?.thread === 'string', sent);
     const config = fs.readFileSync(path.join(support, 'Customize/codex/config.toml'), 'utf8');
-    check('whole change: Codex\'s own permissions, no sandbox-exec', (config.includes('default_permissions = "rach3"') || !!process.env.RACH3_CODEX_TRIAL_PROFILE) && config.includes('[permissions.rach3.filesystem]') &&
+    check('whole change: Codex\'s own permissions, no sandbox-exec', config.includes('default_permissions = "rach3"') && config.includes('[permissions.rach3.filesystem]') &&
       config.includes(`${JSON.stringify(path.join(support, 'Customize/workspace'))} = "write"`) && !config.includes('danger-full-access') && fs.existsSync(path.join(support, 'Customize/codex/models.json')));
     console.log(config.split('\n').map(line => `    | ${line}`).join('\n'));
-    const state = await until(() => customize.ask('state', {}), value => !value.turn && value.designs.length > 0, 150);
+    // The change is over when core.js says so; the state alone shows the new version a moment earlier.
+    const finished = await until(() => inPanel('return window.events.find(event => event.event === "customize-finished") ?? null;'), value => !!value, 150);
+    await wait(500);
+    const state = await customize.ask('state', {});
     const design = state.designs?.[0];
-    const finished = await inPanel('return window.events.find(event => event.event === "customize-finished") ?? null;');
     check('whole change: a new version on a new branch', !!design && state.active === design.id && state.branch === design.branch && state.branches.length === 1 && design.files.includes('customize-test.txt'),
       { design: design?.id, branch: state.branch, files: design?.files, errors: design?.errors, finished: finished && { status: finished.status, error: finished.error, outside: finished.outside, tokens: finished.tokens } });
     const asked = fs.existsSync(log) ? fs.readFileSync(log, 'utf8').trim().split('\n').map(line => JSON.parse(line)) : [];
@@ -439,13 +441,19 @@ async function wholeChange() {
     check('whole change: commands do not reach the internet', ran('net', 'net=closed'), steps.net);
     if (design) {
       const folder = path.join(support, 'Customize/designs', design.id);
-      check('whole change: the file Codex wrote is in the saved version', fs.readFileSync(path.join(folder, 'customize-test.txt'), 'utf8').trim() === 'made by codex.' && !fs.existsSync(path.join(folder, 'AGENTS.md')) &&
-        !fs.existsSync(path.join(support, 'Customize/workspace')));
+      const saved = { text: fs.readFileSync(path.join(folder, 'customize-test.txt'), 'utf8').trim(), guide: fs.existsSync(path.join(folder, 'AGENTS.md')), scratch: fs.existsSync(path.join(support, 'Customize/workspace')) };
+      check('whole change: the file Codex wrote is in the saved version', saved.text === 'made by codex.' && !saved.guide && !saved.scratch, saved);
       check('whole change: the page moves to the branch', customize.pageURL === `rach3-app://${state.branch.toLowerCase()}/piano.html` && shown.at(-1) === false, customize.pageURL);
       const answer = await customize.serve(new Request(`${customize.pageURL.replace('piano.html', 'customize-test.txt')}`));
       check('whole change: served from the branch', answer.status === 200 && (await answer.text()).trim() === 'made by codex.');
     }
     try { console.log(fs.readFileSync(path.join(support, 'Customize/codex/stderr.log'), 'utf8').trim().split('\n').slice(-25).map(line => `    | codex: ${line}`).join('\n')); } catch { /* no log */ }
+    if (windows) {
+      // What Codex's Windows sandbox wrote about its own setup, and who may open the saved copy.
+      try { console.log(fs.readFileSync(path.join(support, 'Customize/codex/.sandbox/sandbox.log'), 'utf8').trim().split('\n').slice(-40).map(line => `    | sandbox: ${line.slice(0, 400)}`).join('\n')); } catch { console.log('    | sandbox: no log'); }
+      for (const folder of [path.join(support, 'Customize'), design && path.join(support, 'Customize/designs', design.id)].filter(Boolean))
+        try { console.log(require('child_process').execFileSync('icacls', [folder], { encoding: 'utf8' }).trim().split('\n').map(line => `    | icacls: ${line.trim()}`).join('\n')); } catch { /* not there */ }
+    }
     check('whole change: the stand-in was asked with the sign-in', asked.length >= 2 && asked.every(request => request.auth === 'Bearer access-1'), { requests: asked.length, path: asked[0]?.path });
     const running = () => { try { return require('child_process').execFileSync('pgrep', ['-f', `app-server.*${path.basename(temp)}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean).length; } catch { return 0; } };
     const before = process.platform === 'win32' ? 1 : running();

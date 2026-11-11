@@ -144,8 +144,8 @@ function move(from, to) {
   if (fs.existsSync(to) || !fs.existsSync(from)) return false;
   makeFolder(path.dirname(to));
   try { fs.renameSync(from, to); return true; } catch { /* below */ }
-  // Windows does not rename a folder a running program stands in, and the scratch copy
-  // is where Codex stands. There the files are copied and the scratch copy emptied.
+  // Windows does not rename a folder a running program still holds open. There the
+  // files are copied and the scratch copy emptied.
   if (!WINDOWS) return false;
   if (!copyFrom(from, to)) { remove(to); return false; }
   remove(from);
@@ -904,21 +904,40 @@ function createCustomize(options) {
   // Commands Codex runs may read the system's own tools and read and write the scratch
   // copy, nothing else: not the person's files, not rach3's other data, not the
   // network, and not the ChatGPT token. Codex itself may search the web (OpenAI runs
-  // the search); rach3 fetches anything it shows the person. The same text on Mac and
-  // Windows; Codex's own sandbox enforces it on each.
-  function writeCodexConfiguration() {
-    // TRIAL, development runs only: other settings to find what Windows can enforce.
-    const trial = app.isPackaged ? {} : { profile: process.env.RACH3_CODEX_TRIAL_PROFILE, more: (process.env.RACH3_CODEX_TRIAL_MORE || '').replace(/\\n/g, '\n').replace(/"\{home\}"/g, tomlString(os.homedir())) };
+  // the search); rach3 fetches anything it shows the person. Codex's own sandbox
+  // enforces it: Seatbelt on the Mac, and on Windows the one findWindowsSandbox names.
+  function writeCodexConfiguration(sandbox) {
+    // TRIAL, development runs only: more filesystem lines, to find what Windows can enforce.
+    const trial = app.isPackaged ? '' : (process.env.RACH3_CODEX_TRIAL_MORE || '').replace(/\\n/g, '\n').replace(/"\{home\}"/g, tomlString(os.homedir()));
     const config = '# Written by rach3 on every start.\n' +
-      `default_permissions = "${trial.profile || 'rach3'}"\n` +
+      'default_permissions = "rach3"\n' +
       'web_search = "live"\n\n' +
       '[shell_environment_policy]\n' +
       'ignore_default_excludes = false\n' +
       'exclude = ["ACCESS_TOKEN", "*TOKEN*", "*KEY*", "*SECRET*"]\n\n' +
       '[permissions.rach3.filesystem]\n' +
-      '":minimal" = "read"\n' +
-      `${tomlString(workspace)} = "write"\n` + (trial.more || '');
+      // The elevated sandbox runs commands as a Windows account of its own, which cannot
+      // open the person's folders, and only starts when the rest of the disk is readable.
+      `${sandbox === 'elevated' ? '":root"' : '":minimal"'} = "read"\n` +
+      `${tomlString(workspace)} = "write"\n` + trial +
+      (sandbox ? `\n[windows]\nsandbox = "${sandbox}"\n` : '');
     writeAtomic(path.join(codexHome, 'config.toml'), config);
+  }
+
+  // Windows has more than one sandbox. MXC (Windows 11 24H2 and later) keeps the rule
+  // above as written and needs no setup; this is the check OpenAI documents for it.
+  // Without MXC, the elevated sandbox, which an administrator approves once. Never the
+  // unelevated one: it cannot keep commands from reading the person's files.
+  let windowsSandbox = null;
+  function findWindowsSandbox() {
+    if (!WINDOWS || windowsSandbox) return Promise.resolve(windowsSandbox);
+    return new Promise(resolve => {
+      execFile(codexBinary(), ['-c', 'windows.sandbox=mxc', 'sandbox', '--include-managed-config', '--permission-profile', ':workspace', '--', 'cmd.exe', '/d', '/c', 'echo MXC_OK'],
+        { cwd: workspace, env: codexEnvironment(), timeout: 30000, windowsHide: true }, (error, output) => {
+          windowsSandbox = !error && String(output).includes('MXC_OK') ? 'mxc' : 'elevated';
+          resolve(windowsSandbox);
+        });
+    });
   }
 
   // What Codex is told about the computer: where its tools are, and no more of the
@@ -980,7 +999,8 @@ function createCustomize(options) {
     const start = ++codexStarts;
     makeFolder(codexHome, 0o700);
     makeFolder(workspace);
-    writeCodexConfiguration();
+    writeCodexConfiguration(await findWindowsSandbox());
+    if (start !== codexStarts) return 'codex';
     const provider = 'model_providers.chatgpt_plan';
     // Development copies can talk to a stand-in for OpenAI, to try a whole change offline.
     const upstream = !app.isPackaged && process.env.RACH3_CODEX_UPSTREAM ? process.env.RACH3_CODEX_UPSTREAM : RESOURCE;
@@ -1000,7 +1020,7 @@ function createCustomize(options) {
     if (!app.isPackaged) { try { errors = fs.openSync(path.join(codexHome, 'stderr.log'), 'w'); } catch { errors = 'ignore'; } }
     let task;
     try {
-      task = spawn(codexBinary(), parameters, { cwd: workspace, env: { ...codexEnvironment(), ACCESS_TOKEN: access },
+      task = spawn(codexBinary(), parameters, { cwd: codexHome, env: { ...codexEnvironment(), ACCESS_TOKEN: access },
         stdio: ['pipe', 'pipe', errors], windowsHide: true });
     } catch { task = null; }
     if (typeof errors === 'number') { try { fs.closeSync(errors); } catch { /* Codex has its own handle */ } }
