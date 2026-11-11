@@ -23,7 +23,7 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
     'lesson-document','document-name','document-tempo','lesson-tools','lesson-tools-title',
     'lesson-tools-detail','lesson-tools-size','separation-tools','separation-tools-detail',
     'separation-tools-size','retry-tools','tool-transfer','tool-stage','tool-percent',
-    'tool-progress','tool-bytes','tool-speed','source-ai','ai-source','create-intro','create-panel'];
+    'tool-progress','tool-bytes','tool-speed','source-ai','ai-source','create-intro','create-panel','review-control','review-lesson'];
   const ui = Object.fromEntries(ids.map(id => [id, document.getElementById(id)]));
   const video = ui['source-preview'];
   let source = 'ai';
@@ -103,13 +103,13 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   let busy = false, cancelled = false, loadedResult = draft.completedJob||'';
   function saveDraft() {
     workspaceState.update('create',{source,title:ui['lesson-title'].value,url:ui['youtube-url'].value,
-      youtubeURL,separate:ui['separate-vocals'].checked,tempo:ui['document-tempo'].value,completedJob:loadedResult});
+      youtubeURL,separate:ui['separate-vocals'].checked,review:ui['review-lesson'].checked,tempo:ui['document-tempo'].value,completedJob:loadedResult});
   }
 
 
   function updateControls() {
     ui['create-lesson'].disabled = !available || !toolsCatalog || busy || (source==='video'?!videoReady:source==='document'?!selectedDocument:!youtubeURL);
-    for (const id of ['source-ai','source-video','source-youtube','source-document','choose-document','document-tempo','choose-video','remove-video','remove-youtube','youtube-url','lesson-title','separate-vocals']) ui[id].disabled=busy;
+    for (const id of ['source-ai','source-video','source-youtube','source-document','choose-document','document-tempo','choose-video','remove-video','remove-youtube','youtube-url','lesson-title','separate-vocals','review-lesson']) ui[id].disabled=busy;
     ui['cancel-lesson'].hidden=!busy;
     renderTools();
   }
@@ -395,7 +395,8 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
       const kind=source==='document'?(/\.pdf$/i.test(file.name)?'pdf':'midi'):'video';
       const job=await lessonCommand('lesson-begin',{name:file?.name||'YouTube',kind,tempo:Number(ui['document-tempo'].value),
         title:ui['lesson-title'].value.trim(),size:file?.size||0,
-        url:source==='youtube'?youtubeURL:'',separate:ui['separate-vocals'].checked});
+        url:source==='youtube'?youtubeURL:'',separate:ui['separate-vocals'].checked,
+        review:!ui['review-control'].hidden&&ui['review-lesson'].checked});
       if(file) {
         const step=1024*1024;
         for(let offset=0;offset<file.size;offset+=step) {
@@ -422,22 +423,37 @@ export function startLessonCreation({ onLesson, onShowCreate, onLessonDeleted, w
   });
   window.addEventListener('rach3-native-event',event=> {
     if(event.detail.event==='lesson-progress') jobState(event.detail).catch(error=>announce(error.message,'error'));
+    else if(event.detail.event==='desk-state') showReview(event.detail);
+    else if(event.detail.event==='lesson-review') reviewState(event.detail);
   });
+  // "Check and fix with ChatGPT" is offered while the person is signed in to ChatGPT.
+  function showReview(state) { ui['review-control'].hidden=!(state?.available&&state?.signedIn); }
+  function reviewState(event) {
+    const summary=typeof event.summary==='string'?event.summary.trim():'';
+    if(event.phase==='waiting') announce('ChatGPT boşalınca bu ders kontrol edilecek.');
+    else if(event.phase==='checking') announce('ChatGPT dersi kontrol ediyor…');
+    else if(event.phase==='done') {
+      const message=event.moved?t('ChatGPT {count} notanın elini düzeltti.',{count:event.moved}):t('ChatGPT dersi kontrol etti; değiştirecek bir şey bulmadı.');
+      announce(summary?`${message} ${summary}`:message,'ready');
+    } else if(event.phase==='failed') announce('ChatGPT dersi kontrol edemedi.','error');
+  }
   ui['lesson-title'].value=draft.title||'';
   ui['youtube-url'].value=draft.url||'';
   ui['document-tempo'].value=draft.tempo||'60';
   if(typeof draft.separate==='boolean') ui['separate-vocals'].checked=draft.separate;
+  if(typeof draft.review==='boolean') ui['review-lesson'].checked=draft.review;
   youtubeURL=draft.youtubeURL||'';
   if(youtubeURL) {
     ui['youtube-title'].textContent=t('YouTube videosu'); ui['youtube-link'].textContent=youtubeURL;
     ui['youtube-preview'].hidden=false;
   }
-  for(const id of ['lesson-title','separate-vocals','document-tempo']) ui[id].addEventListener('input',saveDraft);
+  for(const id of ['lesson-title','separate-vocals','review-lesson','document-tempo']) ui[id].addEventListener('input',saveDraft);
   ui['separate-vocals'].addEventListener('change',renderTools);
   ui['retry-tools'].addEventListener('click',refreshTools);
   // The Mac app marks the page when it carries Codex; elsewhere the tab is not offered.
   const chat=native&&document.documentElement.dataset.lessonChat==='1'?startLessonChat({container:ui['ai-source'],command:lessonCommand,openLesson}):null;
   ui['source-ai'].hidden=!chat;
+  if(chat) lessonCommand('desk-state').then(showReview,()=>{});
   const sources=chat?['ai','video','youtube','document']:['video','youtube','document'];
   showSource(sources.includes(draft.source)?draft.source:sources[0]);
   if(available) {

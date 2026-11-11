@@ -62,6 +62,7 @@
   "Bağlantıyı kullan": "Use link",
   "Ders adı": "Lesson title",
   "Vokali ayır": "Separate vocals",
+  "ChatGPT ile kontrol et ve düzelt": "Check and fix with ChatGPT",
   "İptal": "Cancel",
   "Video bu Mac’te işlenir. Notlar, şiddet ve pedal otomatik tahmindir.": "Video is processed on this Mac. Notes, dynamics, and pedal are automatic estimates.",
   "Derslerim": "My lessons",
