@@ -1,28 +1,28 @@
 {
-  "version": "0.12.0",
-  "build": 21,
+  "version": "0.13.0",
+  "build": 22,
   "repository": "cihanozcelik/rach3",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "On Windows, Create a Lesson with ChatGPT and changing rach3 by asking ChatGPT are here, as on the Mac. They need Windows 11 version 24H2 or newer with the latest Windows updates.",
-    "rach3 is now the same app on Mac and Windows: the same window, the same menus and the same features on both.",
-    "Your lessons, your settings and the versions you made with ChatGPT stay as they are.",
-    "This update is a larger download than usual."
+    "Lessons made from a MIDI file get a proper score: one grand staff with the file's key, meter and tempo, triplets written as triplets, and notes spelled for the key.",
+    "In MIDI lessons each note goes to the hand that plays it: from the file's hand tracks when it names them, otherwise the way a pianist would play it.",
+    "Signed in to ChatGPT, Create a Lesson can check a new lesson and move notes to the hand that should play them. The box is on by default; the original lesson goes to the Trash.",
+    "On the Mac, the Customize button takes clicks again."
   ],
   "feedURL": "https://rach3.com/appcast.xml",
   "localizedNotes": {
     "en": [
-      "On Windows, Create a Lesson with ChatGPT and changing rach3 by asking ChatGPT are here, as on the Mac. They need Windows 11 version 24H2 or newer with the latest Windows updates.",
-      "rach3 is now the same app on Mac and Windows: the same window, the same menus and the same features on both.",
-      "Your lessons, your settings and the versions you made with ChatGPT stay as they are.",
-      "This update is a larger download than usual."
+      "Lessons made from a MIDI file get a proper score: one grand staff with the file's key, meter and tempo, triplets written as triplets, and notes spelled for the key.",
+      "In MIDI lessons each note goes to the hand that plays it: from the file's hand tracks when it names them, otherwise the way a pianist would play it.",
+      "Signed in to ChatGPT, Create a Lesson can check a new lesson and move notes to the hand that should play them. The box is on by default; the original lesson goes to the Trash.",
+      "On the Mac, the Customize button takes clicks again."
     ],
     "tr": [
-      "Windows’ta da ChatGPT ile ders oluşturma ve rach3’ü ChatGPT’ye söyleyerek değiştirme geldi, Mac’teki gibi. Bunlar için Windows 11 24H2 veya daha yenisi ve en son Windows güncellemeleri gerekir.",
-      "rach3 artık Mac’te ve Windows’ta aynı uygulama: ikisinde de aynı pencere, aynı menüler, aynı özellikler.",
-      "Derslerin, ayarların ve ChatGPT ile yaptığın sürümler olduğu gibi kalır.",
-      "Bu güncelleme her zamankinden büyük bir indirme."
+      "MIDI’den yapılan derslerin nota sayfası artık düzgün: dosyanın anahtarı, ölçüsü ve temposuyla tek bir piyano portesi, triyoller triyol olarak, notalar anahtara göre adlandırılmış.",
+      "MIDI derslerinde her nota onu çalan ele gidiyor: dosya elleri adlandırıyorsa oradan, adlandırmıyorsa bir piyanistin çalacağı gibi.",
+      "ChatGPT’ye bağlıyken Ders oluştur, yeni dersi kontrol edip notaları çalması gereken ele taşıyabilir. Kutu varsayılan olarak işaretli; eski ders Çöp Sepeti’ne gider.",
+      "Mac’te Customize düğmesi yeniden tıklanıyor."
     ]
   }
 }
