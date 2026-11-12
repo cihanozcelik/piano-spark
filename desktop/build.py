@@ -270,6 +270,7 @@ def main():
 
     write_source(resources)
     write_shell(resources)
+    run('/bin/bash', ROOT/'bluetooth-connection/build.sh', APP/'Contents/Helpers/rach3 Bluetooth.app')
     bundle_codex(resources)
     bundle_engine(resources)
     shutil.copy2(ROOT/'desktop/release.json',resources/'release.json')

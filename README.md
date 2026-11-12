@@ -127,8 +127,9 @@ with Windows wording, and the build fails if a page string mentions the Mac with
   `python3 windows/prepare_lock.py` and `python3 desktop/lock_tools.py win_amd64`.
   Windows lessons match the Mac: the Bach MIDI makes 549 notes, the PDF 608 and the
   audio test the same 20 notes.
-- **Bluetooth MIDI:** the same code as on the Mac (`electron/bluetooth.js`, Web
-  Bluetooth). It has not yet been tried with a real piano on a Windows PC.
+- **Bluetooth MIDI:** the shared connection state in `electron/bluetooth.js`, with
+  Web Bluetooth on Windows and CoreBluetooth on macOS. Windows has not yet been
+  tried with a real piano on a Windows PC.
 - **Installer and updates:** Velopack. `rach3-win-Setup.exe` installs per user
   without administrator rights. Each release also carries a patch from the previous
   Windows release (0.9.1 → 0.9.2: 1.1 MB instead of 26 MB), applied to the installed
@@ -335,8 +336,10 @@ What the page had saved in the apps before the Electron shell (the Mac's WebKit
 storage, the Windows WebView2 profile) is read once, without changing it, and
 handed to the page (`electron/earlier-state.js`).
 
-`electron/bluetooth.js` owns the piano connection: Web Bluetooth in a hidden window
-of the shell, so no helper process or separate installation is needed. Events reach
+`electron/bluetooth.js` owns the piano connection state. On macOS,
+`electron/bluetooth-native.js` runs the bundled universal CoreBluetooth helper from
+`bluetooth-connection/`; Windows uses Web Bluetooth in a hidden window. No separate
+installation is needed. Events reach
 the page's input interface through the shell. Device names, UUIDs, output
 channels, the default device, and automatic connection preferences belong to the
 `bluetooth` section of the shared `WorkspaceState` owner. The note stream is not
@@ -345,7 +348,9 @@ recorded to disk.
 ## Bluetooth connection
 
 Opening the piano panel in the top bar starts discovery when no connection is
-active. It scans devices advertising the standard BLE-MIDI service. Scanning ends
+active. It scans devices advertising the standard BLE-MIDI service. On macOS it
+also lists peripherals already connected to the system with that service, so a
+system MIDI connection does not hide the piano from discovery. Scanning ends
 after 45 seconds, retaining the results for selection. **Saved pianos** and
 **Nearby MIDI devices** are separate lists. A saved identifier does not prove that
 a device is currently nearby. After scanning ends, the UI shows that the device was
@@ -388,6 +393,15 @@ availability problems whose cause cannot be established remotely.
 connection. If the page's process exits, Bluetooth is stopped and the interface
 reloads. Other apps' Bluetooth connections are never taken over or stopped.
 
+The Mac helper owns discovery, GATT, MIDI decoding, scheduled output, and confirmed
+disconnect. The Electron host exchanges JSON over the helper's user-only Unix
+socket and reads events from stdout. Quit waits for helper exit; a parent-process
+watchdog performs the same cleanup if Electron crashes. MIDI data is not logged.
+Existing Electron device IDs are resolved from discovered CoreBluetooth UUIDs,
+preserving saved names, channels and automatic connection preferences.
+`desktop/build.py` compiles and signs the helper into `Contents/Helpers` for Apple
+Silicon and Intel. Source launches rebuild it when its inputs change.
+
 ## Fast browser development
 
 Run `./dev.command` or `python3 server.py --dev --open --port 8784` to open
@@ -400,9 +414,9 @@ connection continue across a normal page refresh.
 The browser uses the real lesson creation, saved lesson library, and Bluetooth
 interface. `/api/lessons/command` is only the local HTTP transport: the
 Objective-C `LessonService.m` runs in a small `LessonHost` process and the Bluetooth
-helper in `bluetooth-connection/` is started by the server. These two serve only this
-browser development mode on a Mac; the app itself uses `electron/lessons.js` and
-`electron/bluetooth.js`.
+helper in `bluetooth-connection/` is started by the server. The packaged app uses
+`electron/lessons.js` for lesson jobs and the same CoreBluetooth helper on macOS;
+Windows uses Web Bluetooth.
 The model implementation remains in `lesson-engine/worker.py`. Development engine
 links live under `build/browser/Engine/`; existing local Python, package, and model
 files are not copied again. Development lessons live in
@@ -617,11 +631,11 @@ clears keys while preserving the connection. Native timestamps do not drive the
 practice clock; it uses local event arrival order and the browser's monotonic clock.
 
 Physical note and pedal input, and reconnection without touching the piano, were
-verified with the native helper the app used before the Electron shell. The Web
-Bluetooth connection of the Electron shell has not yet been tried with a real piano,
-on the Mac or on Windows; its packet decoding and connection flow are covered by
-`electron/tests/`. End-to-end acceptance testing with a real piano is performed by
-the user.
+verified with the native helper, which the macOS Electron shell now also uses.
+The Windows Web Bluetooth connection has not yet been tried with a real piano;
+its packet decoding and connection flow are covered by `electron/tests/`.
+End-to-end acceptance testing of the integrated app with a real piano is performed
+by the user.
 
 ## Public website
 
