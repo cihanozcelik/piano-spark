@@ -1,6 +1,5 @@
-// The Bluetooth piano connection for Mac and Windows: one implementation over Web Bluetooth
-// in a hidden window. It publishes the same events and state to the page as the native
-// helpers of the apps before this shell did.
+// Shared piano state and page events. macOS uses the bundled CoreBluetooth owner;
+// Windows uses Web Bluetooth in a hidden window.
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -367,6 +366,7 @@ function createConnection({ identifier, timeoutSeconds, openHost, identifierOf, 
 
 // settings: the store from electron/settings.js, get(key) and set(key, value).
 function createBluetooth({ text, settings, publish, onStopped, timeoutSeconds = TIMEOUT_SECONDS, openHost = electronHost }) {
+  const native = process.platform === 'darwin' && openHost === electronHost;
   const say = source => text(WINDOWS_TEXT[source] || source);
   const stored = key => { try { return settings.get(key); } catch (error) { trace('settings', error.message); return null; } };
   const store = (key, value) => { try { settings.set(key, value); } catch (error) { trace('settings', error.message); } };
@@ -432,8 +432,10 @@ function createBluetooth({ text, settings, publish, onStopped, timeoutSeconds = 
     const current = {};
     session = current;
     try {
-      current.connection = createConnection({
+      const connection = native ? require('./bluetooth-native').createNativeConnection : createConnection;
+      current.connection = connection({
         identifier, timeoutSeconds, openHost, identifierOf,
+        addressOf: hashedAddress,
         emit: event => { if (session === current) handle(event); },
         exited: code => exit(current, code),
       });

@@ -85,6 +85,7 @@ function startWorkspaceLayout(workspaceState) {
   const viewport=document.getElementById('viewport');
   const keyboard=document.getElementById('keyboard');
   const timeline=workspace.querySelector('.timeline');
+  const feedback=document.getElementById('lesson-panel');
   const expand=document.getElementById('sheet-expand');
   const handles={sheet:document.getElementById('sheet-resizer'),keyboard:document.getElementById('keyboard-resizer')};
   const saved=workspaceState.data.layout;
@@ -95,7 +96,7 @@ function startWorkspaceLayout(workspaceState) {
   function limits() {
     const timelineHeight=timeline.getBoundingClientRect().height;
     const horizontalBar=viewport.offsetHeight-viewport.clientHeight;
-    const available=workspace.clientHeight-timelineHeight-horizontalBar-22;
+    const available=workspace.clientHeight-timelineHeight-feedback.getBoundingClientRect().height-horizontalBar-22;
     return {available,sheetMin:Math.min(80,Math.max(0,available-144)),keyMin:64,rollMin:80};
   }
   function apply() {
@@ -165,5 +166,6 @@ function startWorkspaceLayout(workspaceState) {
   const layoutObserver=new ResizeObserver(apply);
   layoutObserver.observe(workspace);
   layoutObserver.observe(timeline);
+  layoutObserver.observe(feedback);
   apply();
 }

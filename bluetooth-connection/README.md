@@ -5,6 +5,15 @@ Objective-C ve CoreBluetooth kullanır. CoreMIDI sürücüsü oluşturmaz;
 MIDI karakteristiğinin bildirimlerini doğrudan okuyup JSON olarak verir.
 Xcode/Command Line Tools dışında paket gerektirmez.
 
+macOS Electron uygulaması da bu motoru kullanır. `electron/bluetooth-native.js`
+yardımcı süreci başlatır, JSON olaylarını ortak bağlantı durumuna aktarır ve
+komutları kullanıcıya özel Unix soketinden iletir. Paket, Apple Silicon/Intel
+ikilisini `Contents/Helpers/rach3 Bluetooth.app` içinde taşır. Geliştirme
+çalıştırmasında kaynak değişmişse otomatik derlenir. Ana süreç kapanırsa
+`--parent-pid` gözetimi nota bırakma ve bağlantı kapatma akışını çalıştırır.
+Sisteme zaten bağlı MIDI cihazları da servis UUID'siyle keşfe dahil edilir.
+Eski Electron cihaz kimlikleri eşlenir; kayıtlı tercihler korunur.
+
 ## Kullanım
 
 ```sh

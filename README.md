@@ -127,8 +127,9 @@ with Windows wording, and the build fails if a page string mentions the Mac with
   `python3 windows/prepare_lock.py` and `python3 desktop/lock_tools.py win_amd64`.
   Windows lessons match the Mac: the Bach MIDI makes 549 notes, the PDF 608 and the
   audio test the same 20 notes.
-- **Bluetooth MIDI:** the same code as on the Mac (`electron/bluetooth.js`, Web
-  Bluetooth). It has not yet been tried with a real piano on a Windows PC.
+- **Bluetooth MIDI:** the shared connection state in `electron/bluetooth.js`, with
+  Web Bluetooth on Windows and CoreBluetooth on macOS. Windows has not yet been
+  tried with a real piano on a Windows PC.
 - **Installer and updates:** Velopack. `rach3-win-Setup.exe` installs per user
   without administrator rights. Each release also carries a patch from the previous
   Windows release (0.9.1 → 0.9.2: 1.1 MB instead of 26 MB), applied to the installed
@@ -335,8 +336,10 @@ What the page had saved in the apps before the Electron shell (the Mac's WebKit
 storage, the Windows WebView2 profile) is read once, without changing it, and
 handed to the page (`electron/earlier-state.js`).
 
-`electron/bluetooth.js` owns the piano connection: Web Bluetooth in a hidden window
-of the shell, so no helper process or separate installation is needed. Events reach
+`electron/bluetooth.js` owns the piano connection state. On macOS,
+`electron/bluetooth-native.js` runs the bundled universal CoreBluetooth helper from
+`bluetooth-connection/`; Windows uses Web Bluetooth in a hidden window. No separate
+installation is needed. Events reach
 the page's input interface through the shell. Device names, UUIDs, output
 channels, the default device, and automatic connection preferences belong to the
 `bluetooth` section of the shared `WorkspaceState` owner. The note stream is not
@@ -345,7 +348,9 @@ recorded to disk.
 ## Bluetooth connection
 
 Opening the piano panel in the top bar starts discovery when no connection is
-active. It scans devices advertising the standard BLE-MIDI service. Scanning ends
+active. It scans devices advertising the standard BLE-MIDI service. On macOS it
+also lists peripherals already connected to the system with that service, so a
+system MIDI connection does not hide the piano from discovery. Scanning ends
 after 45 seconds, retaining the results for selection. **Saved pianos** and
 **Nearby MIDI devices** are separate lists. A saved identifier does not prove that
 a device is currently nearby. After scanning ends, the UI shows that the device was
@@ -388,6 +393,15 @@ availability problems whose cause cannot be established remotely.
 connection. If the page's process exits, Bluetooth is stopped and the interface
 reloads. Other apps' Bluetooth connections are never taken over or stopped.
 
+The Mac helper owns discovery, GATT, MIDI decoding, scheduled output, and confirmed
+disconnect. The Electron host exchanges JSON over the helper's user-only Unix
+socket and reads events from stdout. Quit waits for helper exit; a parent-process
+watchdog performs the same cleanup if Electron crashes. MIDI data is not logged.
+Existing Electron device IDs are resolved from discovered CoreBluetooth UUIDs,
+preserving saved names, channels and automatic connection preferences.
+`desktop/build.py` compiles and signs the helper into `Contents/Helpers` for Apple
+Silicon and Intel. Source launches rebuild it when its inputs change.
+
 ## Fast browser development
 
 Run `./dev.command` or `python3 server.py --dev --open --port 8784` to open
@@ -400,9 +414,9 @@ connection continue across a normal page refresh.
 The browser uses the real lesson creation, saved lesson library, and Bluetooth
 interface. `/api/lessons/command` is only the local HTTP transport: the
 Objective-C `LessonService.m` runs in a small `LessonHost` process and the Bluetooth
-helper in `bluetooth-connection/` is started by the server. These two serve only this
-browser development mode on a Mac; the app itself uses `electron/lessons.js` and
-`electron/bluetooth.js`.
+helper in `bluetooth-connection/` is started by the server. The packaged app uses
+`electron/lessons.js` for lesson jobs and the same CoreBluetooth helper on macOS;
+Windows uses Web Bluetooth.
 The model implementation remains in `lesson-engine/worker.py`. Development engine
 links live under `build/browser/Engine/`; existing local Python, package, and model
 files are not copied again. Development lessons live in
@@ -501,10 +515,17 @@ the sheet music:
 
 The row strategies require **3, 5, or 10 consecutive clean repetitions**, with 10
 selected initially. An error immediately resets the current streak; the attempt
-finishes at the normal boundary and repeats the same section. A compact status line within the bottom timeline
-shows the current section, streak, and attempt feedback.
+finishes at the normal boundary and repeats the same section. The visible practice
+status band between the score and falling notes separates the immediate instruction
+(press, release, repeat, or hold) from the attempt's grading. A failed attempt keeps
+its reason and an explicit “will not count / streak reset” message until it ends.
+The current section, mastered-section count, and consecutive clean-pass meter sit
+alongside it. The last completed pass remains visible during the next count-in:
+counted, did not count, section mastered, or the entire plan completed. This receipt
+is session-only; changing the lesson, practice context or selected section clears it.
+The clock and session still own matching, grading and saved progress.
 
-The **‹** and **›** buttons beside that status line move to the previous or next
+The **‹** and **›** buttons beside the section name move to the previous or next
 section of the plan at any time, including after the plan is complete. Mastery is
 kept per section: skipping ahead never marks a section as learned, and going back
 never removes earned mastery. Leaving a section discards its unfinished streak.
@@ -521,9 +542,42 @@ are excluded from mastery totals. The current exercise has an amber outline;
 learned rows use green marks outside the printed notation.
 
 Learning progress belongs to rows and practice stages. Row badges remain beside
-the score; the current row, repetition count and attempt feedback sit within the
-bottom timeline. This status line occupies normal layout space and stays outside
-the falling-note area.
+the score; the current row, repetition count and attempt feedback sit in the
+practice status band. It occupies normal layout space, and the score/keyboard
+resizers account for its height. It is hidden in Listen mode. Correct held keys
+show a green check, extra keys a red cross, and keys requiring a fresh attack an
+amber repeat arrow, alongside the textual instruction. Whole-piece practice shows
+lesson position and explicitly says passes are not scored; reaching the end is
+not presented as mastering the piece. Pauses and disconnections are named and do
+not award an unfinished pass. All feedback is available in Turkish and English.
+
+Practice also gives restrained visual and audio feedback, owned by
+`practice-effects.js`. Each newly accepted attack produces a green check ring and a
+particle burst above its key, without adding another pitched sound to the played
+note. Consecutive correct notes build a visible counter, with warmer colors at
+5 and 10; mistakes break it. This cosmetic counter counts notes (including chord
+notes), not clean passes or mastery, and resets for each attempt. Clean passes
+fill the selected goal's circles beside the authoritative pass count.
+Every new wrong attack can trigger a red cross ring and a short descending cue,
+even after the attempt has already failed; held keys cannot retrigger it. Timing
+failure also shows an immediate center badge. Error badges/sounds are limited to
+one per 450 ms. Feedback is consumed at clock/MIDI reconciliation, before a new
+attempt resets its attacks. The overlay is anchored to the visible piano region,
+so horizontal keyboard scrolling cannot hide the result or its particles. Completed attempts have
+distinct cues: a clean pass shows **Clean pass! 1/3** with a two-tone chime; a failed
+pass shows **This pass did not count** and its reason with a softer descending cue.
+Reaching the selected goal, such as **3/3**, shows a gold **Bravo!** burst, a fuller
+chime and the next section's name. Completing the entire plan has its own final
+chime. Whole-piece mode only celebrates reaching the end, without awarding mastery.
+
+**Practice method** has separate **Small celebrations** and **Feedback sounds**
+switches, plus **Effect volume** (25% initially); preferences use WorkspaceState.
+Effects play through the computer, never as MIDI sent to the piano. Their audio
+context is unlocked by Start and remains optional if the platform cannot play it.
+Particles and movement respect reduced-motion settings, are capped, and do not
+intercept clicks. Pause, seek, disconnect, a hidden page or leaving Practice clears
+effects and sounds; restoring saved progress or navigating alone cannot trigger a celebration. Completion
+receipts remain in the status band after the short animation disappears.
 
 The score summary shows **Practice plan %** and **Rows learned X/Y**. Row
 percentages use clean passes toward each standalone goal. Plan percentage uses
@@ -617,11 +671,11 @@ clears keys while preserving the connection. Native timestamps do not drive the
 practice clock; it uses local event arrival order and the browser's monotonic clock.
 
 Physical note and pedal input, and reconnection without touching the piano, were
-verified with the native helper the app used before the Electron shell. The Web
-Bluetooth connection of the Electron shell has not yet been tried with a real piano,
-on the Mac or on Windows; its packet decoding and connection flow are covered by
-`electron/tests/`. End-to-end acceptance testing with a real piano is performed by
-the user.
+verified with the native helper, which the macOS Electron shell now also uses.
+The Windows Web Bluetooth connection has not yet been tried with a real piano;
+its packet decoding and connection flow are covered by `electron/tests/`.
+End-to-end acceptance testing of the integrated app with a real piano is performed
+by the user.
 
 ## Public website
 

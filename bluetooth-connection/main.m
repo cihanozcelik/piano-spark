@@ -12,6 +12,7 @@
 #import <unistd.h>
 #import <errno.h>
 #import <math.h>
+#import <limits.h>
 
 static NSString *const ServiceUUID = @"03B80E5A-EDE8-4B33-A751-6CE34EC4C700";
 static NSString *const CharacteristicUUID = @"7772E5DB-3868-4112-A1A9-F2669D106BF3";
@@ -723,6 +724,7 @@ int main(int argc, const char *argv[]) {
         NSUUID *identifier = nil;
         double timeout = 60;
         double duration = 0;
+        pid_t parent = 0;
         for (int i = 3; i < argc; i += 2) {
             if (i + 1 >= argc) return 64;
             NSString *option = [NSString stringWithUTF8String:argv[i]];
@@ -738,11 +740,22 @@ int main(int argc, const char *argv[]) {
                 if (*end || !isfinite(number)) return 64;
                 if ([option isEqualToString:@"--timeout"] && number > 0) timeout = number;
                 else if ([option isEqualToString:@"--duration"] && number >= 0) duration = number;
+                else if ([option isEqualToString:@"--parent-pid"] && number > 1 && number <= INT_MAX && floor(number) == number) parent = (pid_t)number;
                 else return 64;
             }
         }
         PianoConnection *connection = [[PianoConnection alloc] initWithTarget:name identifier:identifier runtime:runtime timeout:timeout duration:duration];
         [connection start];
+        if (parent) {
+            // Electron owns this helper. If the host crashes, release only our
+            // notes and connection through the same confirmed shutdown path.
+            [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer *timer) {
+                if (getppid() != parent) {
+                    [timer invalidate];
+                    [connection stop:@"parent_exited" code:0];
+                }
+            }];
+        }
         [[NSRunLoop mainRunLoop] run];
     }
     return 0;
