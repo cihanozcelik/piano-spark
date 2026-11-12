@@ -11,6 +11,7 @@ const SOURCE = {
   'player.js': 'player.js', 'workspace-state.js': 'workspace-state.js', 'sheet-music.js': 'sheet-music.js',
   'piano-input.js': 'piano-input.js', 'piano-output.js': 'piano-output.js', 'practice-clock.js': 'practice-clock.js',
   'practice-session.js': 'practice-session.js', 'hand-reach.js': 'hand-reach.js', 'staff-notation.js': 'staff-notation.js',
+  'practice-effects.js': 'practice-effects.js',
   'create-lesson.js': 'create-lesson.js', 'lesson-chat.js': 'lesson-chat.js', 'app-shell.js': 'app-shell.js',
   'bluetooth.js': 'bluetooth-connection/bluetooth.js', 'bluetooth-diagnostics.js': 'bluetooth-connection/bluetooth-diagnostics.js',
   'assets/bravura/Bravura.woff2': 'assets/bravura/Bravura.woff2',

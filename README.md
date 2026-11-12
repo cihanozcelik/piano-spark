@@ -515,10 +515,17 @@ the sheet music:
 
 The row strategies require **3, 5, or 10 consecutive clean repetitions**, with 10
 selected initially. An error immediately resets the current streak; the attempt
-finishes at the normal boundary and repeats the same section. A compact status line within the bottom timeline
-shows the current section, streak, and attempt feedback.
+finishes at the normal boundary and repeats the same section. The visible practice
+status band between the score and falling notes separates the immediate instruction
+(press, release, repeat, or hold) from the attempt's grading. A failed attempt keeps
+its reason and an explicit “will not count / streak reset” message until it ends.
+The current section, mastered-section count, and consecutive clean-pass meter sit
+alongside it. The last completed pass remains visible during the next count-in:
+counted, did not count, section mastered, or the entire plan completed. This receipt
+is session-only; changing the lesson, practice context or selected section clears it.
+The clock and session still own matching, grading and saved progress.
 
-The **‹** and **›** buttons beside that status line move to the previous or next
+The **‹** and **›** buttons beside the section name move to the previous or next
 section of the plan at any time, including after the plan is complete. Mastery is
 kept per section: skipping ahead never marks a section as learned, and going back
 never removes earned mastery. Leaving a section discards its unfinished streak.
@@ -535,9 +542,33 @@ are excluded from mastery totals. The current exercise has an amber outline;
 learned rows use green marks outside the printed notation.
 
 Learning progress belongs to rows and practice stages. Row badges remain beside
-the score; the current row, repetition count and attempt feedback sit within the
-bottom timeline. This status line occupies normal layout space and stays outside
-the falling-note area.
+the score; the current row, repetition count and attempt feedback sit in the
+practice status band. It occupies normal layout space, and the score/keyboard
+resizers account for its height. It is hidden in Listen mode. Correct held keys
+show a green check, extra keys a red cross, and keys requiring a fresh attack an
+amber repeat arrow, alongside the textual instruction. Whole-piece practice shows
+lesson position and explicitly says passes are not scored; reaching the end is
+not presented as mastering the piece. Pauses and disconnections are named and do
+not award an unfinished pass. All feedback is available in Turkish and English.
+
+Practice also gives restrained visual and audio feedback, owned by
+`practice-effects.js`. Each newly accepted attack produces a small sparkle at its
+key, without adding another pitched sound to the played note. A first mistake
+gives a quiet tap and a small nudge of the status icon. Completed attempts have
+distinct cues: a clean pass shows **Clean pass! 1/3** with a two-tone chime; a failed
+pass shows **This pass did not count** and its reason with a softer descending cue.
+Reaching the selected goal, such as **3/3**, shows a gold **Bravo!** burst, a fuller
+chime and the next section's name. Completing the entire plan has its own final
+chime. Whole-piece mode only celebrates reaching the end, without awarding mastery.
+
+**Practice method** has separate **Small celebrations** and **Feedback sounds**
+switches, plus **Effect volume** (25% initially); preferences use WorkspaceState.
+Effects play through the computer, never as MIDI sent to the piano. Their audio
+context is unlocked by Start and remains optional if the platform cannot play it.
+Particles and movement respect reduced-motion settings, are capped, and do not
+intercept clicks. Pause, seek, disconnect, a hidden page or leaving Practice clears
+effects and sounds; restoring saved progress or navigating alone cannot trigger a celebration. Completion
+receipts remain in the status band after the short animation disappears.
 
 The score summary shows **Practice plan %** and **Rows learned X/Y**. Row
 percentages use clean passes toward each standalone goal. Plan percentage uses

@@ -118,10 +118,10 @@
     .profile-row input { flex:1; min-width:0; color:var(--ink); background:var(--raised); border:1px solid var(--line); border-radius:7px; padding:5px 8px; font:inherit; font-size:12px; }
     .profile-row button { font-size:12px; padding:5px 10px; }
     .profile-measure-status { padding:8px 10px; border:1px solid #c5963e66; border-radius:8px; background:#2c261b; color:#f0d6a0 !important; }
-    .practice-progress { min-width:0; color:#a8b7ad; font-size:11px; line-height:14px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .practice-line { display:flex; align-items:center; gap:4px; min-width:0; }
+    .practice-progress { min-width:0; color:var(--ink); font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+    .practice-line { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
     .practice-line[hidden] { display:none; }
-    .practice-step { flex-shrink:0; width:18px; height:16px; min-height:0; padding:1px; border-color:transparent; background:transparent; color:#a8b7ad; }
+    .practice-step { flex-shrink:0; width:28px; height:28px; min-height:28px; padding:5px; border-color:var(--line); background:transparent; color:#c7c7ce; }
     .practice-step:not(:disabled):hover { background:var(--raised); color:var(--ink); }
     .practice-step:disabled { opacity:.35; }
     .practice-step svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
@@ -137,9 +137,29 @@
     .view-options .toggle-control { flex-direction:row-reverse; }
     .view-options input[type=range] { width:145px; }
     .view-options .hint { padding-top:10px; border-top:1px solid var(--line); font-size:10px; line-height:1.6; color:var(--muted); }
-    .lesson-panel { flex-shrink:0; display:flex; align-items:center; min-height:31px; padding:4px 20px; background:#23252b; border-top:1px solid var(--line); }
-    .lesson-feedback { font-size:13px; font-weight:500; color:#c1c9d6; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
-    .lesson-feedback.waiting { color:var(--target); }
+    .lesson-panel { --feedback-color:#b6c6dc; flex-shrink:0; display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:10px 24px; padding:12px 20px; background:#22252b; border-bottom:1px solid var(--line); border-left:4px solid var(--feedback-color); }
+    .lesson-panel[data-tone=waiting] { --feedback-color:#f0ca81; }
+    .lesson-panel[data-tone=error] { --feedback-color:#ff969d; background:#2c2228; }
+    .lesson-panel[data-tone=success] { --feedback-color:#8bddb5; }
+    .practice-live { display:flex; align-items:flex-start; gap:10px; min-width:0; }
+    .practice-symbol { flex:0 0 30px; height:30px; display:grid; place-items:center; color:var(--feedback-color); background:color-mix(in srgb,var(--feedback-color),transparent 90%); border:1px solid color-mix(in srgb,var(--feedback-color),transparent 65%); border-radius:50%; font-size:18px; font-weight:700; }
+    .practice-live-copy { min-width:0; }
+    .practice-title { display:block; color:var(--feedback-color); font-size:16px; line-height:1.3; font-weight:650; }
+    .lesson-feedback { margin-top:3px; font-size:13px; color:#e0e2e8; line-height:1.45; overflow-wrap:anywhere; }
+    .practice-grade { margin-top:5px; font-size:12px; color:#b7bbc5; }
+    .practice-grade[data-failed=true] { color:#ffadb2; font-weight:600; }
+    .practice-metrics { align-self:center; padding-left:18px; border-left:1px solid #ffffff18; min-width:0; }
+    .practice-metrics small { display:block; color:#aeb2bd; font-size:11px; margin-top:4px; }
+    .practice-streak { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-top:6px; font-size:11px; color:#b7bbc5; }
+    .practice-streak strong { color:#f1f1f3; font-size:18px; line-height:1; font-variant-numeric:tabular-nums; }
+    .practice-metrics progress { display:block; width:100%; height:6px; margin-top:7px; accent-color:#8bddb5; }
+    .practice-metrics progress::-webkit-progress-bar { background:#ffffff12; border-radius:4px; }
+    .practice-metrics progress::-webkit-progress-value { background:#8bddb5; border-radius:4px; }
+    .practice-result { grid-column:1 / -1; border-top:1px solid #ffffff12; padding-top:7px; color:#c2c6ce; font-size:12px; }
+    .practice-result[data-tone=success] { color:#a6e7c5; }
+    .practice-result[data-tone=error] { color:#ffadb2; }
+    @media(max-width:800px) { .lesson-panel { padding:10px 12px; gap:9px 14px; grid-template-columns:minmax(0,1fr) 190px; } .practice-metrics { padding-left:12px; } }
+    @media(max-width:520px) { .lesson-panel { grid-template-columns:minmax(0,1fr); max-height:40vh; overflow:auto; } .practice-metrics { padding:8px 0 0; border-left:0; border-top:1px solid #ffffff18; } }
     .score-panel { position:relative; flex-shrink:0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
     .sheet-tools { position:absolute; top:10px; right:12px; z-index:8; display:flex; align-items:center; gap:3px; padding:5px; border:1px solid #ffffff18; border-radius:10px; background:#242426ed; box-shadow:0 3px 14px #0003; backdrop-filter:blur(12px); }
     .sheet-tools strong { font-size:11px; font-weight:500; }
@@ -210,6 +230,26 @@
     .key.black.active { background:var(--active); color:#18263d; }
     .key.expected { outline:3px solid #477ed6; outline-offset:-4px; }
     .key.wrong { background:#ed797f!important; color:#361b24; }
+    .key.correct { background:#8bddb5!important; color:#153326; }
+    .key.expected::after,.key.correct::after,.key.wrong::after,.key.repeat::after { position:absolute; top:7px; left:0; right:0; text-align:center; font-size:13px; font-weight:800; pointer-events:none; }
+    .key.expected::after { content:'•'; color:#477ed6; }
+    .key.correct::after { content:'✓'; color:#153326; }
+    .key.wrong::after { content:'×'; color:#361b24; }
+    .key.repeat::after { content:'↻'; color:#73501c; }
+    .key.repeat { background:#f0ca81!important; }
+    .practice-effects-layer { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:6; }
+    .practice-spark { position:absolute; border-radius:2px; pointer-events:none; box-shadow:0 0 6px #b9f8df50; }
+    .practice-celebration { position:absolute; top:16px; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; gap:12px; max-width:calc(100% - 180px); padding:12px 18px; border:1px solid #9ce6bf66; border-radius:16px; background:#21372ff5; box-shadow:0 8px 28px #0004; color:#c7f5de; pointer-events:none; }
+    .practice-celebration > span { display:grid; place-items:center; flex:0 0 36px; height:36px; border-radius:50%; background:#a4efcd18; font-size:25px; }
+    .practice-celebration strong { display:block; font-size:16px; line-height:1.35; }
+    .practice-celebration small { display:block; font-size:12px; line-height:1.4; margin-top:3px; color:#c3d8cf; }
+    .practice-celebration[data-kind=section],.practice-celebration[data-kind=complete] { background:#373024f5; color:#ffe4a9; border-color:#f2d28b80; }
+    .practice-celebration[data-kind=section] > span,.practice-celebration[data-kind=complete] > span { background:#f2d28b18; }
+    .practice-celebration[data-kind=retry] { background:#33272bf5; color:#ffc1bb; border-color:#eda39b66; }
+    .practice-celebration[data-kind=retry] > span { background:#eda39b18; }
+    .practice-effect-options { display:grid; gap:9px; padding-top:10px; border-top:1px solid var(--line); }
+    .practice-effect-options input[type=range] { width:120px; }
+    @media(max-width:600px) { .practice-celebration { top:8px; max-width:calc(100% - 40px); padding:9px 12px; } .practice-celebration strong { font-size:14px; } }
     .timeline { flex-shrink:0; display:flex; align-items:center; gap:13px; min-height:43px; padding:8px 20px; background:#202023; border-top:1px solid var(--line); }
     .timeline input { flex:1; min-width:40px; }
     .timeline .transport,.timeline .control { flex-shrink:0; }
@@ -405,7 +445,13 @@
               <p id="practice-availability" role="status"></p>
               <label class="control" for="practice-timing"><span data-i18n="Zamanlama">Zamanlama</span><select id="practice-timing" aria-describedby="practice-rules"><option value="off" data-i18n="Kapalı">Kapalı</option><option value="easy" data-i18n="Kolay">Kolay</option><option value="normal" selected data-i18n="Normal">Normal</option><option value="hard" data-i18n="Zor">Zor</option></select></label>
               <p class="practice-rules" id="practice-rules" role="status"></p>
-              <p data-i18n="Satır durumları partisyonun kenarında, mevcut tekrar zaman çizelgesinde görünür. Birleştirme aşamaları ayrıca çalışma planına sayılır.">Satır durumları partisyonun kenarında, mevcut tekrar zaman çizelgesinde görünür. Birleştirme aşamaları ayrıca çalışma planına sayılır.</p>
+              <div class="practice-effect-options">
+                <label class="control"><span data-i18n="Küçük kutlamalar">Küçük kutlamalar</span><input id="practice-effects" type="checkbox" checked></label>
+                <label class="control"><span data-i18n="Geri bildirim sesleri">Geri bildirim sesleri</span><input id="practice-sounds" type="checkbox" checked></label>
+                <label class="control"><span data-i18n="Efekt ses düzeyi">Efekt ses düzeyi</span><input id="practice-effect-volume" type="range" min="0" max="100" value="25" aria-label="Efekt ses düzeyi" data-i18n-aria-label="Efekt ses düzeyi"></label>
+                <p data-i18n="Başarılı tur, tekrar deneme ve bölüm geçişi farklı seslerle bildirilir. Sesler bilgisayardan gelir.">Başarılı tur, tekrar deneme ve bölüm geçişi farklı seslerle bildirilir. Sesler bilgisayardan gelir.</p>
+              </div>
+              <p data-i18n="Satır durumları partisyonun kenarında; mevcut bölüm, tekrar sayacı ve son sonuç çalışma bandında görünür. Birleştirme aşamaları ayrıca çalışma planına sayılır.">Satır durumları partisyonun kenarında; mevcut bölüm, tekrar sayacı ve son sonuç çalışma bandında görünür. Birleştirme aşamaları ayrıca çalışma planına sayılır.</p>
               <button id="practice-reset" type="button" data-i18n="Çalışma ilerlemesini sıfırla">Çalışma ilerlemesini sıfırla</button>
             </div>
           </details>
@@ -465,12 +511,33 @@
           <div class="sheet-tools"><button id="sheet-previous" type="button" aria-label="Önceki sayfa" data-i18n-aria-label="Önceki sayfa" disabled>‹</button><span id="sheet-page"></span><button id="sheet-next" type="button" aria-label="Sonraki sayfa" data-i18n-aria-label="Sonraki sayfa" disabled>›</button><button id="sheet-expand" type="button" aria-expanded="false" data-i18n-initial="Büyüt">Büyüt</button></div>
 
           <div id="sheet-viewport" class="sheet-viewport"><div id="sheet-loading" class="sheet-loading" role="status" aria-live="polite"><span id="sheet-loading-text" data-i18n-initial="Partisyon hazırlanıyor…">Partisyon hazırlanıyor…</span><progress id="sheet-progress" aria-label="Partisyon oluşturma ilerlemesi" data-i18n-aria-label="Partisyon oluşturma ilerlemesi"></progress></div><article id="sheet-paper" class="sheet-paper" aria-label="Beyaz kâğıt üzerinde klasik piyano partisyonu" data-i18n-aria-label="Beyaz kâğıt üzerinde klasik piyano partisyonu" hidden></article></div>
-          <div id="lesson-panel" class="sr-only"><span id="lesson-feedback" role="status" aria-live="polite" data-i18n-initial="Piyanonu bağla.">Piyanonu bağla.</span></div>
           <span id="expression-hint" class="sr-only" data-i18n-initial="Çalışta şiddet ve pedal isteğe bağlı">Çalışta şiddet ve pedal isteğe bağlı</span>
           <span class="sr-only"><span id="legend-left" data-i18n-initial="Sol el">Sol el</span><span id="legend-right" data-i18n-initial="Sağ el">Sağ el</span><span id="current-notes"></span></span>
         </section>
         <div id="sheet-resizer" class="resize-handle" role="separator" tabindex="0" aria-orientation="horizontal" aria-label="Partisyon yüksekliği" data-i18n-aria-label="Partisyon yüksekliği" aria-controls="sheet-viewport"><span></span></div>
+        <section id="lesson-panel" class="lesson-panel" aria-label="Çalışma durumu" data-i18n-aria-label="Çalışma durumu">
+          <div class="practice-live">
+            <span id="practice-symbol" class="practice-symbol" aria-hidden="true">○</span>
+            <div class="practice-live-copy">
+              <div role="status" aria-live="polite" aria-atomic="true"><strong id="practice-title" class="practice-title"></strong><div id="lesson-feedback" class="lesson-feedback"></div></div>
+              <div id="practice-grade" class="practice-grade" role="status" aria-live="polite"></div>
+            </div>
+          </div>
+          <div class="practice-metrics">
+            <div class="practice-line" id="practice-line" hidden>
+              <button id="practice-previous" class="practice-step" type="button" aria-label="Önceki bölüm" data-i18n-aria-label="Önceki bölüm" title="Önceki bölüm" data-i18n-title="Önceki bölüm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
+              <div class="practice-progress" id="practice-progress"></div>
+              <button id="practice-next" class="practice-step" type="button" aria-label="Sonraki bölüm" data-i18n-aria-label="Sonraki bölüm" title="Sonraki bölüm" data-i18n-title="Sonraki bölüm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+            </div>
+            <strong id="practice-position-label" data-i18n="Parçada konum">Parçada konum</strong>
+            <small id="practice-stage-detail"></small>
+            <div id="practice-streak" class="practice-streak"><span data-i18n="Ardışık hatasız tekrar">Ardışık hatasız tekrar</span><strong id="practice-streak-count"></strong></div>
+            <progress id="practice-meter" max="100" value="0"></progress>
+          </div>
+          <div id="practice-result" class="practice-result" role="status" aria-live="polite" hidden></div>
+        </section>
         <div class="piano-region">
+          <div id="practice-celebration" class="practice-celebration" aria-hidden="true" hidden><span data-celebration-icon></span><div><strong></strong><small></small></div></div>
           <details class="popover view-menu" id="view-menu" data-popover>
             <summary title="Görünüm ayarları" data-i18n-title="Görünüm ayarları"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h6m4 0h6M4 17h10m4 0h2"/><circle cx="12" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg><span data-i18n="Görünüm">Görünüm</span></summary>
             <div class="popover-content view-options"><span id="sheet-status" role="status" data-i18n-initial="Partisyon hazırlanıyor…">Partisyon hazırlanıyor…</span><span id="velocity-readout" class="score-expression" data-i18n-initial="Şiddet (1–127): —">Şiddet (1–127): —</span>
@@ -495,6 +562,7 @@
             <div><strong>Pedal</strong><span id="pedal-status" data-i18n-initial="VERİ YOK">VERİ YOK</span></div>
           </div>
             <div class="keyboard" id="keyboard" role="group" aria-label="Piyano tuşları" data-i18n-aria-label="Piyano tuşları"></div>
+            <div id="practice-effects-layer" class="practice-effects-layer" aria-hidden="true"></div>
             <div class="drop-mask" data-i18n="MIDI dosyanı bırak">MIDI dosyanı bırak</div>
           </div>
         </div>
@@ -506,11 +574,6 @@
           </div>
           <label class="control"><span class="sr-only" data-i18n="Çalma hızı">Çalma hızı</span><select id="speed"><option value="0.25" data-i18n="0,25×">0,25×</option><option value="0.5" data-i18n="0,50×">0,50×</option><option value="0.75" data-i18n="0,75×">0,75×</option><option value="1" selected data-i18n="1,00×">1,00×</option><option value="1.25" data-i18n="1,25×">1,25×</option><option value="1.5" data-i18n="1,50×">1,50×</option><option value="2" data-i18n="2,00×">2,00×</option></select></label>
           <div class="timeline-track">
-            <div class="practice-line" id="practice-line" hidden>
-              <button id="practice-previous" class="practice-step" type="button" aria-label="Önceki bölüm" data-i18n-aria-label="Önceki bölüm" title="Önceki bölüm" data-i18n-title="Önceki bölüm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>
-              <div class="practice-progress" id="practice-progress" role="status" aria-live="polite" aria-atomic="true"></div>
-              <button id="practice-next" class="practice-step" type="button" aria-label="Sonraki bölüm" data-i18n-aria-label="Sonraki bölüm" title="Sonraki bölüm" data-i18n-title="Sonraki bölüm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
-            </div>
             <div class="seek-track"><time id="elapsed">0:00</time><input id="seek" type="range" min="0" max="12" step="0.01" value="0" aria-label="Parçada konum" data-i18n-aria-label="Parçada konum"><time id="duration">0:12</time></div>
           </div>
         </div>
