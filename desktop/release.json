@@ -1,28 +1,28 @@
 {
-  "version": "0.13.0",
-  "build": 22,
+  "version": "0.14.0",
+  "build": 23,
   "repository": "cihanozcelik/rach3",
   "private": false,
   "publicKey": "vD+ijHZptAd/yIkqnuAnVoHGlC+bVZ/jxdA9bTaQQHs=",
   "notes": [
-    "Lessons made from a MIDI file get a proper score: one grand staff with the file's key, meter and tempo, triplets written as triplets, and notes spelled for the key.",
-    "In MIDI lessons each note goes to the hand that plays it: from the file's hand tracks when it names them, otherwise the way a pianist would play it.",
-    "Signed in to ChatGPT, Create a Lesson can check a new lesson and move notes to the hand that should play them. The box is on by default; the original lesson goes to the Trash.",
-    "On the Mac, the Customize button takes clicks again."
+    "Practice responds as you play: correct notes light up and build a streak, mistakes break it with a distinct visual and sound cue.",
+    "Clean passes fill your repetition goal. Each successful or unsuccessful pass has its own cue; completing the goal celebrates with Bravo and shows the next section.",
+    "Practice progress, current instructions and the last pass result are easier to see. Visual effects and feedback sounds can be adjusted separately.",
+    "On macOS, Bluetooth MIDI discovery now uses the native CoreBluetooth helper, including pianos already connected to the system."
   ],
   "feedURL": "https://rach3.com/appcast.xml",
   "localizedNotes": {
     "en": [
-      "Lessons made from a MIDI file get a proper score: one grand staff with the file's key, meter and tempo, triplets written as triplets, and notes spelled for the key.",
-      "In MIDI lessons each note goes to the hand that plays it: from the file's hand tracks when it names them, otherwise the way a pianist would play it.",
-      "Signed in to ChatGPT, Create a Lesson can check a new lesson and move notes to the hand that should play them. The box is on by default; the original lesson goes to the Trash.",
-      "On the Mac, the Customize button takes clicks again."
+      "Practice responds as you play: correct notes light up and build a streak, mistakes break it with a distinct visual and sound cue.",
+      "Clean passes fill your repetition goal. Each successful or unsuccessful pass has its own cue; completing the goal celebrates with Bravo and shows the next section.",
+      "Practice progress, current instructions and the last pass result are easier to see. Visual effects and feedback sounds can be adjusted separately.",
+      "On macOS, Bluetooth MIDI discovery now uses the native CoreBluetooth helper, including pianos already connected to the system."
     ],
     "tr": [
-      "MIDI’den yapılan derslerin nota sayfası artık düzgün: dosyanın anahtarı, ölçüsü ve temposuyla tek bir piyano portesi, triyoller triyol olarak, notalar anahtara göre adlandırılmış.",
-      "MIDI derslerinde her nota onu çalan ele gidiyor: dosya elleri adlandırıyorsa oradan, adlandırmıyorsa bir piyanistin çalacağı gibi.",
-      "ChatGPT’ye bağlıyken Ders oluştur, yeni dersi kontrol edip notaları çalması gereken ele taşıyabilir. Kutu varsayılan olarak işaretli; eski ders Çöp Sepeti’ne gider.",
-      "Mac’te Customize düğmesi yeniden tıklanıyor."
+      "Çalışma artık çaldıkça tepki veriyor: doğru notalar parlayıp seri oluşturuyor; hatalar farklı bir görsel ve sesli tepkiyle seriyi kırıyor.",
+      "Hatasız turlar tekrar hedefini dolduruyor. Başarılı ve başarısız turlar farklı seslerle bildiriliyor; hedef tamamlanınca Bravo kutlaması ve sıradaki bölüm gösteriliyor.",
+      "Çalışma ilerlemesi, anlık yönlendirmeler ve son tur sonucu daha görünür. Görsel efektler ve geri bildirim sesleri ayrı ayrı ayarlanabiliyor.",
+      "macOS Bluetooth MIDI keşfi artık yerel CoreBluetooth yardımcısını kullanıyor; sisteme zaten bağlı piyanolar da bulunabiliyor."
     ]
   }
 }

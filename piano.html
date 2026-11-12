@@ -239,17 +239,28 @@
     .key.repeat { background:#f0ca81!important; }
     .practice-effects-layer { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:6; }
     .practice-spark { position:absolute; border-radius:2px; pointer-events:none; box-shadow:0 0 6px #b9f8df50; }
-    .practice-celebration { position:absolute; top:16px; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; gap:12px; max-width:calc(100% - 180px); padding:12px 18px; border:1px solid #9ce6bf66; border-radius:16px; background:#21372ff5; box-shadow:0 8px 28px #0004; color:#c7f5de; pointer-events:none; }
-    .practice-celebration > span { display:grid; place-items:center; flex:0 0 36px; height:36px; border-radius:50%; background:#a4efcd18; font-size:25px; }
-    .practice-celebration strong { display:block; font-size:16px; line-height:1.35; }
-    .practice-celebration small { display:block; font-size:12px; line-height:1.4; margin-top:3px; color:#c3d8cf; }
+    .practice-celebration { position:absolute; top:18%; left:50%; transform:translateX(-50%); z-index:10; display:flex; align-items:center; gap:16px; width:max-content; max-width:calc(100% - 48px); padding:18px 24px; border:1px solid #9ce6bf66; border-radius:16px; background:#21372ff5; box-shadow:0 8px 28px #0004; color:#c7f5de; pointer-events:none; }
+    .practice-celebration > span { display:grid; place-items:center; flex:0 0 56px; height:56px; border-radius:50%; background:#a4efcd18; font-size:32px; }
+    .practice-celebration strong { display:block; font-size:22px; line-height:1.35; }
+    .practice-celebration small { display:block; font-size:13px; line-height:1.4; margin-top:3px; color:#c3d8cf; }
     .practice-celebration[data-kind=section],.practice-celebration[data-kind=complete] { background:#373024f5; color:#ffe4a9; border-color:#f2d28b80; }
     .practice-celebration[data-kind=section] > span,.practice-celebration[data-kind=complete] > span { background:#f2d28b18; }
-    .practice-celebration[data-kind=retry] { background:#33272bf5; color:#ffc1bb; border-color:#eda39b66; }
-    .practice-celebration[data-kind=retry] > span { background:#eda39b18; }
+    .practice-celebration[data-kind=mistake],.practice-celebration[data-kind=retry] { background:#33272bf5; color:#ffc1bb; border-color:#eda39b66; }
+    .practice-celebration[data-kind=mistake] > span,.practice-celebration[data-kind=retry] > span { background:#eda39b18; }
+    .practice-hit { position:absolute; display:grid; place-items:center; width:38px; height:38px; border:2px solid currentColor; border-radius:50%; font-size:24px; font-weight:800; background:#182820cc; box-shadow:0 0 18px currentColor; pointer-events:none; transform:translate(-50%,-65%); }
+    .practice-combo { position:absolute; right:18px; top:64px; z-index:8; display:flex; align-items:center; gap:8px; padding:8px 14px; border:1px solid #a4efcd55; border-radius:24px; color:#a4efcd; background:#1a2c27ed; pointer-events:none; }
+    .practice-combo strong { font-size:26px; font-variant-numeric:tabular-nums; }
+    .practice-combo small { max-width:90px; font-size:11px; }
+    .practice-combo[data-level=warm] { color:#ffe4a9; border-color:#f2d28b80; box-shadow:0 0 16px #f2d28b25; }
+    .practice-combo[data-level=hot] { color:#ffe4a9; border-color:#f2d28b; box-shadow:0 0 26px #f2d28b40; }
+    .practice-pass-pips { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+    .practice-pass-pips i { width:18px; height:18px; border:2px solid #ffffff35; border-radius:50%; background:#ffffff08; transition:background .2s,box-shadow .2s; }
+    .practice-pass-pips i[data-filled=true] { background:#a4efcd; border-color:#a4efcd; box-shadow:0 0 10px #a4efcd66; }
+    .practice-pass-pips[data-failed=true] i { border-color:#ff8e9b77; }
+    @media(prefers-reduced-motion:reduce) { .practice-pass-pips i { transition:none; } }
     .practice-effect-options { display:grid; gap:9px; padding-top:10px; border-top:1px solid var(--line); }
     .practice-effect-options input[type=range] { width:120px; }
-    @media(max-width:600px) { .practice-celebration { top:8px; max-width:calc(100% - 40px); padding:9px 12px; } .practice-celebration strong { font-size:14px; } }
+    @media(max-width:600px) { .practice-celebration { top:15%; max-width:calc(100% - 40px); padding:9px 12px; } .practice-celebration strong { font-size:18px; } }
     .timeline { flex-shrink:0; display:flex; align-items:center; gap:13px; min-height:43px; padding:8px 20px; background:#202023; border-top:1px solid var(--line); }
     .timeline input { flex:1; min-width:40px; }
     .timeline .transport,.timeline .control { flex-shrink:0; }
@@ -532,11 +543,14 @@
             <strong id="practice-position-label" data-i18n="Parçada konum">Parçada konum</strong>
             <small id="practice-stage-detail"></small>
             <div id="practice-streak" class="practice-streak"><span data-i18n="Ardışık hatasız tekrar">Ardışık hatasız tekrar</span><strong id="practice-streak-count"></strong></div>
+            <div id="practice-pass-pips" class="practice-pass-pips" aria-hidden="true"></div>
             <progress id="practice-meter" max="100" value="0"></progress>
           </div>
           <div id="practice-result" class="practice-result" role="status" aria-live="polite" hidden></div>
         </section>
         <div class="piano-region">
+          <div id="practice-effects-layer" class="practice-effects-layer" aria-hidden="true"></div>
+          <div id="practice-combo" class="practice-combo" aria-hidden="true" hidden><span>♫</span><strong>0</strong><small data-i18n="Art arda doğru nota">Art arda doğru nota</small></div>
           <div id="practice-celebration" class="practice-celebration" aria-hidden="true" hidden><span data-celebration-icon></span><div><strong></strong><small></small></div></div>
           <details class="popover view-menu" id="view-menu" data-popover>
             <summary title="Görünüm ayarları" data-i18n-title="Görünüm ayarları"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h6m4 0h6M4 17h10m4 0h2"/><circle cx="12" cy="7" r="2"/><circle cx="16" cy="17" r="2"/></svg><span data-i18n="Görünüm">Görünüm</span></summary>
@@ -562,7 +576,6 @@
             <div><strong>Pedal</strong><span id="pedal-status" data-i18n-initial="VERİ YOK">VERİ YOK</span></div>
           </div>
             <div class="keyboard" id="keyboard" role="group" aria-label="Piyano tuşları" data-i18n-aria-label="Piyano tuşları"></div>
-            <div id="practice-effects-layer" class="practice-effects-layer" aria-hidden="true"></div>
             <div class="drop-mask" data-i18n="MIDI dosyanı bırak">MIDI dosyanı bırak</div>
           </div>
         </div>

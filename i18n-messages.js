@@ -1,5 +1,8 @@
 // Dynamic UI and known local-engine messages. Lesson titles and filenames are never translated.
 window.PianoI18n.register({
+  "Art arda doğru nota": "Notes in a row",
+  "Devam et, seriyi yeniden kur!": "Keep going — build your streak again!",
+  "× Bu tur sayılmayacak · Bitir ve yeniden dene": "× Pass won't count · Finish and try again",
   "Küçük kutlamalar": "Small celebrations",
   "Geri bildirim sesleri": "Feedback sounds",
   "Efekt ses düzeyi": "Effect volume",

@@ -552,9 +552,18 @@ not presented as mastering the piece. Pauses and disconnections are named and do
 not award an unfinished pass. All feedback is available in Turkish and English.
 
 Practice also gives restrained visual and audio feedback, owned by
-`practice-effects.js`. Each newly accepted attack produces a small sparkle at its
-key, without adding another pitched sound to the played note. A first mistake
-gives a quiet tap and a small nudge of the status icon. Completed attempts have
+`practice-effects.js`. Each newly accepted attack produces a green check ring and a
+particle burst above its key, without adding another pitched sound to the played
+note. Consecutive correct notes build a visible counter, with warmer colors at
+5 and 10; mistakes break it. This cosmetic counter counts notes (including chord
+notes), not clean passes or mastery, and resets for each attempt. Clean passes
+fill the selected goal's circles beside the authoritative pass count.
+Every new wrong attack can trigger a red cross ring and a short descending cue,
+even after the attempt has already failed; held keys cannot retrigger it. Timing
+failure also shows an immediate center badge. Error badges/sounds are limited to
+one per 450 ms. Feedback is consumed at clock/MIDI reconciliation, before a new
+attempt resets its attacks. The overlay is anchored to the visible piano region,
+so horizontal keyboard scrolling cannot hide the result or its particles. Completed attempts have
 distinct cues: a clean pass shows **Clean pass! 1/3** with a two-tone chime; a failed
 pass shows **This pass did not count** and its reason with a softer descending cue.
 Reaching the selected goal, such as **3/3**, shows a gold **Bravo!** burst, a fuller
