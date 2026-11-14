@@ -11,6 +11,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 REPOSITORY = 'cihanozcelik/rach3'
 STATIC_FILES = (
+    'analytics.js',
     'style.css',
     'assets/customize.jpg',
     'assets/tr/customize.jpg',
@@ -77,14 +78,16 @@ def release_asset(release, names):
     return asset
 
 
-def platform_card(logo, name, requirement, asset, button, kind, help_text):
+def platform_card(logo, name, requirement, asset, button, kind, help_text, release_tag):
     """One platform in the download section: Mac and Windows side by side, alike."""
     if asset is None:
         action = '<button class="button" type="button" disabled>Coming soon</button>'
         size = ''
     else:
         url = html.escape(asset['browser_download_url'], quote=True)
-        action = f'<a class="button" href="{url}">{button} <span aria-hidden="true">↓</span></a>'
+        version = html.escape(release_tag, quote=True)
+        action = (f'<a class="button" href="{url}" data-download-platform="{name.lower()}" '
+                  f'data-release-version="{version}">{button} <span aria-hidden="true">↓</span></a>')
         size = f'<p class="platform-size">{asset["size"]/1e6:.1f} MB · {kind}</p>'
     return (f'<article class="platform-card">{logo}<h3>{name}</h3><p class="platform-requirement">{requirement}</p>'
             f'{action}{size}<p class="platform-help">{html.escape(help_text)}</p></article>')
@@ -101,8 +104,8 @@ def download_context(release_path):
     windows = release_asset(release, WINDOWS_SETUP) if release else None
     chips = 'Apple Silicon and Intel' if universal else 'Apple Silicon'
     mac_help = CHIP_HELP if universal else 'For Macs with Apple Silicon (M1 and later).'
-    cards = (platform_card(APPLE_LOGO, 'Mac', f'macOS 14 or later · {chips}', mac, 'Download for Mac', 'DMG installer', mac_help)
-             + platform_card(WINDOWS_LOGO, 'Windows', 'Windows 10 or 11 · 64-bit', windows, 'Download for Windows', 'Installer', WINDOWS_HELP))
+    cards = (platform_card(APPLE_LOGO, 'Mac', f'macOS 14 or later · {chips}', mac, 'Download for Mac', 'DMG installer', mac_help, tag)
+             + platform_card(WINDOWS_LOGO, 'Windows', 'Windows 10 or 11 · 64-bit', windows, 'Download for Windows', 'Installer', WINDOWS_HELP, tag))
     if tag:
         notes_url = html.escape(f'https://github.com/{REPOSITORY}/releases/tag/{tag}', quote=True)
         label = (f'{html.escape(tag)} · Public beta · <a class="release-link" href="{notes_url}">Release notes '
@@ -154,6 +157,11 @@ def main():
     parser.add_argument('--appcast', type=Path, help='Already signed public update feed')
     args = parser.parse_args()
     replacements = download_context(args.release_info)
+    measurement_id = json.loads((ROOT/'site/analytics.json').read_text())['measurement_id']
+    if not isinstance(measurement_id, str) or (measurement_id and not re.fullmatch(r'G-[A-Z0-9]+', measurement_id)):
+        raise RuntimeError('site/analytics.json requires a GA4 measurement ID (G-...) or an empty string to disable analytics')
+    replacements['__ANALYTICS__'] = (f'<script defer src="analytics.js" data-measurement-id="{measurement_id}"></script>'
+                                     if measurement_id else '')
     template = (ROOT/'site/index.html').read_text()
     pages = {}
     for language, names in LANGUAGES.items():

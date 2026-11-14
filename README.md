@@ -686,6 +686,26 @@ Its source lives in `site/`, and `.github/workflows/pages.yml` publishes it.
 to an actual published release asset, with the latest published release shown on
 the site.
 
+Website analytics uses Google Analytics 4. Set `measurement_id` in
+`site/analytics.json` to the web stream's public `G-...` ID, then publish the
+website through the existing Pages workflow. An empty ID disables analytics;
+no password or API secret belongs in this file. Only HTTPS visits to rach3.com
+and www.rach3.com are measured, never local previews or the desktop app.
+The automatic language redirect preserves campaign parameters and sends a
+page view only from the destination page.
+
+Installer links emit `download_click`, with `download_platform` (`mac` or
+`windows`), `release_version`, `site_language`, `file_name`, `file_extension`
+and `link_url`. In GA4, register `download_platform`, `release_version` and
+`site_language` as event-scoped custom dimensions for report breakdowns.
+Use `download_click` as the installer-click metric; do not add GA4's automatic
+`click` or `file_download` counts to it. These events measure link activations,
+not completed downloads or installations. GitHub release download counts are
+separate and include CI downloads from `published_update_check()` in
+`windows/build.py`. Tracking starts only after the configured site is published;
+previous visits cannot be recovered. Live acceptance tests are performed by the
+user after activation in their GA4 property.
+
 To refresh product screenshots, run
 `python3 desktop/build.py --capture-assets site/assets` and
 `python3 desktop/build.py --capture-assets site/assets/tr --capture-language tr`

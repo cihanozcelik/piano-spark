@@ -29,9 +29,13 @@
       var browser = (navigator.languages && navigator.languages[0] || navigator.language || '').toLowerCase();
       var wanted = chosen === 'en' || chosen === 'tr' ? chosen
         : zone === 'Europe/Istanbul' || browser.indexOf('tr') === 0 ? 'tr' : 'en';
-      if (wanted !== page) location.replace(other + location.hash);
+      if (wanted !== page) {
+        window.rach3SiteRedirecting = true;
+        location.replace(other + location.search + location.hash);
+      }
     })();
   </script>
+  __ANALYTICS__
 </head>
 <body>
 <!-- The app's AI sparkle, filled with the same blue-violet-coral as the gradient headlines. -->
